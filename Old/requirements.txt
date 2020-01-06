@@ -1,0 +1,8 @@
+./SpazUtils
+Flask
+praw==6.1.1
+prawcore==1.0.1
+discord
+datadog
+datadog-logger
+sentry-sdk

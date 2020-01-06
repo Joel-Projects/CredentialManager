@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}FlairBot Manager - Profile{% endblock %}
+{% block breadCrumbs %}
+    <!--suppress HtmlUnknownTarget -->
+    {% if current_user.admin %}
+        <li class="breadcrumb-item"><a href={{ url_for('main.users') }}>Users</a></li>
+        <li class="breadcrumb-item"><a href="/u/{{ user.username }}">{{ user.username }}</a></li>
+    {% else %}
+        <li class="breadcrumb-item"><a href="/u/{{ user.username }}">Profile</a></li>
+    {% endif %}
+{% endblock %}
+{% block activeItem %}active item{% endblock %}
+{% block content %}
+    <!--suppress ALL -->
+    <style>
+
+    </style>
+    <script src="{{ url_for('static', filename='js/edit_user.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit.css') }}">
+    <body>
+    <div class="container">
+        <form id="createUserForm">
+            <div class="form-group">
+                <div class="col-md-5">
+                    <div class="usernameField" id="usernameField">
+                        <div id="currentUser" hidden>{{ user.username }}</div>
+                        <label class="control-label" for="username">Username</label>
+                        <div class="input-group mb-2">
+                            <input class="form-control" id="username" name="username" onkeypress="clearInvalidState(this)" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Username" value="{{ user.username }}" disabled>
+                            <div class="invalid-feedback" id="usernameFeedback">That username is taken!</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="updatePasswordToggle" name="updatePassword">
+                            <label class="custom-control-label" for="updatePasswordToggle">Update Passord</label>
+                            <small id="headerHelp" class="form-text text-muted">Check to update password</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="passowrdEntry" id="passowrdEntry" hidden>
+                            <label for="password">Password</label>
+                            <div class="input-group mb-2">
+                                <input class="form-control" type="password" id="password" name="password" placeholder="Password">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="adminToggle" name="adminToggle" {% if user.admin %}checked{% endif %}{% if not current_user.admin %}disabled{% endif %}>
+                    <label class="custom-control-label" for="adminToggle">Admin</label>
+                    <small id="headerHelp" class="form-text text-muted">Allow user to add/edit users</small>
+                </div>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" name="submit_button" onclick="saveUser()" id="submit" value="submit">Submit Changes</button>
+            </div>
+        </form>
+        {% if user.enabled %}
+            <button class="btn btn-danger" id="{{ user.username }}_toggle" onclick="toggleUser('{{ user.username }}', false)" data-target="">Disable</button>
+        {% else %}
+            <button class="btn btn-success" id="{{ user.username }}_toggle" onclick="toggleUser('{{ user.username }}', true)" data-target="">Enable</button>
+        {% endif %}
+        <button class="btn btn-danger" id="delete" data-target="#confirmationModal" data-toggle="modal">Delete User</button>
+        <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body" id="delete-modal-body">Are you <strong>sure</strong> you want to delete user "{{ user.username }}"?</div>
+                    <div class="modal-footer" id="delete-modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-danger" onclick="deleteUser( {{ user.id }} )" data-dismiss="modal" id="deleteConfirm">Delete this user</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+{% endblock %}

@@ -1,0 +1,87 @@
+<li id="developed-app-LJ06U33Q50tC8g" class="developed-app rounded ">
+    <div class="app-icon">
+        <img src="//www.redditstatic.com/defaultapp.png">
+    </div>
+    <a class="edit-app-button collapsed" href="javascript:void(0)">edit</a>
+    <div class="app-details"><h2>FlairBot</h2>
+        <h3>web app</h3>
+        <h3>LJ06U33Q50tC8g</h3></div>
+    <div class="app-description">Bot for assisting moderators with moderation using
+        post flairs.
+    </div>
+    <div class="edit-app "><a class="edit-app-icon-button" href="javascript:void(0)">change icon</a>
+        <form method="post" enctype="multipart/form-data" target="app-icon-upload-LJ06U33Q50tC8g-iframe" id="app-icon-upload-LJ06U33Q50tC8g" class="ajax-upload-form pretty-form" action="/api/setappicon" onsubmit="return post_multipart_form(this, '/api/setappicon')"><input type="hidden" name="id" value="#app-icon-upload-LJ06U33Q50tC8g"/><input
+                type="hidden" name="uh" value="m8mb9p0qrk813502e165c7b6c55b1745ff77f71de15c3a2d80"/><input type="file" name="file"/>
+            <button type="submit">upload</button>
+            <span class="error IMAGE_ERROR field-" style="display:none"></span><input type="hidden" name="client_id" value="LJ06U33Q50tC8g"/><span class="error TOO_LONG field-file" style="display:none"></span><span class="error BAD_IMAGE field-file" style="display:none"></span><span
+                    class="status"></span>
+            <script type="text/javascript">function completedUploadImage(status, img_src, name, errors, form_id) { /* should only be called when the uploaded file is too large */
+                form_id = $.with_default(form_id, "app-icon-upload-LJ06U33Q50tC8g");
+                if (status == "failed") {
+                    $("#app-icon-upload-LJ06U33Q50tC8g").find(".status").html("");
+                    for (var i in errors) {
+                        $("#app-icon-upload-LJ06U33Q50tC8g").find(".error." + errors[i][0]).show().text(errors[i][1]);
+                    }
+                }
+            }</script>
+            <iframe src="about:blank" name="app-icon-upload-LJ06U33Q50tC8g-iframe" id="app-icon-upload-LJ06U33Q50tC8g-iframe"></iframe>
+        </form>
+        <div class="edit-app-form">
+            <form method="post" action="/api/updateapp" class="pretty-form" id="update-app-LJ06U33Q50tC8g" onsubmit="return post_form(this, 'updateapp', function(x) {return 'updating...'})"><input type="hidden" name="uh" value="m8mb9p0qrk813502e165c7b6c55b1745ff77f71de15c3a2d80"/><input
+                    type="hidden" name="client_id" value="LJ06U33Q50tC8g"/><input type="hidden" name="app_type" value="web"/>
+                <table class="preftable">
+                    <tr>
+                        <th>secret</th>
+                        <td class="prefright">O6pQD6kOJTTREX7dT38R4IWH-8s</td>
+                    </tr>
+                    <tr>
+                        <th>name</th>
+                        <td class="prefright"><input class="text" name="name" value="FlairBot"><span class="error NO_TEXT field-name"
+                                                                                                     style="display:none"></span></td>
+                    </tr>
+                    <tr>
+                        <th>description</th>
+                        <td class="prefright"><textarea name="description">Bot for assisting moderators with moderation using post flairs.</textarea></td>
+                    </tr>
+                    <tr>
+                        <th>about url</th>
+                        <td class="prefright"><input class="text" name="about_url" value=""><span class="error BAD_URL field-about_url"
+                                                                                                  style="display:none"></span></td>
+                    </tr>
+                    <tr>
+                        <th>redirect uri</th>
+                        <td class="prefright"><input class="text" name="redirect_uri" value="https://oauth.lilspazjoekp.com/reddit_oauth"><span class="error NO_URL field-redirect_uri" style="display:none"></span><span class="error BAD_URL field-redirect_uri" style="display:none"></span><span class="error INVALID_SCHEME field-redirect_uri"
+                                                                                                                                                                                                                                                                                                     style="display:none"></span></td>
+                    </tr>
+                </table>
+                <button type="submit">update app</button>
+                <span class="status"></span></form>
+        </div>
+        <div class="edit-app-form pretty-form">
+            <table class="preftable">
+                <tr>
+                    <th>developers</th>
+                    <td class="prefright">
+                        <ul>
+                            <li id="app-dev-LJ06U33Q50tC8g-57009903970">UninsurableApogee&amp;#32;<span class="gray">(that's you!)</span>&amp;#32;
+                                <form
+                                        method="post" action="/api/removedeveloper" class="toggle ajax-yn-button removedeveloper-button "><input type="hidden" name="_op" value="removedeveloper"/><input type="hidden" name="name" value="UninsurableApogee"/><input type="hidden" name="client_id" value="LJ06U33Q50tC8g"/><span class="option main active"><a href="javascript:void(0)" class="togglebutton">remove</a></span><span class="option error">are you sure? &amp;#32;<a
+                                        href="javascript:void(0)" class="yes">yes</a>&amp;#32;/&amp;#32;<a href="javascript:void(0)" class="no">no</a></span></form>
+                            </li>
+                        </ul>
+                        <br>
+                        <form method="post" action="/api/adddeveloper" class="pretty-form" id="app-developer-LJ06U33Q50tC8g" onsubmit="return post_form(this, 'adddeveloper', function(x) {return 'adding...'})"><input type="hidden" name="uh" value="m8mb9p0qrk813502e165c7b6c55b1745ff77f71de15c3a2d80"/><input
+                                type="hidden" name="client_id" value="LJ06U33Q50tC8g"/>add developer:<input class="text" name="name"><br><span class="error TOO_MANY_DEVELOPERS field-" style="display:none"></span><span class="error OAUTH2_INVALID_CLIENT field-client_id" style="display:none"></span><span class="error DEVELOPER_ALREADY_ADDED field-name" style="display:none"></span><span class="error USER_DOESNT_EXIST field-name"
+                                                                                                                                                                                                                                                                                                                                                                                                   style="display:none"></span><span class="error NO_USER field-name" style="display:none"></span><span
+                                class="error DEVELOPER_FIRST_PARTY_APP field-name" style="display:none"></span><span class="error DEVELOPER_PRIVILEGED_ACCOUNT field-name" style="display:none"></span><span class="status"></span></form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="delete-app-button">
+            <form class="toggle deleteapp-button "
+                  action="#" method="get"><input type="hidden" name="executed" value="deleted"/><input type="hidden" name="client_id" value="LJ06U33Q50tC8g"/><span class="option main active"><a href="#" class="togglebutton access-required" onclick="return toggle(this)">delete app</a></span><span class="option error">are you sure? &amp;#32;<a href="javascript:void(0)" class="yes" onclick='change_state(this, "deleteapp", r.apps.deleted, undefined,
+null)'>yes</a>&amp;#32;/&amp;#32;<a href="javascript:void(0)" class="no" onclick="return toggle(this)">no</a></span></form>
+        </div>
+    </div>
+</li>
