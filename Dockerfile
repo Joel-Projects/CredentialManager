@@ -1,14 +1,8 @@
 FROM python:3.7-alpine3.7
 
-<<<<<<< HEAD
-COPY ./app /app
+COPY ./server /server
 
-WORKDIR /app
-=======
-COPY ./CredentialManager /CredentialManager
-
-WORKDIR /CredentialManager
->>>>>>> 4008f57c5fe8308021b43842101c90455de69b64
+WORKDIR /server
 
 ENV TZ America/Chicago
 
@@ -17,12 +11,6 @@ RUN apk add --no-cache postgresql-libs nano bash && \
     pip install -r requirements.txt && \
     apk --purge del .build-deps
 
-<<<<<<< HEAD
-WORKDIR /app
+WORKDIR /server
 EXPOSE 5000
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
-=======
-WORKDIR /CredentialManager
-EXPOSE 5000
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "CredentialManager:app"]
->>>>>>> 4008f57c5fe8308021b43842101c90455de69b64
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "server:app"]
