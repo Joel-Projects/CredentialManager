@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Flask
 Flask-Autodoc
 Flask-Login
@@ -24,3 +25,19 @@ sqlalchemy
 sshtunnel
 werkzeug
 passlib
+=======
+flask
+flask-login
+flask-sqlalchemy
+jinja2
+sqlalchemy
+sentry-sdk[flask]
+psycopg2-binary
+werkzeug
+sshtunnel
+datadog
+datadog_logger
+praw
+flask_debugtoolbar
+gunicorn
+>>>>>>> 4008f57c5fe8308021b43842101c90455de69b64
