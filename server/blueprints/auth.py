@@ -19,14 +19,14 @@ def login():
                 login_user(user, remember=remember, fresh=False)
                 return redirect(url_for('main.dash'))
             elif not user:
-                flash('Please check your login details and try again.')
-                return render_template('login.html', username=username, password=password)
+                flash('Please check your login details and try again.', 'error')
+                return render_template('login.html', username=username, password=password), 403
             elif not user.enabled:
-                flash('Your account is disabled.')
-                return render_template('login.html', username=username, password=password)
+                flash('Your account is disabled.', 'error')
+                return render_template('login.html', username=username, password=password), 403
             else:
-                flash('Please check your login details and try again.')
-                return render_template('login.html', username=username, password=password)
+                flash('Please check your login details and try again.', 'error')
+                return render_template('login.html', username=username, password=password), 403
         except Exception as error:
             log.exception(error)
             flash('Login failed.')
@@ -36,7 +36,7 @@ def login():
         db.session.add(user)
         db.session.commit()
         log.info(f"Created user: '{user.username}' successfully!")
-    return render_template('login.html')
+    return render_template('login.html'), 200
 
 @auth.route('/logout')
 def logout():

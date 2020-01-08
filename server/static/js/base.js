@@ -28,6 +28,25 @@ function popNotification(success, error) {
     }
 }
 
+function popNotificationNew(status, message) {
+    if (status === 'error') {
+        $.toast({
+            title: 'Error Occurred',
+            content: message,
+            type: 'error'
+        });
+    }
+    if (status === 'success') {
+        $.toast({
+            title: 'Success!',
+            content: message,
+            type: 'success',
+            delay: 1500
+        });
+    }
+}
+
+
 $(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();
 });

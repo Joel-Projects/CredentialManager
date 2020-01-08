@@ -1,197 +1,95 @@
-import time, json, unittest
-
+import json
 from server import db
 from server.models import User
-from .base import BaseTestCase
-
-
-def register_user(self, username, password):
-    return self.client.post(
-        '/api/user',
-        data=json.dumps(dict(
-            username=username,
-            password=password
-        )),
-        content_type='application/json',
-    )
-
-def login_user(self, username, password):
-    return self.client.post(
-        '/login',
-        data=json.dumps(dict(
-            username=username,
-            password=password
-        )),
-        content_type='application/json',
-    )
-
+from tests.base import BaseTestCase
 
 class TestAuthBlueprint(BaseTestCase):
 
-    def test_registration(self):
-        """ Test for user registration """
+    def test_create(self):
+        '''Test for user registration '''
         with self.client:
-            response = register_user(self, 'test', '123456')
+            self.loginAdminUser()
+            response = self.createUser('test', '123456')
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'success')
-            self.assertTrue(data['message'] == 'Successfully registered.')
+            self.assertTrue(data['message'] == f"Created user: 'test' successfully!")
             self.assertTrue(response.content_type == 'application/json')
-            self.assertEqual(response.status_code, 201)
+            self.assert_status(response, 201)
 
-    def test_registered_with_already_registered_user(self):
-        """ Test registration with already registered username"""
-        user = User(
-            username='test',
-            password='test'
-        )
-        db.session.add(user)
-        db.session.commit()
+    def test_login(self):
+        '''Test for user registration '''
         with self.client:
-            response = register_user(self, 'test', '123456')
+            user = User(username='root', password='password', admin=True)
+            db.session.add(user)
+            db.session.commit()
+            loginResponse = self.loginUser('root', 'password')
+            self.assertRedirects(loginResponse, '/dash')
+
+    def test_create_admin(self):
+        '''Test for of create user with an admin user'''
+        with self.client:
+            self.loginAdminUser()
+            createResponse = self.createUser('test', '123456', admin=True)
+            createData = json.loads(createResponse.data.decode())
+            self.assertTrue(createData['status'] == 'success')
+            self.assertTrue(createData['message'] == f"Created user: 'test' successfully!")
+            self.assertTrue(createResponse.content_type == 'application/json')
+            self.assert_status(createResponse, 201)
+
+    def test_create_non_admin(self):
+        '''Test for of create user with non-admin user'''
+        with self.client:
+            self.createTestUser('nonAdmin', '123456', False)
+            
+            loginResponse = self.loginUser('nonAdmin', '123456')
+            self.assertRedirects(loginResponse, '/dash')
+            
+            nonAdminCreateResponse = self.createUser('test2', '123456')
+            nonAdminCreateData = json.loads(nonAdminCreateResponse.data.decode())
+            self.assertTrue(nonAdminCreateData['status'] == 'fail')
+            self.assertTrue(nonAdminCreateData['message'] == "You're not allowed to do that!")
+            self.assert403(nonAdminCreateResponse)
+
+    def test_create_with_already_created_user(self):
+        '''Test registration with already created username'''
+        self.createTestUser('test', '123456', True)
+        with self.client:
+            response = self.createUser('test', '123456')
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'fail')
-            self.assertTrue(
-                data['message'] == 'User already exists. Please Log in.')
+            self.assertTrue(data['message'] == 'A user with that username already exists!')
             self.assertTrue(response.content_type == 'application/json')
-            self.assertEqual(response.status_code, 202)
+            self.assert200(response)
 
-    def test_registered_user_login(self):
-        """ Test for login of registered-user login """
+    def test_non_created_user_login(self):
+        '''Test for login of non-created user '''
+        with self.client:
+            loginResponse = self.loginUser('test', '123456')
+            self.assertTrue(self.assert_message_flashed('Please check your login details and try again.', 'error'))
+            self.assert403(loginResponse)
+
+    def test_created_incorrect_password_user_login(self):
+        '''Test for login of created user login '''
+        with self.client:
+            self.createTestUser('test', '123456')
+            loginResponse = self.loginUser('test', '12345')
+            self.assertTrue(self.assert_message_flashed('Please check your login details and try again.', 'error'))
+            self.assert403(loginResponse)
+
+    def test_disabled_user_login(self):
+        '''Test for login of disabled user '''
+        with self.client:
+            user = User(username='test', password='123456', admin=True, enabled=False)
+            db.session.add(user)
+            db.session.commit()
+            loginResponse = self.loginUser('test', '123456')
+            self.assertTrue(self.assert_message_flashed('Your account is disabled.', 'error'))
+            self.assert403(loginResponse)
+
+    def test_logout(self):
+        '''Test logout'''
         with self.client:
             # user registration
-            resp_register = register_user(self, 'test', '123456')
-            data_register = json.loads(resp_register.data.decode())
-            self.assertTrue(data_register['status'] == 'success')
-            self.assertTrue(
-                data_register['message'] == 'Successfully registered.'
-            )
-            self.assertTrue(data_register['auth_token'])
-            self.assertTrue(resp_register.content_type == 'application/json')
-            self.assertEqual(resp_register.status_code, 201)
-            # registered user login
-            response = login_user(self, 'test', '123456')
-            data = json.loads(response.data.decode())
-            self.assertTrue(data['status'] == 'success')
-            self.assertTrue(data['message'] == 'Successfully logged in.')
-            self.assertTrue(data['auth_token'])
-            self.assertTrue(response.content_type == 'application/json')
-            self.assertEqual(response.status_code, 200)
-
-    def test_non_registered_user_login(self):
-        """ Test for login of non-registered user """
-        with self.client:
-            response = login_user(self, 'test', '123456')
-            data = json.loads(response.data.decode())
-            self.assertTrue(data['status'] == 'fail')
-            self.assertTrue(data['message'] == 'User does not exist.')
-            self.assertTrue(response.content_type == 'application/json')
-            self.assertEqual(response.status_code, 404)
-
-    def test_user_status(self):
-        """ Test for user status """
-        with self.client:
-            resp_register = register_user(self, 'test', '123456')
-            response = self.client.get(
-                '/auth/status',
-                headers=dict(
-                    Authorization='Bearer ' + json.loads(
-                        resp_register.data.decode()
-                    )['auth_token']
-                )
-            )
-            data = json.loads(response.data.decode())
-            self.assertTrue(data['status'] == 'success')
-            self.assertTrue(data['data'] is not None)
-            self.assertTrue(data['data']['username'] == 'test')
-            self.assertTrue(data['data']['admin'] is 'true' or 'false')
-            self.assertEqual(response.status_code, 200)
-
-    def test_user_status_malformed_bearer_token(self):
-        """ Test for user status with malformed bearer token"""
-        with self.client:
-            resp_register = register_user(self, 'test', '123456')
-            response = self.client.get(
-                '/auth/status',
-                headers=dict(
-                    Authorization='Bearer' + json.loads(
-                        resp_register.data.decode()
-                    )['auth_token']
-                )
-            )
-            data = json.loads(response.data.decode())
-            self.assertTrue(data['status'] == 'fail')
-            self.assertTrue(data['message'] == 'Bearer token malformed.')
-            self.assertEqual(response.status_code, 401)
-
-    def test_valid_logout(self):
-        """ Test for logout before token expires """
-        with self.client:
-            # user registration
-            resp_register = register_user(self, 'test', '123456')
-            data_register = json.loads(resp_register.data.decode())
-            self.assertTrue(data_register['status'] == 'success')
-            self.assertTrue(
-                data_register['message'] == 'Successfully registered.')
-            self.assertTrue(data_register['auth_token'])
-            self.assertTrue(resp_register.content_type == 'application/json')
-            self.assertEqual(resp_register.status_code, 201)
-            # user login
-            resp_login = login_user(self, 'test', '123456')
-            data_login = json.loads(resp_login.data.decode())
-            self.assertTrue(data_login['status'] == 'success')
-            self.assertTrue(data_login['message'] == 'Successfully logged in.')
-            self.assertTrue(data_login['auth_token'])
-            self.assertTrue(resp_login.content_type == 'application/json')
-            self.assertEqual(resp_login.status_code, 200)
-            # valid token logout
-            response = self.client.post(
-                '/auth/logout',
-                headers=dict(
-                    Authorization='Bearer ' + json.loads(
-                        resp_login.data.decode()
-                    )['auth_token']
-                )
-            )
-            data = json.loads(response.data.decode())
-            self.assertTrue(data['status'] == 'success')
-            self.assertTrue(data['message'] == 'Successfully logged out.')
-            self.assertEqual(response.status_code, 200)
-
-    def test_invalid_logout(self):
-        """ Testing logout after the token expires """
-        with self.client:
-            # user registration
-            resp_register = register_user(self, 'test', '123456')
-            data_register = json.loads(resp_register.data.decode())
-            self.assertTrue(data_register['status'] == 'success')
-            self.assertTrue(
-                data_register['message'] == 'Successfully registered.')
-            self.assertTrue(data_register['auth_token'])
-            self.assertTrue(resp_register.content_type == 'application/json')
-            self.assertEqual(resp_register.status_code, 201)
-            # user login
-            resp_login = login_user(self, 'test', '123456')
-            data_login = json.loads(resp_login.data.decode())
-            self.assertTrue(data_login['status'] == 'success')
-            self.assertTrue(data_login['message'] == 'Successfully logged in.')
-            self.assertTrue(data_login['auth_token'])
-            self.assertTrue(resp_login.content_type == 'application/json')
-            self.assertEqual(resp_login.status_code, 200)
-            # invalid token logout
-            time.sleep(6)
-            response = self.client.post(
-                '/auth/logout',
-                headers=dict(
-                    Authorization='Bearer ' + json.loads(
-                        resp_login.data.decode()
-                    )['auth_token']
-                )
-            )
-            data = json.loads(response.data.decode())
-            self.assertTrue(data['status'] == 'fail')
-            self.assertTrue(
-                data['message'] == 'Signature expired. Please log in again.')
-            self.assertEqual(response.status_code, 401)
-
-if __name__ == '__main__':
-    unittest.main()
+            self.createTestUser('test', 'password')
+            response = self.client.get('/logout')
+            self.assertRedirects(response, '/login')

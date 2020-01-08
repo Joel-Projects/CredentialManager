@@ -1,5 +1,4 @@
 import base64, hashlib
-import enum
 from random import random
 from sqlalchemy import func
 from sqlalchemy_utils import URLType, ChoiceType, PasswordType

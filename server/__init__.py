@@ -7,7 +7,7 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 from datadog_logger import DatadogLogHandler
 from secrets import *
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_debugtoolbar import DebugToolbarExtension
@@ -27,9 +27,13 @@ if not remote:
     sentry_sdk.init(dsn=dsn, integrations=[sentry_logging, FlaskIntegration()], attach_stacktrace=True)
 
 app = Flask(__name__, static_folder='./static')
-app.config['SECRET_KEY'] = secretKey
 
-app.debug = remote
+if debug:
+    from .config import DevelopmentConfig as settings
+else:
+    from .config import ProductionConfig as settings
+
+app.config.from_object(settings)
 
 if debug:
     DebugToolbarExtension().init_app(app)
@@ -40,21 +44,48 @@ app.jinja_env.trim_blocks = True
 app.jinja_env.lstrip_blocks = True
 app.jinja_env.auto_reload = True
 
-app.config['DEBUG_TB_TEMPLATE_EDITOR_ENABLED'] = app.config['DEBUG_TB_PROFILER_ENABLED'] = debug
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = dbUri
 
 db = SQLAlchemy(app)
+from . import models
 from .models import User, RedditApp, RefreshToken, Sentry, Bot
 db.init_app(app)
 # db.drop_all()
 db.create_all()
 db.session.commit()
 
+with db.engine.connect() as sql:
+    sql.execute('''
+create extension if not exists pgcrypto with schema public;
+create or replace function credential_store.gen_state() returns trigger
+	language plpgsql
+as $$
+BEGIN
+	IF tg_op = 'INSERT' OR tg_op = 'UPDATE' THEN
+		NEW.state = encode(public.digest(NEW.client_id, 'sha256'), 'hex');
+		RETURN NEW;
+	END IF;
+END;
+$$;
+
+alter function credential_store.gen_state() owner to postgres;
+drop trigger if exists refresh_token_state_hashing_trigger on credential_store.reddit_apps;
+create trigger refresh_token_state_hashing_trigger
+	before insert or update
+	of client_id
+	on credential_store.reddit_apps
+	for each row
+	execute procedure credential_store.gen_state();
+    ''')
+
 bootstrap = Bootstrap(app)
 
 csrf = CSRFProtect(app)
 csrf.init_app(app)
+
+@app.before_request
+def check_csrf():
+    if not 'key' in request.form:
+        csrf.protect()
 
 from .serializers import UserSerializer, BotSerializer, RedditAppSerializer, RefreshTokenSerializer, SentrySerializer, DatabaseSerializer, ApiTokenSerializer
 userSerializer = UserSerializer()
@@ -64,9 +95,10 @@ refreshTokenSerializer = RefreshTokenSerializer()
 sentrySerializer = SentrySerializer()
 databaseSerializer = DatabaseSerializer()
 apiTokenSerializer = ApiTokenSerializer()
-
-appApi = Api(app, prefix='/api')
-from .api import user, main
+from .helpers import items
+from .decorators import apiAccessible
+appApi = Api(app, prefix='/api', decorators=[apiAccessible])
+from .api import user, common
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'

@@ -18,4 +18,4 @@ Credential Manager API documentation
    :maxdepth: 2
    :caption: Models
 
-   user
+   models

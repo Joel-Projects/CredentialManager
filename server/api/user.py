@@ -57,35 +57,43 @@ class create(Resource):
         :status 409: The user already exists
         :status 400: Username or password not specified or bad request
             '''
-        success = None
-        error = None
         userExists = False
         user = None
         code = None
         username = request.form.get('username')
         password = request.form.get('password')
-        admin = True if request.form.get('admin') else False
+        admin = request.form.get('admin') == 'True'
         if username and password:
-            try:
-                user = User.query.filter_by(username=username).first()
-                if user:
-                    userExists = True
-                else:
-                    user = User(username=username, admin=admin, password=password, updated_by=current_user.username, created_by=current_user.username)
-                    db.session.add(user)
-                    db.session.commit()
-                    success = f"Created user: '{user.username}' successfully!"
-                    code = 202
-            except Exception as error:
-                log.exception(error)
-                error = error
-                code = 400
+            if current_user.admin:
+                try:
+                    user = User.query.filter_by(username=username).first()
+                    if user:
+                        userExists = True
+                        message = 'A user with that username already exists!'
+                        status = 'fail'
+                    else:
+                        user = User(username=username, admin=admin, password=password, updated_by=getattr(current_user, 'username', None), created_by=getattr(current_user, 'username', None))
+                        db.session.add(user)
+                        db.session.commit()
+                        status = 'success'
+                        message = f"Created user: '{user.username}' successfully!"
+                        code = 201
+                except Exception as e:
+                    log.exception(e)
+                    message = str(e)
+                    status = 'fail'
+                    code = 400
+            else:
+                code = 403
+                message = 'You\'re not allowed to do that!'
+                status = 'fail'
         else:
             code = 400
-            error = 'Username or password not specified!'
+            message = 'Username or password not specified!'
+            status = 'fail'
         if user:
             user = userSerializer.dump(user)
-        return {'success': success, 'error': error, 'userExists': userExists, 'user': user}, code
+        return {'status': status, 'message': message, 'userExists': userExists, 'user': user}, code
 
 @login_required
 @requiresAdmin
@@ -167,6 +175,6 @@ class update(Resource):
                 code = 404
         except Exception as e:
             log.exception(e)
-            error = e
+            error = str(e)
             code = 400
         return {'success': success, 'error': error, 'userExists': userExists, 'user': userSerializer.dump(user)}, code

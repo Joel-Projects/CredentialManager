@@ -1,7 +1,9 @@
 import re, requests
 from functools import wraps
 from flask import session, request, abort
-from flask_login import current_user
+from flask_login import current_user, login_user
+
+from . import items
 from .models import User, ApiToken
 
 def validateUser(func):
@@ -56,24 +58,44 @@ def requiresAdmin(func):
         return func(*args, **kwargs)
     return decorated
 
-def get_apiauth_object_by_key(key):
-    return ApiToken.query.filter_by(key=key).first()
-
-def match_api_keys(key):
+def match_api_key(key):
     if key is None:
         return False
-    api_key = get_apiauth_object_by_key(key)
+    api_key = ApiToken.query.filter_by(token=key).first()
     if api_key is None:
         return False
-    elif api_key.key == key:
+    elif api_key.token == key:
         return True
     return False
 
-def apiKey(f):
-   @wraps(f)
-   def decorated(*args, **kwargs):
-      if match_api_keys(request.args.get('key')):
-         return f(*args, **kwargs)
-      else:
-         abort(401)
-      return decorated
+def getApiItem(item_type, id):
+    itemModel = items.get(item_type, {}).get('model', None)
+    if itemModel:
+        item = itemModel.query.filter_by(id=id).first()
+    return item
+
+def verifyOwnership(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        apiKey = ApiToken.query.filter_by(token=request.form.to_dict().get('key')).first()
+        id = request.form.to_dict().get('id', None)
+        item_type = request.form.to_dict().get('item_type', None)
+        if getApiItem(item_type, id).owner == apiKey.owner or apiKey.owner.admin:
+            return f(*args, **kwargs)
+        else:
+            return {'status': 'fail', 'message': "You don't have the permission to access the requested resource.", 'name': None}, 403
+    return decorated
+
+def apiAccessible(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        validKey = match_api_key(request.form.to_dict().get('key'))
+
+        if validKey or current_user.is_authenticated:
+            apiKey = ApiToken.query.filter_by(token=request.form.to_dict().get('key')).first()
+            if apiKey:
+                login_user(apiKey.owner)
+            return f(*args, **kwargs)
+        else:
+            return {'status': 'fail', 'message': "You don't have the permission to access the requested resource.", 'name': None}, 403
+    return decorated

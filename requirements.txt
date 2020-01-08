@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 Flask
 Flask-Autodoc
 Flask-Login
@@ -7,37 +6,22 @@ Flask-Sqlalchemy
 Flask-Testing
 Flask-WTF
 WTForms-Alchemy
-flask_bootstrap4
 datadog
 datadog_logger
 dateutils
+flask_bootstrap4
 flask_debugtoolbar
 gunicorn
 jinja2
 marshmallow
+passlib
 praw
 psycopg2-binary
 sentry-sdk[flask]
 sphinx
 sphinx_rtd_theme
 sphinxcontrib-httpdomain
+sphinxcontrib-sadisplay
 sqlalchemy
 sshtunnel
 werkzeug
-passlib
-=======
-flask
-flask-login
-flask-sqlalchemy
-jinja2
-sqlalchemy
-sentry-sdk[flask]
-psycopg2-binary
-werkzeug
-sshtunnel
-datadog
-datadog_logger
-praw
-flask_debugtoolbar
-gunicorn
->>>>>>> 4008f57c5fe8308021b43842101c90455de69b64

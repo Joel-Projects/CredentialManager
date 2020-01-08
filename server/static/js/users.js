@@ -140,7 +140,7 @@ $(function () {
                         $('#userCreate').prop('class', 'btn btn-primary');
                         $('#userCreate').html('Create');
                     }
-                    popNotification(data.success, data.error);
+                    popNotificationNew(data.status, data.message);
                 });
         }
     });
