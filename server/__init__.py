@@ -1,6 +1,7 @@
 import sentry_sdk, sys, datadog, logging.config, logging, os, inspect
 from flask_bootstrap import Bootstrap
 from flask_restful import Api
+# from flask_restplus import Api
 from flask_wtf import FlaskForm, CSRFProtect
 
 from sentry_sdk.integrations.flask import FlaskIntegration
@@ -11,6 +12,7 @@ from flask import Flask, Blueprint, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_debugtoolbar import DebugToolbarExtension
+from werkzeug.contrib.fixers import ProxyFix
 
 remote = sys.platform == 'darwin'
 debug = os.environ.get('CredentialManagerDebug', None) or remote
@@ -38,6 +40,7 @@ app.config.from_object(settings)
 if debug:
     DebugToolbarExtension().init_app(app)
 
+app.wsgi_app = ProxyFix(app.wsgi_app)
 app.url_map.strict_slashes = False
 app.jinja_env.cache = {}
 app.jinja_env.trim_blocks = True
@@ -46,8 +49,7 @@ app.jinja_env.auto_reload = True
 
 
 db = SQLAlchemy(app)
-from . import models
-from .models import User, RedditApp, RefreshToken, Sentry, Bot
+from .models import ApiToken, Bot, Database, RedditApp, RefreshToken, Sentry, User
 db.init_app(app)
 # db.drop_all()
 db.create_all()
@@ -113,4 +115,3 @@ isBlueprint = lambda blueprint: (isinstance(blueprint, Blueprint))
 blueprints = [blueprint[1] for blueprint in inspect.getmembers(blueprints, isBlueprint)]
 for blueprint in blueprints:
     app.register_blueprint(blueprint)
-

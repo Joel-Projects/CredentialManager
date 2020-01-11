@@ -1,13 +1,13 @@
 from flask_restful import Resource, request
-from flask_login import login_required
+# from flask_restplus import Namespace, Resource, fields
+from flask_login import login_required, current_user
 from flask import jsonify
 from ..decorators import *
-from . import User
-from .. import db, log, appApi, userSerializer
+from .. import db, log, appApi, userSerializer, User
 
 @login_required
 @requiresAdmin
-@appApi.resource('/users/create')
+@appApi.resource('/user')
 class create(Resource):
 
     def post(self):

@@ -9,21 +9,25 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 metadata = Base.metadata
-foreignKeyKwargs = dict(ondelete='RESTRICT', onupdate='CASCADE')
+foreignKeyKwargs = dict(ondelete='SET NULL', onupdate='CASCADE')
 
-class User(UserMixin, db.Model):
+class User(db.Model, UserMixin):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     __tablename__ = 'users'
     __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, nullable=False, primary_key=True, autoincrement=True)
-    username = db.Column(db.Text)
+    username = db.Column(db.Text, unique=True)
     password = db.Column(PasswordType(schemes=['pbkdf2_sha512']), nullable=False)
     default_redirect_uri = db.Column(db.Text, default='http://localhost:8080')
     admin = db.Column(db.Boolean, default=db.text("false"))
-    enabled = db.Column(db.Boolean, default=db.text("true"))
-    created = db.Column(db.DateTime(True), default=func.now())
+    enabled = db.Column(db.Boolean, default=True)
     created_by = db.Column(db.Text)
-    updated = db.Column(db.DateTime(True), default=func.now(), onupdate=func.current_timestamp(), server_default=func.now(), server_onupdate=func.current_timestamp())
+    created = db.Column(db.DateTime(True), default=func.now())
     updated_by = db.Column(db.Text)
+    updated = db.Column(db.DateTime(True), default=func.now(), onupdate=func.current_timestamp(), server_default=func.now(), server_onupdate=func.current_timestamp())
 
 class Bot(db.Model):
     __tablename__ = 'bots'
@@ -36,8 +40,8 @@ class Bot(db.Model):
     sentry = db.relationship('Sentry', backref=db.backref(__tablename__, lazy='dynamic'))
     database_id = db.Column(db.Integer, db.ForeignKey('credential_store.database_credentials.id', **foreignKeyKwargs))
     database = db.relationship('Database', backref=db.backref(__tablename__, lazy='dynamic'))
-    enabled = db.Column(db.Boolean, default=db.text("true"))
-    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id'))
+    enabled = db.Column(db.Boolean, default=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'))
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     created = db.Column(db.DateTime(True), default=func.now(), server_default=func.now())
     last_updated = db.Column(db.DateTime(True), default=func.now(), onupdate=func.current_timestamp(), server_default=func.now(), server_onupdate=func.current_timestamp())
@@ -56,7 +60,7 @@ class RedditApp(db.Model):
     app_type = db.Column(ChoiceType(redditAppTypes), nullable=False, info={'label': 'App Type'})
     redirect_uri = db.Column(URLType, nullable=False, info={'label': 'Redirect URI'})
     enabled = db.Column(db.Boolean, default=True, info={'label': 'Enable?'})
-    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'))
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     state = db.Column(db.String)
     created = db.Column(db.DateTime(True), default=func.now(), server_default=func.now())
@@ -80,7 +84,7 @@ class Sentry(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     app_name = db.Column(db.String, unique=True, info={'label': 'App Name'})
     dsn = db.Column(URLType, nullable=False, info={'label': 'DSN'})
-    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'))
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     created = db.Column(db.DateTime(True), default=func.now(), server_default=func.now())
 
@@ -102,7 +106,8 @@ class Database(db.Model):
     ssh_password = db.Column(db.String, info={'label': 'SSH Password'})
     private_key = db.Column(db.Text, info={'label': 'Private Key'})
     private_key_passphrase = db.Column(db.String, info={'label': 'Private Key Passphrase'})
-    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id'))
+    enabled = db.Column(db.Boolean, default=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'))
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     created = db.Column(db.DateTime(True), default=func.now(), server_default=func.now())
 
@@ -112,7 +117,8 @@ class ApiToken(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True)
     token = db.Column(db.String, nullable=False)
-    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id'))
+    enabled = db.Column(db.Boolean, default=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='restrict', onupdate='CASCADE'))
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     created = db.Column(db.DateTime(True), default=func.now(), server_default=func.now())
 

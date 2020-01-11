@@ -1,7 +1,7 @@
 import os
 from secrets import secretKey, dbUri
 
-localPostgres = 'postgresql://postgres:@localhost/postgres'
+localPostgres = 'postgresql://postgres:@localhost/postgres_test'
 
 class BaseConfig:
     """Base configuration."""
@@ -25,7 +25,7 @@ class TestingConfig(BaseConfig):
     DEBUG = True
     TESTING = True
     # CSRF_ENABLED = False
-    SQLALCHEMY_DATABASE_URI = localPostgres + '_test'
+    SQLALCHEMY_DATABASE_URI = localPostgres
     PRESERVE_CONTEXT_ON_EXCEPTION = False
 
 

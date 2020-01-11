@@ -1,6 +1,7 @@
 Flask
 Flask-Autodoc
 Flask-Login
+Flask-Pytest
 Flask-Restful
 Flask-Sqlalchemy
 Flask-Testing
@@ -14,9 +15,10 @@ flask_debugtoolbar
 gunicorn
 jinja2
 marshmallow
-passlib
+passlib[bcrypt]
 praw
 psycopg2-binary
+pytest
 sentry-sdk[flask]
 sphinx
 sphinx_rtd_theme

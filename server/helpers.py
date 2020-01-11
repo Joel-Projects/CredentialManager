@@ -41,7 +41,7 @@ items = {
      'api_token': {
          'model': ApiToken,
          'serializer': apiTokenSerializer,
-         'name': 'app_name',
+         'name': 'name',
          'displayName': 'Api Token'
      }
 }
