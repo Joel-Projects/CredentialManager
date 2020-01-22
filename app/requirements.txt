@@ -1,0 +1,36 @@
+Flask #>=1.1,<2
+
+flask-restplus>=0.11.0,<0.13
+Flask-Table
+Flask-Cors #>=3.0.8,<4
+
+SQLAlchemy #>=1.3.0,<2
+SQLAlchemy-Utils #>=0.34,<0.35
+Flask-SQLAlchemy #>=2.4,<3
+Alembic #>=1.0,<2
+werkzeug #>=0.15,<0.16
+
+marshmallow>=2.13.5,<3
+flask-marshmallow>=0.7,<0.8
+marshmallow-sqlalchemy>=0.12,<0.13
+webargs>=1.4.0,<2
+apispec>=0.20.0,<0.39
+
+WTForms-Alchemy
+Flask-WTF
+flask_bootstrap4
+flask_debugtoolbar
+gunicorn
+jinja2
+datadog
+datadog_logger
+praw
+sentry-sdk[flask]
+passlib[bcrypt]
+Flask-Login #>=0.4.0,<0.5
+permission #>=0.4.1,<0.5
+
+arrow #>=0.8.0,<0.9
+psycopg2-binary
+six
+enum34; python_version < '3.4'

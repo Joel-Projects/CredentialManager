@@ -1,0 +1,44 @@
+{
+    result['state']: {
+        "type": result['type'],
+        "client_id": result['client_id'],
+        "client_secret": result['client_secret'],
+        "redirect_uri": result['redirect_uri'],
+        "user_agent": result['user_agent'],
+        "name": result['app_name']
+    },
+    "5d42da71108ae3700a514bf3d3cf796fbaa4c3d94f38b4348d25492666b6b07d": {
+        "type": "webapp",
+        "client_id": "7bqS5MXNkwvKoA",
+        "client_secret": "eTNOeShhdO7mkvdqCY76EO7Tnkw",
+        "redirect_uri": "https://moderadio.xyz/reddit_callback",
+        "user_agent": "python:com.jkpayne.Moderadio:v1.2 by /u/Lil_SpazJoekp",
+        "name": "Moderadio"
+    },
+    "026c560bfb393bfc84a427b9e9dd0608411e52f4782a845c85510def9db282a8": {
+        "type": "webapp",
+        "client_id": "hIkgfjAZpV9u4A",
+        "client_secret": "jHXu3riMfnn2vEsUDTHMgSNjFWA",
+        "redirect_uri": "https://oauth.lilspazjoekp.com/reddit_oauth",
+        "user_agent": "python:com.jkpayne.PersonalUtilsBot:v1.0 by /u/Lil_SpazJoekp",
+        "name": "Spaz's Personal Bot"
+    },
+    "1e659e4b6d33545e6de4f4a169acd440dc200baec4cfee2326a3152b0a6baa6e": {
+        "type": "webapp",
+        "client_id": "DTSgHh4iF0inYQ",
+        "client_secret": "K0WM59PC1FWVqneFhfrRsH4l19s",
+        "redirect_uri": "https://oauth.lilspazjoekp.com/reddit_oauth",
+        "user_agent": "python:com.jkpayne.PersonalUtilsBot:v1.0 by /u/Lil_SpazJoekp",
+        "name": "Shitpost Bot"
+    },
+    "fe8b1d44143b27a1ab7edf2ff140e9a4d7237cabbf9f432fa6600d4caabbafae": {
+        "type": "personalusescript",
+        "client_id": "YI0kz00uh81f8g",
+        "client_secret": "MSyVPhGr6gKWPPyYrRkhc29GbkU",
+        "redirect_uri": "https://oauth.lilspazjoekp.com/reddit_oauth",
+        "user_agent": "python:com.jkpayne.FakeHistoryPornRepostSentinel:v0.1.0 (Original by /u/_korbendallas_ modified by /u/Lil_SpazJoekp for /r/fakehistoryporn)",
+        "name": "Fake History Porn Repost Sentinel"
+    }
+}
+
+

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block nav %}
+
+{% endblock %}
+{% block page_header %}
+
+{% endblock %}
+{% block content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <body class="text-center">
+    <form class="form-signin" id="loginform" action="/login" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <h1 class="h1 mb-3 font-weight-normal">Credential Manager</h1>
+        <h2 class="h3 mb-3 font-weight-normal">Please sign in</h2>
+        <div class="box">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="alert alert-danger mb-3">
+                        {{ messages[0] }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </div>
+        <div class="form-group">
+            <label for="inputUsername" class="sr-only">Username</label>
+            <input type="text" id="inputUsername" name="username" class="form-control mb-1" placeholder="Username" required="" autofocus="" {% if username %} value="{{ username }}"{% endif %}>
+        </div>
+        <div class="form-group">
+            <label for="inputPassword" class="sr-only">Password</label>
+            <input type="password" id="inputPassword" name="password" class="form-control mb-2" placeholder="Password" required="" {% if password %} value="{{ password }}"{% endif %}>
+        </div>
+        <div class="form-group">
+            <div class="checkbox mb-3">
+                <label>
+                    <input type="checkbox" name="remember"> Remember me
+                </label>
+            </div>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    </form>
+    </body>
+{% endblock %}

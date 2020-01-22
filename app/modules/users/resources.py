@@ -1,0 +1,140 @@
+# encoding: utf-8
+# pylint: disable=too-few-public-methods
+"""
+RESTful API User resources
+--------------------------
+"""
+
+import logging
+
+from flask_login import current_user
+from flask_restplus_patched import Resource, abort
+from flask_restplus._http import HTTPStatus
+
+from app.extensions.api import Namespace, http_exceptions
+
+from . import permissions, schemas, parameters
+from .models import db, User
+
+
+log = logging.getLogger(__name__)
+api = Namespace('users', description="User Management")
+
+
+@api.route('/')
+class Users(Resource):
+    """
+    Manipulations with users.
+    """
+
+    @api.permission_required(permissions.AdminRolePermission())
+    @api.login_required()
+    @api.response(schemas.BaseUserSchema(many=True))
+    @api.paginate()
+    def get(self, args):
+        """
+        List of users.
+
+        Returns a list of users starting from ``offset`` limited by ``limit``
+        parameter.
+        """
+        print()
+        return User.query.offset(args['offset']).limit(args['limit'])
+
+    @api.permission_required(permissions.AdminRolePermission())
+    @api.parameters(parameters.CreateUserParameters())
+    @api.response(schemas.DetailedUserSchema())
+    @api.response(code=HTTPStatus.FORBIDDEN)
+    @api.response(code=HTTPStatus.CONFLICT)
+    def post(self, args):
+        """
+        Create a new user.
+        """
+        with api.commit_or_abort(db.session, default_error_message="Failed to create a new user."):
+            if 'other_settings' in args:
+                print()
+            new_user = User(**args)
+            db.session.add(new_user)
+        return new_user
+
+
+@api.route('/<int:user_id>')
+@api.login_required()
+@api.response(code=HTTPStatus.NOT_FOUND, description="User not found.")
+@api.resolveObjectToModel(User, 'user')
+class UserByID(Resource):
+    """
+    Manipulations with a specific user.
+    """
+
+    @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['user']})
+    @api.response(schemas.DetailedUserSchema())
+    def get(self, user):
+        """
+        Get user details by ID.
+        """
+        print()
+        return user
+
+    @api.login_required()
+    @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['user']})
+    @api.permission_required(permissions.WriteAccessPermission())
+    @api.parameters(parameters.PatchUserDetailsParameters())
+    @api.response(schemas.DetailedUserSchema())
+    @api.response(code=HTTPStatus.CONFLICT)
+    def patch(self, args, user):
+        """
+        Patch user details by ID.
+        """
+        with api.commit_or_abort(db.session, default_error_message="Failed to update user details."):
+            parameters.PatchUserDetailsParameters.perform_patch(args, user)
+            db.session.merge(user)
+        return user
+
+    @api.login_required()
+    @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['user']})
+    @api.permission_required(permissions.WriteAccessPermission())
+    @api.response(code=HTTPStatus.CONFLICT)
+    @api.response(code=HTTPStatus.NO_CONTENT)
+    def delete(self, user):
+        """
+        Delete a user by ID.
+        """
+        with api.commit_or_abort(db.session, default_error_message="Failed to delete user."):
+            if user == current_user:
+                http_exceptions.abort(code=HTTPStatus.CONFLICT, message="You can't delete yourself.")
+            db.session.delete(user)
+        return None
+
+# @api.route('/<string:app_type>')
+# @api.login_required()
+# @api.response(code=HTTPStatus.NOT_FOUND, description="Yype not found.")
+# @api.resolveObjectToModel(User, 'user')
+# class UserByID(Resource):
+#     """
+#     Manipulations with a specific user.
+#     """
+#
+#     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['user']})
+#     @api.response(schemas.DetailedUserSchema())
+#     def get(self, item_type):
+#         """
+#         Get items that is owned by user by ``item_type``.
+#         """
+#         print()
+#         return item_type
+
+@api.route('/me')
+@api.login_required()
+class UserMe(Resource):
+    """
+    Useful reference to the authenticated user itself.
+    """
+
+    @api.response(schemas.DetailedUserSchema())
+    def get(self):
+        """
+        Get current user details.
+        """
+        print()
+        return User.query.get_or_404(current_user.id)
