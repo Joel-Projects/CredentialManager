@@ -1,5 +1,0 @@
-Models
-======
-
-.. sadisplay::
-    :module: User
