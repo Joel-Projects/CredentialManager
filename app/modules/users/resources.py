@@ -8,7 +8,7 @@ RESTful API User resources
 import logging
 
 from flask_login import current_user
-from flask_restplus_patched import Resource, abort
+from flask_restplus_patched import Resource
 from flask_restplus._http import HTTPStatus
 
 from app.extensions.api import Namespace, http_exceptions
@@ -28,8 +28,8 @@ class Users(Resource):
     """
 
     @api.permission_required(permissions.AdminRolePermission())
-    @api.login_required()
     @api.response(schemas.BaseUserSchema(many=True))
+    @api.response(code=HTTPStatus.FORBIDDEN)
     @api.paginate()
     def get(self, args):
         """
@@ -46,14 +46,13 @@ class Users(Resource):
     @api.response(schemas.DetailedUserSchema())
     @api.response(code=HTTPStatus.FORBIDDEN)
     @api.response(code=HTTPStatus.CONFLICT)
-    def post(self, args):
+    @api.doc(id='create_user')
+    def post(self, data):
         """
         Create a new user.
         """
         with api.commit_or_abort(db.session, default_error_message="Failed to create a new user."):
-            if 'other_settings' in args:
-                print()
-            new_user = User(**args)
+            new_user = User(**data)
             db.session.add(new_user)
         return new_user
 
@@ -67,16 +66,18 @@ class UserByID(Resource):
     Manipulations with a specific user.
     """
 
+    # @api.login_required()
+    # def options(self, *args, **kwargs):
+    #     return super(UserByID, self).options(*args, **kwargs)
+
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['user']})
     @api.response(schemas.DetailedUserSchema())
     def get(self, user):
         """
         Get user details by ID.
         """
-        print()
         return user
 
-    @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['user']})
     @api.permission_required(permissions.WriteAccessPermission())
     @api.parameters(parameters.PatchUserDetailsParameters())
@@ -91,8 +92,7 @@ class UserByID(Resource):
             db.session.merge(user)
         return user
 
-    @api.login_required()
-    @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['user']})
+    @api.permission_required(permissions.AdminRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['user']})
     @api.permission_required(permissions.WriteAccessPermission())
     @api.response(code=HTTPStatus.CONFLICT)
     @api.response(code=HTTPStatus.NO_CONTENT)
@@ -136,5 +136,4 @@ class UserMe(Resource):
         """
         Get current user details.
         """
-        print()
         return User.query.get_or_404(current_user.id)

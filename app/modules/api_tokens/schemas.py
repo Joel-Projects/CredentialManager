@@ -12,17 +12,11 @@ class BaseApiTokenSchema(ModelSchema):
     """
     Base API Token schema exposes only the most general fields.
     """
-    name = base_fields.String(required=True)
-    owner_id = base_fields.Integer()
     class Meta:
         model = ApiToken
         fields = (
-            ApiToken.name.key,
-            ApiToken.owner_id.key
-        )
-        dump_only = (
-            ApiToken.name.key,
-            ApiToken.owner_id.key,
+            ApiToken.id.key,
+            ApiToken.name.key
         )
 
 
@@ -34,4 +28,5 @@ class DetailedApiTokenSchema(BaseApiTokenSchema):
     class Meta(BaseApiTokenSchema.Meta):
         fields = BaseApiTokenSchema.Meta.fields + (
             ApiToken.token.key,
+            ApiToken.owner_id.key
         )

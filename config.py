@@ -8,7 +8,7 @@ class BaseConfig(object):
     # POSTGRESQL
     DB_USER = 'postgres'
     DB_PASSWORD = ''
-    DB_NAME = 'postgres_test'
+    DB_NAME = 'postgres'
     DB_HOST = 'localhost'
     DB_PORT = 5432
     SQLALCHEMY_DATABASE_URI = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
@@ -51,5 +51,5 @@ class DevelopmentConfig(BaseConfig):
 class TestingConfig(BaseConfig):
     TESTING = True
 
-    # Use in-memory SQLite database for testing
-    SQLALCHEMY_DATABASE_URI = 'sqlite://'
+    DB_NAME = 'postgres_test'
+    SQLALCHEMY_DATABASE_URI = f'postgresql://{BaseConfig.DB_USER}:{BaseConfig.DB_PASSWORD}@{BaseConfig.DB_HOST}:{BaseConfig.DB_PORT}/{DB_NAME}'

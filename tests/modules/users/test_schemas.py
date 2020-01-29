@@ -16,10 +16,7 @@ def test_BaseUserSchema_dump_user_instance(user_instance):
     assert 'password' not in dumped_result.data
     assert set(dumped_result.data.keys()) == {
         'id',
-        'username',
-        'first_name',
-        'middle_name',
-        'last_name'
+        'username'
     }
 
 def test_DetailedUserSchema_dump_user_instance(user_instance):
@@ -30,19 +27,10 @@ def test_DetailedUserSchema_dump_user_instance(user_instance):
     assert set(dumped_result.data.keys()) == {
         'id',
         'username',
-        'first_name',
-        'middle_name',
-        'last_name',
-        'email',
+        'default_redirect_uri',
         'created',
         'updated',
         'is_active',
         'is_regular_user',
         'is_admin',
     }
-
-def test_UserSignupFormSchema_dump():
-    form_data = {'recaptcha_server_key': 'key'}
-    dumped_result = schemas.UserSignupFormSchema().dump(form_data)
-    assert dumped_result.errors == {}
-    assert dumped_result.data == form_data

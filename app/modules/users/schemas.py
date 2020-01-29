@@ -10,7 +10,6 @@ class BaseUserSchema(ModelSchema):
     """
 
     class Meta:
-      
         model = User
         fields = (
             User.id.key,

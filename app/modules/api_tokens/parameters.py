@@ -2,36 +2,29 @@ from flask_login import current_user
 from flask_marshmallow import base_fields
 
 from .models import ApiToken
+from . import schemas
 from flask_restplus_patched import PostFormParameters, PatchJSONParameters
 from marshmallow import validates, ValidationError
 
-from app.extensions.api.parameters import PaginationParameters
+from app.extensions.api.parameters import PaginationParameters, validateOwner
 
-class ListApiTokensParameters(PaginationParameters):
+class ListApiTokensParameters(PaginationParameters, validateOwner):
 
     owner_id = base_fields.Integer()
 
-    @validates('owner_id')
-    def validateOwnerId(self, data):
-        if hasattr(current_user, 'id'):
-            if current_user.id != data and not (current_user.is_admin or current_user.is_internal):
-                raise ValidationError("You can only query your own API tokens.")
+    invalidOwnerMessage = 'You can only query your own {}.'
 
-class CreateApiTokenParameters(PostFormParameters):
+class CreateApiTokenParameters(PostFormParameters, schemas.BaseApiTokenSchema, validateOwner):
     name = base_fields.String(required=True, description='Name of the API token')
     owner_id = base_fields.Integer(description='Owner of the token. Requires Admin to create for other users.')
+
+    class Meta(schemas.BaseApiTokenSchema.Meta):
+        fields = schemas.BaseApiTokenSchema.Meta.fields + ('owner_id',)
 
     @validates('name')
     def validateName(self, data):
         if len(data) < 3:
-            raise ValidationError(f"Name must be greater than 3 characters long.")
-
-    @validates('owner_id')
-    def validateUserId(self, data):
-        if hasattr(current_user, 'id'):
-            if current_user.id != data and not (current_user.is_admin or current_user.is_internal):
-                raise ValidationError("You can only create API tokens for yourself.")
-
+            raise ValidationError("Name must be greater than 3 characters long.")
 
 class PatchApiTokenDetailsParameters(PatchJSONParameters):
     """

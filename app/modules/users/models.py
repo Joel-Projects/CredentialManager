@@ -47,8 +47,8 @@ class User(db.Model, Timestamp, UserMixin):
     default_redirect_uri = db.Column(db.Text, default='http://localhost:8080')
     admin = db.Column(db.Boolean, default=False)
     enabled = db.Column(db.Boolean, default=True)
-    created_by = db.Column(db.Text)
-    updated_by = db.Column(db.Text)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL', onupdate='CASCADE'))
+    updated_by = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL', onupdate='CASCADE'))
 
     class StaticRoles(enum.Enum):
         INTERNAL = (0x8000, "Internal")

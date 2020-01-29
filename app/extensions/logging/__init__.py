@@ -39,12 +39,22 @@ class Logging(object):
         if not remote:
             sentry_sdk.init(dsn=dsn, integrations=[sentry_logging, FlaskIntegration()], attach_stacktrace=True)
 
-        # We don't need the default SQLAlchemy loggers when using our invoke
-        # tasks since we set up beautiful colorful loggers globally.
-        # NOTE: This particular workaround is for the SQLALCHEMY_ECHO mode,
-        # when all SQL commands get printed (without these lines, they will get
-        # printed twice).
-        sqla_logger = logging.getLogger('sqlalchemy.engine.base.Engine')
-        for hdlr in list(sqla_logger.handlers):
-            sqla_logger.removeHandler(hdlr)
-        sqla_logger.addHandler(logging.NullHandler())
+        logging.basicConfig()
+        logger = logging.getLogger()
+        logger.setLevel(logging.INFO)
+        # logging.getLogger('app').setLevel(logging.DEBUG)
+
+        try:
+            import colorlog
+        except ImportError:
+            pass
+        else:
+            formatter = colorlog.ColoredFormatter('%(asctime)s [%(log_color)s%(levelname)s%(reset)s] [%(cyan)s%(name)s%(reset)s] %(message_log_color)s%(message)s', reset=True, log_colors={'DEBUG': 'bold_cyan', 'INFO': 'bold_green', 'WARNING': 'bold_yellow', 'ERROR': 'bold_red', 'CRITICAL': 'bold_red,bg_white', }, secondary_log_colors={'message': {'DEBUG': 'white', 'INFO': 'bold_white', 'WARNING': 'bold_yellow', 'ERROR': 'bold_red', 'CRITICAL': 'bold_red', }, }, style='%')
+
+            for handler in logger.handlers:
+                if isinstance(handler, logging.StreamHandler):
+                    break
+            else:
+                handler = logging.StreamHandler()
+                logger.addHandler(handler)
+            handler.setFormatter(formatter)

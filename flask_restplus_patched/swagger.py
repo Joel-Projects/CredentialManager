@@ -44,6 +44,7 @@ class Swagger(OriginalSwagger):
                 method_impl = method_impl.__func__
             method_doc = merge(method_doc, getattr(method_impl, '__apidoc__', OrderedDict()))
             if method_doc is not False:
+                # if
                 method_doc['docstring'] = parse_docstring(method_impl)
                 method_params = self.expected_params(method_doc)
                 method_params = merge(method_params, method_doc.get('params', {}))

@@ -1,14 +1,9 @@
-# encoding: utf-8
-# pylint: disable=too-few-public-methods,invalid-name,abstract-method,method-hidden
-"""
-RESTful API Rules
------------------------
-"""
 from flask_login import current_user
 from flask_restplus._http import HTTPStatus
 from permission import Rule as BaseRule
 
 from app.extensions.api import abort
+from app.modules.users.models import User
 
 
 class DenyAbortMixin(object):
@@ -30,7 +25,6 @@ class DenyAbortMixin(object):
         """
         return abort(code=self.DENY_ABORT_HTTP_CODE, message=self.DENY_ABORT_MESSAGE)
 
-
 class Rule(BaseRule):
     """
     Experimental base Rule class that helps to automatically handle inherited
@@ -47,7 +41,6 @@ class Rule(BaseRule):
                 return base_class()
         return None
 
-
 class AllowAllRule(Rule):
     """
     Helper rule that always grants access.
@@ -56,7 +49,6 @@ class AllowAllRule(Rule):
     def check(self):
         return True
 
-
 class WriteAccessRule(DenyAbortMixin, Rule):
     """
     Ensure that the current_user has has write access.
@@ -64,7 +56,6 @@ class WriteAccessRule(DenyAbortMixin, Rule):
 
     def check(self):
         return current_user.is_regular_user
-
 
 class ActiveUserRoleRule(DenyAbortMixin, Rule):
     """
@@ -78,7 +69,6 @@ class ActiveUserRoleRule(DenyAbortMixin, Rule):
         # NOTE: `is_active` implies `is_authenticated`.
         return current_user.is_active
 
-
 class PasswordRequiredRule(DenyAbortMixin, Rule):
     """
     Ensure that the current user has provided a correct password.
@@ -91,15 +81,24 @@ class PasswordRequiredRule(DenyAbortMixin, Rule):
     def check(self):
         return current_user.password == self._password
 
-
 class AdminRoleRule(ActiveUserRoleRule):
     """
     Ensure that the current_user has an Admin role.
     """
 
-    def check(self):
-        return current_user.is_admin
+    def __init__(self, obj=None, **kwargs):
+        super(AdminRoleRule, self).__init__(**kwargs)
+        self._obj = obj
 
+    def check(self):
+        obj = self._obj
+        if isinstance(obj, User):
+            if obj.is_internal:
+                return current_user.is_internal
+        else:
+            if hasattr(obj, 'owner') and obj.owner.is_internal:
+                return current_user.is_internal
+        return current_user.is_admin
 
 class InternalRoleRule(ActiveUserRoleRule):
     """
@@ -109,7 +108,6 @@ class InternalRoleRule(ActiveUserRoleRule):
     def check(self):
         return current_user.is_internal
 
-
 class PartialPermissionDeniedRule(Rule):
     """
     Helper rule that must fail on every check since it should never be checked.
@@ -117,22 +115,6 @@ class PartialPermissionDeniedRule(Rule):
 
     def check(self):
         raise RuntimeError("Partial permissions are not intended to be checked")
-
-
-class SupervisorRoleRule(ActiveUserRoleRule):
-    """
-    Ensure that the current_user has a Supervisor access to the given object.
-    """
-
-    def __init__(self, obj, **kwargs):
-        super(SupervisorRoleRule, self).__init__(**kwargs)
-        self._obj = obj
-
-    def check(self):
-        if not hasattr(self._obj, 'check_supervisor'):
-            return False
-        return self._obj.check_supervisor(current_user) is True
-
 
 class OwnerRoleRule(ActiveUserRoleRule):
     """
@@ -144,6 +126,8 @@ class OwnerRoleRule(ActiveUserRoleRule):
         self._obj = obj
 
     def check(self):
+        if hasattr(self._obj, 'owner') and self._obj.owner.is_internal:
+            return current_user.is_internal
         if not hasattr(self._obj, 'check_owner'):
             return False
         return self._obj.check_owner(current_user) is True

@@ -15,24 +15,7 @@ def test_User_auth(user_instance):
     assert not user_instance.is_anonymous
 
 
-@pytest.mark.parametrize(
-    'init_static_roles,is_internal,is_admin,is_regular_user,is_active',
-    [
-        (_init_static_roles, _is_internal, _is_admin, _is_regular_user, _is_active) \
-                for _init_static_roles in (
-                    0,
-                    (models.User.StaticRoles.INTERNAL.mask
-                        | models.User.StaticRoles.ADMIN.mask
-                        | models.User.StaticRoles.REGULAR_USER.mask
-                        | models.User.StaticRoles.ACTIVE.mask
-                    )
-                ) \
-                    for _is_internal in (False, True) \
-                        for _is_admin in (False, True) \
-                            for _is_regular_user in (False, True) \
-                                for _is_active in (False, True)
-    ]
-)
+@pytest.mark.parametrize('init_static_roles,is_internal,is_admin,is_regular_user,is_active', [(_init_static_roles, _is_internal, _is_admin, _is_regular_user, _is_active) for _init_static_roles in (0, (models.User.StaticRoles.INTERNAL.mask | models.User.StaticRoles.ADMIN.mask | models.User.StaticRoles.REGULAR_USER.mask | models.User.StaticRoles.ACTIVE.mask)) for _is_internal in (False, True) for _is_admin in (False, True) for _is_regular_user in (False, True) for _is_active in (False, True)])
 def test_User_static_roles_setting(
         init_static_roles,
         is_internal,
@@ -92,11 +75,7 @@ def test_User_findWithPassword(patch_User_password_scheme, db): # pylint: disabl
     def create_user(username, password):
         user = models.User(
             username=username,
-            password=password,
-            first_name="any",
-            middle_name="any",
-            last_name="any",
-            email="%s@email.com" % username,
+            password=password
         )
         return user
 

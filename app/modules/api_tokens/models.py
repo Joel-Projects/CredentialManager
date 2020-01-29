@@ -10,21 +10,23 @@ class ApiToken(db.Model, Timestamp):
         super().__init__(*args, **kwargs)
 
     __tablename__ = 'api_tokens'
+    _displayName = 'API Token'
+    _displayNamePlural = 'API Tokens'
     # __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String, unique=True, primary_key=True)
+    name = db.Column(db.String)
     token = db.Column(db.String, nullable=False)
     enabled = db.Column(db.Boolean, default=True)
     # owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='restrict', onupdate='CASCADE'))
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='restrict', onupdate='CASCADE'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE', onupdate='CASCADE'))
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     last_used = db.Column(db.DateTime(True))
 
-    __table_args__ = (
-        db.UniqueConstraint(name, owner_id),
-    )
+    __table_args__ = (db.UniqueConstraint(name, owner_id),)
 
     def check_owner(self, user):
+        if self.owner.is_internal:
+            return user.is_internal
         return self.owner == user
 
     def generate_token(self):

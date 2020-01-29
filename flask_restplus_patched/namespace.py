@@ -253,6 +253,9 @@ class Namespace(OriginalNamespace):
 
         def wrapper(cls):
             if 'OPTIONS' in cls.methods:
+                # cls.options = self.hide(self.preflight_options_handler(
+                #     self.response(code=HTTPStatus.NO_CONTENT)(cls.options)
+                # ))
                 cls.options = self.preflight_options_handler(
                     self.response(code=HTTPStatus.NO_CONTENT)(cls.options)
                 )

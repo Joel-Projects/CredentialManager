@@ -65,10 +65,10 @@ class ApiTokens(Resource):
         """
         Create a new API Token.
 
-        API token can be used instead of username/password. Include the API token in the ``X-API-TOKEN`` header
+        API token can be used instead of username/password. Include the API token in the ``X-API-KEY`` header
         """
-        if 'owner_id' in args:
-            owner_id = args['owner_id']
+        if hasattr(args, 'owner_id'):
+            owner_id = args.owner_id
             if current_user.is_admin:
                 owner = User.query.get(owner_id)
             else:
@@ -81,7 +81,7 @@ class ApiTokens(Resource):
                 owner = current_user
         with api.commit_or_abort(db.session, default_error_message="Failed to create a new API Token."):
             # todo: make token length a changable setting from the web interface
-            newApiToken = ApiToken(owner=owner, token=security.gen_salt(32), **args)
+            newApiToken = ApiToken(owner=owner, token=security.gen_salt(32), name=args.name)
             db.session.add(newApiToken)
         return newApiToken
 
@@ -112,8 +112,6 @@ class ApiTokenByID(Resource):
         """
         Delete a API Token by ID.
         """
-        figure out internal server error on delete
-        - MOVE TO CREDENTIAL MANAGER REPO
         with api.commit_or_abort(db.session, default_error_message="Failed to delete API Token."):
             db.session.delete(api_token)
         return None

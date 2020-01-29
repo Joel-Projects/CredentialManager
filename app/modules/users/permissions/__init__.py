@@ -29,7 +29,6 @@ class PermissionExtendedQuery(BaseQuery):
         with self.permisssion(obj=obj):
             return obj
 
-
 class Permission(BasePermission):
     """
     Declares classmethod to provide extended BaseQuery to model,
@@ -46,7 +45,6 @@ class Permission(BasePermission):
         ...     query_class = OwnerRolePermission.get_query_class()
         """
         return lambda *args, **kwargs: PermissionExtendedQuery(cls, *args, **kwargs)
-
 
 class PasswordRequiredPermissionMixin(object):
     """
@@ -73,7 +71,6 @@ class PasswordRequiredPermissionMixin(object):
             _rule &= rules.PasswordRequiredRule(self._password)
         return _rule
 
-
 class WriteAccessPermission(Permission):
     """
     Require a regular user role to perform an action.
@@ -81,7 +78,6 @@ class WriteAccessPermission(Permission):
 
     def rule(self):
         return rules.InternalRoleRule() | rules.AdminRoleRule() | rules.WriteAccessRule()
-
 
 class RolePermission(Permission):
     """
@@ -102,7 +98,6 @@ class RolePermission(Permission):
             return rules.PartialPermissionDeniedRule()
         return rules.AllowAllRule()
 
-
 class ActiveUserRolePermission(RolePermission):
     """
     At least Active user is required.
@@ -111,18 +106,27 @@ class ActiveUserRolePermission(RolePermission):
     def rule(self):
         return rules.ActiveUserRoleRule()
 
-
 class AdminRolePermission(PasswordRequiredPermissionMixin, RolePermission):
     """
     Admin role is required.
     """
 
+    def __init__(self, obj=None, **kwargs):
+        """
+        Args:
+            obj (object) - any object can be passed here, which will be asked
+                via ``check_owner(current_user)`` method whether a current user
+                has enough permissions to perform an action on the given
+                object.
+        """
+        self._obj = obj
+        super(AdminRolePermission, self).__init__(**kwargs)
+
     def rule(self):
         return (
             rules.InternalRoleRule()
-            | (rules.AdminRoleRule() & super(AdminRolePermission, self).rule())
+            | (rules.AdminRoleRule(obj=self._obj) & super(AdminRolePermission, self).rule())
         )
-
 
 class InternalRolePermission(RolePermission):
     """
@@ -132,39 +136,9 @@ class InternalRolePermission(RolePermission):
     def rule(self):
         return rules.InternalRoleRule()
 
-
-class SupervisorRolePermission(PasswordRequiredPermissionMixin, RolePermission):
-    """
-    Supervisor/Admin may execute this action.
-    """
-
-    def __init__(self, obj=None, **kwargs):
-        """
-        Args:
-            obj (object) - any object can be passed here, which will be asked
-                via ``check_supervisor(current_user)`` method whether a current
-                user has enough permissions to perform an action on the given
-                object.
-        """
-        self._obj = obj
-        super(SupervisorRolePermission, self).__init__(**kwargs)
-
-    def rule(self):
-        return (
-            rules.InternalRoleRule()
-            | (
-                (
-                    rules.AdminRoleRule()
-                    | rules.SupervisorRoleRule(obj=self._obj)
-                )
-                & super(SupervisorRolePermission, self).rule()
-            )
-        )
-
-
 class OwnerRolePermission(PasswordRequiredPermissionMixin, RolePermission):
     """
-    Owner/Supervisor/Admin may execute this action.
+    Owner/Admin may execute this action.
     """
 
     def __init__(self, obj=None, **kwargs):
@@ -181,7 +155,6 @@ class OwnerRolePermission(PasswordRequiredPermissionMixin, RolePermission):
     def rule(self):
         return (
             rules.InternalRoleRule() | (
-                (rules.AdminRoleRule() | rules.OwnerRoleRule(obj=self._obj) | rules.SupervisorRoleRule(obj=self._obj))
-                & super(OwnerRolePermission, self).rule()
+                (rules.AdminRoleRule(obj=self._obj) | rules.OwnerRoleRule(obj=self._obj)) & super(OwnerRolePermission, self).rule()
             )
         )

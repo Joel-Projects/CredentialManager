@@ -47,10 +47,6 @@ class TeamMember(db.Model):
     def check_owner(self, user):
         return self.user == user
 
-    def check_supervisor(self, user):
-        return self.team.check_owner(user)
-
-
 class Team(db.Model, Timestamp):
     """
     Team database model.

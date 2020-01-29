@@ -46,6 +46,14 @@ def authenticated_user_instance(flask_app, user_instance):
         logout_user()
 
 @pytest.yield_fixture()
+def authenticated_admin_user_instance(flask_app, user_instance):
+    with flask_app.test_request_context('/'):
+        login_user(user_instance)
+        current_user.is_admin = True
+        yield current_user
+        logout_user()
+
+@pytest.yield_fixture()
 def anonymous_user_instance(flask_app):
     with flask_app.test_request_context('/'):
         yield current_user

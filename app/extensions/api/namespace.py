@@ -144,7 +144,7 @@ class Namespace(BaseNamespace):
                 the ``permission`` object.
 
         Example:
-        >>> @namespace.permission_required(
+        >>> @Namespace.permission_required(
         ...     OwnerRolePermission,
         ...     kwargs_on_request=lambda kwargs: {'obj': kwargs['team']}
         ... )
@@ -188,12 +188,10 @@ class Namespace(BaseNamespace):
                     isinstance(permission, permissions.RolePermission)
                     or
                     (
-                        isinstance(permission, type)
-                        and
-                        issubclass(permission, permissions.RolePermission)
+                        isinstance(permission, type) and issubclass(permission, permissions.RolePermission)
                     )
             ):
-                protected_func._role_permission_applied = True  # pylint: disable=protected-access
+                protected_func._role_permission_applied = True
 
             permission_description = permission.__doc__.strip()
             return self.doc(
@@ -206,14 +204,13 @@ class Namespace(BaseNamespace):
         return decorator
 
     def _register_access_restriction_decorator(self, func, decorator_to_register):
-        # pylint: disable=invalid-name
         """
         Helper function to register decorator to function to perform checks
         in options method
         """
         if not hasattr(func, '_access_restriction_decorators'):
-            func._access_restriction_decorators = []  # pylint: disable=protected-access
-        func._access_restriction_decorators.append(decorator_to_register)  # pylint: disable=protected-access
+            func._access_restriction_decorators = []
+        func._access_restriction_decorators.append(decorator_to_register)
 
     def paginate(self, parameters=None, locations=None):
         """
@@ -248,8 +245,8 @@ class Namespace(BaseNamespace):
             with session.begin():
                 yield
         except ValueError as exception:
-            log.info("Database transaction was rolled back due to: %r", exception)
+            log.info(f"Database transaction was rolled back due to: {exception!r}")
             http_exceptions.abort(code=HTTPStatus.CONFLICT, message=str(exception))
         except sqlalchemy.exc.IntegrityError as exception:
-            log.info("Database transaction was rolled back due to: %r", exception)
+            log.info(f"Database transaction was rolled back due to: {exception!r}")
             http_exceptions.abort(code=HTTPStatus.CONFLICT, message=default_error_message)

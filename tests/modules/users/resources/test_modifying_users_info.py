@@ -5,10 +5,9 @@ import json
 
 def test_modifying_user_info_by_owner(flask_app_client, regular_user, db):
 
-    saved_middle_name = regular_user.middle_name
-    with flask_app_client.login(regular_user, auth_scopes=('users:write',)):
-        response = flask_app_client.patch(
-            '/api/v1/users/%d' % regular_user.id,
+    saved_default_redirect_uri = regular_user.default_redirect_uri
+    with flask_app_client.login(regular_user):
+        response = flask_app_client.patch(f'/api/v1/users/{regular_user.id:d}',
             content_type='application/json',
             data=json.dumps([
                 {
@@ -18,8 +17,8 @@ def test_modifying_user_info_by_owner(flask_app_client, regular_user, db):
                 },
                 {
                     'op': 'replace',
-                    'path': '/middle_name',
-                    'value': "Modified Middle Name",
+                    'path': '/default_redirect_uri',
+                    'value': "http://localhost:8080/new_callback",
                 },
             ])
         )
@@ -36,18 +35,17 @@ def test_modifying_user_info_by_owner(flask_app_client, regular_user, db):
 
     user1_instance = User.query.get(response.json['id'])
     assert user1_instance.username == regular_user.username
-    assert user1_instance.middle_name == "Modified Middle Name"
+    assert user1_instance.default_redirect_uri == "http://localhost:8080/new_callback"
 
-    user1_instance.middle_name = saved_middle_name
+    user1_instance.default_redirect_uri = saved_default_redirect_uri
     with db.session.begin():
         db.session.merge(user1_instance)
 
 def test_modifying_user_info_by_admin(flask_app_client, admin_user, regular_user, db):
 
-    saved_middle_name = regular_user.middle_name
-    with flask_app_client.login(admin_user, auth_scopes=('users:write',)):
-        response = flask_app_client.patch(
-            '/api/v1/users/%d' % regular_user.id,
+    saved_default_redirect_uri = regular_user.default_redirect_uri
+    with flask_app_client.login(admin_user):
+        response = flask_app_client.patch(f'/api/v1/users/{regular_user.id}',
             content_type='application/json',
             data=json.dumps([
                 {
@@ -57,8 +55,8 @@ def test_modifying_user_info_by_admin(flask_app_client, admin_user, regular_user
                 },
                 {
                     'op': 'replace',
-                    'path': '/middle_name',
-                    'value': "Modified Middle Name",
+                    'path': '/default_redirect_uri',
+                    'value': "http://localhost:8080/new_callback",
                 },
                 {
                     'op': 'replace',
@@ -90,12 +88,12 @@ def test_modifying_user_info_by_admin(flask_app_client, admin_user, regular_user
 
     user1_instance = User.query.get(response.json['id'])
     assert user1_instance.username == regular_user.username
-    assert user1_instance.middle_name == "Modified Middle Name"
+    assert user1_instance.default_redirect_uri == "http://localhost:8080/new_callback"
     assert not user1_instance.is_active
     assert not user1_instance.is_regular_user
     assert user1_instance.is_admin
 
-    user1_instance.middle_name = saved_middle_name
+    user1_instance.default_redirect_uri = saved_default_redirect_uri
     user1_instance.is_active = True
     user1_instance.is_regular_user = True
     user1_instance.is_admin = False
@@ -104,9 +102,8 @@ def test_modifying_user_info_by_admin(flask_app_client, admin_user, regular_user
 
 def test_modifying_user_info_admin_fields_by_not_admin(flask_app_client, regular_user, db):
 
-    with flask_app_client.login(regular_user, auth_scopes=('users:write',)):
-        response = flask_app_client.patch(
-            '/api/v1/users/%d' % regular_user.id,
+    with flask_app_client.login(regular_user):
+        response = flask_app_client.patch(f'/api/v1/users/{regular_user.id}',
             content_type='application/json',
             data=json.dumps([
                 {
@@ -116,8 +113,8 @@ def test_modifying_user_info_admin_fields_by_not_admin(flask_app_client, regular
                 },
                 {
                     'op': 'replace',
-                    'path': '/middle_name',
-                    'value': "Modified Middle Name",
+                    'path': '/default_redirect_uri',
+                    'value': "http://localhost:8080/new_callback",
                 },
                 {
                     'op': 'replace',
@@ -145,9 +142,8 @@ def test_modifying_user_info_admin_fields_by_not_admin(flask_app_client, regular
 
 def test_modifying_user_info_with_invalid_format_must_fail(flask_app_client, regular_user):
 
-    with flask_app_client.login(regular_user, auth_scopes=('users:write',)):
-        response = flask_app_client.patch(
-            '/api/v1/users/%d' % regular_user.id,
+    with flask_app_client.login(regular_user):
+        response = flask_app_client.patch(f'/api/v1/users/{regular_user.id}',
             content_type='application/json',
             data=json.dumps([
                 {
@@ -157,7 +153,7 @@ def test_modifying_user_info_with_invalid_format_must_fail(flask_app_client, reg
                 },
                 {
                     'op': 'replace',
-                    'path': '/middle_name',
+                    'path': '/default_redirect_uri',
                 },
             ])
         )
@@ -169,9 +165,8 @@ def test_modifying_user_info_with_invalid_format_must_fail(flask_app_client, reg
 
 def test_modifying_user_info_with_invalid_password_must_fail(flask_app_client, regular_user):
 
-    with flask_app_client.login(regular_user, auth_scopes=('users:write',)):
-        response = flask_app_client.patch(
-            '/api/v1/users/%d' % regular_user.id,
+    with flask_app_client.login(regular_user):
+        response = flask_app_client.patch(f'/api/v1/users/{regular_user.id}',
             content_type='application/json',
             data=json.dumps([
                 {
@@ -181,8 +176,8 @@ def test_modifying_user_info_with_invalid_password_must_fail(flask_app_client, r
                 },
                 {
                     'op': 'replace',
-                    'path': '/middle_name',
-                    'value': "Modified Middle Name",
+                    'path': '/default_redirect_uri',
+                    'value': "http://localhost:8080/new_callback",
                 },
             ])
         )
@@ -198,9 +193,8 @@ def test_modifying_user_info_with_conflict_data_must_fail(
         regular_user
 ):
 
-    with flask_app_client.login(regular_user, auth_scopes=('users:write',)):
-        response = flask_app_client.patch(
-            '/api/v1/users/%d' % regular_user.id,
+    with flask_app_client.login(regular_user):
+        response = flask_app_client.patch(f'/api/v1/users/{regular_user.id}',
             content_type='application/json',
             data=json.dumps([
                 {
@@ -210,8 +204,8 @@ def test_modifying_user_info_with_conflict_data_must_fail(
                 },
                 {
                     'op': 'replace',
-                    'path': '/email',
-                    'value': admin_user.email,
+                    'path': '/username',
+                    'value': admin_user.username,
                 },
             ])
         )
