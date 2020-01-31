@@ -16,10 +16,11 @@ class BaseConfig(object):
     DEBUG = False
     ERROR_404_HELP = False
 
-    REVERSE_PROXY_SETUP = os.getenv('EXAMPLE_API_REVERSE_PROXY_SETUP', False)
+    REVERSE_PROXY_SETUP = os.getenv('EXAMPLE_API_REVERSE_PROXY_SETUP', True)
     SWAGGER_SUPPORTED_SUBMIT_METHODS = ["get", "put", "post", "delete", "patch"]
     SWAGGER_UI_OPERATION_ID = True
     SWAGGER_UI_REQUEST_DURATION = True
+
     AUTHORIZATIONS = {
         'apiKey': {'type': 'apiKey', 'in': 'header', 'name': 'X-API-KEY'},
         'basic': {'type': 'basic'}
@@ -30,6 +31,7 @@ class BaseConfig(object):
         'frontend',
         'users',
         'api_tokens',
+        'sentry_tokens',
         'api',
     )
 
@@ -47,6 +49,7 @@ class ProductionConfig(BaseConfig):
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
+    DEBUG_TB_INTERCEPT_REDIRECTS = False
 
 class TestingConfig(BaseConfig):
     TESTING = True

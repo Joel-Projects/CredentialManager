@@ -24,7 +24,7 @@ def create_app(flask_config_name=None, **kwargs):
 
     app = Flask(__name__, **kwargs)
 
-    env_flask_config_name = os.getenv('FLASK_CONFIG')
+    env_flask_config_name = os.getenv('FLASK_CONFIG', 'development')
     if not env_flask_config_name and flask_config_name is None:
         flask_config_name = 'local'
     elif flask_config_name is None:
@@ -57,5 +57,6 @@ def create_app(flask_config_name=None, **kwargs):
 
     from . import modules
     modules.init_app(app)
-
+    db = extensions.db
+    db.create_all(app=app)
     return app

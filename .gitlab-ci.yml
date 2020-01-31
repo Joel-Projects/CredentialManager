@@ -1,0 +1,11 @@
+image: python:latest
+
+release:
+  stage: .post
+  script:
+     - echo "release to sentry"
+     - pip install requests
+     - export author=$(git show -s --format='%an' HEAD)
+     - export email=$(git show -s --format='%ae' HEAD)
+     - export message=$(git show -s --format='%s' HEAD)
+     - python3 release.py $SENTRY_AUTH_TOKEN $CI_COMMIT_SHA $CI_PROJECT_NAME '$author' $email '$message'

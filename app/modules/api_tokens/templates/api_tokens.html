@@ -2,9 +2,10 @@
 {% block title %}Credential Manager Manager - API Tokens{% endblock %}
 {% block breadCrumbs %}
     {% if user %}
+        <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
         <li class="breadcrumb-item"><a href=/u/{{ user.username }}>{{ user.username }}</a></li>
     {% endif %}
-        <li class="breadcrumb-item"><a href={{ url_for('auth_login.api_tokens') }}>API Tokens</a></li>
+        <li class="breadcrumb-item"><a href={{ url_for('api_tokens.api_tokens') }}>API Tokens</a></li>
 
 {% endblock %}
 {% block content %}
@@ -21,7 +22,7 @@
     <div class="container">
         <div class="table-responsive">
             {{ table }}
-            <button class="btn btn-primary" id="createToken" data-toggle="modal" data-target="#newUserModal">Create API Token</button>
+            <button class="btn btn-primary" id="createToken" data-toggle="modal" data-target="#newApiTokenModal">Create API Token</button>
             <div class="modal fade" id="newUserModal" tabindex="-1" role="dialog" aria-labelledby="newUserModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">

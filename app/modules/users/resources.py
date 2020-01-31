@@ -38,8 +38,8 @@ class Users(Resource):
         Returns a list of users starting from ``offset`` limited by ``limit``
         parameter.
         """
-        print()
-        return User.query.offset(args['offset']).limit(args['limit'])
+        query = User.query
+        return query.offset(args['offset']).limit(args['limit'])
 
     @api.permission_required(permissions.AdminRolePermission())
     @api.parameters(parameters.CreateUserParameters())

@@ -4,6 +4,7 @@ User database models
 --------------------
 """
 import enum
+from datetime import datetime
 
 from sqlalchemy_utils import types as column_types, Timestamp
 from flask_login import UserMixin
@@ -40,15 +41,17 @@ class User(db.Model, Timestamp, UserMixin):
         super().__init__(*args, **kwargs)
 
     __tablename__ = 'users'
-    # __table_args__ = {'schema': 'credential_store'}
+    _nameAttr = 'username'
+    _enabledAttr = 'is_active'
+
+    __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(length=80), unique=True, nullable=False)
     password = db.Column(column_types.PasswordType(max_length=128, schemes=('bcrypt',)), nullable=False)
     default_redirect_uri = db.Column(db.Text, default='http://localhost:8080')
-    admin = db.Column(db.Boolean, default=False)
     enabled = db.Column(db.Boolean, default=True)
-    created_by = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL', onupdate='CASCADE'))
-    updated_by = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL', onupdate='CASCADE'))
+    created_by = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='SET NULL', onupdate='CASCADE'))
+    updated_by = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='SET NULL', onupdate='CASCADE'))
 
     class StaticRoles(enum.Enum):
         INTERNAL = (0x8000, "Internal")
@@ -73,6 +76,9 @@ class User(db.Model, Timestamp, UserMixin):
 
     def __repr__(self):
         return f'<{self.__class__.__name__}(id={self.id}, username="{self.username}", is_admin={self.is_admin}, is_active={self.is_active})>'
+
+    def __str__(self):
+        return self.username
 
     def hasStaticRole(self, role):
         return (self.static_roles & role.mask) != 0
@@ -106,5 +112,6 @@ class User(db.Model, Timestamp, UserMixin):
             return None
         user = cls.query.filter_by(id=apiToken.owner_id).first()
         if user:
+            apiToken.last_used = datetime.now()
             return user
         return None

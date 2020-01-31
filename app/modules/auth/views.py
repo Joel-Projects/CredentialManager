@@ -1,14 +1,3 @@
-# coding: utf-8
-"""
-OAuth2 provider setup.
-
-It is based on the code from the example:
-https://github.com/lepture/example-oauth2-server
-
-More details are available here:
-* http://flask-oauthlib.readthedocs.org/en/latest/oauth2.html
-* http://lepture.com/en/2013/create-oauth-server
-"""
 import logging
 
 from flask import Blueprint, request, render_template, redirect, url_for, flash

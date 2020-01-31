@@ -8,7 +8,7 @@ class Bot(db.Model, Timestamp):
         super().__init__(*args, **kwargs)
 
     __tablename__ = 'bots'
-    # __table_args__ = {'schema': 'credential_store'}
+    __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, primary_key=True)
     bot_name = db.Column(db.String(length=50), nullable=False)
     # reddit_id = db.Column(db.Integer, db.ForeignKey('credential_store.reddit_apps.id', **foreignKeyKwargs))
@@ -22,7 +22,7 @@ class Bot(db.Model, Timestamp):
     database = db.relationship('Database', backref=db.backref(__tablename__, lazy='dynamic'))
     enabled = db.Column(db.Boolean, default=True)
     # owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'))
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE', onupdate='CASCADE'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'))
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
 
     def __repr__(self):

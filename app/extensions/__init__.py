@@ -27,15 +27,16 @@ login_manager = LoginManager()
 from flask_marshmallow import Marshmallow
 marshmallow = Marshmallow()
 
-from flask_wtf import CSRFProtect
-csrf = CSRFProtect()
+# from flask_wtf import CSRFProtect
+# csrf = CSRFProtect()
 
 from flask_bootstrap import Bootstrap
 bootstrap = Bootstrap()
 
 from flask_debugtoolbar import DebugToolbarExtension
-DebugToolbarExtension()
+debugToolBar = DebugToolbarExtension()
 
+from .frontend.forms import ModelForm
 
 from . import api
 
@@ -52,6 +53,10 @@ def init_app(app):
             login_manager,
             marshmallow,
             api,
+            # csrf,
+            bootstrap,
+            debugToolBar
         ):
         extension.init_app(app)
 
+    db.create_all(app=app)

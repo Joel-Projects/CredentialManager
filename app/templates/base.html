@@ -94,7 +94,7 @@
                         <a class="nav-item nav-link" href="/database_credentials">Database Credentials</a>
                         <a class="nav-item nav-link" href="/api_tokens">API Tokens</a>
                     {% endif %}
-                    {% if current_user.admin %}
+                    {% if current_user.is_admin or current_user.is_internal %}
                         <a class="nav-item nav-link" href="/users">Users</a>
                     {% endif %}
                     {% if current_user.is_authenticated %}

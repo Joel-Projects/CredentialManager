@@ -51,7 +51,7 @@ class PatchUserDetailsParameters(PatchJSONParameters):
     """
     User details updating parameters following PATCH JSON RFC.
     """
-    fields = ('current_password', User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_admin.fget.__name__, 'default_redirect_uri', 'username')
+    fields = ('current_password', User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_admin.fget.__name__, 'default_redirect_uri', 'username', 'enabled')
     PATH_CHOICES = tuple(f'/{field}' for field in fields)
 
     @classmethod
@@ -72,18 +72,15 @@ class PatchUserDetailsParameters(PatchJSONParameters):
         """
         Some fields require extra permissions to be changed.
 
-        Changing `is_active`, `is_regular_user`, or `is_admin` property requires current user to be Admin, and
-        `current_password` of the current user should be provided.
+        Changing `is_active`, `is_regular_user`, or `is_admin` property requires current user to be Admin.
         """
-        if 'current_password' not in state:
-            raise ValidationError("Updating sensitive user settings requires `current_password` test operation performed before replacements.")
 
         if field in {User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_admin.fget.__name__}:
-            with permissions.AdminRolePermission(password_required=True, password=state['current_password']):
-                # Access granted
-                pass
+                with permissions.AdminRolePermission():
+                    if current_user == obj:
+                        abort(code=HTTPStatus.NOT_ACCEPTABLE, message="You can't disable your own account.")
+                    pass
         if field == User.is_internal.fget.__name__:
-            with permissions.InternalRolePermission(password_required=True, password=state['current_password']):
-                # Access granted
+            with permissions.InternalRolePermission():
                 pass
         return super(PatchUserDetailsParameters, cls).replace(obj, field, value, state)

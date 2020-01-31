@@ -1,14 +1,3 @@
-# coding: utf-8
-"""
-OAuth2 provider setup.
-
-It is based on the code from the example:
-https://github.com/lepture/example-oauth2-server
-
-More details are available here:
-* http://flask-oauthlib.readthedocs.org/en/latest/oauth2.html
-* http://lepture.com/en/2013/create-oauth-server
-"""
 import logging
 from functools import wraps
 
@@ -35,17 +24,11 @@ def dash():
 def requiresAdmin(func):
     @wraps(func)
     def decorated(*args, **kwargs):
-        if current_user and not current_user.admin:
+        if current_user and not current_user.is_admin and not current_user.is_internal:
             abort(403)
         return func(*args, **kwargs)
     return decorated
 
-@main.route('/users')
-@login_required
-@requiresAdmin
-def users():
-    users = User.query.all()
-    return render_template('users.html', users=users)
 
 @main.route('/bots')
 @login_required
@@ -71,11 +54,7 @@ def refresh_tokens():
     refresh_tokens = RefreshToken.query.all()
     return render_template('refresh_tokens.html', users=refresh_tokens)
 
-@main.route('/sentry_tokens')
-@login_required
-def sentry_tokens():
-    sentry_tokens = Sentry.query.all()
-    return render_template('sentry_tokens.html', users=sentry_tokens)
+
 #
 # @app.route('/reddit_oauth')
 # def reddit_callback():

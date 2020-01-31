@@ -8,7 +8,7 @@ You can execute this code via ``invoke app.db.init_development_data``
 from app.extensions import db, api
 
 from app.modules.users.models import User
-from app.modules.auth.models import ApiToken
+from app.modules.api_tokens.models import ApiToken
 
 
 def init_users():

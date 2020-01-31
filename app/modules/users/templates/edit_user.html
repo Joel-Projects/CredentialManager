@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
-{% block title %}Credential Manager - Profile{% endblock %}
+{% block title %}Credential Manager - {% if current_user.is_admin or current_user.is_internal %}{{ user.username }}{% else %}Profile{% endif %}{% endblock %}
 {% block breadCrumbs %}
     <!--suppress HtmlUnknownTarget -->
-    {% if current_user.admin %}
-        <li class="breadcrumb-item"><a href={{ url_for('main.users') }}>Users</a></li>
+    {% if current_user.is_admin or current_user.is_internal %}
+        <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
         <li class="breadcrumb-item"><a href="/u/{{ user.username }}">{{ user.username }}</a></li>
     {% else %}
         <li class="breadcrumb-item"><a href="/u/{{ user.username }}">Profile</a></li>
@@ -70,7 +70,7 @@
                         </div>
                         <div class="form-group">
                             <div class="custom-control custom-switch">
-                                <input type="checkbox" class="custom-control-input" id="adminToggle" name="adminToggle" {% if user.admin %}checked{% endif %}{% if not current_user.admin %}disabled{% endif %}>
+                                <input type="checkbox" class="custom-control-input" id="adminToggle" name="adminToggle" {% if user.admin %}checked{% endif %}{% if not current_user.is_admin or current_user.is_internal %}disabled{% endif %}>
                                 <label class="custom-control-label" for="adminToggle">Admin</label>
                                 <small id="headerHelp" class="form-text text-muted">Allow user to view/edit users and their apps</small>
                             </div>
@@ -317,9 +317,9 @@
                         <div class="modal-body">
                             <form class="form" role="form" id="addSentryTokenForm">
                                 {{ wtf.quick_form(sentryForm) }}
-                                <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>
-                                <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="sentryTokenCreateNew">Add and New</button>
-                                <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="sentryTokenCreate">Add</button>
+{#                                <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>#}
+{#                                <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="sentryTokenCreateNew">Add and New</button>#}
+{#                                <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="sentryTokenCreate">Add</button>#}
                             </form>
 {#                            <form id="createRedditAppForm">#}
 {#                                    <div class="form-group">#}
