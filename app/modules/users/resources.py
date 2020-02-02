@@ -87,6 +87,7 @@ class UserByID(Resource):
         """
         Patch user details by ID.
         """
+
         with api.commit_or_abort(db.session, default_error_message="Failed to update user details."):
             parameters.PatchUserDetailsParameters.perform_patch(args, user)
             db.session.merge(user)

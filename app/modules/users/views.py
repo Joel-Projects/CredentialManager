@@ -1,10 +1,10 @@
-import logging
+import logging, requests
 from functools import wraps
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 from flask_login import current_user, login_required
 
-from .forms import UserForm
+from .forms import UserForm, EditUserForm
 from .tables import UserTable
 from ..api_tokens.views import TokenTable
 from .models import User
@@ -12,7 +12,7 @@ from ...extensions.api import abort
 
 log = logging.getLogger(__name__)
 
-usersBlueprint = Blueprint('users', __name__, template_folder='./templates', static_folder='./app/models/users/static')
+usersBlueprint = Blueprint('users', __name__, template_folder='./templates', static_folder='./static', static_url_path='/users/static/')
 
 def requiresAdmin(func):
     @wraps(func)
@@ -23,9 +23,9 @@ def requiresAdmin(func):
     return decorated
 
 
-@usersBlueprint.route('/users')
-@login_required
 @requiresAdmin
+@login_required
+@usersBlueprint.route('/users')
 def users():
     query = User.query
     users = []
@@ -38,11 +38,18 @@ def users():
     return render_template('users.html', users=users, form=form, table=table)
 
 @login_required
-@usersBlueprint.route('/u/<User:user>/')
+@usersBlueprint.route('/u/<User:user>/', methods=['GET', 'POST'])
 def editUser(user):
     # api_tokens = user.api_tokens.all()
     # table = TokenTable(api_tokens, current_user=current_user)
-    return render_template('edit_user.html', user=user)
+    form = EditUserForm(obj=user)
+    # form = EditUserForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        form.populate_obj(user)
+        print()
+        return render_template('edit_user.html', user=user, form=form)
+    # form.validate()
+    return render_template('edit_user.html', user=user, form=form)
 
 
 @login_required

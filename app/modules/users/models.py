@@ -46,10 +46,9 @@ class User(db.Model, Timestamp, UserMixin):
 
     __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(length=80), unique=True, nullable=False)
-    password = db.Column(column_types.PasswordType(max_length=128, schemes=('bcrypt',)), nullable=False)
-    default_redirect_uri = db.Column(db.Text, default='http://localhost:8080')
-    enabled = db.Column(db.Boolean, default=True)
+    username = db.Column(db.String(length=80), unique=True, nullable=False, info={'label': 'Username'})
+    password = db.Column(column_types.PasswordType(max_length=128, schemes=('bcrypt',)), nullable=False, info={'label': 'Password'})
+    default_redirect_uri = db.Column(db.Text, default='http://localhost:8080', info={'label': 'Default Redirect URI'})
     created_by = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='SET NULL', onupdate='CASCADE'))
     updated_by = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='SET NULL', onupdate='CASCADE'))
 

@@ -101,12 +101,14 @@ class EditColumn(ModifiedCol):
         else:
             itemSubPath = item.__tablename__
         href = f'/{itemSubPath}/{content}'
-        if item.enabled:
-            toggle = 'false'
+        if hasattr(item, 'enabled'):
+            enabled = item.enabled
+        else:
+            enabled = item.is_active
+        if enabled:
             color = 'E74C3C'
             text = 'Disable'
         else:
-            toggle = 'true'
             color = '00BC8C'
             text = 'Enable'
         toggleStr = f'''<a class="dropdown-item" id="{item.__tablename__}_{item.id}_toggle" style="color: #{color}" onclick="toggleItem('{item.__tablename__}', {item.id}, '{getattr(item, item._nameAttr)}', '{item._nameAttr}', '{item._enabledAttr}')">{text}</a>'''
@@ -122,7 +124,7 @@ class EditColumn(ModifiedCol):
         </div>
     </div>
 </div>
-        '''
+'''
 
 class BaseTable(Table):
 

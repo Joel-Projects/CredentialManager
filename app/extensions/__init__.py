@@ -55,7 +55,7 @@ def init_app(app):
             api,
             # csrf,
             bootstrap,
-            debugToolBar
+            # debugToolBar
         ):
         extension.init_app(app)
 

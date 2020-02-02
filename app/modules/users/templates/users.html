@@ -156,15 +156,18 @@
                                     </div>
                                 {% endif %}
                                 <div class="form-group">
-                                <div class="custom-control custom-switch">
-                                    {{ form.active(value='y', class_="custom-control-input") }}
-                                    {{ form.active.label(class_='custom-control-label') }}
-                                    {% for error in form.active.errors %}
-                                        <span style="color: red;">[{{ error }}]</span>
-                                    {% endfor %}
+                                    <div class="custom-control custom-switch">
+                                        {{ form.active(value='y', class_="custom-control-input") }}
+                                        {{ form.active.label(class_='custom-control-label') }}
+                                        {% for error in form.active.errors %}
+                                            <span style="color: red;">[{{ error }}]</span>
+                                        {% endfor %}
+                                    </div>
                                 </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" name="submit" class="btn btn-primary" id="userCreate">Add</button>
                                 </div>
-                                {{ form.submit(class_="btn btn-primary") }}
 {#                                <div class="form-group">#}
 {#                                    <div class="col-lg-8">#}
 {#                                        <label class="control-label" for="username">Username</label>#}
@@ -189,10 +192,7 @@
 {#                                                <small id="headerHelp" class="form-text text-muted">Allow user to add/edit users and view other users' apps</small>#}
 {#                                            </div>#}
 {#                                        </div>#}
-{#                                        <div class="modal-footer">#}
-{#                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>#}
-{#                                            <button type="submit" name="submit" class="btn btn-primary" id="userCreate">Add</button>#}
-{#                                        </div>#}
+
                                     </div>
                             </form>
                         </div>
