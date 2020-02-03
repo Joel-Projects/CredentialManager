@@ -239,14 +239,14 @@ class Namespace(BaseNamespace):
         return decorator
 
     @contextmanager
-    def commit_or_abort(self, session, default_error_message="The operation failed to complete"):
+    def commit_or_abort(self, session, default_error_message="The operation failed to complete", **kwargs):
 
         try:
             with session.begin():
                 yield
         except ValueError as exception:
             log.info(f"Database transaction was rolled back due to: {exception!r}")
-            http_exceptions.abort(code=HTTPStatus.CONFLICT, message=str(exception))
+            http_exceptions.abort(code=HTTPStatus.CONFLICT, message=str(exception), **kwargs)
         except sqlalchemy.exc.IntegrityError as exception:
             log.info(f"Database transaction was rolled back due to: {exception!r}")
-            http_exceptions.abort(code=HTTPStatus.CONFLICT, message=default_error_message)
+            http_exceptions.abort(code=HTTPStatus.CONFLICT, message=default_error_message, **kwargs)

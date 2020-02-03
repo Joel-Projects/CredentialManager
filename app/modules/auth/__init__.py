@@ -7,7 +7,7 @@ import logging, base64
 from datetime import timedelta
 
 from app.extensions import login_manager
-from flask_login import login_user
+from flask_login import login_user, current_user
 from app.modules.users.models import User
 
 log = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ def loadUserFromRequest(request):
             username, password = base64.b64decode(auth.replace('Basic ', '', 1)).decode().split(':')
             if username and password:
                 user = User.findWithPassword(username, password)
-                if user and not user.enabled:
+                if user and not user.is_enabled:
                     user = None
     except Exception as error:
         log.exception(error)

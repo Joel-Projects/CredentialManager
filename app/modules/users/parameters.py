@@ -51,7 +51,7 @@ class PatchUserDetailsParameters(PatchJSONParameters):
     """
     User details updating parameters following PATCH JSON RFC.
     """
-    fields = ('current_password', User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_admin.fget.__name__, 'default_redirect_uri', 'username', 'enabled')
+    fields = (User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, 'default_redirect_uri', 'username')
     PATH_CHOICES = tuple(f'/{field}' for field in fields)
 
     @classmethod

@@ -40,9 +40,11 @@
         <div class="tab-content py-3">
             <div class="tab-pane active" id="settings">
                 <div class="container">
-                    <form id="editUserForm" method="post" onsubmit="doneSave('save')">
+                    <form id="editUserForm" method="post" onsubmit="doneSave('save', this)">
                         <div class="col-md-5">
                             {{ form.hidden_tag() }}
+                            <input id="itemType" name="itemType" type="hidden" value="{{ user.__tablename__ }}">
+                            <input id="itemId" name="itemId" type="hidden" value="{{ user.id }}">
                             <div class="form-group">
                                 {{ form.id.label }}
                                 {{ form.id(size=5, class_="form-control", disabled=True) }}
@@ -83,11 +85,7 @@
                             </div>
                             <div class="form-group">
                                 <div class="custom-control custom-switch">
-                                    {% if user == current_user %}
-                                        {{ form.is_admin(default=user.is_admin, class_="custom-control-input", disabled=True, readonly=True) }}
-                                    {% else %}
-                                        {{ form.is_admin(default=user.is_admin, class_="custom-control-input") }}
-                                    {% endif %}
+                                    {{ form.is_admin(default=user.is_admin, class_="custom-control-input") }}
                                     {{ form.is_admin.label(class_='custom-control-label') }}
                                     <small id="headerHelp" class="form-text text-muted">Enables the user to create other admins and view other users' data</small>
                                 </div>
@@ -95,39 +93,31 @@
                             {% if current_user.is_internal %}
                                 <div class="form-group">
                                     <div class="custom-control custom-switch">
-                                        {% if user == current_user %}
-                                            {{ form.is_internal(default=user.is_internal, class_="custom-control-input", disabled=True, readonly=True) }}
-                                        {% else %}
-                                            {{ form.is_internal(default=user.is_internal, class_="custom-control-input") }}
-                                        {% endif %}
+                                        {{ form.is_internal(default=user.is_internal, class_="custom-control-input") }}
                                         {{ form.is_internal.label(class_='custom-control-label') }}
-                                    <small id="headerHelp" class="form-text text-muted">Internal user, not intended for regular use</small>
+                                        <small id="headerHelp" class="form-text text-muted">Internal user, not intended for regular use</small>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        {{ form.is_regular_user(default=user.is_regular_user, class_="custom-control-input") }}
+                                        {{ form.is_regular_user.label(class_='custom-control-label') }}
+                                        <small id="headerHelp" class="form-text text-muted">Regular user, allows user to sign in; non system user</small>
                                     </div>
                                 </div>
                             {% endif %}
                             <div class="form-group">
                                 <div class="custom-control custom-switch">
-                                {% if user == current_user %}
-                                    {{ form.is_active(default=user.is_active, class_="custom-control-input", disabled=True, readonly=True) }}
-                                {% else %}
                                     {{ form.is_active(default=user.is_active, class_="custom-control-input") }}
-                                {% endif %}
-                                {{ form.is_active.label(class_='custom-control-label') }}
+                                    {{ form.is_active.label(class_='custom-control-label') }}
                                     <small id="headerHelp" class="form-text text-muted">Enables the user to sign in and use the API</small>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <button class="btn btn-primary" type="submit" name="save" onclick="saveItem(this)" id="save" value="save">Save</button>
                             </div>
-
                         </div>
-
                     </form>
-                    {% if user.is_active %}
-                        <button class="btn btn-danger" id="users_{{ user.id }}_toggle" onclick="toggleItem('users', {{ user.id }}, '{{ user.username }}', 'username', 'is_active')" data-target="">Disable</button>
-                    {% else %}
-                        <button class="btn btn-success" id="users_{{ user.id }}_toggle" onclick="toggleItem('users', {{ user.id }}, '{{ user.username }}', 'username', 'is_active')" data-target="">Enable</button>
-                    {% endif %}
                     <button class="btn btn-danger" id="delete" data-target="#confirmationModal" data-toggle="modal">Delete User</button>
                     <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
                         <div class="modal-dialog" role="document">

@@ -18,13 +18,13 @@ def login():
 
         try:
             user = User.query.filter(User.username.ilike(request.form['username'])).first()
-            if user and user.password == password and user.enabled:
+            if user and user.password == password and user.is_active:
                 login_user(user, remember=remember, fresh=False)
                 return redirect(url_for('main.dash'))
             elif not user:
                 flash('Please check your login details and try again.', 'error')
                 return render_template('login.html', username=username, password=password), 403
-            elif not user.enabled:
+            elif not user.is_active:
                 flash('Your account is disabled.', 'error')
                 return render_template('login.html', username=username, password=password), 403
             else:

@@ -69,13 +69,14 @@ class HiddenFieldWithToggle(BooleanField):
 class UserForm(ModelForm):
     class Meta:
         model = User
+        only = ['username', 'password', 'default_redirect_uri']
 
+    is_admin = BooleanField('Admin?')
+    is_internal = BooleanField('Internal?')
+    is_regular_user = BooleanField('Regular User?')
+    is_active = BooleanField('Active?')
 
-    admin = BooleanField('Admin?')
-    internal = BooleanField('Internal?')
-    active = BooleanField('Active?')
-
-    submit = SubmitField('Create')
+    # submit = SubmitField('Create')
     # create_new = SubmitField('Create and New')
 
 class EditUserForm(ModelForm):
@@ -92,4 +93,5 @@ class EditUserForm(ModelForm):
     updatePassword = HiddenFieldWithToggle('Update Password?')
     is_admin = BooleanField('Admin?')
     is_internal = BooleanField('Internal?')
+    is_regular_user = BooleanField('Regular User?')
     is_active = BooleanField('Active?')

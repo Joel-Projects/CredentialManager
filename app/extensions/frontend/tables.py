@@ -62,7 +62,10 @@ class CreatedBy(BaseCol):
 
     def td_format(self, item):
         content, item_id, tooltip, createdBy = item
-        return f'<a href="/u/{createdBy}">{createdBy}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{tooltip}"><i class="far fa-question-circle"></i></span></sup>'
+        if createdBy != 'None':
+            return f'<a href="/u/{createdBy}">{createdBy}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{tooltip}"><i class="far fa-question-circle"></i></span></sup>'
+        else:
+            return f'<a>{createdBy}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{tooltip}"><i class="far fa-question-circle"></i></span></sup>'
 
 class OwnerCol(BaseCol):
 
@@ -120,7 +123,7 @@ class EditColumn(ModifiedCol):
             <a class="dropdown-item" href="{href}">Edit</a>
             {toggleStr}
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" onclick="showDeleteModal('{item.__tablename__}', {item.loopIndex}, {item.id})" style="color: red">Delete</a>
+            <a class="dropdown-item" onclick="showDeleteModal('{getattr(item, item._nameAttr)}', '{item.__tablename__}', {item.id}, {item.loopIndex})" style="color: red">Delete</a>
         </div>
     </div>
 </div>

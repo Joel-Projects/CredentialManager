@@ -13,7 +13,7 @@
         }
     </style>
     <body>
-    <script src="{{ url_for('static', filename='js/users.js') }}"></script>
+    <script src="{{ url_for('users.static', filename='js/users.js') }}"></script>
     <div class="container">
         <div class="table-responsive">
         {{ table }}
@@ -119,14 +119,18 @@
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         </div>
                         <div class="modal-body">
-                            <form id="createUserForm">
+                            <form id="createUserForm" method="post" resource="api/v1/users">
                                 {{ form.hidden_tag() }}
                                 <div class="form-group">
                                     {{ form.username.label }}
-                                    {{ form.username(size=32, class_="form-control") }}<br>
-                                    {% for error in form.username.errors %}
-                                        <span style="color: red;">[{{ error }}]</span>
-                                    {% endfor %}
+                                    {% if form.username.errors %}
+                                        {{ form.username(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)") }}
+                                        {% for error in form.username.errors %}
+                                            <div class="invalid-feedback" id="usernameFeedback">{{error}}</div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.username(size=16, class_="form-control", onkeypress="clearInvalidState(this)") }}
+                                    {% endif %}
                                 </div>
                                 <div class="form-group">
                                     {{ form.password.label }}
@@ -136,10 +140,22 @@
                                     {% endfor %}
                                 </div>
                                 <div class="form-group">
+                                    {{ form.default_redirect_uri.label }}
+                                    {% if form.default_redirect_uri.errors %}
+                                        {{ form.default_redirect_uri(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)") }}
+                                        {% for error in form.default_redirect_uri.errors %}
+                                            <div class="invalid-feedback" id="default_redirect_uriFeedback">{{error}}</div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.default_redirect_uri(size=16, class_="form-control", onkeypress="clearInvalidState(this)") }}
+                                    {% endif %}
+                                    <small id="headerHelp" class="form-text text-muted">Defines the user's default redirect URI for reddit apps for OAuth 2 authentication</small>
+                                </div>
+                                <div class="form-group">
                                 <div class="custom-control custom-switch">
-                                    {{ form.admin(value='n', class_="custom-control-input") }}
-                                    {{ form.admin.label(class_='custom-control-label') }}
-                                    {% for error in form.admin.errors %}
+                                    {{ form.is_admin(value='n', class_="custom-control-input") }}
+                                    {{ form.is_admin.label(class_='custom-control-label') }}
+                                    {% for error in form.is_admin.errors %}
                                         <span style="color: red;">[{{ error }}]</span>
                                     {% endfor %}
                                 </div>
@@ -147,53 +163,27 @@
                                 {% if current_user.is_internal %}
                                     <div class="form-group">
                                     <div class="custom-control custom-switch">
-                                        {{ form.internal(value='n', class_="custom-control-input") }}
-                                        {{ form.internal.label(class_='custom-control-label') }}
-                                        {% for error in form.internal.errors %}
-                                            <span style="color: red;">[{{ error }}]</span>
-                                        {% endfor %}
+                                        {{ form.is_internal(value='n', class_="custom-control-input") }}
+                                        {{ form.is_internal.label(class_='custom-control-label') }}
                                     </div>
+                                    </div>
+                                     <div class="form-group">
+                                        <div class="custom-control custom-switch">
+                                            {{ form.is_regular_user(value='n', class_="custom-control-input") }}
+                                            {{ form.is_regular_user.label(class_='custom-control-label') }}
+                                        </div>
                                     </div>
                                 {% endif %}
                                 <div class="form-group">
                                     <div class="custom-control custom-switch">
-                                        {{ form.active(value='y', class_="custom-control-input") }}
-                                        {{ form.active.label(class_='custom-control-label') }}
-                                        {% for error in form.active.errors %}
-                                            <span style="color: red;">[{{ error }}]</span>
-                                        {% endfor %}
+                                        {{ form.is_active(value='y', class_="custom-control-input") }}
+                                        {{ form.is_active.label(class_='custom-control-label') }}
                                     </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                                     <button type="submit" name="submit" class="btn btn-primary" id="userCreate">Add</button>
                                 </div>
-{#                                <div class="form-group">#}
-{#                                    <div class="col-lg-8">#}
-{#                                        <label class="control-label" for="username">Username</label>#}
-{#                                        <div class="usernameField" id="usernameField">#}
-{#                                            <div class="input-group mb-2">#}
-{#                                                <input class="form-control" id="username" name="username" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Username" required>#}
-{#                                                <div class="invalid-feedback" id="usernameFeedback">That username is taken!</div>#}
-{#                                            </div>#}
-{#                                        </div>#}
-{#                                        <div class="form-group">#}
-{#                                            <label for="password">Password</label>#}
-{#                                            <div class="passowrdEntry" id="passowrdEntry">#}
-{#                                                <div class="input-group mb-3">#}
-{#                                                    <input class="form-control" type="password" id="password" name="password" onkeypress="clearInvalidState(this)" placeholder="Password" required>#}
-{#                                                </div>#}
-{#                                            </div>#}
-{#                                        </div>#}
-{#                                        <div class="form-group">#}
-{#                                            <div class="custom-control custom-switch">#}
-{#                                                <input type="checkbox" class="custom-control-input" id="admin" name="admin">#}
-{#                                                <label class="custom-control-label" for="admin">Admin</label>#}
-{#                                                <small id="headerHelp" class="form-text text-muted">Allow user to add/edit users and view other users' apps</small>#}
-{#                                            </div>#}
-{#                                        </div>#}
-
-                                    </div>
                             </form>
                         </div>
                     </div>

@@ -37,6 +37,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 debugToolBar = DebugToolbarExtension()
 
 from .frontend.forms import ModelForm
+from .frontend.errors import unauthorizedError, notFoundError
 
 from . import api
 
@@ -59,4 +60,6 @@ def init_app(app):
         ):
         extension.init_app(app)
 
+    app.register_error_handler(403, unauthorizedError)
+    app.register_error_handler(404, notFoundError)
     db.create_all(app=app)
