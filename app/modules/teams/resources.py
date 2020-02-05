@@ -1,4 +1,3 @@
-# encoding: utf-8
 # pylint: disable=bad-continuation
 """
 RESTful API Team resources

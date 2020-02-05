@@ -1,4 +1,3 @@
-# encoding: utf-8
 """
 Input arguments (Parameters) for Team resources RESTful API
 -----------------------------------------------------------
@@ -18,7 +17,7 @@ class CreateTeamParameters(PostFormParameters, schemas.BaseTeamSchema):
 
 
 class PatchTeamDetailsParameters(PatchJSONParameters):
-  
+
     OPERATION_CHOICES = (PatchJSONParameters.OP_REPLACE,)
 
     PATH_CHOICES = tuple(f'/{field}' for field in (Team.title.key,))

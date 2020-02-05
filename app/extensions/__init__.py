@@ -14,7 +14,7 @@ logging = Logging()
 from flask_cors import CORS
 cross_origin_resource_sharing = CORS()
 
-from .flask_sqlalchemy import SQLAlchemy
+from .flask_sqlalchemy import SQLAlchemy, Timestamp
 db = SQLAlchemy()
 
 from sqlalchemy_utils import force_auto_coercion, force_instant_defaults

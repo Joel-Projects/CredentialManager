@@ -1,4 +1,3 @@
-# encoding: utf-8
 # pylint: disable=missing-docstring
 """
 This file contains initialization data for development usage only.

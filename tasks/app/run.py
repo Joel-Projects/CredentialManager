@@ -1,4 +1,3 @@
-# encoding: utf-8
 # pylint: disable=too-many-arguments
 """
 Application execution related tasks for Invoke.

@@ -1,4 +1,3 @@
-# encoding: utf-8
 # pylint: disable=missing-docstring,redefined-outer-name
 import pytest
 
@@ -11,7 +10,7 @@ from app.modules.users import models
 
 @pytest.yield_fixture()
 def patch_User_password_scheme():
-  
+
     """
     By default, the application uses ``bcrypt`` to store passwords securely.
     However, ``bcrypt`` is a slow hashing algorithm (by design), so it is
@@ -32,7 +31,7 @@ def patch_User_password_scheme():
 
 @pytest.fixture()
 def user_instance(patch_User_password_scheme):
-  
+
     user_id = 1
     _user_instance = utils.generate_user_instance(user_id=user_id)
     _user_instance.get_id = lambda: user_id

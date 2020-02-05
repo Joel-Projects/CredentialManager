@@ -1,7 +1,7 @@
 from flask_login import current_user
 from flask_table import Col, LinkCol
 
-from app.extensions.frontend.tables import BaseTable, EnabledColumn, CreatedBy, ObjectCountCol, OwnerCol
+from app.extensions.frontend.tables import BaseTable, BoolIconColumn, CreatedBy, ObjectCountCol, OwnerCol
 
 class UserTable(BaseTable):
 
@@ -12,14 +12,14 @@ class UserTable(BaseTable):
         # self.add_column('Database Credentials', ObjectCountCol('Database Credentials', 'database_credentials'))
         self.add_column('Sentry Tokens', ObjectCountCol('Sentry Tokens', 'sentry_tokens'))
         self.add_column('API Tokens', ObjectCountCol('API Tokens', 'api_tokens'))
-        self.add_column('Active', EnabledColumn('Active', 'is_active'))
-        self.add_column('Created By', CreatedBy('Created By', attr='created_by', tooltip=lambda item: f"Created at: {item.updated.astimezone().strftime('%m/%d/%Y %I:%M:%S %p %Z')}"))
+        self.add_column('Active', BoolIconColumn('Active', 'is_active'))
+        self.add_column('Created By', CreatedBy('Created By', attr_list=['createdBy', 'username'], tooltip=lambda item: f"Created at: {item.updated.astimezone().strftime('%m/%d/%Y %I:%M:%S %p %Z')}"))
 
-        self.add_column('Active', EnabledColumn('Active', 'is_active'))
-        self.add_column('Admin', EnabledColumn('Admin', 'is_admin'))
+        self.add_column('Active', BoolIconColumn('Active', 'is_active'))
+        self.add_column('Admin', BoolIconColumn('Admin', 'is_admin'))
 
         if current_user.is_internal or current_user.username == 'spaz':
-            self.add_column('Internal', EnabledColumn('Internal', 'is_internal'))
+            self.add_column('Internal', BoolIconColumn('Internal', 'is_internal'))
 
         super().__init__(items, *args, **kwargs)
 

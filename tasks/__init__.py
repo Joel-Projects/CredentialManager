@@ -1,4 +1,3 @@
-# encoding: utf-8
 # pylint: disable=invalid-name,wrong-import-position
 """
 The starting point of Invoke tasks for Example RESTful API Server project.

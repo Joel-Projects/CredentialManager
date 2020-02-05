@@ -1,4 +1,3 @@
-# encoding: utf-8
 """
 Application Users management related tasks for Invoke.
 """

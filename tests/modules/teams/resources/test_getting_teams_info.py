@@ -1,5 +1,4 @@
-# # encoding: utf-8
-# import pytest
+# # import pytest
 #
 #
 # @pytest.mark.parametrize('auth_scopes', (

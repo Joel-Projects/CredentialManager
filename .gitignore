@@ -48,7 +48,7 @@ docs/_build/
 *.swp
 *.bak
 local_config.py
-static/
+/static/
 example.db
 .idea/
 clients/*/swagger.json

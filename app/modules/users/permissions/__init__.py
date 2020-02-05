@@ -1,4 +1,3 @@
-# encoding: utf-8
 # pylint: disable=too-few-public-methods,invalid-name,abstract-method,method-hidden
 """
 RESTful API permissions

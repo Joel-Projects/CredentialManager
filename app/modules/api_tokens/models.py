@@ -1,8 +1,6 @@
-import base64, hashlib
-from random import random
-from sqlalchemy_utils import Timestamp
+import base64, hashlib, random
 
-from app.extensions import db
+from app.extensions import db, Timestamp
 
 class ApiToken(db.Model, Timestamp):
 
@@ -14,7 +12,7 @@ class ApiToken(db.Model, Timestamp):
     _enabledAttr = 'enabled'
     __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String, nullable=False)
     token = db.Column(db.String, nullable=False)
     enabled = db.Column(db.Boolean, default=True)
     # owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='restrict', onupdate='CASCADE'))
@@ -29,5 +27,6 @@ class ApiToken(db.Model, Timestamp):
             return user.is_internal
         return self.owner == user
 
-    def generate_token(self):
-        self.token = base64.b64encode(hashlib.sha256(str(random.getrandbits(256)).encode()).digest(), random.choice([b'rA', b'aZ', b'gQ', b'hH', b'hG', b'aR', b'DD'])).rstrip(b'==').decode()
+    def generate_token(self, length=32):
+        genToken = lambda: base64.b64encode(hashlib.sha256(str(random.getrandbits(256)).encode()).digest(), random.choice([b'rA', b'aZ', b'gQ', b'hH', b'hG', b'aR', b'DD'])).rstrip(b'==').decode()
+        self.token = ''.join([''.join(list(i)) for i in zip(genToken(), genToken())])[:length]

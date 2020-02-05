@@ -1,4 +1,3 @@
-# encoding: utf-8
 """
 Application environment related tasks for Invoke.
 """

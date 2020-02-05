@@ -1,4 +1,3 @@
-# encoding: utf-8
 # pylint: disable=invalid-name,unused-argument,too-many-arguments
 """
 Application database related tasks for Invoke.

@@ -1,4 +1,3 @@
-# encoding: utf-8
 # pylint: disable=too-few-public-methods
 """
 RESTful API User resources
@@ -52,7 +51,7 @@ class Users(Resource):
         Create a new user.
         """
         with api.commit_or_abort(db.session, default_error_message="Failed to create a new user."):
-            new_user = User(**data)
+            new_user = User(created_by=current_user.id, updated_by=current_user.id, **data)
             db.session.add(new_user)
         return new_user
 
@@ -90,6 +89,7 @@ class UserByID(Resource):
 
         with api.commit_or_abort(db.session, default_error_message="Failed to update user details."):
             parameters.PatchUserDetailsParameters.perform_patch(args, user)
+            user.updated_by = current_user.id
             db.session.merge(user)
         return user
 

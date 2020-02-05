@@ -1,4 +1,3 @@
-# encoding: utf-8
 """
 Extended Api Namespace implementation with an application-specific helpers
 --------------------------------------------------------------------------
@@ -89,7 +88,7 @@ class Namespace(BaseNamespace):
         return self.resolveFromArgs(object_arg_name, resolver=lambda kwargs: model.query.get_or_404([kwargs.pop(identity_arg_name) for identity_arg_name in identity_arg_names]))
 
     def model(self, name=None, model=None, **kwargs):
-      
+
         """
         A decorator which registers a model (aka schema / definition).
 

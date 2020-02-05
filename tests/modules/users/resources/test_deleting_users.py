@@ -1,4 +1,3 @@
-# encoding: utf-8
 # pylint: disable=missing-docstring
 import json
 
@@ -442,7 +441,7 @@ def test_delete_regular_user_by_internal_user(flask_app_client, internal_user, r
     assert initalUser is None
 
 def test_delete_regular_user_by_regular_user(flask_app_client, regular_user, regular_user2):
-    
+
     userToDelete = regular_user2
     with flask_app_client.login(regular_user):
         response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')

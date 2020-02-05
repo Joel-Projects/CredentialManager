@@ -1,4 +1,3 @@
-# encoding: utf-8
 """
 Extended Api implementation with an application-specific helpers
 ----------------------------------------------------------------

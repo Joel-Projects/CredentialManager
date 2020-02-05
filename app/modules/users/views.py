@@ -3,6 +3,7 @@ from functools import wraps
 
 from flask import Blueprint, render_template, request, flash, current_app, redirect
 from flask_login import current_user, login_required
+from wtforms import BooleanField
 
 from .forms import UserForm, EditUserForm
 from .parameters import PatchUserDetailsParameters
@@ -43,13 +44,14 @@ def users():
         data = form.data
         del data['csrf_token']
         user = User(**data)
+        user.created_by = current_user.id
         db.session.add(user)
     if current_user.is_internal:
         users = query.all()
     elif current_user.is_admin:
         users = [i for i in query.all() if not i.is_internal]
     table = UserTable(users, current_user, 'username')
-    return render_template('users.html', users=users, form=form, table=table)
+    return render_template('users.html', users=users, table=table, form=form)
 
 @usersBlueprint.route('/u/<User:user>/', methods=['GET', 'POST'])
 @login_required
@@ -61,13 +63,18 @@ def editUser(user):
     usernameChanged = False
     if request.method == 'POST' and form.validate_on_submit():
         itemsToUpdate = []
-        for item in PatchUserDetailsParameters.fields:
-            if getattr(form, item).data:
-                if getattr(user, item) != getattr(form, item).data:
-                    if item == 'username':
-                        usernameChanged = True
-                        newUsername = getattr(form, item).data
-                    itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
+        for item in PatchUserDetailsParameters.getPatchFields():
+            if getattr(form, item, None) is not None:
+                if not isinstance(getattr(form, item), BooleanField):
+                    if getattr(form, item).data:
+                        if getattr(user, item) != getattr(form, item).data:
+                            if item == 'username':
+                                usernameChanged = True
+                                newUsername = getattr(form, item).data
+                            itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
+                else:
+                    if getattr(user, item) != getattr(form, item).data:
+                        itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
         if itemsToUpdate:
             response = requests.patch(f'{request.host_url}api/v1/users/{user.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
             if response.status_code == 200:

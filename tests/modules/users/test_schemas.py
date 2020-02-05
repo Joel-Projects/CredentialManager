@@ -1,4 +1,3 @@
-# encoding: utf-8
 # pylint: disable=invalid-name,missing-docstring
 
 from app.modules.users import schemas

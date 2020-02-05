@@ -1,5 +1,3 @@
-# encoding: utf-8
-# pylint: disable=wrong-import-order
 """
 Input arguments (Parameters) for User resources RESTful API
 -----------------------------------------------------------
@@ -39,6 +37,7 @@ class CreateUserParameters(PostFormParameters, schemas.BaseUserSchema):
                 # Access granted
                 pass
 
+
     class Meta(schemas.BaseUserSchema.Meta):
         fields = schemas.BaseUserSchema.Meta.fields + ('password', 'default_redirect_uri', 'is_admin', 'is_active', 'is_regular_user', 'is_internal')
 
@@ -47,12 +46,19 @@ class DeleteUserParameters(PostFormParameters, schemas.BaseUserSchema):
     user_id = base_fields.Integer(required=True)
 
 class PatchUserDetailsParameters(PatchJSONParameters):
-  
+
     """
     User details updating parameters following PATCH JSON RFC.
     """
-    fields = (User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, 'default_redirect_uri', 'username')
+    fields = (User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, 'default_redirect_uri', 'username', 'updated_by')
     PATH_CHOICES = tuple(f'/{field}' for field in fields)
+
+    @staticmethod
+    def getPatchFields():
+        if current_user.is_internal:
+            return User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, 'default_redirect_uri', 'username', 'updated_by'
+        else:
+            return User.password.key, User.is_active.fget.__name__, User.is_admin.fget.__name__, 'default_redirect_uri', 'username', 'updated_by'
 
     @classmethod
     def test(cls, obj, field, value, state):

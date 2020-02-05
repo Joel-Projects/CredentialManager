@@ -7,31 +7,6 @@ from wtforms.widgets import HTMLString
 from app.extensions import ModelForm
 from .models import User
 
-# class HiddenFieldCheckboxMeta(DefaultMeta):
-#     """
-#     This is the default Meta class which defines all the default values and
-#     therefore also the 'API' of the class Meta interface.
-#     """
-#
-#     # -- Basic form primitives
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#
-#     # def render_field(self, field, ):
-#     #     """
-#     #     render_field allows customization of how widget rendering is done.
-#     #
-#     #     The default implementation calls ``field.widget(field, **render_kw)``
-#     #     """
-#     #     other_kw = getattr(field, 'render_kw', None)
-#     #     if other_kw is not None:
-#     #         render_kw = dict(other_kw)
-#     #     fieldHtml = field.widget(field)
-#     #     print()
-#     #     return
-
-
 class HiddenFieldWithToggle(BooleanField):
 
     def __init__(self, *args, **kwargs):

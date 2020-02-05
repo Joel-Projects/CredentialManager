@@ -18,35 +18,53 @@
         }
     </style>
     <body>
-    <script src="{{ url_for('static', filename='js/api_tokens.js') }}"></script>
+    <script src="{{ url_for('api_tokens.static', filename='js/api_tokens.js') }}"></script>
     <div class="container">
         <div class="table-responsive">
             {{ table }}
-            <button class="btn btn-primary" id="createToken" data-toggle="modal" data-target="#newApiTokenModal">Create API Token</button>
-            <div class="modal fade" id="newUserModal" tabindex="-1" role="dialog" aria-labelledby="newUserModalLabel" aria-hidden="true">
+            <button class="btn btn-primary" id="createToken" data-toggle="modal" data-target="#createApiTokenModal">Create API Token</button>
+            <div class="modal fade" id="createApiTokenModal" tabindex="-1" role="dialog" aria-labelledby="createApiTokenModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="newUserModalLabel">Create API Token</h5>
+                            <h5 class="modal-title" id="createApiTokenModalLabel">Create API Token</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         </div>
                         <div class="modal-body">
-                            <form id="createUserForm">
+                            <form id="createApiTokenModal" method="post" resource="/api_tokens">
+                                {{ form.hidden_tag() }}
+
                                 <div class="form-group">
-                                    <div class="col-lg-8">
-                                        <label class="control-label" for="name">Name</label>
-                                        <div class="tokenNameField" id="tokenNameField">
-                                            <div class="input-group mb-2">
-                                                <input class="form-control" id="name" name="name" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Token Name" required>
-                                                <div class="invalid-feedback" id="tokennameFeedback">That name isn't valid!</div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                            <button type="submit" name="submit" class="btn btn-primary" id="tokenCreate">Create</button>
-                                        </div>
+                                    {{ form.name.label }}
+                                    {% if form.name.errors %}
+                                        {{ form.name(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                        {% for error in form.username.errors %}
+                                            <div class="invalid-feedback" id="nameFeedback">{{ error }}</div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.name(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                        {{ form.length.label }}
+                                        {{ form.length(class_="custom-select") }}
                                     </div>
-                            </form>
+                                {% if current_user.is_admin or current_user.is_internal %}
+                                    <div class="form-group">
+                                        {{ form.owner.label }}
+                                        {{ form.owner(class_="custom-select") }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        {{ form.enabled(checked=True, class_="custom-control-input") }}
+                                        {{ form.enabled.label(class_='custom-control-label') }}
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" name="submit" class="btn btn-primary" id="apiTokenCreate">Add</button>
+                                </div>
                         </div>
                     </div>
                 </div>

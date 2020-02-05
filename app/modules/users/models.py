@@ -1,14 +1,13 @@
-# encoding: utf-8
-"""
-User database models
---------------------
-"""
-import enum
+'''
+User database model
+-------------------
+'''
+import enum, operator
 from datetime import datetime
 
-from sqlalchemy_utils import types as column_types, Timestamp
+from sqlalchemy_utils import types as column_types
 from flask_login import UserMixin
-from app.extensions import db
+from app.extensions import db, Timestamp
 from app.modules.api_tokens.models import ApiToken
 
 def getStaticRole(roleName, staticRole):
@@ -43,6 +42,18 @@ class User(db.Model, Timestamp, UserMixin):
     __tablename__ = 'users'
     _nameAttr = 'username'
     _enabledAttr = 'is_active'
+    _infoAttrs = {
+        'id': 'User ID',
+        'createdBy.username': 'Created By',
+        'updatedBy.username': 'Updated By',
+        'default_redirect_uri': 'Default Redirect URI',
+        'api_tokens.count': 'API Tokens',
+        # 'bots.count': 'Bots',
+        # 'database_credentials.count': 'Database Credentials',
+        # 'reddit_apps.count': 'Reddit Apps',
+        # 'refresh_tokens.count': 'Authencated Users',
+        'sentry_tokens.count': 'Sentry Tokens'
+    }
 
     __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, primary_key=True)
@@ -50,7 +61,9 @@ class User(db.Model, Timestamp, UserMixin):
     password = db.Column(column_types.PasswordType(max_length=128, schemes=('bcrypt',)), nullable=False, info={'label': 'Password'})
     default_redirect_uri = db.Column(db.Text, default='http://localhost:8080', info={'label': 'Default Redirect URI'})
     created_by = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='SET NULL', onupdate='CASCADE'))
+    createdBy = db.relationship('User', remote_side=id, foreign_keys=[created_by])
     updated_by = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='SET NULL', onupdate='CASCADE'))
+    updatedBy = db.relationship('User', remote_side=id, foreign_keys=[updated_by])
 
     class StaticRoles(enum.Enum):
         INTERNAL = (0x8000, "Internal")
@@ -114,3 +127,9 @@ class User(db.Model, Timestamp, UserMixin):
             apiToken.last_used = datetime.now()
             return user
         return None
+
+    def getInfoAttr(self, path):
+        attr = operator.attrgetter(path)(self)
+        if callable(attr):
+            attr = attr()
+        return attr

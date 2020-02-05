@@ -1,4 +1,3 @@
-# encoding: utf-8
 """
 Serialization schemas for Team resources RESTful API
 ----------------------------------------------------
@@ -18,7 +17,7 @@ class BaseTeamSchema(ModelSchema):
     """
 
     class Meta:
-      
+
         model = Team
         fields = (
             Team.id.key,

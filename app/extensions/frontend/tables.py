@@ -3,7 +3,7 @@ from flask_table.html import element
 from pytz import timezone
 
 class BaseCol(Col):
-    
+
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('td_html_attrs', {})
         if not 'style' in kwargs['td_html_attrs']:
@@ -23,17 +23,26 @@ class DatetimeColumn(BaseCol):
         else:
             return 'Never'
 
-class EnabledColumn(BaseCol):
+class BoolIconColumn(BaseCol):
 
     def td_contents(self, item, attr_list):
-        return self.td_format((self.from_attr_list(item, attr_list), item.id))
+        return self.td_format((self.from_attr_list(item, attr_list), item))
 
-    def td_format(self, item):
-        content, item_id = item
+    def td_format(self, contents):
+        content, item = contents
         if content:
-            return f'<i class="fas fa-check" id="{item_id}_icon" style="font-size: 28px;color: #00bc8c"></i>'
+            return f'<i class="fas fa-check" id="{item.__tablename__}_{item.id}_icon" style="font-size: 28px;color: #00bc8c"></i>'
         else:
-            return f'<i class="fas fa-times" id="{item_id}_icon" style="font-size: 28px; color: #E74C3C"></i>'
+            return f'<i class="fas fa-times" id="{item.__tablename__}_{item.id}_icon" style="font-size: 28px; color: #E74C3C"></i>'
+
+class CopyableField(BaseCol):
+
+    def td_contents(self, item, attr_list):
+        return self.td_format((self.from_attr_list(item, attr_list), item))
+
+    def td_format(self, contents):
+        content, item = contents
+        return f'<div class="button"> <span class="ion-log-in" onclick="copy(this)">{content}</span></div>'
 
 class ToolTipColumn(BaseCol):
 
@@ -55,17 +64,24 @@ class CreatedBy(BaseCol):
 
     def __init__(self, name, tooltip, **kwargs):
         super(CreatedBy, self).__init__(name, **kwargs)
+        # self.attrName = attrName
         self.tooltip = tooltip
 
+    def from_attr_list(self, item, attr_list):
+        from flask_table.columns import _recursive_getattr
+        out = _recursive_getattr(item, attr_list)
+        return out
+
+
     def td_contents(self, item, attr_list):
-        return self.td_format((self.from_attr_list(item, attr_list), item.id, self.tooltip(item), str(item.created_by)))
+        return self.td_format((self.from_attr_list(item, attr_list), item.id, self.tooltip(item)))
 
     def td_format(self, item):
-        content, item_id, tooltip, createdBy = item
-        if createdBy != 'None':
-            return f'<a href="/u/{createdBy}">{createdBy}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{tooltip}"><i class="far fa-question-circle"></i></span></sup>'
+        content, item_id, tooltip = item
+        if content:
+            return f'<a href="/u/{content}">{content}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{tooltip}"><i class="far fa-question-circle"></i></span></sup>'
         else:
-            return f'<a>{createdBy}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{tooltip}"><i class="far fa-question-circle"></i></span></sup>'
+            return f'<a>{content}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{tooltip}"><i class="far fa-question-circle"></i></span></sup>'
 
 class OwnerCol(BaseCol):
 
@@ -136,7 +152,7 @@ class BaseTable(Table):
         super().__init__(items)
 
     def tr(self, item):
-        content = ''.join(c.td(item, attr) for attr, c in self._cols.items()if c.show)
+        content = ''.join(c.td(item, attr) for attr, c in self._cols.items() if c.show)
         return element('tr', attrs=self.get_tr_attrs(item), content=content, escape_content=False)
 
     def tbody(self):

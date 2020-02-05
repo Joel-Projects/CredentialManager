@@ -1,77 +1,23 @@
-import praw
-from flask import Blueprint, render_template, request, session, redirect, url_for, jsonify
-from flask_login import login_required, current_user
+import logging, os
+
+from flask import Blueprint, request, render_template, redirect, url_for, flash
+from flask_login import current_user, login_user, logout_user, login_required
+from flask_restplus._http import HTTPStatus
+
+log = logging.getLogger(__name__)
 from .models import Bot
+from .forms import BotForm
+from .tables import BotTable
 
-bots = Blueprint('bots', __name__, url_prefix='/bots', template_folder='./templates')
+botsBlueprint = Blueprint('bots', __name__, template_folder='./templates', static_folder='./static', static_url_path='/bots/static/')
 
-@bots.route('/')
 @login_required
-def root():
-    if current_user.is_admin:
-        bots = Bot.query.order_by(Bot.id).all()
+@botsBlueprint.route('/bots')
+def bots():
+    if current_user.is_admin or current_user.is_internal:
+        bots = Bot.query.all()
     else:
         bots = current_user.bots.all()
-
-    reasonCounts = {}
-    for reason in removalReasons:
-        if not reason.subreddit in reasonCounts:
-            reasonCounts[reason.subreddit] = 0
-        reasonCounts[reason.subreddit] += 1
-    return render_template('bots.html', bots=bots, reasonCounts=reasonCounts)
-
-
-def validateRedditor(redditor):
-    try:
-        response = requests.get(f"https://reddit.com/user/{redditor}/about.json", headers={'user-agent': 'python:com.jkpayne.redditapps/Credential Manager by /u/Lil_SpazJoekp'})
-        while response.status_code not in (200, 403, 404):
-            response = requests.get(f"https://reddit.com/user/{redditor}/about.json", headers={'user-agent': 'python:com.jkpayne.redditapps/Credential Manager by /u/Lil_SpazJoekp'})
-        redditor = response.json()['data']['name']
-    except KeyError:
-        return None
-    return redditor
-
-@bots.route('/<subreddit>', methods=['GET', 'POST'])
-@login_required
-@validateBot
-def viewBot(subreddit):
-    session['subreddit'] = subreddit
-    notification = {'success': None, 'error': None}
-    subreddit = Bot.query.filter_by(subreddit=subreddit).first()
-    removalReasons = RemovalReason.query.filter_by(subreddit=subreddit.subreddit).all()
-    if subreddit:
-        if request.method == 'POST':
-            bot_account = validateRedditor(request.form['botAccount'])
-            webhook_type = request.form['webhookType']
-            webhook = request.form['webhook']
-            if not webhook:
-                webhook_type = None
-            headerToggle = request.form.get('headerToggle')
-            footerToggle = request.form.get('footerToggle')
-            header = request.form['headerText']
-            footer = request.form['footerText']
-            if not headerToggle:
-                header = None
-            if not footerToggle:
-                footer = None
-            notification = {'success': None, 'error': None}
-            try:
-                if subreddit:
-                    subreddit.bot_account = bot_account
-                    subreddit.webhook_type = webhook_type
-                    subreddit.webhook = webhook
-                    subreddit.header = header
-                    subreddit.footer = footer
-                    db.session.merge(subreddit)
-                    subredditEditType = 'Updated'
-                else:
-                    subreddit = Bot(bot_account=bot_account, webhook_type=webhook_type, webhook=webhook, header=header, footer=footer)
-                    db.session.add(subreddit)
-                    subredditEditType = 'Created'
-                db.session.commit()
-
-                notification['success'] = f'{subredditEditType} r/{subreddit.subreddit} successfully!'
-            except Exception as error:
-                notification['error'] = error
-        return render_template('edit_subreddit.html', subreddit=subreddit, notification=notification, removalReasons=removalReasons), 202
-    return render_template('errors/404.html'), 404
+    table = BotTable(bots, current_user=current_user)
+    form = BotForm()
+    return render_template('bots.html', table=table, form=form)

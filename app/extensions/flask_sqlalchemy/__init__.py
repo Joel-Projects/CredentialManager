@@ -1,11 +1,10 @@
-# encoding: utf-8
 """
 Flask-SQLAlchemy adapter
 ------------------------
 """
-import sqlite3
+from datetime import datetime
 
-from sqlalchemy import engine, MetaData
+from sqlalchemy import Column, DateTime
 
 from flask_sqlalchemy import SQLAlchemy as BaseSQLAlchemy
 
@@ -45,3 +44,25 @@ class SQLAlchemy(BaseSQLAlchemy):
         assert database_uri, "SQLALCHEMY_DATABASE_URI must be configured!"
 
         app.extensions['migrate'] = AlembicDatabaseMigrationConfig(self, compare_type=True)
+
+class Timestamp(object):
+    """Adds `created` and `updated` columns to a derived declarative model.
+
+    The `created` column is handled through a default and the `updated`
+    column is handled through a `before_update` event that propagates
+    for all derived declarative models.
+
+    ::
+
+
+        import sqlalchemy as sa
+        from sqlalchemy_utils import Timestamp
+
+
+        class SomeModel(Base, Timestamp):
+            __tablename__ = 'somemodel'
+            id = sa.Column(sa.Integer, primary_key=True)
+    """
+
+    created = Column(DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False)
+    updated = Column(DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False)

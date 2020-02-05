@@ -1,4 +1,3 @@
-# encoding: utf-8
 """
 Webargs Parser wrapper module
 -----------------------------

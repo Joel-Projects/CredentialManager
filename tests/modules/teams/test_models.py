@@ -1,4 +1,3 @@
-# encoding: utf-8
 # pylint: disable=missing-docstring,invalid-name
 #
 #

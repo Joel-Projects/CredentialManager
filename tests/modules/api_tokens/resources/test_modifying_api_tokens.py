@@ -1,5 +1,4 @@
-# # encoding: utf-8
-# # pylint: disable=missing-docstring
+# # # pylint: disable=missing-docstring
 #
 # import json
 #

@@ -1,4 +1,3 @@
-# encoding: utf-8
 # pylint: disable=too-few-public-methods,invalid-name,bad-continuation
 """
 RESTful API Auth resources

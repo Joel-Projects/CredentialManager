@@ -1,4 +1,3 @@
-# encoding: utf-8
 """
 Application dependencies related tasks for Invoke.
 """
