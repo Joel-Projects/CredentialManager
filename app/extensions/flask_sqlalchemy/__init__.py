@@ -1,25 +1,23 @@
-"""
+'''
 Flask-SQLAlchemy adapter
 ------------------------
-"""
+'''
+import sqlalchemy
 from datetime import datetime
-
 from sqlalchemy import Column, DateTime
-
 from flask_sqlalchemy import SQLAlchemy as BaseSQLAlchemy
 
 
 class AlembicDatabaseMigrationConfig(object):
-    """
+    '''
     Helper config holder that provides missing functions of Flask-Alembic
     package since we use custom invoke tasks instead.
-    """
+    '''
 
     def __init__(self, database, directory='migrations', **kwargs):
         self.db = database
         self.directory = directory
         self.configure_args = kwargs
-
 
 class SQLAlchemy(BaseSQLAlchemy):
     def __init__(self, *args, **kwargs):
@@ -46,7 +44,7 @@ class SQLAlchemy(BaseSQLAlchemy):
         app.extensions['migrate'] = AlembicDatabaseMigrationConfig(self, compare_type=True)
 
 class Timestamp(object):
-    """Adds `created` and `updated` columns to a derived declarative model.
+    '''Adds `created` and `updated` columns to a derived declarative model.
 
     The `created` column is handled through a default and the `updated`
     column is handled through a `before_update` event that propagates
@@ -62,7 +60,15 @@ class Timestamp(object):
         class SomeModel(Base, Timestamp):
             __tablename__ = 'somemodel'
             id = sa.Column(sa.Integer, primary_key=True)
-    """
+    '''
 
     created = Column(DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False)
     updated = Column(DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False)
+
+
+# noinspection PyUnresolvedReferences
+@sqlalchemy.event.listens_for(Timestamp, 'before_update', propagate=True)
+def timestamp_before_update(mapper, connection, target):
+    # When a model with a timestamp is updated; force update the updated
+    # timestamp.
+    target.updated = datetime.astimezone(datetime.utcnow())

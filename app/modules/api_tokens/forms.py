@@ -23,3 +23,11 @@ class ApiTokenForm(ModelForm):
     name = StringField('Name', validators=[InputRequired(), Unique([ApiToken.owner, ApiToken.name]), Length(3)])
     length = SelectField('Legnth', choices=[('16', '16'), ('24', '24'), ('32', '32'), ('40', '40'), ('48', '48'), ('64', '64')], default='32', validators=None, description='How long you want the API token to be')
     owner = QuerySelectField(query_factory=owners, default=current_user)
+
+class EditApiTokenForm(ModelForm):
+    class Meta:
+        model = ApiToken
+        only = ['token', 'enabled']
+
+    name = StringField('Name', validators=[InputRequired(), Unique([ApiToken.owner, ApiToken.name]), Length(3)])
+    owner = QuerySelectField(query_factory=owners, default=current_user)

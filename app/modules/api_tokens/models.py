@@ -1,4 +1,5 @@
 import base64, hashlib, random
+import operator
 
 from wtforms_alchemy import Unique
 
@@ -12,6 +13,20 @@ class ApiToken(db.Model, Timestamp):
     __tablename__ = 'api_tokens'
     _nameAttr = 'name'
     _enabledAttr = 'enabled'
+    _infoAttrs = {
+        'id': 'API Token ID',
+        'owner': 'Owner',
+        'created': 'Created at',
+        'updated': 'Last updated at',
+        'last_used': 'Last Used'
+    }
+
+    def getInfoAttr(self, path):
+        attr = operator.attrgetter(path)(self)
+        if callable(attr):
+            attr = attr()
+        return attr
+
     __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False, info={'label': 'Name'})

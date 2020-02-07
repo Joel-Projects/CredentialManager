@@ -1,8 +1,13 @@
 from functools import wraps
 from flask import request
+from flask_login import current_user
+
+from app.extensions.api import abort
+from app.modules.users.models import User
+
 
 def paginateArgs(model):
-    def actual_decorator(func):
+    def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             page = request.args.get('page', 1, int)
@@ -13,4 +18,29 @@ def paginateArgs(model):
             kwargs['perPage'] = perPage
             return func(*args, **kwargs)
         return wrapper
-    return actual_decorator
+    return decorator
+
+def requiresAdmin(func):
+    @wraps(func)
+    def decorated(*args, **kwargs):
+        if current_user and not current_user.is_admin and not current_user.is_internal:
+            abort(403)
+        return func(*args, **kwargs)
+    return decorated
+
+def verifyEditable(kwargName):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            currentObject = kwargs[kwargName]
+            if current_user and (current_user.is_admin or current_user.is_internal or currentObject.check_owner(current_user)):
+                if isinstance(currentObject, User):
+                    if current_user.is_internal != currentObject.is_internal:
+                        abort(403)
+                elif current_user.is_internal != currentObject.owner.is_internal:
+                    abort(403)
+            else:
+                abort(403)
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator

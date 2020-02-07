@@ -1,473 +1,79 @@
 {% extends "base.html" %}
-{% import 'bootstrap/wtf.html' as wtf %}
-{% block title %}Credential Manager - {% if current_user.is_admin or current_user.is_internal %}{{ user.username }}{% else %}Profile{% endif %}{% endblock %}
+{% block title %}Credential Manager - Edit API Token - {{ api_token.name }}{% endblock %}
 {% block breadCrumbs %}
     <!--suppress HtmlUnknownTarget -->
-    {% if current_user.is_admin or current_user.is_internal %}
+    {% if user and (current_user.is_admin or current_user.is_internal or api_token.check_owner(current_user)) %}
         <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
         <li class="breadcrumb-item"><a href="/u/{{ user.username }}">{{ user.username }}</a></li>
-    {% else %}
-        <li class="breadcrumb-item"><a href="/u/{{ user.username }}">Profile</a></li>
     {% endif %}
+    <li class="breadcrumb-item"><a href="/api_tokens/{{ api_token.id }}">{{ api_token.name }}</a></li>
 {% endblock %}
 {% block activeItem %}active item{% endblock %}
 {% block content %}
     <!--suppress ALL -->
-    <script src="{{ url_for('users.static', filename='js/edit_user.js') }}"></script>
+    <script src="{{ url_for('api_tokens.static', filename='js/edit_api_token.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/edit.css') }}">
     <body>
     <div class="container">
-        <ul class="nav nav-tabs" id="userTab">
-            <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" id="tab_settings" href="#settings" aria-controls="settings">Settings</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" id="tab_bots" href="#bots" aria-controls="Bots">Bots</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" id="tab_redditApps" href="#redditApps" aria-controls="RedditApps">Reddit Apps</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" id="tab_sentryTokens" href="#sentryTokens" aria-controls="RedditApps">Sentry Tokens</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" id="tab_databaseCredentials" href="#databaseCredentials" aria-controls="RedditApps">Database Credentials</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" id="tab_apiTokens" href="#apiTokens" aria-controls="RedditApps">API Tokens</a>
-            </li>
-        </ul>
-        <div class="tab-content py-3">
-            <div class="tab-pane active" id="settings">
-                <div class="container">
-                    <div class="row justify-content-lg-center">
-                        <div class="col-md-4">
-                            <div class="jumbotron">
-                                <h4>User Info</h4>
-                                <hr style="border-top: 1px solid";>
-                                {% for attr, displayName in user._infoAttrs.items() %}
-                                    {% if attr in ['createdBy.username', 'updatedBy.username'] and (current_user.is_admin or current_user.is_internal) %}
-                                        <strong>{{ displayName }}:</strong><br><a href="/u/{{ user.getInfoAttr(attr) }}">{{ user.getInfoAttr(attr) }}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{{ attr.split('By')[0].capitalize() }} at: {{ user.getInfoAttr(attr.split('By')[0]).strftime('%m/%d/%Y %I:%M:%S %p') }}"><i class="far fa-question-circle"></i></span></sup><br><br>
-                                    {% elif 'count' in attr %}
-                                        <strong>{{ displayName }}:</strong><br><a href="/u/{{ user.username }}/{{ attr.split('.')[0] }}">{{ user.getInfoAttr(attr) }}</a><br><br>
-                                    {% else %}
-                                        <strong>{{ displayName }}:</strong><br><a>{{ user.getInfoAttr(attr) }}</a><br><br>
-                                    {% endif %}
-                                {% endfor %}
-
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <form id="editUserForm" method="post" onsubmit="doneSave('save', this)">
-                                {{ form.hidden_tag() }}
-                                <input id="itemType" name="itemType" type="hidden" value="{{ user.__tablename__ }}">
-                                <input id="itemId" name="itemId" type="hidden" value="{{ user.id }}">
-                                <div class="form-group">
-                                    {{ form.username.label }}
-                                    {% if form.username.errors %}
-                                        {{ form.username(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)") }}
-                                        {% for error in form.username.errors %}
-                                            <div class="invalid-feedback" id="usernameFeedback">{{error}}</div>
-                                        {% endfor %}
-                                    {% else %}
-                                        {{ form.username(size=16, class_="form-control", onkeypress="clearInvalidState(this)") }}
-                                    {% endif %}
-                                </div>
-                                <div class="form-group">
-                                    <div class="custom-control custom-switch">
-                                        {{ form.updatePassword(class_="custom-control-input", hiddenObject='passwordField', forField=form.password) }}
-                                        {{ form.updatePassword.label(class_='custom-control-label') }}
-                                        <small id="headerHelp" class="form-text text-muted">Check to update password</small>
-                                    </div>
-                                </div>
-                                <div class="form-group" id="passwordField" hidden>
-                                    {{ form.password.label }}
-                                    {{ form.password(size=16, class_="form-control", type='text') }}
-                                </div>
-                                <div class="form-group">
-                                    {{ form.default_redirect_uri.label }}
-                                    {% if form.default_redirect_uri.errors %}
-                                        {{ form.default_redirect_uri(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)") }}
-                                        {% for error in form.default_redirect_uri.errors %}
-                                            <div class="invalid-feedback" id="default_redirect_uriFeedback">{{error}}</div>
-                                        {% endfor %}
-                                    {% else %}
-                                        {{ form.default_redirect_uri(size=16, class_="form-control", onkeypress="clearInvalidState(this)") }}
-                                    {% endif %}
-                                    <small id="headerHelp" class="form-text text-muted">Defines the user's default redirect URI for reddit apps for OAuth 2 authentication</small>
-                                </div>
-                                <div class="form-group">
-                                    <div class="custom-control custom-switch">
-                                        {{ form.is_admin(default=user.is_admin, class_="custom-control-input") }}
-                                        {{ form.is_admin.label(class_='custom-control-label') }}
-                                        <small id="headerHelp" class="form-text text-muted">Enables the user to create other admins and view other users' data</small>
-                                    </div>
-                                </div>
-                                {% if current_user.is_internal %}
-                                    <div class="form-group">
-                                        <div class="custom-control custom-switch">
-                                            {{ form.is_internal(default=user.is_internal, class_="custom-control-input") }}
-                                            {{ form.is_internal.label(class_='custom-control-label') }}
-                                            <small id="headerHelp" class="form-text text-muted">Internal user, not intended for regular use</small>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="custom-control custom-switch">
-                                            {{ form.is_regular_user(default=user.is_regular_user, class_="custom-control-input") }}
-                                            {{ form.is_regular_user.label(class_='custom-control-label') }}
-                                            <small id="headerHelp" class="form-text text-muted">Regular user, allows user to sign in; non system user</small>
-                                        </div>
-                                    </div>
-                                {% endif %}
-                                <div class="form-group">
-                                    <div class="custom-control custom-switch">
-                                        {{ form.is_active(default=user.is_active, class_="custom-control-input") }}
-                                        {{ form.is_active.label(class_='custom-control-label') }}
-                                        <small id="headerHelp" class="form-text text-muted">Enables the user to sign in and use the API</small>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <button class="btn btn-primary" type="submit" name="save" onclick="saveItem(this)" id="save" value="save">Save</button>
-                                </div>
-                            </form>
-                            <button class="btn btn-danger" id="delete" data-target="#confirmationModal" data-toggle="modal">Delete User</button>
-                            <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                        </div>
-                                        <div class="modal-body" id="delete-modal-body">Are you <strong>sure</strong> you want to delete user "{{ user.username }}"?</div>
-                                        <div class="modal-footer" id="delete-modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            <button type="button" class="btn btn-danger" onclick="deleteUser( {{ user.id }} )" data-dismiss="modal" id="deleteConfirm">Delete this user</button>
-                                        </div>
-                                    </div>
-                                </div>
+        <div class="row justify-content-lg-center">
+            <div class="col-md-4">
+                <div class="jumbotron">
+                    <h4>API Token Info</h4>
+                    <hr style="border-top: 1px solid";>
+                    {% for attr, displayName in api_token._infoAttrs.items() %}
+                        {% if attr == 'owner' and not api_token.check_owner(current_user) and (current_user.is_admin or current_user.is_internal) %}
+                            <strong>{{ displayName }}:</strong><br><a href="/u/{{ api_token.getInfoAttr(attr).username }}">{{ api_token.getInfoAttr(attr).username }}</a><br><br>
+                        {% elif api_token.getInfoAttr(attr).__class__.__name__ == 'datetime' %}
+                            <strong>{{ displayName }}:</strong><br><a>{{ api_token.getInfoAttr(attr).strftime('%m/%d/%Y %I:%M:%S %p') }}</a><br><br>
+                        {% else %}
+                            <strong>{{ displayName }}:</strong><br><a>{{ api_token.getInfoAttr(attr) }}</a><br><br>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <form id="editApiTokenForm" method="post" onsubmit="doneSave('save', this)">
+                    {{ form.hidden_tag() }}
+                    <input id="itemType" name="itemType" type="hidden" value="{{ api_token.__tablename__ }}">
+                    <input id="itemId" name="itemId" type="hidden" value="{{ api_token.id }}">
+                    <input id="token" name="token" type="hidden" value="{{ api_token.token }}">
+                    <div class="form-group" hidden>
+                        {{ form.owner.label }}
+                        {{ form.owner(class_="custom-select", default=api_token.owner, readonly=True) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.name.label }}
+                        {% if form.name.errors %}
+                            {{ form.name(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)") }}
+                            {% for error in form.name.errors %}
+                                <div class="invalid-feedback" id="apiTokenFeedback">{{ error }}</div>
+                            {% endfor %}
+                        {% else %}
+                            {{ form.name(size=16, class_="form-control", onkeypress="clearInvalidState(this)") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="token" style="background-color: grey;color: lightgray" readonly value="{{ api_token.token }}" aria-describedby="copyBox">
+                            <div class="input-group-append">
+                                <button class="input-group-text btn-dark" type="button" onclick="copy(this)" id="copyBox"><a  class="fas fa-clipboard"></a></button>
                             </div>
                         </div>
                     </div>
-                </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-switch">
+                            {{ form.enabled(default=api_token.enabled, class_="custom-control-input") }}
+                            {{ form.enabled.label(class_='custom-control-label') }}
+                            <small id="headerHelp" class="form-text text-muted">Enables this API Token to be used</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary" type="submit" name="save" onclick="saveItem(this)" id="save" value="save">Save</button>
+                    </div>
+                </form>
+                <button class="btn btn-danger" id="delete" data-target="#confirmationModal" data-toggle="modal">Delete</button>
             </div>
-{#            <div class="tab-pane fade" id="bots">#}
-{#                <div class="container" style="margin-top: 25px">#}
-{#                    <div class="table-responsive">#}
-{#                        <table class="table table-hover table-bordered table-striped" id="bots_table">#}
-{#                            <thead class="thead-dark">#}
-{#                            <tr>#}
-{#                                <th scope="col">Bot Name<sup>#}
-{#                                <th scope="col">Reddit App Name<sup>#}
-{#                                <th scope="col">Sentry App Name</th>#}
-{#                                <th scope="col">Database App Name</th>#}
-{#                                <th scope="col">Created</th>#}
-{#                                <th scope="col">Enabled</th>#}
-{#                                <th scope="col" data-sorter="false">Edit<sup>#}
-{#                                    <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"#}
-{#                                          title="Edit app settings">#}
-{#                                        <i class="far fa-question-circle"></i></span></sup></th>#}
-{#                            </tr>#}
-{#                            </thead>#}
-{#                            <tbody>#}
-{#                            {% for item in user.bots.all() %}#}
-{#                                <tr>#}
-{#                                    <th scope="row"><a href="/{{ item.__tablename__ }}/{{ item.id }}">{{ item.bot_name }}</a></th>#}
-{#                                    <th scope="row"><a href="/{{ item.reddit.__tablename__ }}/{{ item.reddit.id }}">{{ item.reddit.app_name }}</a></th>#}
-{#                                    <th scope="row"><a href="/{{ item.sentry.__tablename__ }}/{{ item.sentry.id }}">{{ item.sentry.app_name }}</a></th>#}
-{#                                    <th scope="row"><a href="/{{ item.database.__tablename__ }}/{{ item.database.id }}">{{ item.database.app_name }}</a></th>#}
-{#                                    <td>{{ item.created.strftime('%m/%d/%Y %I:%M:%S %p') }}</td>#}
-{#                                    <td>#}
-{#                                        {% if item.enabled %}#}
-{#                                            <i class="fas fa-check" id="{{ item.id }}_icon" style="font-size: 28px;color: #00bc8c"></i>#}
-{#                                        {% else %}#}
-{#                                            <i class="fas fa-times" id="{{ item.id }}_icon" style="font-size: 28px; color: #E74C3C"></i>#}
-{#                                        {% endif %}#}
-{#                                    </td>#}
-{#                                    <td>#}
-{#                                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">#}
-{#                                            <button type="button" class="btn btn-primary" onclick="location.href='/{{ item.__tablename__ }}/{{ item.id }}'">Edit</button>#}
-{#                                            <div class="btn-group" role="group">#}
-{#                                                <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>#}
-{#                                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">#}
-{#                                                    <a class="dropdown-item" href="/{{ item.__tablename__ }}/{{ item.id }}">Edit</a>#}
-{#                                                    {% if item.enabled %}#}
-{#                                                        <a class="dropdown-item" id="{{ item.id }}_toggle" style="color: #E74C3C" onclick="toggleItem('{{ item.__tablename__ }}', '{{ item.id }}', false)">Disable</a>#}
-{#                                                    {% else %}#}
-{#                                                        <a class="dropdown-item" id="{{ item.id }}_toggle" style="color: #00bc8c" onclick="toggleItem('{{ item.__tablename__ }}', '{{ item.id }}', true)">Enable</a>#}
-{#                                                    {% endif %}#}
-{#                                                    <div class="dropdown-divider"></div>#}
-{#                                                    <a class="dropdown-item" onclick="showDeleteModal('{{ item.__tablename__ }}', '{{ item.id }}', {{ loop.index }})" style="color: red">Delete</a>#}
-{#                                                </div>#}
-{#                                            </div>#}
-{#                                        </div>#}
-{#                                    </td>#}
-{#                                </tr>#}
-{#                            {% endfor %}#}
-{#                            </tbody>#}
-{#                        </table>#}
-{#                        <button class="btn btn-primary" id="addRedditApp" data-toggle="modal" data-target="#newRedditAppModal">Add Reddit App</button>#}
-{#                    </div>#}
-{#                </div>#}
-{#                </div>#}
-{#            <div class="tab-pane fade" id="redditApps">#}
-{#                <div class="container" style="margin-top: 25px">#}
-{#                    <div class="table-responsive">#}
-{#                        <table class="table table-hover table-bordered table-striped" id="reddit_apps_table">#}
-{#                            <thead class="thead-dark">#}
-{#                            <tr>#}
-{#                                <th scope="col">App Name<sup>#}
-{#                                <th scope="col">Short Name<sup>#}
-{#                                    <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"#}
-{#                                          title="Short name you can use instead">#}
-{#                                        <i class="far fa-question-circle"></i></span></sup></th>#}
-{#                                <th scope="col">App Type</th>#}
-{#                                <th scope="col">Description</th>#}
-{#                                <th scope="col">Client ID</th>#}
-{#                                <th scope="col">Client Secret</th>#}
-{#                                <th scope="col">User Agent</th>#}
-{#                                <th scope="col">Redirect URI</th>#}
-{#                                <th scope="col">Created</th>#}
-{#                                <th scope="col">Enabled</th>#}
-{#                                <th scope="col" data-sorter="false">Edit<sup>#}
-{#                                    <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"#}
-{#                                          title="Edit app settings">#}
-{#                                        <i class="far fa-question-circle"></i></span></sup></th>#}
-{#                            </tr>#}
-{#                            </thead>#}
-{#                            <tbody>#}
-{#                            {% for item in user.reddit_apps.all() %}#}
-{#                                <tr>#}
-{#                                    <th scope="row"><a href="/reddit_apps/{{ item.id }}">{{ item.app_name }}</a></th>#}
-{#                                    <td>{{ item.short_name }}</td>#}
-{#                                    <td>{{ item.app_type }}</td>#}
-{#                                    <td>{{ item.description }}</td>#}
-{#                                    <td>{{ item.client_id }}</td>#}
-{#                                    <td>{{ item.client_secret }}</td>#}
-{#                                    <td>{{ item.user_agent }}</td>#}
-{#                                    <td>{{ item.redirect_uri }}</td>#}
-{#                                    <td>{{ item.created.strftime('%m/%d/%Y %I:%M:%S %p') }}</td>#}
-{#                                    <td>#}
-{#                                        {% if item.enabled %}#}
-{#                                            <i class="fas fa-check" id="{{ item.id }}_icon" style="font-size: 28px;color: #00bc8c"></i>#}
-{#                                        {% else %}#}
-{#                                            <i class="fas fa-times" id="{{ item.id }}_icon" style="font-size: 28px; color: #E74C3C"></i>#}
-{#                                        {% endif %}#}
-{#                                    </td>#}
-{#                                    <td>#}
-{#                                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">#}
-{#                                            <button type="button" class="btn btn-primary" onclick="location.href='/{{ item.__tablename__ }}/{{ item.id }}'">Edit</button>#}
-{#                                            <div class="btn-group" role="group">#}
-{#                                                <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>#}
-{#                                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">#}
-{#                                                    <a class="dropdown-item" href="/{{ item.__tablename__ }}/{{ item.id }}">Edit</a>#}
-{#                                                    {% if item.enabled %}#}
-{#                                                        <a class="dropdown-item" id="{{ item.id }}_toggle" style="color: #E74C3C" onclick="toggleItem({{ item.__tablename__ }}, '{{ item.id }}', false)">Disable</a>#}
-{#                                                    {% else %}#}
-{#                                                        <a class="dropdown-item" id="{{ item.id }}_toggle" style="color: #00bc8c" onclick="toggleItem({{ item.__tablename__ }}, '{{ item.id }}', true)">Enable</a>#}
-{#                                                    {% endif %}#}
-{#                                                    <div class="dropdown-divider"></div>#}
-{#                                                    <a class="dropdown-item" onclick="showDeleteModal('{{ item.__tablename__ }}', '{{ item.id }}', {{ loop.index }})" style="color: red">Delete</a>#}
-{#                                                </div>#}
-{#                                            </div>#}
-{#                                        </div>#}
-{#                                    </td>#}
-{#                                </tr>#}
-{#                            {% endfor %}#}
-{#                            </tbody>#}
-{#                        </table>#}
-{#                        <button class="btn btn-primary" id="addRedditApp" data-toggle="modal" data-target="#newRedditAppModal">Add Reddit App</button>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
-{#            <div class="tab-pane fade" id="sentryTokens">#}
-{#                <div class="container" style="margin-top: 25px">#}
-{#                    <div class="table-responsive">#}
-{#                        <table class="table table-hover table-bordered table-striped" id="sentry_tokens_table">#}
-{#                            <thead class="thead-dark">#}
-{#                            <tr>#}
-{#                                <th scope="col">App Name<sup>#}
-{#                                <th scope="col">DSN<sup>#}
-{#                                    <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"#}
-{#                                          title="Sentry url with token">#}
-{#                                        <i class="far fa-question-circle"></i></span></sup></th>#}
-{#                                <th scope="col">Created</th>#}
-{#                                <th scope="col">Enabled</th>#}
-{#                                <th scope="col" data-sorter="false">Edit<sup>#}
-{#                                    <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"#}
-{#                                          title="Edit app settings">#}
-{#                                        <i class="far fa-question-circle"></i></span></sup></th>#}
-{#                            </tr>#}
-{#                            </thead>#}
-{#                            <tbody>#}
-{#                            {% for item in user.sentry_tokens.all() %}#}
-{#                                <tr>#}
-{#                                    <th scope="row"><a href="/{{ item.__tablename__ }}/{{ item.id }}">{{ item.app_name }}</a></th>#}
-{#                                    <td>{{ item.dsn }}</td>#}
-{#                                    <td>{{ item.created.strftime('%m/%d/%Y %I:%M:%S %p') }}</td>#}
-{#                                    <td>#}
-{#                                        {% if item.enabled %}#}
-{#                                            <i class="fas fa-check" id="{{ item.id }}_icon" style="font-size: 28px;color: #00bc8c"></i>#}
-{#                                        {% else %}#}
-{#                                            <i class="fas fa-times" id="{{ item.id }}_icon" style="font-size: 28px; color: #E74C3C"></i>#}
-{#                                        {% endif %}#}
-{#                                    </td>#}
-{#                                    <td>#}
-{#                                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">#}
-{#                                            <button type="button" class="btn btn-primary" onclick="location.href='/{{ item.__tablename__ }}/{{ item.id }}'">Edit</button>#}
-{#                                            <div class="btn-group" role="group">#}
-{#                                                <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>#}
-{#                                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">#}
-{#                                                    <a class="dropdown-item" href="/{{ item.__tablename__ }}/{{ item.id }}">Edit</a>#}
-{#                                                    {% if item.enabled %}#}
-{#                                                        <a class="dropdown-item" id="{{ item.id }}_toggle" style="color: #E74C3C" onclick="toggleItem({{ item.__tablename__ }}, '{{ item.id }}', false)">Disable</a>#}
-{#                                                    {% else %}#}
-{#                                                        <a class="dropdown-item" id="{{ item.id }}_toggle" style="color: #00bc8c" onclick="toggleItem({{ item.__tablename__ }}, '{{ item.id }}', true)">Enable</a>#}
-{#                                                    {% endif %}#}
-{#                                                    <div class="dropdown-divider"></div>#}
-{#                                                    <a class="dropdown-item" onclick="showDeleteModal('{{ item.__tablename__ }}', '{{ item.id }}', {{ loop.index }})" style="color: red">Delete</a>#}
-{#                                                </div>#}
-{#                                            </div>#}
-{#                                        </div>#}
-{#                                    </td>#}
-{#                                </tr>#}
-{#                            {% endfor %}#}
-{#                            </tbody>#}
-{#                        </table>#}
-{#                        <button class="btn btn-primary" id="addSentryToken" data-toggle="modal" data-target="#newSentryTokenModal">Add Sentry Token</button>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
-{#            <div class="modal fade" id="newRedditAppModal" role="dialog" aria-labelledby="newRedditAppModal" aria-hidden="true">#}
-{#                <div class="modal-dialog" role="document">#}
-{#                    <div class="modal-content">#}
-{#                        <div class="modal-header">#}
-{#                            <h5 class="modal-title" id="newRedditAppModalLabel">Add Reddit App</h5>#}
-{#                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>#}
-{#                        </div>#}
-{#                        <div class="modal-body">#}
-{#                            <form class="form" role="form" id="newRedditAppTokenForm">#}
-{#                                {{ wtf.quick_form(redditAppForm) }}#}
-{#                                <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>#}
-{#                                <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="reddit_appCreateNew">Add and New</button>#}
-{#                                <button type="submit" name="submit" tabindex="0" data-dismiss="modal" class="btn btn-primary" id="reddit_appCreate">Add</button>#}
-{#                            </form>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
-{#            <div class="modal fade" id="newSentryTokenModal" role="dialog" aria-labelledby="newSentryTokenModalLabel" aria-hidden="true">#}
-{#                <div class="modal-dialog" role="document">#}
-{#                    <div class="modal-content">#}
-{#                        <div class="modal-header">#}
-{#                            <h5 class="modal-title" id="newSentryTokenModalLabel">Add Sentry Token</h5>#}
-{#                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>#}
-{#                        </div>#}
-{#                        <div class="modal-body">#}
-{#                            <form class="form" role="form" id="addSentryTokenForm">#}
-{#                                {{ wtf.quick_form(sentryForm) }}#}
-{#                                <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>#}
-{#                                <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="sentryTokenCreateNew">Add and New</button>#}
-{#                                <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="sentryTokenCreate">Add</button>#}
-{#                            </form>#}
-{#                            <form id="createRedditAppForm">#}
-{#                                    <div class="form-group">#}
-{#                                        <label id="app_name" for="app_name">App Name</label>#}
-{#                                        <input type="text" value="" name="shortName" class="form-control" id="app_name" placeholder="The Reddit app name">#}
-{#                                    </div>#}
-{#                                    <div class="form-group">#}
-{#                                        <label id="short_name" for="short_name">Short Name</label>#}
-{#                                        <input type="text" value="" name="shortName" class="form-control" id="short_name" placeholder="Short name you can use instead of the app name">#}
-{#                                    </div>#}
-{#                                    <div class="form-group">#}
-{#                                        <label for="appType">App Type</label>#}
-{#                                        <select class="custom-select" id="appType" name="appType">#}
-{#                                            <option selected>None</option>#}
-{#                                            <option value="web">Web App</option>#}
-{#                                            <option value="installed">Installed App</option>#}
-{#                                            <option value="script">Personal Use Script</option>#}
-{#                                        </select>#}
-{#                                    </div>#}
-{#                                    <div class="form-group">#}
-{#                                        <label id="app_description" for="app_description">Description</label>#}
-{#                                        <input type="text" value="" default="" name="appDescription" class="form-control" id="app_description" placeholder="App description">#}
-{#                                    </div>#}
-{#                                    <div class="form-group">#}
-{#                                        <label id="client_id" for="client_id">Client ID</label>#}
-{#                                        <input type="text" value="" default="" name="clientId" class="form-control" id="client_id" placeholder="App's client ID">#}
-{#                                    </div>#}
-{#                                    <div class="form-group">#}
-{#                                        <label id="client_secret" for="client_secret">Client Secret</label>#}
-{#                                        <input type="text" value="" default="" name="clientSecret" class="form-control" id="client_secret" placeholder="App's client secret (if applicable)">#}
-{#                                    </div>#}
-{#                                    <div class="form-group">#}
-{#                                        <label id="user_agent" for="user_agent">User Agent</label>#}
-{#                                        <input type="text" value="" default="" name="userAgent" class="form-control" id="user_agent" placeholder="User agent to use when connecting to reddit">#}
-{#                                    </div>#}
-{#                                    <div class="form-group">#}
-{#                                        <label for="redirect_uri">Redirect URI</label>#}
-{#                                        <select class="custom-select" id="redirect_uri" name="redirectUri">#}
-{#                                            <option selected default>None</option>#}
-{#                                            <option value="{{ user.default_redirect_uri }}">User Default</option>#}
-{#                                            <option value="custom">Custom</option>#}
-{#                                        </select>#}
-{#                                    </div>#}
-{#                                    <div class="form-group">#}
-{#                                            <label hidden id="customRedirectUriLabel" for="customRedirectUri">Custom Redirect URI</label>#}
-{#                                            <input hidden type="text" value="" placeholder="http://localhost:8080" name="redirectUri" class="form-control" id="customRedirectUri">#}
-{#                                    </div>#}
-{#                                    <div class="modal-footer">#}
-{#                                        <div class="custom-control custom-switch">#}
-{#                                            <input type="checkbox" class="custom-control-input" id="enableOnAdd" name="enableToggle" checked>#}
-{#                                            <label class="custom-control-label" tabindex="0" for="enableOnAdd">Enable</label>#}
-{#                                        </div>#}
-{#                                        <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>#}
-{#                                        <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="reddit_appCreateNew">Create and New</button>#}
-{#                                        <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="reddit_appCreate">Create</button>#}
-{#                                    </div>#}
-{#                            </form>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
-{#            <div class="modal fade" id="batchNewRedditAppModal" role="dialog" aria-labelledby="batchNewRedditAppModalLabel" aria-hidden="true">#}
-{#                <div class="modal-dialog" role="document">#}
-{#                    <div class="modal-content">#}
-{#                        <div class="modal-header">#}
-{#                            <h5 class="modal-title" id="batchNewRedditAppModalLabel">Batch Add Reddit Apps</h5>#}
-{#                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>#}
-{#                        </div>#}
-{#                        <div class="modal-body">#}
-{#                            <form id="batchCreateRedditAppForm">#}
-{#                                    <div class="form-group">#}
-{#                                        <label id="apps_page_html_label" for="apps_page_html">App Name</label>#}
-{#                                        <input type="text" value="" name="appsPageHtml" class="form-control" id="apps_page_html" placeholder="Paste the HTML of your apps page here to auto import all reddit apps">#}
-{#                                    </div>#}
-{#                                    <div class="modal-footer">#}
-{#                                        <div class="custom-control custom-switch">#}
-{#                                            <input type="checkbox" class="custom-control-input" id="enableOnAdd" name="enableToggle" checked>#}
-{#                                            <label class="custom-control-label" tabindex="0" for="enableOnAdd">Enable</label>#}
-{#                                        </div>#}
-{#                                        <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>#}
-{#                                        <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="reddit_appCreate">Create</button>#}
-{#                                    </div>#}
-{#                            </form>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
         </div>
-        <script>
-            $(function () {
-                var activeTab = document.getElementsByClassName('nav-link active')[0].ariaControls;
-                var hash = document.location.hash;
-                if (hash) {
-                    $(`#${activeTab}`).removeClass('active');
-                    $(`#${activeTab}Tab`).removeClass('active');
-                    $(`${hash}`).addClass('active show');
-                    $(`${hash}Tab`).addClass('active')
-                }
-            })
-        </script>
     </div>
     </body>
 {% endblock %}

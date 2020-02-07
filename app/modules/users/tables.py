@@ -23,4 +23,4 @@ class UserTable(BaseTable):
 
         super().__init__(items, *args, **kwargs)
 
-    html_attrs = {'id': 'users'}
+    html_attrs = {'id': 'users_table'}

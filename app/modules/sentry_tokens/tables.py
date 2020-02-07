@@ -13,3 +13,5 @@ class SentryTokenTable(BaseTable):
         if current_user.is_admin or current_user.is_internal:
             self.add_column('Owner', LinkCol('Owner', 'users.users', attr_list=['owner', 'username']))
         super().__init__(items)
+
+    html_attrs = {'id': 'sentry_tokens_table'}

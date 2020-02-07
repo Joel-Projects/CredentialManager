@@ -18,7 +18,7 @@ $(function() {
   var hash = document.location.hash;
   var prefix = "tab_";
   if (hash) {
-    $(`.nav-tabs a[href="${hash.replace(prefix, "")}"]`).tab('show');
+    $(`.nav-tabs a[href="${hash.replace(prefix, "")}"]`).tab('show')
   }
 });
 
@@ -32,7 +32,7 @@ function doneSave(id, form) {
     $(`#${id}`).html('Save');
 };
 
-function deleteItem(table, name, item_type, item_id, row_id) {
+function deleteTableItem(table, name, item_type, item_id, row_id, redirectUrl=null) {
     $.ajax({
         type: 'DELETE',
         url: `/api/v1/${item_type}/${item_id}`
@@ -43,6 +43,21 @@ function deleteItem(table, name, item_type, item_id, row_id) {
             } else {
                 popNotification('success', `Successfully deleted ${name}`);
                 table.deleteRow(row_id);
+            }
+        });
+}
+
+function deleteItem(name, item_type, item_id) {
+    $.ajax({
+        type: 'DELETE',
+        url: `/api/v1/${item_type}/${item_id}`
+    })
+        .done(function (data) {
+            if (data) {
+                popNotification('error', data.message);
+            } else {
+                popNotification('success', `Successfully deleted ${name}`);
+                window.location.href = `/${item_type}`
             }
         });
 }
@@ -112,7 +127,7 @@ function toggleItem(itemType, id, name, nameAttr, enabledAttr) {
             }
         });
 }
-function createItem(button, form, additonal=false) {
+function createItem(button, form, resource, additonal=false) {
     event.preventDefault();
 
     var data = {};
@@ -122,7 +137,7 @@ function createItem(button, form, additonal=false) {
     $.ajax({
         data: data,
         type: 'POST',
-        url: button.formAction
+        url: resource
     })
     .done(function notify(data) {
         if (data.status == 'error') {
@@ -137,7 +152,7 @@ function createItem(button, form, additonal=false) {
             if (additonal) {
                 $(`#${form}`)[0].reset()
             } else {
-                window.location.href=window.location.href;
+                window.location.reload(false)
             }
         }
     // })
@@ -180,8 +195,8 @@ function resetForm(formId, focusElement, focus) {
 
 function showDeleteModal(name, item_type, item_id, row_id) {
     document.getElementById('delete-modal-body').innerHTML = `Are you <strong>sure</strong> you want to delete "${name}"?`;
-    document.getElementById('delete-modal-footer').innerHTML = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteItem(${item_type}, '${name}', '${item_type}', ${item_id}, ${row_id})" data-dismiss="modal" id="deleteConfirm">Delete "${name}"</button>`;
-    $('#confirmationModal').modal('show')
+    document.getElementById('delete-modal-footer').innerHTML = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteTableItem(${item_type}_table, '${name}', '${item_type}', ${item_id}, ${row_id})" data-dismiss="modal" id="deleteConfirm">Delete "${name}"</button>`;
+    $(`#confirmationModal`).modal('show')
 }
 
 function copy(that){

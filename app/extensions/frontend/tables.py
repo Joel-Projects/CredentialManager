@@ -1,3 +1,4 @@
+from flask_login import current_user
 from flask_table import Col, Table, LinkCol
 from flask_table.html import element
 from pytz import timezone
@@ -47,7 +48,7 @@ class CopyableField(BaseCol):
   <div class="input-group-append">
     <button class="input-group-text btn-dark" type="button"  onclick="copy(this)" id="copyBox"><a  class="fas fa-clipboard"></a></button>
   </div>
-</div><!--<div class="button"> <span class="ion-log-in" onclick="copy(this)"></span></div>-->
+</div>
 '''
 
 class ToolTipColumn(BaseCol):
@@ -78,14 +79,19 @@ class CreatedBy(BaseCol):
         out = _recursive_getattr(item, attr_list)
         return out
 
-
     def td_contents(self, item, attr_list):
-        return self.td_format((self.from_attr_list(item, attr_list), item.id, self.tooltip(item)))
+        return self.td_format((self.from_attr_list(item, attr_list), item, self.tooltip(item)))
 
     def td_format(self, item):
-        content, item_id, tooltip = item
+        content, item, tooltip = item
+        link = ''
+        if item.createdBy.is_internal:
+            if current_user.is_internal:
+                link = f'href = "/u/{content}"'
+        else:
+            link = f'href = "/u/{content}"'
         if content:
-            return f'<a href="/u/{content}">{content}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{tooltip}"><i class="far fa-question-circle"></i></span></sup>'
+            return f'<a {link}>{content}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{tooltip}"><i class="far fa-question-circle"></i></span></sup>'
         else:
             return f'<a>{content}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{tooltip}"><i class="far fa-question-circle"></i></span></sup>'
 

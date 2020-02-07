@@ -38,7 +38,7 @@ debugToolBar = DebugToolbarExtension()
 
 from .frontend.forms import ModelForm
 from .frontend.errors import unauthorizedError, notFoundError
-from .frontend.decorators import paginateArgs
+from .frontend.decorators import paginateArgs, requiresAdmin, verifyEditable
 
 from . import api
 

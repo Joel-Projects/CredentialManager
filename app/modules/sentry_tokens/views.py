@@ -32,4 +32,4 @@ def sentry_tokens(page, perPage):
         paginator = current_user.sentry_tokens.paginate(page, perPage, error_out=False)
     table = SentryTokenTable(paginator.items, current_user=current_user)
     form = SentryTokenForm()
-    return render_template('sentry_tokens.html', table=table, form=form, paginator=paginator, route='sentry_tokens.sentry_tokens', perPage=perPage)
+    return render_template('sentry_tokens.html', sentry_tokensTable=table, sentry_tokensForm=form, paginator=paginator, route='sentry_tokens.sentry_tokens', perPage=perPage)

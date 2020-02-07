@@ -16,4 +16,4 @@ class ApiTokenTable(BaseTable):
 
         super().__init__(items)
 
-    html_attrs = {'id': 'api_tokens'}
+    html_attrs = {'id': 'api_tokens_table'}

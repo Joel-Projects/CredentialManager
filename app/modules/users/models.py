@@ -5,7 +5,7 @@ User database model
 import enum, operator
 from datetime import datetime
 
-from sqlalchemy_utils import types as column_types
+from sqlalchemy_utils import types as column_types, Timestamp
 from flask_login import UserMixin
 from app.extensions import db, Timestamp
 from app.modules.api_tokens.models import ApiToken
@@ -54,6 +54,12 @@ class User(db.Model, Timestamp, UserMixin):
         # 'refresh_tokens.count': 'Authencated Users',
         'sentry_tokens.count': 'Sentry Tokens'
     }
+
+    def getInfoAttr(self, path):
+        attr = operator.attrgetter(path)(self)
+        if callable(attr):
+            attr = attr()
+        return attr
 
     __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, primary_key=True)
@@ -132,9 +138,3 @@ class User(db.Model, Timestamp, UserMixin):
             apiToken.last_used = datetime.now()
             return user
         return None
-
-    def getInfoAttr(self, path):
-        attr = operator.attrgetter(path)(self)
-        if callable(attr):
-            attr = attr()
-        return attr

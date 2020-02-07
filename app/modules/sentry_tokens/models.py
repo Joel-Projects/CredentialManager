@@ -17,7 +17,6 @@ class SentryToken(db.Model, Timestamp):
     name = db.Column(db.String)
     dsn = db.Column(db.String, nullable=False)
     enabled = db.Column(db.Boolean, default=True)
-    # owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='restrict', onupdate='CASCADE'))
     owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'))
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
 
