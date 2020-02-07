@@ -48,7 +48,7 @@ class Logging(object):
         except ImportError:
             pass
         else:
-            formatter = colorlog.ColoredFormatter('%(asctime)s [%(log_color)s%(levelname)s%(reset)s] [%(cyan)s%(name)s%(reset)s] %(message_log_color)s%(message)s', reset=True, log_colors={'DEBUG': 'bold_cyan', 'INFO': 'bold_green', 'WARNING': 'bold_yellow', 'ERROR': 'bold_red', 'CRITICAL': 'bold_red,bg_white', }, secondary_log_colors={'message': {'DEBUG': 'white', 'INFO': 'bold_white', 'WARNING': 'bold_yellow', 'ERROR': 'bold_red', 'CRITICAL': 'bold_red', }, }, style='%')
+            formatter = colorlog.ColoredFormatter('%(asctime)s [%(log_color)s%(levelname)s%(reset)s] [%(cyan)s%(name)s%(reset)s] %(message_log_color)s%(message)s', reset=True, log_colors={'DEBUG': 'bold_cyan', 'INFO': 'bold_green', 'WARNING': 'bold_yellow', 'ERROR': 'bold_red', 'CRITICAL': 'bold_red,bg_white', }, secondary_log_colors={'message': {'DEBUG': 'white', 'INFO': 'bold_white', 'WARNING': 'bold_yellow', 'ERROR': 'bold_red', 'CRITICAL': 'bold_red'}}, style='%', datefmt='%m/%d/%Y %I:%M:%S %p %Z')
 
             for handler in logger.handlers:
                 if isinstance(handler, logging.StreamHandler):

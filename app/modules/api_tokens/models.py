@@ -1,5 +1,7 @@
 import base64, hashlib, random
 
+from wtforms_alchemy import Unique
+
 from app.extensions import db, Timestamp
 
 class ApiToken(db.Model, Timestamp):
@@ -12,15 +14,15 @@ class ApiToken(db.Model, Timestamp):
     _enabledAttr = 'enabled'
     __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String, nullable=False)
-    token = db.Column(db.String, nullable=False)
-    enabled = db.Column(db.Boolean, default=True)
+    name = db.Column(db.String, nullable=False, info={'label': 'Name'})
+    token = db.Column(db.String, nullable=False, info={'label': 'API Token'})
+    enabled = db.Column(db.Boolean, default=True, info={'label': 'Enabled'})
     # owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='restrict', onupdate='CASCADE'))
     owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'))
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     last_used = db.Column(db.DateTime(True))
 
-    db.UniqueConstraint(name, owner_id)
+    unique = db.UniqueConstraint(name, owner_id)
 
     def check_owner(self, user):
         if self.owner.is_internal:

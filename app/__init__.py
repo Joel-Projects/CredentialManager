@@ -5,7 +5,7 @@ import os
 import sys
 
 from flask import Flask
-from werkzeug.contrib.fixers import ProxyFix
+from werkzeug.middleware.proxy_fix import ProxyFix
 from app.secrets import sentryDsn, ddAppKey, ddApiKey
 
 CONFIG_NAME_MAPPER = {

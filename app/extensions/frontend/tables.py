@@ -42,7 +42,13 @@ class CopyableField(BaseCol):
 
     def td_format(self, contents):
         content, item = contents
-        return f'<div class="button"> <span class="ion-log-in" onclick="copy(this)">{content}</span></div>'
+        return f'''<div class="input-group mb-3">
+  <input type="text" class="form-control" style="background-color: grey;color: lightgray" readonly value="{content}" aria-describedby="copyBox">
+  <div class="input-group-append">
+    <button class="input-group-text btn-dark" type="button"  onclick="copy(this)" id="copyBox"><a  class="fas fa-clipboard"></a></button>
+  </div>
+</div><!--<div class="button"> <span class="ion-log-in" onclick="copy(this)"></span></div>-->
+'''
 
 class ToolTipColumn(BaseCol):
 

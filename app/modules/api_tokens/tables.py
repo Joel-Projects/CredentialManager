@@ -3,7 +3,7 @@ from flask_table import Col
 from app.extensions.frontend.tables import BaseTable, BoolIconColumn, DatetimeColumn, OwnerCol, CopyableField
 
 
-class TokenTable(BaseTable):
+class ApiTokenTable(BaseTable):
 
     def __init__(self, items, current_user=None):
         self.add_column('Name', Col('Name', 'name'))

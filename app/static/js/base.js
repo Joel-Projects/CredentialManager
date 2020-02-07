@@ -18,7 +18,7 @@ $(function() {
   var hash = document.location.hash;
   var prefix = "tab_";
   if (hash) {
-    $('.nav-tabs a[href="'+hash.replace(prefix,"")+'"]').tab('show');
+    $(`.nav-tabs a[href="${hash.replace(prefix, "")}"]`).tab('show');
   }
 });
 
@@ -112,6 +112,60 @@ function toggleItem(itemType, id, name, nameAttr, enabledAttr) {
             }
         });
 }
+function createItem(button, form, additonal=false) {
+    event.preventDefault();
+
+    var data = {};
+    $(`#${form} *`).filter(':input').each(function(){
+        data[this.name] = this.value;
+    });
+    $.ajax({
+        data: data,
+        type: 'POST',
+        url: button.formAction
+    })
+    .done(function notify(data) {
+        if (data.status == 'error') {
+            for (item in data.errors) {
+                var errors = data['errors'][item];
+                if (!($(`#${item}`).hasClass('is-invalid'))) {
+                    $(`#${item}`).parent().append(`<div class="invalid-feedback" id="${item}Feedback">${errors[0]}</div>`);
+                    $(`#${item}`).addClass('is-invalid')
+                }
+            }
+        } else {
+            if (additonal) {
+                $(`#${form}`)[0].reset()
+            } else {
+                window.location.href=window.location.href;
+            }
+        }
+    // })
+    // .done(function notify(data) {
+    //     var elem = document.getElementById(`${itemType}_${id}_toggle`);
+    //     var icon = document.getElementById(`${itemType}_${id}_icon`);
+    //     if (data.status == 422) {
+    //         popNotification('error', data.message);
+    //     } else {
+    //         if (data.is_active) {
+    //             elem.textContent = "Disable";
+    //             elem.style.color = "#E74C3C";
+    //             icon.setAttribute("class", "fas fa-check");
+    //             icon.style.color = "#00bc8c";
+    //             var toastStatus = "enabled";
+    //         } else {
+    //             elem.textContent = "Enable";
+    //             elem.style.color = "#00bc8c";
+    //             icon.setAttribute("class", "fas fa-times");
+    //             icon.style.color = "#E74C3C";
+    //             var toastStatus = "disabled";
+    //         }
+    //         elem.setAttribute("class", "dropdown-item");
+    //         popNotification('success', `Successfully ${toastStatus} '${data[nameAttr]}'`);
+    //     }
+    });
+}
+
 
 function clearInvalidState(textBox) {
     textBox.classList.remove("is-invalid")
@@ -131,12 +185,15 @@ function showDeleteModal(name, item_type, item_id, row_id) {
 }
 
 function copy(that){
-    var inp =document.createElement('input');
-    document.body.appendChild(inp);
-    inp.value =that.textContent;
+    var inp = that.offsetParent.firstElementChild;
     inp.select();
     document.execCommand('copy',false);
-    inp.remove();
+    $.toast({
+        title: 'Copied to clipboard',
+        type: 'success',
+        delay: 1500,
+
+    });
 }
 
 function invalidateField(field) {

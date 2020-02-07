@@ -22,6 +22,9 @@
                 <a class="nav-link active" data-toggle="tab" id="tab_settings" href="#settings" aria-controls="settings">Settings</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" id="tab_apiTokens" href="#apiTokens" aria-controls="RedditApps">API Tokens</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" id="tab_bots" href="#bots" aria-controls="Bots">Bots</a>
             </li>
             <li class="nav-item">
@@ -32,9 +35,6 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" id="tab_databaseCredentials" href="#databaseCredentials" aria-controls="RedditApps">Database Credentials</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" id="tab_apiTokens" href="#apiTokens" aria-controls="RedditApps">API Tokens</a>
             </li>
         </ul>
         <div class="tab-content py-3">
@@ -94,9 +94,9 @@
                                     {% else %}
                                         {{ form.default_redirect_uri(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
                                     {% endif %}
-                                    <small id="headerHelp" class="form-text text-muted">Defines the user's default redirect URI for reddit apps for OAuth 2 authentication</small>
+                                    <small id="headerHelp" class="form-text text-muted">Defines the user's default redirect URI for reddit apps for OAuth2 authentication</small>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" {% if not current_user.is_admin or not current_user.is_internal %}hidden{% endif %}>
                                     <div class="custom-control custom-switch">
                                         {{ form.is_admin(default=user.is_admin, class_="custom-control-input") }}
                                         {{ form.is_admin.label(class_='custom-control-label') }}
@@ -104,7 +104,7 @@
                                     </div>
                                 </div>
                                 {% if current_user.is_internal %}
-                                    <div class="form-group">
+                                    <div class="form-group" >
                                         <div class="custom-control custom-switch">
                                             {{ form.is_internal(default=user.is_internal, class_="custom-control-input") }}
                                             {{ form.is_internal.label(class_='custom-control-label') }}
@@ -119,7 +119,7 @@
                                         </div>
                                     </div>
                                 {% endif %}
-                                <div class="form-group">
+                                <div class="form-group" {% if not current_user.is_admin or not current_user.is_internal %}hidden{% endif %}>
                                     <div class="custom-control custom-switch">
                                         {{ form.is_active(default=user.is_active, class_="custom-control-input") }}
                                         {{ form.is_active.label(class_='custom-control-label') }}
@@ -130,22 +130,24 @@
                                     <button class="btn btn-primary" type="submit" name="save" onclick="saveItem(this)" id="save" value="save">Save</button>
                                 </div>
                             </form>
-                            <button class="btn btn-danger" id="delete" data-target="#confirmationModal" data-toggle="modal">Delete User</button>
-                            <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                        </div>
-                                        <div class="modal-body" id="delete-modal-body">Are you <strong>sure</strong> you want to delete user "{{ user.username }}"?</div>
-                                        <div class="modal-footer" id="delete-modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            <button type="button" class="btn btn-danger" onclick="deleteUser( {{ user.id }} )" data-dismiss="modal" id="deleteConfirm">Delete this user</button>
+                            {% if current_user.is_admin or current_user.is_internal %}
+                                <button class="btn btn-danger" id="delete" data-target="#confirmationModal" data-toggle="modal">Delete User</button>
+                                <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                            </div>
+                                            <div class="modal-body" id="delete-modal-body">Are you <strong>sure</strong> you want to delete user "{{ user.username }}"?</div>
+                                            <div class="modal-footer" id="delete-modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button type="button" class="btn btn-danger" onclick="deleteUser( {{ user.id }} )" data-dismiss="modal" id="deleteConfirm">Delete this user</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

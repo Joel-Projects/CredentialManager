@@ -21,7 +21,7 @@ class SentryToken(db.Model, Timestamp):
     owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'))
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
 
-    db.UniqueConstraint(name, owner_id)
+    uniqueConstrant = db.UniqueConstraint(name, owner_id)
 
     def check_owner(self, user):
         if self.owner.is_internal:

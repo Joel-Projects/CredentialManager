@@ -64,6 +64,7 @@ class User(db.Model, Timestamp, UserMixin):
     createdBy = db.relationship('User', remote_side=id, foreign_keys=[created_by])
     updated_by = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='SET NULL', onupdate='CASCADE'))
     updatedBy = db.relationship('User', remote_side=id, foreign_keys=[updated_by])
+    internal = db.Column(db.Boolean, default=False)
 
     class StaticRoles(enum.Enum):
         INTERNAL = (0x8000, "Internal")
@@ -99,11 +100,15 @@ class User(db.Model, Timestamp, UserMixin):
         if self.hasStaticRole(role):
             return
         self.static_roles |= role.mask
+        if role.title == 'Internal':
+            self.internal = True
 
     def unsetStaticRole(self, role):
         if not self.hasStaticRole(role):
             return
         self.static_roles ^= role.mask
+        if role.title == 'Internal':
+            self.internal = False
 
     def check_owner(self, user):
         return self == user
