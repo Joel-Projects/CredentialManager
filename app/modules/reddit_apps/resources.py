@@ -14,57 +14,57 @@ from werkzeug import security
 from app.extensions.api import Namespace, http_exceptions
 
 from . import schemas, parameters
-from .models import db, SentryToken
+from .models import db, RedditApp
 from ..users import permissions
 from ..users.models import User
 
 log = logging.getLogger(__name__)
-api = Namespace('sentry_tokens', description="Sentry Token Management")
+api = Namespace('reddit_apps', description="Reddit App Management")
 
 
 @api.route('/')
 @api.login_required()
-class SentryTokens(Resource):
+class RedditApps(Resource):
     """
-    Manipulations with Sentry Tokens.
+    Manipulations with Reddit Apps.
     """
 
     # @api.permission_required(permissions.AdminRolePermission())
-    @api.response(schemas.BaseSentryTokenSchema(many=True))
-    @api.parameters(parameters.ListSentryTokensParameters(), locations=('query',))
+    @api.response(schemas.BaseRedditAppSchema(many=True))
+    @api.parameters(parameters.ListRedditAppsParameters(), locations=('query',))
     def get(self, args):
         """
-        List of Sentry Tokens.
+        List of Reddit Apps.
 
-        Returns a list of Sentry Tokens starting from ``offset`` limited by
+        Returns a list of Reddit Apps starting from ``offset`` limited by
         ``limit`` parameter.
 
-        Only Admins can specify ``owner`` to see Sentry Tokens for other users. Regular users will see their own Sentry Tokens.
+        Only Admins can specify ``owner`` to see Reddit Apps for other users. Regular users will see their own Reddit Apps.
         """
-        apiKeys = SentryToken.query
+        apiKeys = RedditApp.query
         if 'owner_id' in args:
             owner_id = args['owner_id']
             if current_user.is_admin:
-                apiKeys = apiKeys.filter(SentryToken.owner_id == owner_id)
+                apiKeys = apiKeys.filter(RedditApp.owner_id == owner_id)
             else:
                 if owner_id == current_user.id:
-                    apiKeys = apiKeys.filter(SentryToken.owner == current_user)
+                    apiKeys = apiKeys.filter(RedditApp.owner == current_user)
                 else:
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Sentry Tokens.")
+                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Reddit Apps.")
         else:
             if not current_user.is_admin:
-                apiKeys = apiKeys.filter(SentryToken.owner == current_user)
+                apiKeys = apiKeys.filter(RedditApp.owner == current_user)
         return apiKeys.offset(args['offset']).limit(args['limit'])
 
-    @api.parameters(parameters.CreateSentryTokenParameters())
-    @api.response(schemas.DetailedSentryTokenSchema())
+    @api.parameters(parameters.CreateRedditAppParameters())
+    @api.response(schemas.DetailedRedditAppSchema())
     @api.response(code=HTTPStatus.FORBIDDEN)
     @api.response(code=HTTPStatus.CONFLICT)
     def post(self, args):
         """
-        Create a new Sentry Token.
+        Create a new Reddit App.
 
-        Sentry Tokens are used for logging and error reporting in applications
+        Reddit Apps are used for logging and error reporting in applications
         """
         if getattr(args, 'owner_id', None):
             owner_id = args.owner_id
@@ -74,55 +74,55 @@ class SentryTokens(Resource):
                 if owner_id == current_user.id:
                     owner = current_user
                 else:
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create Sentry Tokens for other users.")
+                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create Reddit Apps for other users.")
         else:
             owner = current_user
-        with api.commit_or_abort(db.session, default_error_message="Failed to create a new Sentry Token."):
-            newSentryToken = SentryToken(owner=owner, dsn=args.dsn, name=args.name)
-            db.session.add(newSentryToken)
-        return newSentryToken
+        with api.commit_or_abort(db.session, default_error_message="Failed to create a new Reddit App."):
+            newRedditApp = RedditApp(owner=owner, dsn=args.dsn, name=args.name)
+            db.session.add(newRedditApp)
+        return newRedditApp
 
-@api.route('/<int:sentry_token_id>')
+@api.route('/<int:reddit_app_id>')
 @api.login_required()
-@api.response(code=HTTPStatus.NOT_FOUND, description="Sentry Token not found.")
-@api.resolveObjectToModel(SentryToken, 'sentry_token')
-class SentryTokenByID(Resource):
+@api.response(code=HTTPStatus.NOT_FOUND, description="Reddit App not found.")
+@api.resolveObjectToModel(RedditApp, 'reddit_app')
+class RedditAppByID(Resource):
     """
-    Manipulations with a specific API TOken.
+    Manipulations with a specific Reddit App.
     """
 
     @api.login_required()
-    @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['sentry_token']})
-    @api.response(schemas.DetailedSentryTokenSchema())
-    def get(self, sentry_token):
+    @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['reddit_app']})
+    @api.response(schemas.DetailedRedditAppSchema())
+    def get(self, reddit_app):
         """
-        Get Sentry Token details by ID.
+        Get Reddit App details by ID.
         """
-        return sentry_token
+        return reddit_app
 
     @api.login_required()
-    @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['sentry_token']})
+    @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['reddit_app']})
     @api.permission_required(permissions.WriteAccessPermission())
     @api.response(code=HTTPStatus.CONFLICT)
     @api.response(code=HTTPStatus.NO_CONTENT)
-    def delete(self, sentry_token):
+    def delete(self, reddit_app):
         """
-        Delete a Sentry Token by ID.
+        Delete a Reddit App by ID.
         """
-        with api.commit_or_abort(db.session, default_error_message="Failed to delete Sentry Token."):
-            db.session.delete(sentry_token)
+        with api.commit_or_abort(db.session, default_error_message="Failed to delete Reddit App."):
+            db.session.delete(reddit_app)
         return None
 
     @api.login_required()
-    @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['sentry_token']})
-    @api.parameters(parameters.PatchSentryTokenDetailsParameters())
-    @api.response(schemas.DetailedSentryTokenSchema())
+    @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['reddit_app']})
+    @api.parameters(parameters.PatchRedditAppDetailsParameters())
+    @api.response(schemas.DetailedRedditAppSchema())
     @api.response(code=HTTPStatus.CONFLICT)
-    def patch(self, args, sentry_token):
+    def patch(self, args, reddit_app):
         """
-        Patch sentry_token details by ID.
+        Patch reddit_app details by ID.
         """
-        with api.commit_or_abort(db.session, default_error_message="Failed to update Sentry Token details."):
-            parameters.PatchSentryTokenDetailsParameters.perform_patch(args, sentry_token)
-            db.session.merge(sentry_token)
-        return sentry_token
+        with api.commit_or_abort(db.session, default_error_message="Failed to update Reddit App details."):
+            parameters.PatchRedditAppDetailsParameters.perform_patch(args, reddit_app)
+            db.session.merge(reddit_app)
+        return reddit_app

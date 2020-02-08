@@ -109,7 +109,7 @@ function toggleItem(itemType, id, name, nameAttr, enabledAttr) {
             if (data.status == 422) {
                 popNotification('error', data.message);
             } else {
-                if (data.is_active) {
+                if (data[enabledAttr]) {
                     elem.textContent = "Disable";
                     elem.style.color = "#E74C3C";
                     icon.setAttribute("class", "fas fa-check");
@@ -193,9 +193,15 @@ function resetForm(formId, focusElement, focus) {
     }
 }
 
-function showDeleteModal(name, item_type, item_id, row_id) {
+function showTableItemDeleteModal(name, item_type, item_id, row_id) {
     document.getElementById('delete-modal-body').innerHTML = `Are you <strong>sure</strong> you want to delete "${name}"?`;
     document.getElementById('delete-modal-footer').innerHTML = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteTableItem(${item_type}_table, '${name}', '${item_type}', ${item_id}, ${row_id})" data-dismiss="modal" id="deleteConfirm">Delete "${name}"</button>`;
+    $(`#confirmationModal`).modal('show')
+}
+
+function showDeleteModal(name, item_type, item_id, row_id) {
+    document.getElementById('delete-modal-body').innerHTML = `Are you <strong>sure</strong> you want to delete "${name}"?`;
+    document.getElementById('delete-modal-footer').innerHTML = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteItem('${name}', '${item_type}', ${item_id})" data-dismiss="modal" id="deleteConfirm">Delete "${name}"</button>`;
     $(`#confirmationModal`).modal('show')
 }
 

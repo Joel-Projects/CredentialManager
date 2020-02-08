@@ -3,9 +3,10 @@ import operator
 
 from wtforms_alchemy import Unique
 
-from app.extensions import db, Timestamp
+from app.extensions import db, Timestamp, InfoAttrs
 
-class ApiToken(db.Model, Timestamp):
+
+class ApiToken(db.Model, Timestamp, InfoAttrs):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -20,12 +21,6 @@ class ApiToken(db.Model, Timestamp):
         'updated': 'Last updated at',
         'last_used': 'Last Used'
     }
-
-    def getInfoAttr(self, path):
-        attr = operator.attrgetter(path)(self)
-        if callable(attr):
-            attr = attr()
-        return attr
 
     __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

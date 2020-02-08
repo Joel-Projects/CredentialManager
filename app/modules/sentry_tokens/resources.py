@@ -88,7 +88,7 @@ class SentryTokens(Resource):
 @api.resolveObjectToModel(SentryToken, 'sentry_token')
 class SentryTokenByID(Resource):
     """
-    Manipulations with a specific API TOken.
+    Manipulations with a specific Sentry Token.
     """
 
     @api.login_required()

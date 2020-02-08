@@ -1,35 +1,57 @@
 from flask_login import current_user
 from flask_marshmallow import base_fields
 
-from .models import SentryToken
+from .models import RedditApp
 from . import schemas
 from flask_restplus_patched import PostFormParameters, PatchJSONParameters
 from marshmallow import validates, ValidationError
 
 from app.extensions.api.parameters import PaginationParameters, validateOwner
 
-class ListSentryTokensParameters(PaginationParameters, validateOwner):
+class ListRedditAppsParameters(PaginationParameters, validateOwner):
 
     owner_id = base_fields.Integer()
 
     invalidOwnerMessage = 'You can only query your own {}.'
 
-class CreateSentryTokenParameters(PostFormParameters, schemas.BaseSentryTokenSchema, validateOwner):
-    name = base_fields.String(required=True, description='Name of the Sentry Token')
-    dsn = base_fields.String(required=True, description='DSN of the Sentry Token')
-    owner_id = base_fields.Integer(description='Owner of the token. Requires Admin to create for other users.')
+class CreateRedditAppParameters(PostFormParameters, schemas.BaseRedditAppSchema, validateOwner):
+    app_name = base_fields.String(required=True, description='Name of the Reddit App')
+    short_name = base_fields.String(description='Short name of the Reddit App')
+    app_description = base_fields.String(description='Description of the Reddit App')
+    client_id = base_fields.String(required=True, description='Client ID of the Reddit App')
+    client_secret = base_fields.String(description='Client secret of the Reddit App')
+    user_agent = base_fields.String(required=True, description='User agent used for requests to Reddit\'s API')
+    app_type = base_fields.String(required=True, description='Type of the app. One of `web`, `installed`, or `script`')
+    redirect_uri = base_fields.String(required=True, description='Redirect URI for Oauth2 flow. Defaults to user set redirect uri')
+    enabled = base_fields.String(default=True, description='Allows the app to be used')
+    owner_id = base_fields.Integer(description='Owner of the app. Requires Admin to create for other users.')
 
-    class Meta(schemas.BaseSentryTokenSchema.Meta):
-        fields = schemas.BaseSentryTokenSchema.Meta.fields + ('owner_id',)
+    class Meta(schemas.BaseRedditAppSchema.Meta):
+        fields = schemas.BaseRedditAppSchema.Meta.fields + ('owner_id',)
 
-    @validates('name')
+    @validates('app_name')
     def validateName(self, data):
         if len(data) < 3:
             raise ValidationError("Name must be greater than 3 characters long.")
 
-class PatchSentryTokenDetailsParameters(PatchJSONParameters):
+    @validates('app_type')
+    def validateAppType(self, data):
+        if not data.lower() in ['web', 'installed', 'script']:
+            raise ValidationError("App type is not valid. Valid types are: 'web', 'installed'. or 'script'`")
+
+class PatchRedditAppDetailsParameters(PatchJSONParameters):
     """
-    Sentry Token details updating parameters following PATCH JSON RFC.
+    Reddit App details updating parameters following PATCH JSON RFC.
     """
-    fields = (SentryToken.name.key, SentryToken.dsn.key)
+    fields = (
+        RedditApp.app_name.key,
+        RedditApp.short_name.key,
+        RedditApp.app_description.key,
+        RedditApp.client_id.key,
+        RedditApp.client_secret.key,
+        RedditApp.user_agent.key,
+        RedditApp.app_type.key,
+        RedditApp.redirect_uri.key,
+        RedditApp.enabled.key
+    )
     PATH_CHOICES = tuple(f'/{field}' for field in fields)

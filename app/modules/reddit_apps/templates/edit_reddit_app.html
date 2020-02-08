@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% import 'macros.jinja2' as macros %}
+{% block title %}Credential Manager - Edit Reddit App - {{ reddit_app.name }}{% endblock %}
+{% block breadCrumbs %}
+    <!--suppress HtmlUnknownTarget -->
+    {% if user and (current_user.is_admin or current_user.is_internal or reddit_app.check_owner(current_user)) %}
+        <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
+        <li class="breadcrumb-item"><a href="/u/{{ user.username }}">{{ user.username }}</a></li>
+        <li class="breadcrumb-item"><a href="/u/{{ user.username }}/reddit_apps/">Reddit Apps</a></li>
+    {% else %}
+        <li class="breadcrumb-item"><a href="/reddit_apps/">Reddit Apps</a></li>
+    {% endif %}
+    <li class="breadcrumb-item"><a href="/reddit_apps/{{ reddit_app.id }}">{{ reddit_app.name }}</a></li>
+{% endblock %}
+{% block activeItem %}active item{% endblock %}
+{% block content %}
+    <!--suppress ALL -->
+    <script src="{{ url_for('reddit_apps.static', filename='js/edit_reddit_app.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit.css') }}">
+    <body>
+    <div class="container">
+        <div class="row justify-content-lg-center">
+            <div class="col-md-4">
+                <div class="jumbotron">
+                    <h4>Reddit App Info</h4>
+                    <hr style="border-top: 1px solid";>
+                    {% for attr, displayName in reddit_app._infoAttrs.items() %}
+                        {% if attr == 'owner' and not reddit_app.check_owner(current_user) and (current_user.is_admin or current_user.is_internal) %}
+                            <strong>{{ displayName }}:</strong><br><a href="/u/{{ reddit_app.getInfoAttr(attr).username }}">{{ reddit_app.getInfoAttr(attr).username }}</a><br><br>
+                        {% elif reddit_app.getInfoAttr(attr).__class__.__name__ == 'datetime' %}
+                            <strong>{{ displayName }}:</strong><br><a>{{ reddit_app.getInfoAttr(attr).strftime('%m/%d/%Y %I:%M:%S %p') }}</a><br><br>
+                        {% else %}
+                            <strong>{{ displayName }}:</strong><br><a>{{ reddit_app.getInfoAttr(attr) }}</a><br><br>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <form id="editRedditAppForm" method="post" onsubmit="doneSave('save', this)">
+                    {{ form.hidden_tag() }}
+                    <input id="itemType" name="itemType" type="hidden" value="{{ reddit_app.__tablename__ }}">
+                    <input id="itemId" name="itemId" type="hidden" value="{{ reddit_app.id }}">
+                    <div class="form-group" hidden>
+                        {{ form.owner.label }}
+                        {{ form.owner(class_="custom-select", default=reddit_app.owner, readonly=True) }}
+                    </div>
+                    {% for fieldName in ['app_name', 'short_name', 'app_description', 'client_id', 'client_secret', 'user_agent', 'redirect_uri'] %}
+                        {{ macros.textField(form, fieldName) }}
+                    {% endfor %}
+                    <div class="form-group">
+                        <div class="custom-control custom-switch">
+                            {{ form.enabled(default=reddit_app.enabled, class_="custom-control-input") }}
+                            {{ form.enabled.label(class_='custom-control-label') }}
+                            <small id="headerHelp" class="form-text text-muted">Enables this Reddit App to be used</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary" type="submit" name="save" onclick="saveItem(this)" id="save" value="save">Save</button>
+                    </div>
+                </form>
+                <button class="btn btn-danger" id="delete" data-target="#confirmationModal" onclick="showDeleteModal('{{ reddit_app.name }}', 'reddit_apps', {{ reddit_app.id }})" data-toggle="modal">Delete</button>
+            </div>
+        </div>
+    </div>
+    </body>
+{% endblock %}

@@ -28,5 +28,6 @@ class DetailedApiTokenSchema(BaseApiTokenSchema):
     class Meta(BaseApiTokenSchema.Meta):
         fields = BaseApiTokenSchema.Meta.fields + (
             ApiToken.token.key,
-            ApiToken.owner_id.key
+            ApiToken.owner_id.key,
+            ApiToken.enabled.key
         )

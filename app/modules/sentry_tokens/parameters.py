@@ -31,5 +31,5 @@ class PatchSentryTokenDetailsParameters(PatchJSONParameters):
     """
     Sentry Token details updating parameters following PATCH JSON RFC.
     """
-    fields = (SentryToken.name.key, SentryToken.dsn.key)
+    fields = (SentryToken.name.key, SentryToken.dsn.key, SentryToken.enabled.key)
     PATH_CHOICES = tuple(f'/{field}' for field in fields)

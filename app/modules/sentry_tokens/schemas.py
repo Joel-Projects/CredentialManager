@@ -13,7 +13,8 @@ class BaseSentryTokenSchema(ModelSchema):
         fields = (
             SentryToken.id.key,
             SentryToken.name.key,
-            SentryToken.dsn.key
+            SentryToken.dsn.key,
+            SentryToken.enabled.key
         )
 
 

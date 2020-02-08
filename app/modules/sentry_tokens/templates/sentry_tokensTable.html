@@ -1,7 +1,7 @@
+<div class="container">
 <div class="table-responsive">
     {{ sentry_tokensTable }}
 </div>
-<div class="container">
     <div class="row">
         <div class="col">
             <button class="btn btn-primary" id="addSentryToken" data-toggle="modal" data-target="#addSentryTokenModal">Add Sentry Token</button>
@@ -56,4 +56,11 @@
             </div>
         </div>
     </div>
+    <script>
+        $("#sentry_tokens_table").tablesorter({
+            theme: "bootstrap",
+            cancelSelection: false,
+            sortReset: true
+        });
+    </script>
 </div>

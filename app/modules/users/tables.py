@@ -8,7 +8,7 @@ class UserTable(BaseTable):
     def __init__(self, items, *args, **kwargs):
         self.add_column('Username', OwnerCol('Name', 'username', td_html_attrs={'style':'text-align:left'}))
         # self.add_column('Bots', ObjectCountCol('Bots', 'bots.count()'))
-        # self.add_column('Reddit Apps', ObjectCountCol('Reddit Apps', 'reddit_apps'))
+        self.add_column('Reddit Apps', ObjectCountCol('Reddit Apps', 'reddit_apps'))
         # self.add_column('Database Credentials', ObjectCountCol('Database Credentials', 'database_credentials'))
         self.add_column('Sentry Tokens', ObjectCountCol('Sentry Tokens', 'sentry_tokens'))
         self.add_column('API Tokens', ObjectCountCol('API Tokens', 'api_tokens'))

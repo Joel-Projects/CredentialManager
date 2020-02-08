@@ -2,12 +2,12 @@
 User database model
 -------------------
 '''
-import enum, operator
+import enum
 from datetime import datetime
 
-from sqlalchemy_utils import types as column_types, Timestamp
+from sqlalchemy_utils import types as column_types
 from flask_login import UserMixin
-from app.extensions import db, Timestamp
+from app.extensions import db, Timestamp, InfoAttrs
 from app.modules.api_tokens.models import ApiToken
 
 def getStaticRole(roleName, staticRole):
@@ -34,7 +34,7 @@ def getStaticRole(roleName, staticRole):
     return isStaticRole
 
 
-class User(db.Model, Timestamp, UserMixin):
+class User(db.Model, Timestamp, UserMixin, InfoAttrs):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,12 +54,6 @@ class User(db.Model, Timestamp, UserMixin):
         # 'refresh_tokens.count': 'Authencated Users',
         'sentry_tokens.count': 'Sentry Tokens'
     }
-
-    def getInfoAttr(self, path):
-        attr = operator.attrgetter(path)(self)
-        if callable(attr):
-            attr = attr()
-        return attr
 
     __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, primary_key=True)

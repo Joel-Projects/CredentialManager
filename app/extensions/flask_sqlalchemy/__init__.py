@@ -2,6 +2,8 @@
 Flask-SQLAlchemy adapter
 ------------------------
 '''
+import operator
+
 import sqlalchemy
 from datetime import datetime
 from sqlalchemy import Column, DateTime
@@ -72,3 +74,11 @@ def timestamp_before_update(mapper, connection, target):
     # When a model with a timestamp is updated; force update the updated
     # timestamp.
     target.updated = datetime.astimezone(datetime.utcnow())
+
+class InfoAttrs(object):
+
+    def getInfoAttr(self, path):
+        attr = operator.attrgetter(path)(self)
+        if callable(attr):
+            attr = attr()
+        return attr

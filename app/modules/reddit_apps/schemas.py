@@ -1,29 +1,34 @@
 from flask_marshmallow import base_fields
 from flask_restplus_patched import ModelSchema
 
-from .models import SentryToken
+from .models import RedditApp
 
 
-class BaseSentryTokenSchema(ModelSchema):
+class BaseRedditAppSchema(ModelSchema):
     """
-    Base Sentry Token schema exposes only the most general fields.
+    Base Reddit App schema exposes only the most general fields.
     """
     class Meta:
-        model = SentryToken
+        model = RedditApp
         fields = (
-            SentryToken.id.key,
-            SentryToken.name.key,
-            SentryToken.dsn.key
+            RedditApp.id.key,
+            RedditApp.app_name.key,
+            RedditApp.client_id.key,
+            RedditApp.client_secret.key
         )
 
 
-class DetailedSentryTokenSchema(BaseSentryTokenSchema):
+class DetailedRedditAppSchema(BaseRedditAppSchema):
     """
-    Detailed Sentry Token schema exposes all useful fields.
+    Detailed Reddit App schema exposes all useful fields.
     """
-
-    class Meta(BaseSentryTokenSchema.Meta):
-        fields = BaseSentryTokenSchema.Meta.fields + (
-            SentryToken.owner_id.key,
-            SentryToken.created.key,
+    class Meta(BaseRedditAppSchema.Meta):
+        fields = BaseRedditAppSchema.Meta.fields + (
+            RedditApp.short_name.key,
+            RedditApp.app_description.key,
+            RedditApp.user_agent.key,
+            RedditApp.app_type.key,
+            RedditApp.redirect_uri.key,
+            RedditApp.enabled.key,
+            RedditApp.owner_id.key
         )

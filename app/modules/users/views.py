@@ -9,12 +9,17 @@ from .forms import UserForm, EditUserForm
 from .parameters import PatchUserDetailsParameters
 from .tables import UserTable
 from .models import User
+from ..api_tokens.parameters import PatchApiTokenDetailsParameters
+from ..sentry_tokens.parameters import PatchSentryTokenDetailsParameters
 from ...extensions import db, paginateArgs, requiresAdmin, verifyEditable
 from ...extensions.api import abort
 
 from ..api_tokens.views import ApiTokenTable
 from ..api_tokens.forms import ApiTokenForm
 from ..api_tokens.models import ApiToken
+from ..reddit_apps.tables import RedditAppTable
+from ..reddit_apps.forms import RedditAppForm
+from ..reddit_apps.models import RedditApp
 from ..sentry_tokens.tables import SentryTokenTable
 from ..sentry_tokens.forms import SentryTokenForm
 from ..sentry_tokens.models import SentryToken
@@ -99,11 +104,12 @@ def editUser(user):
 
 # noinspection PyUnresolvedReferences
 @login_required
-@usersBlueprint.route('/u/<User:user>/<item>', methods=['GET', 'POST'])
+@usersBlueprint.route('/u/<User:user>/<item>/', methods=['GET', 'POST'])
 def itemsPerUser(user, item):
     validItems = {
         'api_tokens': [ApiTokenTable, ApiTokenForm, ApiToken, ['length']],
-        'bots': [None, None, None, []], 'reddit_apps': [None, None, None, []],
+        'bots': [None, None, None, []],
+        'reddit_apps': [RedditAppTable, RedditAppForm, RedditApp, []],
         'sentry_tokens': [SentryTokenTable, SentryTokenForm, SentryToken, []],
         'database_credentials': [None, None, None, []]
     }
@@ -135,3 +141,48 @@ def itemsPerUser(user, item):
         f'{item}Form': form,
     }
     return render_template(f'{item}.html', user=user, **kwargs)
+
+# @login_required
+# @usersBlueprint.route('/u/<User:user>/<item>/<int:item_id>', methods=['GET', 'POST'])
+# @verifyEditable('user')
+# def editItemsPerUser(user, item, item_id):
+#     validItems = {
+#         'api_tokens': [PatchApiTokenDetailsParameters, ApiToken, ApiTokenForm, ['length']],
+#         'bots': [None, None, None, []], 'reddit_apps': [None, None, None, []],
+#         'sentry_tokens': [PatchSentryTokenDetailsParameters, SentryToken, SentryTokenForm, []],
+#         'database_credentials': [None, None, None, []]
+#     }
+#     item = item.lower()
+#     if not item in validItems:
+#         abort(404)
+#     itemPatchParameters = validItems[item][0]
+#     Model = validItems[item][1]
+#     model = Model.query.filter(Model.id==item_id).first()
+#     if not model:
+#         abort(404)
+#     form = validItems[item][2](obj=model)
+#     if request.method == 'POST':
+#         if form.validate_on_submit():
+#             itemsToUpdate = []
+#             for field in itemPatchParameters.fields:
+#                 if getattr(form, field, None) is not None:
+#                     if not isinstance(getattr(form, field), BooleanField):
+#                         if getattr(form, field).data:
+#                             if getattr(model, field) != getattr(form, field).data:
+#                                 itemsToUpdate.append({"op": "replace", "path": f'/{field}', "value": getattr(form, field).data})
+#                     else:
+#                         if getattr(model, field) != getattr(form, field).data:
+#                             itemsToUpdate.append({"op": "replace", "path": f'/{field}', "value": getattr(form, field).data})
+#             if itemsToUpdate:
+#                 response = requests.patch(f'{request.host_url}api/v1/api_tokens/{model.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
+#                 if response.status_code == 200:
+#                     flash(f'API Token {model.name!r} saved successfully!', 'success')
+#                 else:
+#                     flash(f'Failed to update API Token {model.name!r}', 'error')
+#         else:
+#             return jsonify(status='error', errors=form.errors)
+#     kwargs = {
+#         'form': form,
+#         item[:-1]: model
+#     }
+#     return render_template(f'edit_{item[:-1]}.html', user=user, **kwargs)

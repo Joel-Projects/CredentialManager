@@ -5,6 +5,9 @@
     {% if user and (current_user.is_admin or current_user.is_internal or api_token.check_owner(current_user)) %}
         <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
         <li class="breadcrumb-item"><a href="/u/{{ user.username }}">{{ user.username }}</a></li>
+        <li class="breadcrumb-item"><a href="/u/{{ user.username }}/api_tokens/">API Tokens</a></li>
+    {% else %}
+        <li class="breadcrumb-item"><a href="/api_tokens/">API Tokens</a></li>
     {% endif %}
     <li class="breadcrumb-item"><a href="/api_tokens/{{ api_token.id }}">{{ api_token.name }}</a></li>
 {% endblock %}
@@ -71,7 +74,7 @@
                         <button class="btn btn-primary" type="submit" name="save" onclick="saveItem(this)" id="save" value="save">Save</button>
                     </div>
                 </form>
-                <button class="btn btn-danger" id="delete" data-target="#confirmationModal" data-toggle="modal">Delete</button>
+                <button class="btn btn-danger" id="delete" data-target="#confirmationModal" onclick="showDeleteModal('{{ api_token.name }}', 'api_tokens', {{ api_token.id }})" data-toggle="modal">Delete</button>
             </div>
         </div>
     </div>

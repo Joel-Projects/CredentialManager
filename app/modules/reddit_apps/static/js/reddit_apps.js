@@ -1,8 +1,7 @@
 $(document).ready(function () {
-    $("#usersTable").tablesorter({
+    $("#reddit_apps_table").tablesorter({
         theme: "bootstrap",
         cancelSelection: false,
         sortReset: true
     });
 });
-

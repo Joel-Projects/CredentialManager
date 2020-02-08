@@ -9,6 +9,7 @@ from .forms import ApiTokenForm, EditApiTokenForm
 from .models import ApiToken
 from .parameters import PatchApiTokenDetailsParameters
 from .tables import ApiTokenTable
+from ..users.models import User
 from ...extensions import db, paginateArgs, verifyEditable
 
 log = logging.getLogger(__name__)
@@ -32,8 +33,11 @@ def api_tokens(page=1, perPage=10):
             db.session.add(apiToken)
         else:
             return jsonify(status='error', errors=form.errors)
-    if current_user and (current_user.is_admin or current_user.is_internal):
-        paginator = ApiToken.query.paginate(page, perPage, error_out=False)
+    if current_user:
+        if current_user.is_admin and not current_user.is_internal:
+            paginator = ApiToken.query.filter(*(ApiToken.owner_id!=i.id for i in User.query.filter(User.internal==True).all())).paginate(page, perPage, error_out=False)
+        elif current_user.is_internal:
+            paginator = ApiToken.query.paginate(page, perPage, error_out=False)
     else:
         paginator = current_user.api_tokens.paginate(page, perPage, error_out=False)
     table = ApiTokenTable(paginator.items, current_user=current_user)

@@ -1,9 +1,8 @@
 import logging
 from functools import wraps
 
-from flask import Blueprint, request, render_template, redirect, url_for, flash, abort
+from flask import Blueprint, request, render_template, redirect, url_for, flash
 from flask_login import current_user, login_user, logout_user, login_required
-from app.modules.users.models import User
 
 log = logging.getLogger(__name__)
 
@@ -20,39 +19,39 @@ def root():
 @login_required
 def dash():
     return render_template('dash.html')
-
-def requiresAdmin(func):
-    @wraps(func)
-    def decorated(*args, **kwargs):
-        if current_user and not current_user.is_admin and not current_user.is_internal:
-            abort(403)
-        return func(*args, **kwargs)
-    return decorated
-
-
-@main.route('/bots')
-@login_required
-def bots():
-    bots = Bot.query.all()
-    return render_template('bots.html', users=bots)
-
-@main.route('/database_creds')
-@login_required
-def database_creds():
-    database_creds = Database.query.all()
-    return render_template('database_creds.html', users=database_creds)
-
-@main.route('/reddit_apps')
-@login_required
-def reddit_apps():
-    reddit_apps = RedditApp.query.all()
-    return render_template('reddit_apps.html', users=reddit_apps)
-
-@main.route('/refresh_tokens')
-@login_required
-def refresh_tokens():
-    refresh_tokens = RefreshToken.query.all()
-    return render_template('refresh_tokens.html', users=refresh_tokens)
+#
+# def requiresAdmin(func):
+#     @wraps(func)
+#     def decorated(*args, **kwargs):
+#         if current_user and not current_user.is_admin and not current_user.is_internal:
+#             abort(403)
+#         return func(*args, **kwargs)
+#     return decorated
+#
+#
+# @main.route('/bots')
+# @login_required
+# def bots():
+#     bots = Bot.query.all()
+#     return render_template('bots.html', users=bots)
+#
+# @main.route('/database_creds')
+# @login_required
+# def database_creds():
+#     database_creds = Database.query.all()
+#     return render_template('database_creds.html', users=database_creds)
+# #
+# # @main.route('/reddit_apps')
+# # @login_required
+# # def reddit_apps():
+# #     reddit_apps = RedditApp.query.all()
+# #     return render_template('reddit_apps.html', users=reddit_apps)
+#
+# @main.route('/refresh_tokens')
+# @login_required
+# def refresh_tokens():
+#     refresh_tokens = RefreshToken.query.all()
+#     return render_template('refresh_tokens.html', users=refresh_tokens)
 
 
 #
