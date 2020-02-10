@@ -5,12 +5,12 @@
         <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
         <li class="breadcrumb-item"><a href=/u/{{ user.username }}>{{ user.username }}</a></li>
     {% endif %}
-        <li class="breadcrumb-item"><a href={{ url_for('api_tokens.api_tokens') }}>API Tokens</a></li>
+    <li class="breadcrumb-item"><a href={{ url_for('api_tokens.api_tokens') }}>API Tokens</a></li>
 
 {% endblock %}
 {% block content %}
     <body>
     <script src="{{ url_for('api_tokens.static', filename='js/api_tokens.js') }}"></script>
     {% include 'api_tokensTable.html' with context %}
-</body>
+    </body>
 {% endblock %}

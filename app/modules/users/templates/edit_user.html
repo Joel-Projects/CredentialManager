@@ -28,18 +28,18 @@
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" id="tab_sentry_tokens" href="#sentry_tokens" aria-controls="sentry_tokens">Sentry Tokens</a>
             </li>
-{#            <li class="nav-item">#}
-{#                <a class="nav-link" data-toggle="tab" id="tab_bots" href="#bots" aria-controls="Bots">Bots</a>#}
-{#            </li>#}
-{#            <li class="nav-item">#}
-{#                <a class="nav-link" data-toggle="tab" id="tab_redditApps" href="#redditApps" aria-controls="RedditApps">Reddit Apps</a>#}
-{#            </li>#}
-{#            <li class="nav-item">#}
-{#                <a class="nav-link" data-toggle="tab" id="tab_sentryTokens" href="#sentryTokens" aria-controls="RedditApps">Sentry Tokens</a>#}
-{#            </li>#}
-{#            <li class="nav-item">#}
-{#                <a class="nav-link" data-toggle="tab" id="tab_databaseCredentials" href="#databaseCredentials" aria-controls="RedditApps">Database Credentials</a>#}
-{#            </li>#}
+            {#            <li class="nav-item">#}
+            {#                <a class="nav-link" data-toggle="tab" id="tab_bots" href="#bots" aria-controls="Bots">Bots</a>#}
+            {#            </li>#}
+            {#            <li class="nav-item">#}
+            {#                <a class="nav-link" data-toggle="tab" id="tab_redditApps" href="#redditApps" aria-controls="RedditApps">Reddit Apps</a>#}
+            {#            </li>#}
+            {#            <li class="nav-item">#}
+            {#                <a class="nav-link" data-toggle="tab" id="tab_sentryTokens" href="#sentryTokens" aria-controls="RedditApps">Sentry Tokens</a>#}
+            {#            </li>#}
+            {#            <li class="nav-item">#}
+            {#                <a class="nav-link" data-toggle="tab" id="tab_databaseCredentials" href="#databaseCredentials" aria-controls="RedditApps">Database Credentials</a>#}
+            {#            </li>#}
         </ul>
         <div class="tab-content py-3">
             <div class="tab-pane active" id="settings">
@@ -48,7 +48,7 @@
                         <div class="col-md-4">
                             <div class="jumbotron">
                                 <h4>User Info</h4>
-                                <hr style="border-top: 1px solid";>
+                                <hr style="border-top: 1px solid" ;>
                                 {% for attr, displayName in user._infoAttrs.items() %}
                                     {% if attr in ['createdBy.username', 'updatedBy.username'] and (current_user.is_admin or current_user.is_internal) %}
                                         <strong>{{ displayName }}:</strong><br><a href="/u/{{ user.getInfoAttr(attr) }}">{{ user.getInfoAttr(attr) }}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{{ attr.split('By')[0].capitalize() }} at: {{ user.getInfoAttr(attr.split('By')[0]).strftime('%m/%d/%Y %I:%M:%S %p') }}"><i class="far fa-question-circle"></i></span></sup><br><br>
@@ -71,7 +71,7 @@
                                     {% if usersForm.username.errors %}
                                         {{ usersForm.username(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
                                         {% for error in usersForm.username.errors %}
-                                            <div class="invalid-feedback" id="usernameFeedback">{{error}}</div>
+                                            <div class="invalid-feedback" id="usernameFeedback">{{ error }}</div>
                                         {% endfor %}
                                     {% else %}
                                         {{ usersForm.username(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
@@ -93,7 +93,7 @@
                                     {% if usersForm.default_redirect_uri.errors %}
                                         {{ usersForm.default_redirect_uri(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
                                         {% for error in usersForm.default_redirect_uri.errors %}
-                                            <div class="invalid-feedback" id="default_redirect_uriFeedback">{{error}}</div>
+                                            <div class="invalid-feedback" id="default_redirect_uriFeedback">{{ error }}</div>
                                         {% endfor %}
                                     {% else %}
                                         {{ usersForm.default_redirect_uri(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
@@ -108,7 +108,7 @@
                                     </div>
                                 </div>
                                 {% if current_user.is_internal %}
-                                    <div class="form-group" >
+                                    <div class="form-group">
                                         <div class="custom-control custom-switch">
                                             {{ usersForm.is_internal(default=user.is_internal, class_="custom-control-input") }}
                                             {{ usersForm.is_internal.label(class_='custom-control-label') }}
@@ -143,26 +143,26 @@
             </div>
             <div class="tab-pane fade" id="api_tokens">
                 <div class="container">
-                        {% include 'api_tokensTable.html' %}
+                    {% include 'api_tokensTable.html' %}
                 </div>
             </div>
             <div class="tab-pane fade" id="sentry_tokens">
                 <div class="container">
-                        {% include 'sentry_tokensTable.html' %}
+                    {% include 'sentry_tokensTable.html' %}
                 </div>
             </div>
-    </div>
-    <script>
-        $(function () {
-            var activeTab = document.getElementsByClassName('nav-link active')[0].ariaControls;
-            var hash = document.location.hash;
-            if (hash) {
-                $(`#${activeTab}`).removeClass('active');
-                $(`#${activeTab}Tab`).removeClass('active');
-                $(`${hash}`).addClass('active show');
-                $(`${hash}Tab`).addClass('active')
-            }
-        })
-    </script>
+        </div>
+        <script>
+            $(function () {
+                var activeTab = document.getElementsByClassName('nav-link active')[0].ariaControls;
+                var hash = document.location.hash;
+                if (hash) {
+                    $(`#${activeTab}`).removeClass('active');
+                    $(`#${activeTab}Tab`).removeClass('active');
+                    $(`${hash}`).addClass('active show');
+                    $(`${hash}Tab`).addClass('active')
+                }
+            })
+        </script>
     </body>
 {% endblock %}

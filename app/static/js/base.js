@@ -57,7 +57,7 @@ function deleteItem(name, item_type, item_id) {
                 popNotification('error', data.message);
             } else {
                 popNotification('success', `Successfully deleted ${name}`);
-                window.location.href = `/${item_type}`
+                window.location.href = window.location.href
             }
         });
 }

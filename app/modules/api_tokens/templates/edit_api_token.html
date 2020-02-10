@@ -22,7 +22,7 @@
             <div class="col-md-4">
                 <div class="jumbotron">
                     <h4>API Token Info</h4>
-                    <hr style="border-top: 1px solid";>
+                    <hr style="border-top: 1px solid" ;>
                     {% for attr, displayName in api_token._infoAttrs.items() %}
                         {% if attr == 'owner' and not api_token.check_owner(current_user) and (current_user.is_admin or current_user.is_internal) %}
                             <strong>{{ displayName }}:</strong><br><a href="/u/{{ api_token.getInfoAttr(attr).username }}">{{ api_token.getInfoAttr(attr).username }}</a><br><br>
@@ -59,7 +59,7 @@
                         <div class="input-group mb-3">
                             <input type="text" class="form-control" id="token" style="background-color: grey;color: lightgray" readonly value="{{ api_token.token }}" aria-describedby="copyBox">
                             <div class="input-group-append">
-                                <button class="input-group-text btn-dark" type="button" onclick="copy(this)" id="copyBox"><a  class="fas fa-clipboard"></a></button>
+                                <button class="input-group-text btn-dark" type="button" onclick="copy(this)" id="copyBox"><a class="fas fa-clipboard"></a></button>
                             </div>
                         </div>
                     </div>

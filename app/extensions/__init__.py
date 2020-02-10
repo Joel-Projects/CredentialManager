@@ -6,13 +6,10 @@ Extensions provide access to common resources of the application.
 
 Please, put new extension instantiations and initializations here.
 '''
-from ..secrets import *
-
+import os
 from .logging import Logging
-logging = Logging()
 
-from flask_cors import CORS
-cross_origin_resource_sharing = CORS()
+logging = Logging()
 
 from .flask_sqlalchemy import SQLAlchemy, Timestamp, InfoAttrs
 db = SQLAlchemy()
@@ -26,9 +23,6 @@ login_manager = LoginManager()
 
 from flask_marshmallow import Marshmallow
 marshmallow = Marshmallow()
-
-# from flask_wtf import CSRFProtect
-# csrf = CSRFProtect()
 
 from flask_bootstrap import Bootstrap
 bootstrap = Bootstrap()
@@ -48,26 +42,27 @@ def init_app(app):
     '''
     Application extensions initialization.
     '''
-    for extension in (
-            logging,
-            cross_origin_resource_sharing,
-            db,
-            login_manager,
-            marshmallow,
-            api,
-            # csrf,
-            bootstrap,
-            # debugToolBar
-        ):
+    extensions = [logging, db, login_manager, marshmallow, api, bootstrap]
+    if int(os.getenv('FLASK_DEBUG', '0')):
+        extensions.append(debugToolBar)
+    for extension in extensions:
         extension.init_app(app)
 
     app.register_error_handler(403, unauthorizedError)
     app.register_error_handler(404, notFoundError)
     db.create_all(app=app)
+    from app.modules.users.models import User
+    with app.app_context():
+        with db.session.begin():
+            if User.query.count() == 0:
+                internalUser = User(username='internal', password='q', is_active=True, is_regular_user=True, is_internal=True)
+                db.session.add(internalUser)
+                internalUser.created_by = internalUser.updated_by = 1
+                rootUser = User(username='root', password='q', is_active=True, is_regular_user=True, is_admin=True, created_by=1, updated_by=1)
+                db.session.add(rootUser)
     try:
         with db.get_engine(app=app).connect() as sql:
             sql.execute('''
-    create extension if not exists pgcrypto with schema public;
     create or replace function credential_store.gen_state() returns trigger
         language plpgsql
     as $$
@@ -79,7 +74,7 @@ def init_app(app):
     END;
     $$;
     
-    alter function credential_store.gen_state() owner to postgres;
+    alter function credential_store.gen_state() owner to credential_manager;
     drop trigger if exists refresh_token_state_hashing_trigger on credential_store.reddit_apps;
     create trigger refresh_token_state_hashing_trigger
         before insert or update

@@ -3,17 +3,17 @@
         <nav aria-label="paginator">
             <ul class="pagination justify-content-center">
                 {% if paginator.has_prev %}
-                  <li class="page-item"> <a class="page-link" href="{{ url_for(route, page=paginator.prev_num) }}">&laquo;</a></li>
+                    <li class="page-item"><a class="page-link" href="{{ url_for(route, page=paginator.prev_num) }}">&laquo;</a></li>
                 {% else %}
-                  <li class="page-item"><a class="page-link btn disabled" href="#">&laquo;</a></li>
+                    <li class="page-item"><a class="page-link btn disabled" href="#">&laquo;</a></li>
                 {% endif %}
                 {% for pageNumber in range(1, paginator.pages+1) %}
                     <li class="page-item{% if pageNumber == paginator.page %} active{% endif %}"><a class="page-link" href="{{ url_for(route, page=pageNumber) }}">{{ pageNumber }}</a></li>
                 {% endfor %}
                 {% if paginator.has_next %}
-                  <li class="page-item"> <a class="page-link" href="{{ url_for(route, page=paginator.next_num) }}">&raquo;</a></li>
+                    <li class="page-item"><a class="page-link" href="{{ url_for(route, page=paginator.next_num) }}">&raquo;</a></li>
                 {% else %}
-                  <li class="page-item"><a class="page-link btn disabled" href="#">&raquo;</a></li>
+                    <li class="page-item"><a class="page-link btn disabled" href="#">&raquo;</a></li>
                 {% endif %}
             </ul>
         </nav>

@@ -13,6 +13,7 @@ class EditRedditAppForm(ModelForm):
     class Meta:
         model = RedditApp
         only = ['app_name', 'short_name', 'app_description', 'client_id', 'client_secret', 'user_agent', 'app_type', 'redirect_uri', 'enabled']
+        fields = [['app_name', 'short_name'], 'app_description', ['client_id', 'client_secret'], 'user_agent', 'app_type', 'redirect_uri', 'enabled']
 
     redirect_uri = StringField('Redirect URI', validators=[URL(False)], description=RedditApp.redirect_uri.info['description'])
     owner = QuerySelectField(query_factory=owners, default=current_user, description=RedditApp.owner_id.info['description'])

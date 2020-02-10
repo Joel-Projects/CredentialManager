@@ -32,7 +32,7 @@ class DetailedUserSchema(BaseUserSchema):
             User.is_active.fget.__name__,
             User.is_regular_user.fget.__name__,
             User.is_admin.fget.__name__,
-            User.default_redirect_uri.key,
+            User.default_settings.key,
             User.created.key,
             User.updated.key,
         )

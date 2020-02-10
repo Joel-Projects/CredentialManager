@@ -10,7 +10,27 @@
             {{ form[fieldName](size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
         {% endif %}
         {% if form[fieldName].description %}
-{#            <small id="headerHelp" class="form-text text-muted">{{ form[fieldName].description }}</small>#}
+            {#            <small id="headerHelp" class="form-text text-muted">{{ form[fieldName].description }}</small>#}
         {% endif %}
+    </div>
+{% endmacro %}
+{% macro formRow(form, fields) %}
+    <div class="form-row">
+        {% for field in fields %}
+            <div class="col">
+                {{ form[field].label }}
+                {% if form[field].errors %}
+                    {{ form[field](size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                    {% for error in form[field].errors %}
+                        <div class="invalid-feedback" id="{{ field }}Feedback">{{ error }}</div>
+                    {% endfor %}
+                {% else %}
+                    {{ form[field](size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                {% endif %}
+                {% if form[field].description %}
+                    <small id="headerHelp" class="form-text text-muted">{{ form[field].description }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
     </div>
 {% endmacro %}

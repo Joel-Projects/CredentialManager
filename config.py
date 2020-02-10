@@ -16,7 +16,6 @@ class BaseConfig(object):
     DEBUG = False
     ERROR_404_HELP = False
 
-    REVERSE_PROXY_SETUP = os.getenv('EXAMPLE_API_REVERSE_PROXY_SETUP', True)
     SWAGGER_SUPPORTED_SUBMIT_METHODS = ["get", "put", "post", "delete", "patch"]
     SWAGGER_UI_OPERATION_ID = True
     SWAGGER_UI_REQUEST_DURATION = True
@@ -45,8 +44,8 @@ class BaseConfig(object):
     WTF_CSRF_CHECK_DEFAULT = False
 
 class ProductionConfig(BaseConfig):
-    SECRET_KEY = os.getenv('EXAMPLE_API_SERVER_SECRET_KEY')
-    SQLALCHEMY_DATABASE_URI = os.getenv('EXAMPLE_API_SERVER_SQLALCHEMY_DATABASE_URI')
+    SECRET_KEY = os.getenv('SECRET_KEY')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True

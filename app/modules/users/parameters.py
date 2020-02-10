@@ -22,7 +22,7 @@ class CreateUserParameters(PostFormParameters, schemas.BaseUserSchema):
 
     username = base_fields.String(description='Username for new user (Example: ```spaz```)', required=True)
     password = base_fields.String(description='Password for new user (Example: ```supersecurepassword```)', required=True)
-    default_redirect_uri = base_fields.String(description='Default redirect uri to use for new reddit apps (Example: ```http://localhost:8080/callback```)', default='https://localhost:8080/callback')
+    default_settings = base_fields.String(description='Default redirect uri to use for new reddit apps (Example: ```http://localhost:8080/callback```)', default='https://localhost:8080/callback')
     is_active = base_fields.Boolean(description='Is the user active? Allows the user to sign in (Default: ``true``)', default=True)
     is_admin = base_fields.Boolean(description='Is the user an admin? Allows the user to see all objects and create users (Default: ``false``)', default=False)
 
@@ -39,7 +39,7 @@ class CreateUserParameters(PostFormParameters, schemas.BaseUserSchema):
 
 
     class Meta(schemas.BaseUserSchema.Meta):
-        fields = schemas.BaseUserSchema.Meta.fields + ('password', 'default_redirect_uri', 'is_admin', 'is_active', 'is_regular_user', 'is_internal')
+        fields = schemas.BaseUserSchema.Meta.fields + ('password', 'default_settings', 'is_admin', 'is_active', 'is_regular_user', 'is_internal')
 
 class DeleteUserParameters(PostFormParameters, schemas.BaseUserSchema):
 
@@ -50,15 +50,15 @@ class PatchUserDetailsParameters(PatchJSONParameters):
     """
     User details updating parameters following PATCH JSON RFC.
     """
-    fields = (User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, 'default_redirect_uri', 'username', 'updated_by')
+    fields = (User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, 'default_settings', 'username', 'updated_by')
     PATH_CHOICES = tuple(f'/{field}' for field in fields)
 
     @staticmethod
     def getPatchFields():
         if current_user.is_internal:
-            return User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, 'default_redirect_uri', 'username', 'updated_by'
+            return User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, 'default_settings', 'username', 'updated_by'
         else:
-            return User.password.key, User.is_active.fget.__name__, User.is_admin.fget.__name__, 'default_redirect_uri', 'username', 'updated_by'
+            return User.password.key, User.is_active.fget.__name__, User.is_admin.fget.__name__, 'default_settings', 'username', 'updated_by'
 
     @classmethod
     def test(cls, obj, field, value, state):

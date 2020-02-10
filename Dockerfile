@@ -1,35 +1,20 @@
-FROM frolvlad/alpine-python3
+FROM python:3.7-alpine3.7
 
-ENV API_SERVER_HOME=/opt/www
-WORKDIR "$API_SERVER_HOME"
-COPY "./requirements.txt" "./"
-COPY "./app/requirements.txt" "./app/"
-COPY "./config.py" "./"
-COPY "./tasks" "./tasks"
+COPY ./app /opt/www/CredentialManager/app
+COPY ./config.py /opt/www/CredentialManager/config.py
+COPY ./flask_restplus_patched /opt/www/CredentialManager/flask_restplus_patched
 
-ARG INCLUDE_POSTGRESQL=false
-ARG INCLUDE_UWSGI=false
-RUN apk add --no-cache --virtual=.build_dependencies musl-dev gcc python3-dev libffi-dev linux-headers && \
-    cd /opt/www && \
-    pip install -r tasks/requirements.txt && \
-    invoke app.dependencies.install && \
-    ( \
-        if [ "$INCLUDE_POSTGRESQL" = 'true' ]; then \
-            apk add --no-cache libpq && \
-            apk add --no-cache --virtual=.build_dependencies postgresql-dev && \
-            pip install psycopg2 ; \
-        fi \
-    ) && \
-    ( if [ "$INCLUDE_UWSGI" = 'true' ]; then pip install uwsgi ; fi ) && \
-    rm -rf ~/.cache/pip && \
-    apk del .build_dependencies
+WORKDIR /opt/www/CredentialManager/app
 
-COPY "./" "./"
+ENV TZ America/Chicago
+ENV FLASK_CONFIG production
 
-RUN chown -R nobody "." && \
-    if [ ! -e "./local_config.py" ]; then \
-        cp "./local_config.py.template" "./local_config.py" ; \
-    fi
+RUN apk add --no-cache postgresql-libs nano bash && \
+    apk add --no-cache --virtual .build-deps make gcc python-dev libffi-dev musl-dev postgresql-dev&& \
+    pip install -r requirements.txt && \
+    apk --purge del .build-deps
 
-USER nobody
-CMD [ "invoke", "app.run", "--no-install-dependencies", "--host", "0.0.0.0" ]
+WORKDIR /opt/www/CredentialManager/
+
+EXPOSE 5000
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:create_app()"]

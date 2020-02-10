@@ -23,7 +23,7 @@
             <div class="col-md-4">
                 <div class="jumbotron">
                     <h4>Reddit App Info</h4>
-                    <hr style="border-top: 1px solid";>
+                    <hr style="border-top: 1px solid" ;>
                     {% for attr, displayName in reddit_app._infoAttrs.items() %}
                         {% if attr == 'owner' and not reddit_app.check_owner(current_user) and (current_user.is_admin or current_user.is_internal) %}
                             <strong>{{ displayName }}:</strong><br><a href="/u/{{ reddit_app.getInfoAttr(attr).username }}">{{ reddit_app.getInfoAttr(attr).username }}</a><br><br>

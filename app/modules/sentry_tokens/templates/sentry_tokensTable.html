@@ -1,7 +1,7 @@
 <div class="container">
-<div class="table-responsive">
-    {{ sentry_tokensTable }}
-</div>
+    <div class="table-responsive">
+        {{ sentry_tokensTable }}
+    </div>
     <div class="row">
         <div class="col">
             <button class="btn btn-primary" id="addSentryToken" data-toggle="modal" data-target="#addSentryTokenModal">Add Sentry Token</button>
@@ -23,7 +23,7 @@
                             {% if sentry_tokensForm.name.errors %}
                                 {{ sentry_tokensForm.name(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
                                 {% for error in sentry_tokensForm.name.errors %}
-                                    <div class="invalid-feedback" id="usernameFeedback">{{error}}</div>
+                                    <div class="invalid-feedback" id="usernameFeedback">{{ error }}</div>
                                 {% endfor %}
                             {% else %}
                                 {{ sentry_tokensForm.name(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
@@ -34,7 +34,7 @@
                             {% if sentry_tokensForm.dsn.errors %}
                                 {{ sentry_tokensForm.dsn(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
                                 {% for error in sentry_tokensForm.dsn.errors %}
-                                    <div class="invalid-feedback" id="usernameFeedback">{{error}}</div>
+                                    <div class="invalid-feedback" id="usernameFeedback">{{ error }}</div>
                                 {% endfor %}
                             {% else %}
                                 {{ sentry_tokensForm.dsn(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
@@ -46,11 +46,11 @@
                             {{ sentry_tokensForm.owner(class_="custom-select") }}
                         </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>
-                        <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="sentryTokenCreateNew">Add and New</button>
-                        <button type="submit" name="submit" tabindex="0" class="btn btn-primary" onclick="createItem(this, 'addSentryTokenForm', '{% if user %}/u/{{ user.username }}{% endif %}/sentry_tokens')" id="sentryTokenCreate">Add</button>
-                    </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>
+                            <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="sentryTokenCreateNew">Add and New</button>
+                            <button type="submit" name="submit" tabindex="0" class="btn btn-primary" onclick="createItem(this, 'addSentryTokenForm', '{% if user %}/u/{{ user.username }}{% endif %}/sentry_tokens')" id="sentryTokenCreate">Add</button>
+                        </div>
                     </form>
                 </div>
             </div>

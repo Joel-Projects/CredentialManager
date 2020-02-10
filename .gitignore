@@ -48,6 +48,7 @@ docs/_build/
 *.swp
 *.bak
 local_config.py
+secrets.py
 /static/
 example.db
 .idea/
