@@ -26,7 +26,7 @@ def api_tokens(page=1, perPage=10):
         if form.validate_on_submit():
             data = form.data
             length = int(data['length'])
-            del data['csrf_token']
+            # del data['csrf_token']
             del data['length']
             apiToken = ApiToken(**data)
             apiToken.generate_token(length)

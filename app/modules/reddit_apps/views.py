@@ -25,7 +25,7 @@ def reddit_apps(page, perPage):
     if request.method == 'POST':
         if form.validate_on_submit():
             data = form.data
-            del data['csrf_token']
+            # del data['csrf_token']
             redditApp = RedditApp(**data)
             db.session.add(redditApp)
         else:

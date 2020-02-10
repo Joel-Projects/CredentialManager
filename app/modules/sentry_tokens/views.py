@@ -25,7 +25,7 @@ def sentry_tokens(page, perPage):
     if request.method == 'POST':
         if form.validate_on_submit():
             data = form.data
-            del data['csrf_token']
+            # del data['csrf_token']
             sentryToken = SentryToken(**data)
             db.session.add(sentryToken)
         else:

@@ -40,7 +40,7 @@ def users(page, perPage):
     if request.method == 'POST':
         if form.validate_on_submit():
             data = form.data
-            del data['csrf_token']
+            # del data['csrf_token']
             user = User(**data)
             user.created_by = current_user.id
             user.updated_by = current_user.id
@@ -125,7 +125,7 @@ def itemsPerUser(user, item):
             data = form.data
             if item == 'api_tokens':
                 length = int(data['length'])
-            del data['csrf_token']
+            # del data['csrf_token']
             for delAttr in validItems[item][3]:
                 del data[delAttr]
             model = Model(owner_id = data['owner'].id, **data)
