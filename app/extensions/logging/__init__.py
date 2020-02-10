@@ -6,7 +6,7 @@ import logging, datadog, sentry_sdk, sys
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 from datadog_logger import DatadogLogHandler
-from ...secrets import sentryDsn, ddAppKey, ddApiKey
+from app import sentryDsn, ddAppKey, ddApiKey
 class Logging(object):
     """
     This is a helper extension, which adjusts logging configuration for the

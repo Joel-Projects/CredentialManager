@@ -6,7 +6,7 @@ import sys
 
 from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
-from app.secrets import sentryDsn, ddAppKey, ddApiKey
+from .secrets import sentryDsn, ddAppKey, ddApiKey
 
 CONFIG_NAME_MAPPER = {
     'development': 'config.DevelopmentConfig',
