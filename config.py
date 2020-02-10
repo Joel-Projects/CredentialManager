@@ -42,6 +42,7 @@ class BaseConfig(object):
     # TODO: consider if these are relevant for this project
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     WTF_CSRF_CHECK_DEFAULT = False
+    WTF_CSRF_ENABLED = False
 
 class ProductionConfig(BaseConfig):
     SECRET_KEY = os.getenv('SECRET_KEY')
