@@ -54,3 +54,4 @@ example.db
 .idea/
 clients/*/swagger.json
 clients/*/dist
+/old again/
