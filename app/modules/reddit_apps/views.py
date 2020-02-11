@@ -35,6 +35,8 @@ def reddit_apps(page, perPage):
             paginator = RedditApp.query.filter(*(RedditApp.owner_id!=i.id for i in User.query.filter(User.internal==True).all())).paginate(page, perPage, error_out=False)
         elif current_user.is_internal:
             paginator = RedditApp.query.paginate(page, perPage, error_out=False)
+        else:
+            paginator = current_user.reddit_apps.paginate(page, perPage, error_out=False)
     else:
         paginator = current_user.reddit_apps.paginate(page, perPage, error_out=False)
     table = RedditAppTable(paginator.items, current_user=current_user)

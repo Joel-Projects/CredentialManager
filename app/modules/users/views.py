@@ -68,6 +68,10 @@ def editUser(user):
     kwargs['sentry_tokensTable'] = SentryTokenTable(sentry_tokens, current_user=current_user)
     kwargs['sentry_tokensForm'] = SentryTokenForm()
 
+    reddit_apps = user.reddit_apps.all()
+    kwargs['reddit_appsTable'] = RedditAppTable(reddit_apps, current_user=current_user)
+    kwargs['reddit_appsForm'] = RedditAppForm()
+
     form = EditUserForm(obj=user)
     usernameChanged = False
     if request.method == 'POST':
@@ -99,7 +103,7 @@ def editUser(user):
                 return redirect(f'{newUsername}')
         else:
             return jsonify(status='error', errors=form.errors)
-    return render_template('edit_user.html', user=user, usersForm=form, **kwargs)
+    return render_template('edit_user.html', user=user, usersForm=form, defaultSettings=json.dumps([{"Setting": key,"Default Value": value} for key, value in user.default_settings.items()]), **kwargs)
 
 
 # noinspection PyUnresolvedReferences

@@ -10,29 +10,30 @@ window.addEventListener('keydown', function (e) {
     }
 }, true);
 
-$(function() {
-  $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-    history.pushState({}, '', e.target.hash);
-  });
+$(function () {
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        history.pushState({}, '', e.target.hash);
+    });
 
-  var hash = document.location.hash;
-  var prefix = "tab_";
-  if (hash) {
-    $(`.nav-tabs a[href="${hash.replace(prefix, "")}"]`).tab('show')
-  }
+    var hash = document.location.hash;
+    var prefix = "tab_";
+    if (hash) {
+        $(`.nav-tabs a[href="${hash.replace(prefix, "")}"]`).tab('show')
+    }
 });
 
 function saveItem(button) {
     $(`#${button.id}`).disabled = true;
     $(`#${button.id}`).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>Saving...');
 };
+
 function doneSave(id, form) {
     $(`#${id}`).prop('disabled', false);
     $(`#${id}`).prop('class', 'btn btn-primary');
     $(`#${id}`).html('Save');
 };
 
-function deleteTableItem(table, name, item_type, item_id, row_id, redirectUrl=null) {
+function deleteTableItem(table, name, item_type, item_id, row_id, redirectUrl = null) {
     $.ajax({
         type: 'DELETE',
         url: `/api/v1/${item_type}/${item_id}`
@@ -97,7 +98,7 @@ function toggleItem(itemType, id, name, nameAttr, enabledAttr) {
     var elem = document.getElementById(`${itemType}_${id}_toggle`);
     var enable = elem.textContent === "Enable";
     $.ajax({
-        data: JSON.stringify([{"op": "replace","path": `/${enabledAttr}`,"value": enable}]),
+        data: JSON.stringify([{"op": "replace", "path": `/${enabledAttr}`, "value": enable}]),
         type: 'PATCH',
         url: `/api/v1/${itemType}/${id}`,
         contentType: 'application/json',
@@ -127,11 +128,12 @@ function toggleItem(itemType, id, name, nameAttr, enabledAttr) {
             }
         });
 }
-function createItem(button, form, resource, additonal=false) {
+
+function createItem(button, form, resource, additonal = false) {
     event.preventDefault();
 
     var data = {};
-    $(`#${form} *`).filter(':input').each(function(){
+    $(`#${form} *`).filter(':input').each(function () {
         data[this.name] = this.value;
     });
     $.ajax({
@@ -139,46 +141,46 @@ function createItem(button, form, resource, additonal=false) {
         type: 'POST',
         url: resource
     })
-    .done(function notify(data) {
-        if (data.status == 'error') {
-            for (item in data.errors) {
-                var errors = data['errors'][item];
-                if (!($(`#${item}`).hasClass('is-invalid'))) {
-                    $(`#${item}`).parent().append(`<div class="invalid-feedback" id="${item}Feedback">${errors[0]}</div>`);
-                    $(`#${item}`).addClass('is-invalid')
+        .done(function notify(data) {
+            if (data.status == 'error') {
+                for (item in data.errors) {
+                    var errors = data['errors'][item];
+                    if (!($(`#${item}`).hasClass('is-invalid'))) {
+                        $(`#${item}`).parent().append(`<div class="invalid-feedback" id="${item}Feedback">${errors[0]}</div>`);
+                        $(`#${item}`).addClass('is-invalid')
+                    }
+                }
+            } else {
+                if (additonal) {
+                    $(`#${form}`)[0].reset()
+                } else {
+                    window.location.reload(false)
                 }
             }
-        } else {
-            if (additonal) {
-                $(`#${form}`)[0].reset()
-            } else {
-                window.location.reload(false)
-            }
-        }
-    // })
-    // .done(function notify(data) {
-    //     var elem = document.getElementById(`${itemType}_${id}_toggle`);
-    //     var icon = document.getElementById(`${itemType}_${id}_icon`);
-    //     if (data.status == 422) {
-    //         popNotification('error', data.message);
-    //     } else {
-    //         if (data.is_active) {
-    //             elem.textContent = "Disable";
-    //             elem.style.color = "#E74C3C";
-    //             icon.setAttribute("class", "fas fa-check");
-    //             icon.style.color = "#00bc8c";
-    //             var toastStatus = "enabled";
-    //         } else {
-    //             elem.textContent = "Enable";
-    //             elem.style.color = "#00bc8c";
-    //             icon.setAttribute("class", "fas fa-times");
-    //             icon.style.color = "#E74C3C";
-    //             var toastStatus = "disabled";
-    //         }
-    //         elem.setAttribute("class", "dropdown-item");
-    //         popNotification('success', `Successfully ${toastStatus} '${data[nameAttr]}'`);
-    //     }
-    });
+            // })
+            // .done(function notify(data) {
+            //     var elem = document.getElementById(`${itemType}_${id}_toggle`);
+            //     var icon = document.getElementById(`${itemType}_${id}_icon`);
+            //     if (data.status == 422) {
+            //         popNotification('error', data.message);
+            //     } else {
+            //         if (data.is_active) {
+            //             elem.textContent = "Disable";
+            //             elem.style.color = "#E74C3C";
+            //             icon.setAttribute("class", "fas fa-check");
+            //             icon.style.color = "#00bc8c";
+            //             var toastStatus = "enabled";
+            //         } else {
+            //             elem.textContent = "Enable";
+            //             elem.style.color = "#00bc8c";
+            //             icon.setAttribute("class", "fas fa-times");
+            //             icon.style.color = "#E74C3C";
+            //             var toastStatus = "disabled";
+            //         }
+            //         elem.setAttribute("class", "dropdown-item");
+            //         popNotification('success', `Successfully ${toastStatus} '${data[nameAttr]}'`);
+            //     }
+        });
 }
 
 
@@ -205,10 +207,10 @@ function showDeleteModal(name, item_type, item_id, row_id) {
     $(`#confirmationModal`).modal('show')
 }
 
-function copy(that){
+function copy(that) {
     var inp = that.offsetParent.firstElementChild;
     inp.select();
-    document.execCommand('copy',false);
+    document.execCommand('copy', false);
     $.toast({
         title: 'Copied to clipboard',
         type: 'success',

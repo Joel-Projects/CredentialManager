@@ -31,9 +31,9 @@
             {#            <li class="nav-item">#}
             {#                <a class="nav-link" data-toggle="tab" id="tab_bots" href="#bots" aria-controls="Bots">Bots</a>#}
             {#            </li>#}
-            {#            <li class="nav-item">#}
-            {#                <a class="nav-link" data-toggle="tab" id="tab_redditApps" href="#redditApps" aria-controls="RedditApps">Reddit Apps</a>#}
-            {#            </li>#}
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" id="tab_reddit_apps" href="#reddit_apps" aria-controls="reddit_apps">Reddit Apps</a>
+            </li>
             {#            <li class="nav-item">#}
             {#                <a class="nav-link" data-toggle="tab" id="tab_sentryTokens" href="#sentryTokens" aria-controls="RedditApps">Sentry Tokens</a>#}
             {#            </li>#}
@@ -89,16 +89,50 @@
                                     {{ usersForm.password(size=16, class_="form-control", type='text', oninvalid="invalidateField(this)") }}
                                 </div>
                                 <div class="form-group">
-                                    {{ usersForm.default_redirect_uri.label }}
-                                    {% if usersForm.default_redirect_uri.errors %}
-                                        {{ usersForm.default_redirect_uri(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
-                                        {% for error in usersForm.default_redirect_uri.errors %}
-                                            <div class="invalid-feedback" id="default_redirect_uriFeedback">{{ error }}</div>
-                                        {% endfor %}
-                                    {% else %}
-                                        {{ usersForm.default_redirect_uri(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
-                                    {% endif %}
-                                    <small id="headerHelp" class="form-text text-muted">Defines the user's default redirect URI for reddit apps for OAuth2 authentication</small>
+                                    <label for="custom_settings">Default Settings</label>
+                                    <div id="custom_settings"></div>
+                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/json-editor/0.7.28/jsoneditor.min.js" integrity="sha256-51+oMmpgSgS4jV5/DcGKnDHIOL6Jeie2i7ka6sPQVro=" crossorigin="anonymous"></script>
+                                    <script>
+                                        // Set default options
+                                        JSONEditor.defaults.options.theme = 'bootstrap3';
+
+                                        // Initialize the editor
+                                        var editor = new JSONEditor(document.getElementById("custom_settings"), {
+                                            schema: {
+                                                "type": "array",
+                                                "format": "table",
+                                                "title": null,
+                                                "uniqueItems": true,
+                                                "items": {
+                                                    "type": "object",
+                                                    "title": "Setting",
+                                                    "properties": {
+                                                        "Setting": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "redirect_uri",
+                                                                "database_flavor",
+                                                                "database_host",
+                                                                "user_agent",
+                                                                "ssh_host",
+                                                                "ssh_user"
+                                                            ]
+                                                        },
+                                                        "Default Value": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "default": {{ defaultSettings|safe }}
+                                            }
+                                        });
+                                    </script>
+                                    <style>
+                                        #custom_settings > div > h3 {
+                                            display: none !important;
+                                        }
+                                    </style>
+                                    <br>
                                 </div>
                                 <div class="form-group" {% if not current_user.is_admin or not current_user.is_internal %}hidden{% endif %}>
                                     <div class="custom-control custom-switch">
@@ -132,11 +166,11 @@
                                 </div>
                                 <div class="form-group">
                                     <button class="btn btn-primary" type="submit" name="save" onclick="saveItem(this)" id="save" value="save">Save</button>
+                                    {% if current_user.is_admin or current_user.is_internal %}
+                                        <button class="btn btn-danger" id="delete" data-target="#confirmationModal" onclick="showDeleteModal('{{ user.username }}', 'users', {{ user.id }})" data-toggle="modal">Delete User</button>
+                                    {% endif %}
                                 </div>
                             </form>
-                            {% if current_user.is_admin or current_user.is_internal %}
-                                <button class="btn btn-danger" id="delete" data-target="#confirmationModal" onclick="showDeleteModal('{{ user.username }}', 'users', {{ user.id }})" data-toggle="modal">Delete User</button>
-                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -151,18 +185,24 @@
                     {% include 'sentry_tokensTable.html' %}
                 </div>
             </div>
+            <div class="tab-pane fade" id="reddit_apps">
+                <div class="container">
+                    {% include 'reddit_appsTable.html' %}
+                </div>
+            </div>
         </div>
-        <script>
-            $(function () {
-                var activeTab = document.getElementsByClassName('nav-link active')[0].ariaControls;
-                var hash = document.location.hash;
-                if (hash) {
-                    $(`#${activeTab}`).removeClass('active');
-                    $(`#${activeTab}Tab`).removeClass('active');
-                    $(`${hash}`).addClass('active show');
-                    $(`${hash}Tab`).addClass('active')
-                }
-            })
-        </script>
+    </div>
+    <script>
+        $(function () {
+            var activeTab = document.getElementsByClassName('nav-link active')[0].ariaControls;
+            var hash = document.location.hash;
+            if (hash) {
+                $(`#${activeTab}`).removeClass('active');
+                $(`#${activeTab}`).removeClass('active');
+                $(`#${hash}`).addClass('active show');
+                $(`#tab_${hash}`).addClass('active')
+            }
+        })
+    </script>
     </body>
 {% endblock %}
