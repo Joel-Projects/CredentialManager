@@ -30,7 +30,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs):
     client_secret = db.Column(db.String, nullable=False, info={'label': 'Client Secret', 'description': 'Client secret of the Reddit App'})
     user_agent = db.Column(db.Text, nullable=False, info={'label': 'User Agent', 'description': 'User agent used for requests to Reddit\'s API'})
     app_type = db.Column(ChoiceType(redditAppTypes), nullable=False, info={'label': 'App Type', 'description': 'Type of the app. One of `web`, `installed`, or `script`'})
-    redirect_uri = db.Column(URLType, nullable=False, info={'label': 'Redirect URI', 'description': 'Redirect URI for Oauth2 flow. Defaults to user set redirect uri'})
+    redirect_uri = db.Column(URLType, default='https://credmgr.jesassn.org/oauth2/reddit_callback', nullable=False, info={'label': 'Redirect URI', 'description': 'Redirect URI for Oauth2 flow. Defaults to `https://credmgr.jesassn.org/oauth2/reddit_callback`. Changing this will disable fetching of users\' refresh tokens!'})
     enabled = db.Column(db.Boolean, default=True, info={'label': 'Enable?', 'description': 'Allows the app to be used'})
     owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'), info={'label': 'Owner', 'description': 'Owner of the Reddit App'})
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))

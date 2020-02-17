@@ -33,12 +33,6 @@
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" id="tab_reddit_apps" href="#reddit_apps" aria-controls="reddit_apps">Reddit Apps</a>
             </li>
-            {#            <li class="nav-item">#}
-            {#                <a class="nav-link" data-toggle="tab" id="tab_sentryTokens" href="#sentryTokens" aria-controls="RedditApps">Sentry Tokens</a>#}
-            {#            </li>#}
-            {#            <li class="nav-item">#}
-            {#                <a class="nav-link" data-toggle="tab" id="tab_databaseCredentials" href="#databaseCredentials" aria-controls="RedditApps">Database Credentials</a>#}
-            {#            </li>#}
         </ul>
         <div class="tab-content py-3">
             <div class="tab-pane active" id="settings">
@@ -118,12 +112,11 @@
                                                         "Setting": {
                                                             "type": "string",
                                                             "enum": [
-                                                                "redirect_uri",
                                                                 "database_flavor",
                                                                 "database_host",
-                                                                "user_agent",
                                                                 "ssh_host",
-                                                                "ssh_user"
+                                                                "ssh_user",
+                                                                "user_agent"
                                                             ]
                                                         },
                                                         "Default Value": {
