@@ -1,0 +1,101 @@
+{% import 'macros.jinja2' as macros %}
+<div class="container">
+    <div class="table-responsive">
+        {{ database_credentialsTable }}
+    </div>
+    <div class="row">
+        <div class="col">
+            <button class="btn btn-primary" id="createDatabaseCredential" data-toggle="modal" data-target="#createDatabaseCredentialModal">Create Database Credential</button>
+        </div>
+        {% include 'paginator.html' %}
+    </div>
+    <div class="modal fade" id="createDatabaseCredentialModal" tabindex="-1" role="dialog" aria-labelledby="createDatabaseCredentialModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createDatabaseCredentialModalLabel">Create Database Credential</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createDatabaseCredentialForm" method="post" resource="{% if user %}/u/{{ user.username }}{% endif %}/database_credentials">
+                        {{ database_credentialsForm.hidden_tag() }}
+                        {% for fieldName in database_credentialsForm.Meta.fields %}
+                            {% if fieldName.__class__.__name__ == 'list' %}
+                                {{ macros.formRow(database_credentialsForm, fieldName) }}
+                            {% elif fieldName == 'app_type' %}
+                                <div class="form-group">
+                                    {{ database_credentialsForm[fieldName].label }}
+                                    {{ database_credentialsForm[fieldName](class_="custom-select") }}
+                                    <small id="headerHelp" class="form-text text-muted">{{ database_credentialsForm[fieldName].description }}</small>
+                                </div>
+                            {% elif fieldName == 'enabled' %}
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        {{ database_credentialsForm[fieldName](checked=True, class_="custom-control-input") }}
+                                        {{ database_credentialsForm[fieldName].label(class_='custom-control-label') }}
+                                        <small id="headerHelp" class="form-text text-muted">{{ database_credentialsForm[fieldName].description }}</small>
+                                    </div>
+                                </div>
+                            {% elif fieldName == 'redirect_uri' %}
+                                <div class="form-group">
+                                    {{ database_credentialsForm[fieldName].label }}
+                                    {% if user %}
+                                        {% set redirectUri = user.getDefault('redirect_uri') %}
+                                    {% else %}
+                                        {% set redirectUri = current_user.getDefault('redirect_uri') %}
+                                    {% endif %}
+                                    {% if database_credentialsForm[fieldName].errors %}
+                                        {{ database_credentialsForm[fieldName](value=redirectUri, size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                        {% for error in database_credentialsForm[fieldName].errors %}
+                                            <div class="invalid-feedback" id="{{ fieldName }}Feedback">{{ error }}</div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ database_credentialsForm[fieldName](value=redirectUri, size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                    {% endif %}
+                                    <small id="headerHelp" class="form-text text-muted">{{ database_credentialsForm[fieldName].description }}</small>
+                                </div>
+                            {% elif fieldName == 'user_agent' %}
+                                <div class="form-group">
+                                    {{ database_credentialsForm[fieldName].label }}
+                                    {% if user %}
+                                        {% set user_agent = user.getDefault('user_agent') %}
+                                    {% else %}
+                                        {% set user_agent = current_user.getDefault('user_agent') %}
+                                    {% endif %}
+                                    {% if database_credentialsForm[fieldName].errors %}
+                                        {{ database_credentialsForm[fieldName](value=user_agent, size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                        {% for error in database_credentialsForm[fieldName].errors %}
+                                            <div class="invalid-feedback" id="{{ fieldName }}Feedback">{{ error }}</div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ database_credentialsForm[fieldName](value=user_agent, size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                    {% endif %}
+                                    <small id="headerHelp" class="form-text text-muted">{{ database_credentialsForm[fieldName].description }}</small>
+                                </div>
+                            {% else %}
+                                {{ macros.textField(database_credentialsForm, fieldName) }}
+                            {% endif %}
+                        {% endfor %}
+                        <div class="form-group" {% if not current_user.is_admin and not current_user.is_internal %}hidden{% endif %}>
+                            {{ database_credentialsForm.owner.label }}
+                            {{ database_credentialsForm.owner(class_="custom-select", default=user or current_user) }}
+                            <small id="headerHelp" class="form-text text-muted">{{ database_credentialsForm.owner.description }}</small>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>
+                            <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="DatabaseCredentialCreateNew">Add and New</button>
+                            <button type="submit" name="submit" tabindex="0" class="btn btn-primary" onclick="createItem(this, 'createDatabaseCredentialForm', '{% if user %}/u/{{ user.username }}{% endif %}/database_credentials')" id="DatabaseCredentialCreate">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $("#database_credentials_table").tablesorter({
+            theme: "bootstrap",
+            cancelSelection: false,
+            sortReset: true
+        });
+    </script>
+</div>
