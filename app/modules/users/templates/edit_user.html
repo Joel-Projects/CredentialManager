@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{#{% include "api_tokens.html" %}#}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block title %}Credential Manager - {% if current_user.is_admin or current_user.is_internal %}{{ user.username }}{% else %}Profile{% endif %}{% endblock %}
 {% block breadCrumbs %}
@@ -78,6 +77,17 @@
                                     {% endif %}
                                 </div>
                                 <div class="form-group">
+                                    {{ usersForm.reddit_username.label }}
+                                    {% if usersForm.reddit_username.errors %}
+                                        {{ usersForm.reddit_username(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                        {% for error in usersForm.reddit_username.errors %}
+                                            <div class="invalid-feedback" id="reddit_usernameFeedback">{{ error }}</div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ usersForm.reddit_username(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
                                     <div class="custom-control custom-switch">
                                         {{ usersForm.updatePassword(class_="custom-control-input", hiddenObject='passwordField', forField=usersForm.password) }}
                                         {{ usersForm.updatePassword.label(class_='custom-control-label') }}
@@ -93,10 +103,8 @@
                                     <div id="custom_settings"></div>
                                     <script src="https://cdnjs.cloudflare.com/ajax/libs/json-editor/0.7.28/jsoneditor.min.js" integrity="sha256-51+oMmpgSgS4jV5/DcGKnDHIOL6Jeie2i7ka6sPQVro=" crossorigin="anonymous"></script>
                                     <script>
-                                        // Set default options
                                         JSONEditor.defaults.options.theme = 'bootstrap3';
 
-                                        // Initialize the editor
                                         var editor = new JSONEditor(document.getElementById("custom_settings"), {
                                             schema: {
                                                 "type": "array",
@@ -127,13 +135,13 @@
                                             }
                                         });
                                     </script>
-                                    <style>
-                                        #custom_settings > div > h3 {
-                                            display: none !important;
-                                        }
-                                    </style>
                                     <br>
                                 </div>
+                                <style>
+                                    #custom_settings > div > h3 {
+                                        display: none !important;
+                                    }
+                                </style>
                                 <div class="form-group" {% if not current_user.is_admin or not current_user.is_internal %}hidden{% endif %}>
                                     <div class="custom-control custom-switch">
                                         {{ usersForm.is_admin(default=user.is_admin, class_="custom-control-input") }}

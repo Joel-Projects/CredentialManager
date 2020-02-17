@@ -3,6 +3,7 @@ from functools import wraps
 
 from flask import Blueprint, render_template, request, flash, current_app, redirect, jsonify
 from flask_login import current_user, login_required
+from unflatten import unflatten
 from wtforms import BooleanField
 
 from .forms import UserForm, EditUserForm
@@ -11,7 +12,7 @@ from .tables import UserTable
 from .models import User
 from ..api_tokens.parameters import PatchApiTokenDetailsParameters
 from ..sentry_tokens.parameters import PatchSentryTokenDetailsParameters
-from ...extensions import db, paginateArgs, requiresAdmin, verifyEditable
+from ...extensions import db, paginateArgs, requiresAdmin, verifyEditable, ModelForm
 from ...extensions.api import abort
 
 from ..api_tokens.views import ApiTokenTable
@@ -35,11 +36,13 @@ usersBlueprint = Blueprint('users', __name__, template_folder='./templates', sta
 @paginateArgs(User)
 def users(page, perPage):
     query = User.query
-    users = []
     form = UserForm()
     if request.method == 'POST':
         if form.validate_on_submit():
             data = form.data
+            if 'default_settings' in request.form:
+                data['default_settings'] = {item['Setting']: item['Default Value'] for item in json.loads(request.form['default_settings'])}
+            # default_settings
             # del data['csrf_token']
             user = User(**data)
             user.created_by = current_user.id
@@ -74,9 +77,16 @@ def editUser(user):
 
     form = EditUserForm(obj=user)
     usernameChanged = False
+    newDefaultSettings = user.default_settings
     if request.method == 'POST':
         if form.validate_on_submit():
             itemsToUpdate = []
+            defaultSettings = {item['setting']: item['value'] for item in unflatten(dict([(a.replace('[Setting]', '.setting').replace('[Default Value]', '.value'), b) for a, b in dict(request.form).items() if a.startswith('root')]))['root']}
+            if user.default_settings != defaultSettings:
+                itemsToUpdate.append({"op": "replace", "path": f'/default_settings', "value": defaultSettings})
+                newDefaultSettings = defaultSettings
+            else:
+                newDefaultSettings = user.default_settings
             for item in PatchUserDetailsParameters.getPatchFields():
                 if getattr(form, item, None) is not None:
                     if not isinstance(getattr(form, item), BooleanField):
@@ -103,7 +113,14 @@ def editUser(user):
                 return redirect(f'{newUsername}')
         else:
             return jsonify(status='error', errors=form.errors)
-    return render_template('edit_user.html', user=user, usersForm=form, defaultSettings=json.dumps([{"Setting": key,"Default Value": value} for key, value in user.default_settings.items()]), **kwargs)
+    for key, value in kwargs.items():
+        if isinstance(value, ModelForm):
+            if 'owner' in value:
+                value.owner.data = user or current_user
+            for defaultSetting, settingValue in user.default_settings.items():
+                if defaultSetting in value.data:
+                    getattr(value, defaultSetting).data = settingValue
+    return render_template('edit_user.html', user=user, usersForm=form, defaultSettings=json.dumps([{"Setting": key,"Default Value": value} for key, value in newDefaultSettings.items()]), **kwargs)
 
 
 # noinspection PyUnresolvedReferences
@@ -144,6 +161,8 @@ def itemsPerUser(user, item):
         f'{item}Table': table,
         f'{item}Form': form,
     }
+    # for key, value in kwargs:
+    #     if isinstance(value, )
     return render_template(f'{item}.html', user=user, **kwargs)
 
 # @login_required

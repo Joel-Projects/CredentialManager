@@ -3,11 +3,11 @@
 {% extends "bootstrap/base.html" %}
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>{% block title %}Credential Manager{% endblock %}</title>
     {% block head %}
+        <title>{% block title %}Credential Manager{% endblock %}</title>
         {% block meta %}
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
             <meta property="og:type" content="website">
             <meta property="og:title" content="{% block meta_title %}Credential Manager{% endblock %}"/>
             <meta property="og:description" content="{% block meta_desc %}Credential Manager{% endblock %}"/>

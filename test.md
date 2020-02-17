@@ -1,0 +1,146 @@
+- complete endpoints and tests
+    - api_tokens
+        - [ ] tests for each
+    - bots
+        - [ ] get
+        - [ ] create
+        - [ ] delete
+        - [ ] list
+        - [ ] list for user
+        - [ ] tests for each
+- database_credentials
+- [ ] get
+- [ ] create
+- [ ] delete
+- [ ] list
+- [ ] list for user
+- [ ] tests for each
+    - reddit_apps
+        - [x] get
+        - [x] create
+        - [x] delete
+        - [x] list
+        - [x] list for user
+        - [x] tests for each
+    - refresh_tokens
+        - [ ] get
+        - [ ] create
+        - [ ] delete
+        - [ ] list
+        - [ ] list for user
+        - [ ] tests for each
+    - sentry_tokens
+        - [ ] create - [ ] needs more testing
+        - [ ] delete
+        - [ ] list for user
+        - [ ] tests for each
+- front end
+    - users
+        - [ ] table view
+            - [ ] main endpoint
+        - [x] create
+            - [x] at table view
+            - [x] at user/profile view
+        - [x] edit
+            - [x] fix switches getting reset back to false on save
+        - [x] delete
+            - [x] main endpoint
+            - [x] user/profile view
+        - [x] toggle
+            - [x] main endpoint
+            - [x] user/profile view
+    - api_tokens
+        - [x] table view
+            - [x] main endpoint
+            - [x] user/profile view
+        - [x] create
+            - [x] at table view
+            - [x] at user/profile view
+        - [x] edit
+        - [x] delete
+            - [x] main endpoint
+            - [x] user/profile view
+        - [x] toggle
+            - [x] main endpoint
+            - [x] user/profile view
+    - bots
+        - [ ] table view
+            - [ ] main endpoint
+            - [ ] user/profile view
+        - [ ] create
+            - [ ] at table view
+            - [ ] at user/profile view
+        - [ ] edit
+        - [ ] delete
+            - [ ] main endpoint
+            - [ ] user/profile view
+        - [ ] toggle
+            - [ ] main endpoint
+            - [ ] user/profile view
+    - database_credentials
+        - [ ] table view
+            - [ ] main endpoint
+            - [ ] user/profile view
+        - [ ] create
+            - [ ] at table view
+            - [ ] at user/profile view
+        - [ ] edit
+        - [ ] delete
+            - [ ] main endpoint
+            - [ ] user/profile view
+        - [ ] toggle
+            - [ ] main endpoint
+            - [ ] user/profile view
+    - reddit_apps
+        - [x] table view
+            - [x] main endpoint
+            - [x] user/profile view
+        - [x] create
+            - [x] at table view
+            - [x] at user/profile view
+        - [x] edit
+        - [x] delete
+            - [x] main endpoint
+            - [x] user/profile view
+        - [x] toggle
+            - [x] main endpoint
+            - [x] user/profile view
+    - refresh_tokens
+        - [x] table view
+            - [x] main endpoint
+            - [x] user/profile view
+        - [x] create
+            - [x] at table view
+            - [x] at user/profile view
+        - [x] edit
+        - [x] delete
+            - [x] main endpoint
+            - [x] user/profile view
+        - [x] toggle
+            - [x] main endpoint
+            - [x] user/profile view
+    - sentry_tokens
+        - [x] table view
+            - [x] main endpoint
+            - [x] user/profile view
+        - [x] create
+            - [x] at table view
+            - [x] at user/profile view
+        - [x] edit
+        - [x] delete
+            - [x] main endpoint
+            - [x] user/profile view
+        - [x] toggle
+            - [x] main endpoint
+            - [x] user/profile view
+            
+            
+test
+web app
+IMm-Mg5agA_JZw
+change icon
+secret	_NK5DW8t52Wj7WMrsbHHAqyYvv4
+name
+description
+about url
+redirect uri

@@ -27,6 +27,11 @@ function saveItem(button) {
     $(`#${button.id}`).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>Saving...');
 };
 
+function saveUser(button) {
+    $(`#${button.id}`).disabled = true;
+    $(`#${button.id}`).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>Saving...');
+};
+
 function doneSave(id, form) {
     $(`#${id}`).prop('disabled', false);
     $(`#${id}`).prop('class', 'btn btn-primary');
@@ -131,11 +136,13 @@ function toggleItem(itemType, id, name, nameAttr, enabledAttr) {
 
 function createItem(button, form, resource, additonal = false) {
     event.preventDefault();
-
     var data = {};
     $(`#${form} *`).filter(':input').each(function () {
         data[this.name] = this.value;
     });
+    if (editor) {
+        data['default_settings'] = JSON.stringify(editor.getValue())
+    }
     $.ajax({
         data: data,
         type: 'POST',
@@ -154,32 +161,10 @@ function createItem(button, form, resource, additonal = false) {
                 if (additonal) {
                     $(`#${form}`)[0].reset()
                 } else {
-                    window.location.reload(false)
+                    // noinspection SillyAssignmentJS
+                    window.location.href = window.location.href
                 }
             }
-            // })
-            // .done(function notify(data) {
-            //     var elem = document.getElementById(`${itemType}_${id}_toggle`);
-            //     var icon = document.getElementById(`${itemType}_${id}_icon`);
-            //     if (data.status == 422) {
-            //         popNotification('error', data.message);
-            //     } else {
-            //         if (data.is_active) {
-            //             elem.textContent = "Disable";
-            //             elem.style.color = "#E74C3C";
-            //             icon.setAttribute("class", "fas fa-check");
-            //             icon.style.color = "#00bc8c";
-            //             var toastStatus = "enabled";
-            //         } else {
-            //             elem.textContent = "Enable";
-            //             elem.style.color = "#00bc8c";
-            //             icon.setAttribute("class", "fas fa-times");
-            //             icon.style.color = "#E74C3C";
-            //             var toastStatus = "disabled";
-            //         }
-            //         elem.setAttribute("class", "dropdown-item");
-            //         popNotification('success', `Successfully ${toastStatus} '${data[nameAttr]}'`);
-            //     }
         });
 }
 

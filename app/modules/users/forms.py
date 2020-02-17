@@ -44,7 +44,7 @@ class HiddenFieldWithToggle(BooleanField):
 class UserForm(ModelForm):
     class Meta:
         model = User
-        only = ['username', 'password', 'default_settings']
+        only = ['username', 'password', 'reddit_username']
 
     is_admin = BooleanField('Admin?')
     is_internal = BooleanField('Internal?')
@@ -58,11 +58,10 @@ class EditUserForm(ModelForm):
 
     class Meta:
         model = User
-        only = ['id', 'username', 'password', 'default_settings']
+        only = ['id', 'username', 'password', 'reddit_username']
         field_args = {
             'id': {'validators': [Optional()]},
             'password': {'validators': [Optional()]},
-            # 'default_settings': {'validators': [url()]}
         }
 
     updatePassword = HiddenFieldWithToggle('Update Password?')

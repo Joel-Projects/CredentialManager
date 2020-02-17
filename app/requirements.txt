@@ -29,3 +29,4 @@ passlib[bcrypt]
 Flask-Login #>=0.4.0,<0.5
 permission #>=0.4.1,<0.5
 psycopg2-binary
+unflatten

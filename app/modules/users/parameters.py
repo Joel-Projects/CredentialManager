@@ -39,7 +39,7 @@ class CreateUserParameters(PostFormParameters, schemas.BaseUserSchema):
 
 
     class Meta(schemas.BaseUserSchema.Meta):
-        fields = schemas.BaseUserSchema.Meta.fields + ('password', 'default_settings', 'is_admin', 'is_active', 'is_regular_user', 'is_internal')
+        fields = schemas.BaseUserSchema.Meta.fields + ('password', 'default_settings', 'is_admin', 'is_active', 'is_regular_user', 'is_internal', 'reddit_username')
 
 class DeleteUserParameters(PostFormParameters, schemas.BaseUserSchema):
 
@@ -50,15 +50,15 @@ class PatchUserDetailsParameters(PatchJSONParameters):
     """
     User details updating parameters following PATCH JSON RFC.
     """
-    fields = (User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, 'default_settings', 'username', 'updated_by')
+    fields = (User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, User.default_settings.key, User.username.key, User.updated_by.key, User.reddit_username.key)
     PATH_CHOICES = tuple(f'/{field}' for field in fields)
 
     @staticmethod
     def getPatchFields():
         if current_user.is_internal:
-            return User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, 'default_settings', 'username', 'updated_by'
+            return User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, User.default_settings.key, User.username.key, User.updated_by.key
         else:
-            return User.password.key, User.is_active.fget.__name__, User.is_admin.fget.__name__, 'default_settings', 'username', 'updated_by'
+            return User.password.key, User.is_active.fget.__name__, User.is_admin.fget.__name__, User.default_settings.key, User.username.key, User.updated_by.key, User.reddit_username.key
 
     @classmethod
     def test(cls, obj, field, value, state):

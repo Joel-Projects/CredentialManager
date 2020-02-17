@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Credential Manager Manager - Users{% endblock %}
+{% block title %}Credential Manager - Users{% endblock %}
 {% block breadCrumbs %}
     <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
 {% endblock %}
@@ -34,6 +34,17 @@
                                             {% endfor %}
                                         {% else %}
                                             {{ usersForm.username(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ usersForm.reddit_username.label }}
+                                        {% if usersForm.reddit_username.errors %}
+                                            {{ usersForm.reddit_username(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                            {% for error in usersForm.reddit_username.errors %}
+                                                <div class="invalid-feedback" id="reddit_usernameFeedback">{{ error }}</div>
+                                            {% endfor %}
+                                        {% else %}
+                                            {{ usersForm.reddit_username(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
                                         {% endif %}
                                     </div>
                                     <div class="form-group">

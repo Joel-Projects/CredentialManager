@@ -40,9 +40,9 @@
                                 <div class="form-group">
                                     {{ reddit_appsForm[fieldName].label }}
                                     {% if user %}
-                                        {% set redirectUri = user.default_redirect_uri %}
+                                        {% set redirectUri = user.getDefault('redirect_uri') %}
                                     {% else %}
-                                        {% set redirectUri = current_user.default_redirect_uri %}
+                                        {% set redirectUri = current_user.getDefault('redirect_uri') %}
                                     {% endif %}
                                     {% if reddit_appsForm[fieldName].errors %}
                                         {{ reddit_appsForm[fieldName](value=redirectUri, size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
@@ -54,13 +54,31 @@
                                     {% endif %}
                                     <small id="headerHelp" class="form-text text-muted">{{ reddit_appsForm[fieldName].description }}</small>
                                 </div>
+                            {% elif fieldName == 'user_agent' %}
+                                <div class="form-group">
+                                    {{ reddit_appsForm[fieldName].label }}
+                                    {% if user %}
+                                        {% set user_agent = user.getDefault('user_agent') %}
+                                    {% else %}
+                                        {% set user_agent = current_user.getDefault('user_agent') %}
+                                    {% endif %}
+                                    {% if reddit_appsForm[fieldName].errors %}
+                                        {{ reddit_appsForm[fieldName](value=user_agent, size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                        {% for error in reddit_appsForm[fieldName].errors %}
+                                            <div class="invalid-feedback" id="{{ fieldName }}Feedback">{{ error }}</div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ reddit_appsForm[fieldName](value=user_agent, size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                    {% endif %}
+                                    <small id="headerHelp" class="form-text text-muted">{{ reddit_appsForm[fieldName].description }}</small>
+                                </div>
                             {% else %}
                                 {{ macros.textField(reddit_appsForm, fieldName) }}
                             {% endif %}
                         {% endfor %}
                         <div class="form-group" {% if not current_user.is_admin and not current_user.is_internal %}hidden{% endif %}>
                             {{ reddit_appsForm.owner.label }}
-                            {{ reddit_appsForm.owner(class_="custom-select") }}
+                            {{ reddit_appsForm.owner(class_="custom-select", default=user or current_user) }}
                             <small id="headerHelp" class="form-text text-muted">{{ reddit_appsForm.owner.description }}</small>
                         </div>
                         <div class="modal-footer">

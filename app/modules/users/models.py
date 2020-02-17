@@ -46,11 +46,10 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs):
         'id': 'User ID',
         'createdBy.username': 'Created By',
         'updatedBy.username': 'Updated By',
-        'default_redirect_uri': 'Default Redirect URI',
         'api_tokens.count': 'API Tokens',
         # 'bots.count': 'Bots',
         # 'database_credentials.count': 'Database Credentials',
-        # 'reddit_apps.count': 'Reddit Apps',
+        'reddit_apps.count': 'Reddit Apps',
         # 'refresh_tokens.count': 'Authencated Users',
         'sentry_tokens.count': 'Sentry Tokens'
     }
@@ -59,8 +58,8 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(length=80), unique=True, nullable=False, info={'label': 'Username'})
     password = db.Column(column_types.PasswordType(max_length=128, schemes=('bcrypt',)), nullable=False, info={'label': 'Password'})
-    default_settings = db.Column(db.JSON, default={'redirect_uri': 'http://localhost:8080', 'database_flavor': 'postgres', 'database_host': 'localhost'}, info={'label': 'Default Redirect URI'})
-    default_redirect_uri = db.Column(db.String, default='http://localhost:8080', info={'label': 'Default Redirect URI'})
+    defaultSettings = "{'redirect_uri': 'http://localhost:8080', 'database_flavor': 'postgres', 'database_host': 'localhost'}"
+    default_settings = db.Column(db.JSON, server_default=defaultSettings, default=defaultSettings, info={'label': 'Default Redirect URI'})
     reddit_username = db.Column(db.String, info={'label': 'Reddit Username'})
     created_by = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='SET NULL', onupdate='CASCADE'))
     createdBy = db.relationship('User', remote_side=id, foreign_keys=[created_by])
@@ -114,6 +113,9 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs):
 
     def check_owner(self, user):
         return self == user
+
+    def getDefault(self, setting):
+        return self.default_settings.get(setting, '')
 
     @classmethod
     def findWithPassword(cls, username, password):
