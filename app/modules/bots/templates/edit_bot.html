@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Credential Manager - Edit Bot - {{ bot.name }}{% endblock %}
+{% block breadCrumbs %}
+    <!--suppress HtmlUnknownTarget -->
+    {% if user and (current_user.is_admin or current_user.is_internal or bot.check_owner(current_user)) %}
+        <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
+        <li class="breadcrumb-item"><a href="/u/{{ user.username }}">{{ user.username }}</a></li>
+        <li class="breadcrumb-item"><a href="/u/{{ user.username }}/bots/">Bots</a></li>
+    {% else %}
+        <li class="breadcrumb-item"><a href="/bots/">Bots</a></li>
+    {% endif %}
+    <li class="breadcrumb-item"><a href="/bots/{{ bot.id }}">{{ bot.name }}</a></li>
+{% endblock %}
+{% block activeItem %}active item{% endblock %}
+{% block content %}
+    <!--suppress ALL -->
+    <script src="{{ url_for('bots.static', filename='js/edit_bot.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit.css') }}">
+    <body>
+    <div class="container">
+        <div class="row justify-content-lg-center">
+            <div class="col-md-4">
+                <div class="jumbotron">
+                    <h4>Bot Info</h4>
+                    <hr style="border-top: 1px solid" ;>
+                    {% for attr, displayName in bot._infoAttrs.items() %}
+                        {% if attr == 'owner' and not bot.check_owner(current_user) and (current_user.is_admin or current_user.is_internal) %}
+                            <strong>{{ displayName }}:</strong><br><a href="/u/{{ bot.getInfoAttr(attr).username }}">{{ bot.getInfoAttr(attr).username }}</a><br><br>
+                        {% elif bot.getInfoAttr(attr).__class__.__name__ == 'datetime' %}
+                            <strong>{{ displayName }}:</strong><br><a>{{ bot.getInfoAttr(attr).strftime('%m/%d/%Y %I:%M:%S %p') }}</a><br><br>
+                        {% else %}
+                            <strong>{{ displayName }}:</strong><br><a>{{ bot.getInfoAttr(attr) }}</a><br><br>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <form id="editBotForm" method="post" onsubmit="doneSave('save', this)">
+                    {{ form.hidden_tag() }}
+                    <input id="itemType" name="itemType" type="hidden" value="{{ bot.__tablename__ }}">
+                    <input id="itemId" name="itemId" type="hidden" value="{{ bot.id }}">
+                    <input id="token" name="token" type="hidden" value="{{ bot.token }}">
+                    <div class="form-group" hidden>
+                        {{ form.owner.label }}
+                        {{ form.owner(class_="custom-select", default=bot.owner, readonly=True) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.name.label }}
+                        {% if form.name.errors %}
+                            {{ form.name(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)") }}
+                            {% for error in form.name.errors %}
+                                <div class="invalid-feedback" id="botFeedback">{{ error }}</div>
+                            {% endfor %}
+                        {% else %}
+                            {{ form.name(size=16, class_="form-control", onkeypress="clearInvalidState(this)") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.dsn.label }}
+                        {% if form.dsn.errors %}
+                            {{ form.dsn(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)") }}
+                            {% for error in form.dsn.errors %}
+                                <div class="invalid-feedback" id="botFeedback">{{ error }}</div>
+                            {% endfor %}
+                        {% else %}
+                            {{ form.dsn(size=16, class_="form-control", onkeypress="clearInvalidState(this)") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-switch">
+                            {{ form.enabled(default=bot.enabled, class_="custom-control-input") }}
+                            {{ form.enabled.label(class_='custom-control-label') }}
+                            <small id="headerHelp" class="form-text text-muted">Enables this Bot to be used</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary" type="submit" name="save" onclick="saveItem(this)" id="save" value="save">Save</button>
+                    </div>
+                </form>
+                <button class="btn btn-danger" id="delete" data-target="#confirmationModal" onclick="showDeleteModal('{{ bot.name }}', 'bots', {{ bot.id }})" data-toggle="modal">Delete</button>
+            </div>
+        </div>
+    </div>
+    </body>
+{% endblock %}

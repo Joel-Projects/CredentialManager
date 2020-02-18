@@ -107,23 +107,23 @@ class UserByID(Resource):
             db.session.delete(user)
         return None
 
-# @api.route('/<string:app_type>')
-# @api.login_required()
-# @api.response(code=HTTPStatus.NOT_FOUND, description="Yype not found.")
-# @api.resolveObjectToModel(User, 'user')
-# class UserByID(Resource):
-#     """
-#     Manipulations with a specific user.
-#     """
-#
-#     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['user']})
-#     @api.response(schemas.DetailedUserSchema())
-#     def get(self, item_type):
-#         """
-#         Get items that is owned by user by ``item_type``.
-#         """
-#         print()
-#         return item_type
+@api.route('/<int:user_id>/apps')
+@api.login_required()
+@api.response(code=HTTPStatus.NOT_FOUND, description="User not found.")
+@api.resolveObjectToModel(User, 'user')
+class AppsByUserID(Resource):
+    """
+    Returns all apps owned by a specific user.
+    """
+
+    @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['user']})
+    @api.response(schemas.UserItemsSchema())
+    def get(self, user):
+        """
+        Get items that is owned by user.
+        """
+        print()
+        return user
 
 @api.route('/me')
 @api.login_required()

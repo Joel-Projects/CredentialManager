@@ -61,9 +61,9 @@ def editSentryToken(sentry_token):
             if itemsToUpdate:
                 response = requests.patch(f'{request.host_url}api/v1/sentry_tokens/{sentry_token.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
                 if response.status_code == 200:
-                    flash(f'Sentry Token {sentry_token.name!r} saved successfully!', 'success')
+                    flash(f'Sentry Token {sentry_token.app_name!r} saved successfully!', 'success')
                 else:
-                    flash(f'Failed to update Sentry Token {sentry_token.name!r}', 'error')
+                    flash(f'Failed to update Sentry Token {sentry_token.app_name!r}', 'error')
         else:
             return jsonify(status='error', errors=form.errors)
     return render_template('edit_sentry_token.html', sentry_token=sentry_token, form=form)

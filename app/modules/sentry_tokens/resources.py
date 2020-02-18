@@ -78,7 +78,7 @@ class SentryTokens(Resource):
         else:
             owner = current_user
         with api.commit_or_abort(db.session, default_error_message="Failed to create a new Sentry Token."):
-            newSentryToken = SentryToken(owner=owner, dsn=args.dsn, name=args.name)
+            newSentryToken = SentryToken(owner=owner, dsn=args.dsn, app_name=args.app_name)
             db.session.add(newSentryToken)
         return newSentryToken
 

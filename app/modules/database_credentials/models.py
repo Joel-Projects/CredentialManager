@@ -1,9 +1,9 @@
 import sqlalchemy
 from sqlalchemy_utils import ChoiceType, URLType
 
-from app.extensions import db, InfoAttrs, Timestamp
+from app.extensions import db, InfoAttrs, Timestamp, StrName
 
-class DatabaseCredential(db.Model, Timestamp, InfoAttrs):
+class DatabaseCredential(db.Model, Timestamp, InfoAttrs, StrName):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

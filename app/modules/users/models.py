@@ -7,7 +7,7 @@ from datetime import datetime
 
 from sqlalchemy_utils import types as column_types
 from flask_login import UserMixin
-from app.extensions import db, Timestamp, InfoAttrs
+from app.extensions import db, Timestamp, InfoAttrs, StrName
 from app.modules.api_tokens.models import ApiToken
 
 def getStaticRole(roleName, staticRole):
@@ -34,7 +34,7 @@ def getStaticRole(roleName, staticRole):
     return isStaticRole
 
 
-class User(db.Model, Timestamp, UserMixin, InfoAttrs):
+class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -47,7 +47,7 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs):
         'createdBy.username': 'Created By',
         'updatedBy.username': 'Updated By',
         'api_tokens.count': 'API Tokens',
-        # 'bots.count': 'Bots',
+        'bots.count': 'Bots',
         'database_credentials.count': 'Database Credentials',
         'reddit_apps.count': 'Reddit Apps',
         # 'refresh_tokens.count': 'Authencated Users',
@@ -59,7 +59,7 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs):
     username = db.Column(db.String(length=80), unique=True, nullable=False, info={'label': 'Username'})
     password = db.Column(column_types.PasswordType(max_length=128, schemes=('bcrypt',)), nullable=False, info={'label': 'Password'})
     defaultSettings = {'redirect_uri': 'http://localhost:8080', 'database_flavor': 'postgres', 'database_host': 'localhost'}
-    default_settings = db.Column(db.JSON, default=defaultSettings, info={'label': 'Default Redirect URI'})
+    default_settings = db.Column(db.JSON, default=defaultSettings, info={'label': 'Default Settings'})
     reddit_username = db.Column(db.String, info={'label': 'Reddit Username'})
     created_by = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='SET NULL', onupdate='CASCADE'))
     createdBy = db.relationship('User', remote_side=id, foreign_keys=[created_by])
@@ -90,9 +90,6 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs):
 
     def __repr__(self):
         return f'<{self.__class__.__name__}(id={self.id}, username="{self.username}", is_admin={self.is_admin}, is_active={self.is_active})>'
-
-    def __str__(self):
-        return self.username
 
     def hasStaticRole(self, role):
         return (self.static_roles & role.mask) != 0

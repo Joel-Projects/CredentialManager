@@ -2,6 +2,9 @@ from flask_marshmallow import base_fields
 from flask_restplus_patched import Schema, ModelSchema
 
 from .models import User
+from ..database_credentials.schemas import BaseDatabaseCredentialSchema
+from ..reddit_apps.schemas import BaseRedditAppSchema
+from ..sentry_tokens.schemas import BaseSentryTokenSchema
 
 
 class BaseUserSchema(ModelSchema):
@@ -39,14 +42,17 @@ class DetailedUserSchema(BaseUserSchema):
 
 class UserItemsSchema(BaseUserSchema):
     """
-    Detailed user schema exposes all useful fields.
+    User items schema exposes all items.
     """
+    reddit_apps = base_fields.Nested(BaseRedditAppSchema, many=True)
+    sentry_tokens = base_fields.Nested(BaseSentryTokenSchema, many=True)
+    database_credentials = base_fields.Nested(BaseDatabaseCredentialSchema, many=True)
 
     class Meta(BaseUserSchema.Meta):
         fields = BaseUserSchema.Meta.fields + (
             User.created.key,
             User.updated.key,
-            User.is_active.fget.__name__,
-            User.is_regular_user.fget.__name__,
-            User.is_admin.fget.__name__,
+            User.reddit_apps.key,
+            User.sentry_tokens.key,
+            User.database_credentials.key
         )

@@ -82,3 +82,8 @@ class InfoAttrs(object):
         if callable(attr):
             attr = attr()
         return attr
+
+class StrName(object):
+
+    def __str__(self):
+        return getattr(self, self._nameAttr)
