@@ -123,3 +123,7 @@
 .navbar-dark .navbar-nav .nav-link.active {
     color: #00bc8c;
 }
+
+.jumbotron {
+  overflow-wrap: break-word;
+}

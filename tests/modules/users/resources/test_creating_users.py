@@ -8,9 +8,9 @@ def assertSuccess(response):
     assert response.status_code == 200
     assert response.content_type == 'application/json'
     assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'created', 'default_redirect_uri', 'id', 'is_active', 'is_admin', 'is_regular_user', 'updated', 'username'}
+    assert set(response.json.keys()) >= {'created', 'default_settings', 'id', 'is_active', 'is_admin', 'is_regular_user', 'updated', 'username'}
     assert isinstance(response.json['created'], str)
-    assert isinstance(response.json['default_redirect_uri'], str)
+    assert isinstance(response.json['default_settings'], dict)
     assert isinstance(response.json['id'], int)
     assert isinstance(response.json['is_active'], bool)
     assert isinstance(response.json['is_admin'], bool)

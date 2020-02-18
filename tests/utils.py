@@ -69,7 +69,7 @@ class AutoAuthFlaskClient(FlaskClient):
         return super(AutoAuthFlaskClient, self).open(*args, **kwargs)
 
 class JSONResponse(Response):
-  
+
     """
     A Response class with extra useful helpers, i.e. ``.json`` property.
     """
@@ -79,12 +79,14 @@ class JSONResponse(Response):
         return json.loads(self.get_data(as_text=True))
 
 
-def generate_user_instance(user_id=None,username="username", password=None, default_redirect_uri='http://localhost:8080/callback', created=None, updated=None, is_active=True, is_regular_user=True, is_admin=False, is_internal=False):
+def generate_user_instance(user_id=None, username="username", password=None, default_settings=None, created=None, updated=None, is_active=True, is_regular_user=True, is_admin=False, is_internal=False):
     """
     Returns:
         user_instance (User) - an not committed to DB instance of a User model.
     """
-  
+
+    if default_settings is None:
+        default_settings = {'database_flavor': 'postgres', 'database_host': 'localhost'}
     from app.modules.users.models import User
     if password is None:
         password = f'{username}_password'
@@ -92,7 +94,7 @@ def generate_user_instance(user_id=None,username="username", password=None, defa
         id=user_id,
         username=username,
         password=password,
-        default_redirect_uri=default_redirect_uri,
+        default_settings=default_settings,
         created=created or datetime.now(),
         updated=updated or datetime.now(),
         is_active=is_active,

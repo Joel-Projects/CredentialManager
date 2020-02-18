@@ -4,7 +4,7 @@ import json
 
 def test_modifying_user_info_by_owner(flask_app_client, regular_user, db):
 
-    saved_default_redirect_uri = regular_user.default_redirect_uri
+    saved_default_settings = regular_user.default_settings
     with flask_app_client.login(regular_user):
         response = flask_app_client.patch(f'/api/v1/users/{regular_user.id:d}',
             content_type='application/json',
@@ -16,8 +16,8 @@ def test_modifying_user_info_by_owner(flask_app_client, regular_user, db):
                 },
                 {
                     'op': 'replace',
-                    'path': '/default_redirect_uri',
-                    'value': "http://localhost:8080/new_callback",
+                    'path': '/default_settings',
+                    'value': {'database_flavor': 'postgres', 'database_host': 'localhost'},
                 },
             ])
         )
@@ -34,15 +34,15 @@ def test_modifying_user_info_by_owner(flask_app_client, regular_user, db):
 
     user1_instance = User.query.get(response.json['id'])
     assert user1_instance.username == regular_user.username
-    assert user1_instance.default_redirect_uri == "http://localhost:8080/new_callback"
+    assert user1_instance.default_settings == {'database_flavor': 'postgres', 'database_host': 'localhost'}
 
-    user1_instance.default_redirect_uri = saved_default_redirect_uri
+    user1_instance.default_settings = saved_default_settings
     with db.session.begin():
         db.session.merge(user1_instance)
 
 def test_modifying_user_info_by_admin(flask_app_client, admin_user, regular_user, db):
 
-    saved_default_redirect_uri = regular_user.default_redirect_uri
+    saved_default_settings = regular_user.default_settings
     with flask_app_client.login(admin_user):
         response = flask_app_client.patch(f'/api/v1/users/{regular_user.id}',
             content_type='application/json',
@@ -54,8 +54,8 @@ def test_modifying_user_info_by_admin(flask_app_client, admin_user, regular_user
                 },
                 {
                     'op': 'replace',
-                    'path': '/default_redirect_uri',
-                    'value': "http://localhost:8080/new_callback",
+                    'path': '/default_settings',
+                    'value': {'database_flavor': 'postgres', 'database_host': 'localhost'},
                 },
                 {
                     'op': 'replace',
@@ -87,12 +87,12 @@ def test_modifying_user_info_by_admin(flask_app_client, admin_user, regular_user
 
     user1_instance = User.query.get(response.json['id'])
     assert user1_instance.username == regular_user.username
-    assert user1_instance.default_redirect_uri == "http://localhost:8080/new_callback"
+    assert user1_instance.default_settings == {'database_flavor': 'postgres', 'database_host': 'localhost'}
     assert not user1_instance.is_active
     assert not user1_instance.is_regular_user
     assert user1_instance.is_admin
 
-    user1_instance.default_redirect_uri = saved_default_redirect_uri
+    user1_instance.default_settings = saved_default_settings
     user1_instance.is_active = True
     user1_instance.is_regular_user = True
     user1_instance.is_admin = False
@@ -112,8 +112,8 @@ def test_modifying_user_info_admin_fields_by_not_admin(flask_app_client, regular
                 },
                 {
                     'op': 'replace',
-                    'path': '/default_redirect_uri',
-                    'value': "http://localhost:8080/new_callback",
+                    'path': '/default_settings',
+                    'value': {'database_flavor': 'postgres', 'database_host': 'localhost'},
                 },
                 {
                     'op': 'replace',
@@ -147,12 +147,12 @@ def test_modifying_user_info_with_invalid_format_must_fail(flask_app_client, reg
             data=json.dumps([
                 {
                     'op': 'test',
-                    'path': '/first_name',
+                    'path': '/username',
                     'value': '',
                 },
                 {
                     'op': 'replace',
-                    'path': '/default_redirect_uri',
+                    'path': '/default_settings',
                 },
             ])
         )
@@ -175,8 +175,8 @@ def test_modifying_user_info_with_invalid_password_must_fail(flask_app_client, r
                 },
                 {
                     'op': 'replace',
-                    'path': '/default_redirect_uri',
-                    'value': "http://localhost:8080/new_callback",
+                    'path': '/default_settings',
+                    'value': {'database_flavor': 'postgres', 'database_host': 'localhost'},
                 },
             ])
         )

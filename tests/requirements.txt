@@ -1,8 +1,7 @@
 pytest
+pytest-xdist
+pytest-cov
+coverage
 mock
 swagger_spec_validator
 pytest-lazy-fixture
-## Optional packages
-# pytest-xdist
-# pytest-cov
-# coverage

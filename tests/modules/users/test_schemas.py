@@ -26,7 +26,7 @@ def test_DetailedUserSchema_dump_user_instance(user_instance):
     assert set(dumped_result.data.keys()) == {
         'id',
         'username',
-        'default_redirect_uri',
+        'default_settings',
         'created',
         'updated',
         'is_active',
