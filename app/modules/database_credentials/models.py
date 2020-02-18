@@ -43,7 +43,8 @@ class DatabaseCredential(db.Model, Timestamp, InfoAttrs, StrName):
 
     @property
     def botsUsingApp(self):
-        return 0
+        from app.modules.bots.models import Bot
+        return Bot.query.filter_by(database_credential=self).count()
 
     def check_owner(self, user):
         if self.owner.is_internal:

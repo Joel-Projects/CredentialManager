@@ -17,7 +17,6 @@
                 </div>
                 <div class="modal-body">
                     <form id="addSentryTokenForm" method="post" resource="{% if user %}/u/{{ user.username }}{% endif %}/sentry_tokens">
-                        {{ sentry_tokensForm.hidden_tag() }}
                         <div class="form-group">
                             {{ sentry_tokensForm.app_name.label }}
                             {% if sentry_tokensForm.app_name.errors %}

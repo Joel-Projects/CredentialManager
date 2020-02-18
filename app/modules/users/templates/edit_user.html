@@ -22,7 +22,7 @@
                 <a class="nav-link active" data-toggle="tab" id="tab_settings" href="#settings" aria-controls="settings">Settings</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" id="tab_api_tokens" href="#api_tokens" aria-controls="api_tokens">API Tokens</a>
+                <a class="nav-link" data-toggle="tab" id="tab_bots" href="#bots" aria-controls="bots">Bots</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" id="tab_reddit_apps" href="#reddit_apps" aria-controls="reddit_apps">Reddit Apps</a>
@@ -32,6 +32,9 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" id="tab_database_credentials" href="#database_credentials" aria-controls="database_credentials">Database Credentials</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" id="tab_api_tokens" href="#api_tokens" aria-controls="api_tokens">API Tokens</a>
             </li>
         </ul>
         <div class="tab-content py-3">
@@ -176,9 +179,9 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-pane fade" id="api_tokens">
+            <div class="tab-pane fade" id="bots">
                 <div class="container">
-                    {% include 'api_tokensTable.html' %}
+                    {% include 'botsTable.html' %}
                 </div>
             </div>
             <div class="tab-pane fade" id="reddit_apps">
@@ -194,6 +197,11 @@
             <div class="tab-pane fade" id="database_credentials">
                 <div class="container">
                     {% include 'database_credentialsTable.html' %}
+                </div>
+            </div>
+            <div class="tab-pane fade" id="api_tokens">
+                <div class="container">
+                    {% include 'api_tokensTable.html' %}
                 </div>
             </div>
         </div>

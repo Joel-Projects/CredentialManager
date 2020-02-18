@@ -12,6 +12,7 @@ class SentryToken(db.Model, Timestamp, InfoAttrs, StrName):
     _infoAttrs = {
         'id': 'Sentry Token ID',
         'owner': 'Owner',
+        'botsUsingApp': 'Bots using this',
         'created': 'Created at',
         'updated': 'Last updated at'
     }
@@ -30,3 +31,8 @@ class SentryToken(db.Model, Timestamp, InfoAttrs, StrName):
         if self.owner.is_internal:
             return user.is_internal
         return self.owner == user
+
+    @property
+    def botsUsingApp(self):
+        from app.modules.bots.models import Bot
+        return Bot.query.filter_by(sentry_token=self).count()

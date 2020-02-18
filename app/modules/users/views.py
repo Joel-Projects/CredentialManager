@@ -10,14 +10,11 @@ from .forms import UserForm, EditUserForm
 from .parameters import PatchUserDetailsParameters
 from .tables import UserTable
 from .models import User
-from ..api_tokens.parameters import PatchApiTokenDetailsParameters
-from ..sentry_tokens.parameters import PatchSentryTokenDetailsParameters
+# from ..api_tokens.parameters import PatchApiTokenDetailsParameters
+# from ..sentry_tokens.parameters import PatchSentryTokenDetailsParameters
 from ...extensions import db, paginateArgs, requiresAdmin, verifyEditable, ModelForm
 from ...extensions.api import abort
 
-from ..api_tokens.views import ApiTokenTable
-from ..api_tokens.forms import ApiTokenForm
-from ..api_tokens.models import ApiToken
 from ..reddit_apps.tables import RedditAppTable
 from ..reddit_apps.forms import RedditAppForm
 from ..reddit_apps.models import RedditApp
@@ -27,6 +24,12 @@ from ..sentry_tokens.models import SentryToken
 from ..database_credentials.tables import DatabaseCredentialTable
 from ..database_credentials.forms import DatabaseCredentialForm
 from ..database_credentials.models import DatabaseCredential
+from ..bots.tables import BotTable
+from ..bots.forms import BotForm
+from ..bots.models import Bot
+from ..api_tokens.views import ApiTokenTable
+from ..api_tokens.forms import ApiTokenForm
+from ..api_tokens.models import ApiToken
 
 
 log = logging.getLogger(__name__)
@@ -66,21 +69,26 @@ def users(page, perPage):
 @verifyEditable('user')
 def editUser(user):
     kwargs = {}
-    api_tokens = user.api_tokens.all()
-    kwargs['api_tokensTable'] = ApiTokenTable(api_tokens, current_user=current_user)
-    kwargs['api_tokensForm'] = ApiTokenForm()
 
-    sentry_tokens = user.sentry_tokens.all()
-    kwargs['sentry_tokensTable'] = SentryTokenTable(sentry_tokens, current_user=current_user)
-    kwargs['sentry_tokensForm'] = SentryTokenForm()
+    bots = user.bots.all()
+    kwargs['botsTable'] = BotTable(bots, current_user=current_user)
+    kwargs['botsForm'] = BotForm()
 
     reddit_apps = user.reddit_apps.all()
     kwargs['reddit_appsTable'] = RedditAppTable(reddit_apps, current_user=current_user)
     kwargs['reddit_appsForm'] = RedditAppForm()
 
+    sentry_tokens = user.sentry_tokens.all()
+    kwargs['sentry_tokensTable'] = SentryTokenTable(sentry_tokens, current_user=current_user)
+    kwargs['sentry_tokensForm'] = SentryTokenForm()
+
     database_credentials = user.database_credentials.all()
     kwargs['database_credentialsTable'] = DatabaseCredentialTable(database_credentials, current_user=current_user)
     kwargs['database_credentialsForm'] = DatabaseCredentialForm()
+
+    api_tokens = user.api_tokens.all()
+    kwargs['api_tokensTable'] = ApiTokenTable(api_tokens, current_user=current_user)
+    kwargs['api_tokensForm'] = ApiTokenForm()
 
     form = EditUserForm(obj=user)
     usernameChanged = False
@@ -135,11 +143,11 @@ def editUser(user):
 @usersBlueprint.route('/u/<User:user>/<item>/', methods=['GET', 'POST'])
 def itemsPerUser(user, item):
     validItems = {
-        'api_tokens': [ApiTokenTable, ApiTokenForm, ApiToken, ['length']],
-        'bots': [None, None, None, []],
+        'bots': [BotTable, BotForm, Bot, []],
         'reddit_apps': [RedditAppTable, RedditAppForm, RedditApp, []],
         'sentry_tokens': [SentryTokenTable, SentryTokenForm, SentryToken, []],
-        'database_credentials': [DatabaseCredentialTable, DatabaseCredentialForm, DatabaseCredential, []]
+        'database_credentials': [DatabaseCredentialTable, DatabaseCredentialForm, DatabaseCredential, []],
+        'api_tokens': [ApiTokenTable, ApiTokenForm, ApiToken, ['length']]
     }
     item = item.lower()
     if not item in validItems:

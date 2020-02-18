@@ -107,7 +107,7 @@ class OwnerCol(BaseCol):
 class AppNameCol(BaseCol):
 
     def td_contents(self, item, attr_list):
-        return self.td_format((self.from_attr_list(item, [attr_list[0], '__tablename__']), item.id, self.from_attr_list(item, attr_list)))
+        return self.td_format((self.from_attr_list(item, [attr_list[0], '__tablename__']), self.from_attr_list(item, [attr_list[0], 'id']), self.from_attr_list(item, attr_list)))
 
     def td_format(self, item):
         app_type, app_id, app_name = item

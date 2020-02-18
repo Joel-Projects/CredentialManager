@@ -46,19 +46,19 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName):
         'id': 'User ID',
         'createdBy.username': 'Created By',
         'updatedBy.username': 'Updated By',
-        'api_tokens.count': 'API Tokens',
         'bots.count': 'Bots',
         'database_credentials.count': 'Database Credentials',
         'reddit_apps.count': 'Reddit Apps',
         # 'refresh_tokens.count': 'Authencated Users',
-        'sentry_tokens.count': 'Sentry Tokens'
+        'sentry_tokens.count': 'Sentry Tokens',
+        'api_tokens.count': 'API Tokens'
     }
 
     __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(length=80), unique=True, nullable=False, info={'label': 'Username'})
     password = db.Column(column_types.PasswordType(max_length=128, schemes=('bcrypt',)), nullable=False, info={'label': 'Password'})
-    defaultSettings = {'redirect_uri': 'http://localhost:8080', 'database_flavor': 'postgres', 'database_host': 'localhost'}
+    defaultSettings = {'database_flavor': 'postgres', 'database_host': 'localhost'}
     default_settings = db.Column(db.JSON, default=defaultSettings, info={'label': 'Default Settings'})
     reddit_username = db.Column(db.String, info={'label': 'Reddit Username'})
     created_by = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='SET NULL', onupdate='CASCADE'))

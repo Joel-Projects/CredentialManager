@@ -60,9 +60,9 @@ def editBot(bot):
             if itemsToUpdate:
                 response = requests.patch(f'{request.host_url}api/v1/bots/{bot.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
                 if response.status_code == 200:
-                    flash(f'Bot {bot.name!r} saved successfully!', 'success')
+                    flash(f'Bot {bot.app_name!r} saved successfully!', 'success')
                 else:
-                    flash(f'Failed to update Bot {bot.name!r}', 'error')
+                    flash(f'Failed to update Bot {bot.app_name!r}', 'error')
         else:
             return jsonify(status='error', errors=form.errors)
     return render_template('edit_bot.html', bot=bot, form=form)

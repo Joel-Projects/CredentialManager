@@ -15,6 +15,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         'id': 'Reddit App ID',
         'owner': 'Owner',
         'state': 'State',
+        'botsUsingApp': 'Bots using this',
         'created': 'Created at',
         'updated': 'Last updated at'
     }
@@ -41,6 +42,11 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         if self.owner.is_internal:
             return user.is_internal
         return self.owner == user
+
+    @property
+    def botsUsingApp(self):
+        from app.modules.bots.models import Bot
+        return Bot.query.filter_by(reddit_app=self).count()
 
 # @sqlalchemy.event.listens_for(RedditApp, 'before_update', propagate=True)
 # def timestamp_before_update(mapper, connection, target):

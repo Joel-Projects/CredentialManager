@@ -21,14 +21,14 @@ class Bot(db.Model, Timestamp, InfoAttrs, StrName):
 
     __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, primary_key=True)
-    app_name = db.Column(db.String(length=50), nullable=False)
+    app_name = db.Column(db.String(length=50), nullable=False, info={'label': 'Bot Name'})
     reddit_id = db.Column(db.Integer, db.ForeignKey('credential_store.reddit_apps.id', **foreignKeyKwargs))
-    reddit_app = db.relationship('RedditApp', backref=db.backref(__tablename__, lazy='dynamic'))
+    reddit_app = db.relationship('RedditApp', backref=db.backref(__tablename__, lazy='dynamic'), info={'label': 'Specifies the Reddit App that this bot will use.'})
     sentry_id = db.Column(db.Integer, db.ForeignKey('credential_store.sentry_tokens.id', **foreignKeyKwargs))
-    sentry_token = db.relationship('SentryToken', backref=db.backref(__tablename__, lazy='dynamic'))
+    sentry_token = db.relationship('SentryToken', backref=db.backref(__tablename__, lazy='dynamic'), info={'label': 'Specifies the Sentry Token that this bot will use.'})
     database_id = db.Column(db.Integer, db.ForeignKey('credential_store.database_credentials.id', **foreignKeyKwargs))
-    database_credential = db.relationship('DatabaseCredential', backref=db.backref(__tablename__, lazy='dynamic'))
-    enabled = db.Column(db.Boolean, default=True)
+    database_credential = db.relationship('DatabaseCredential', backref=db.backref(__tablename__, lazy='dynamic'), info={'label': 'Specifies the Database Credential that this bot will use.'})
+    enabled = db.Column(db.Boolean, default=True, info={'label': 'Enabled'})
     owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'))
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
 

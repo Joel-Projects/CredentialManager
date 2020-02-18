@@ -22,7 +22,7 @@
             <div class="col-md-4">
                 <div class="jumbotron">
                     <h4>Sentry Token Info</h4>
-                    <hr style="border-top: 1px solid" ;>
+                    <hr style="border-top: 1px solid">
                     {% for attr, displayName in sentry_token._infoAttrs.items() %}
                         {% if attr == 'owner' and not sentry_token.check_owner(current_user) and (current_user.is_admin or current_user.is_internal) %}
                             <strong>{{ displayName }}:</strong><br><a href="/u/{{ sentry_token.getInfoAttr(attr).username }}">{{ sentry_token.getInfoAttr(attr).username }}</a><br><br>
@@ -36,7 +36,6 @@
             </div>
             <div class="col-md-6">
                 <form id="editSentryTokenForm" method="post" onsubmit="doneSave('save', this)">
-                    {{ form.hidden_tag() }}
                     <input id="itemType" name="itemType" type="hidden" value="{{ sentry_token.__tablename__ }}">
                     <input id="itemId" name="itemId" type="hidden" value="{{ sentry_token.id }}">
                     <input id="token" name="token" type="hidden" value="{{ sentry_token.token }}">

@@ -22,7 +22,7 @@
             <div class="col-md-4">
                 <div class="jumbotron">
                     <h4>Bot Info</h4>
-                    <hr style="border-top: 1px solid" ;>
+                    <hr style="border-top: 1px solid">
                     {% for attr, displayName in bot._infoAttrs.items() %}
                         {% if attr == 'owner' and not bot.check_owner(current_user) and (current_user.is_admin or current_user.is_internal) %}
                             <strong>{{ displayName }}:</strong><br><a href="/u/{{ bot.getInfoAttr(attr).username }}">{{ bot.getInfoAttr(attr).username }}</a><br><br>
@@ -45,26 +45,27 @@
                         {{ form.owner(class_="custom-select", default=bot.owner, readonly=True) }}
                     </div>
                     <div class="form-group">
-                        {{ form.name.label }}
-                        {% if form.name.errors %}
-                            {{ form.name(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)") }}
-                            {% for error in form.name.errors %}
+                        {{ form.app_name.label }}
+                        {% if form.app_name.errors %}
+                            {{ form.app_name(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)") }}
+                            {% for error in form.app_name.errors %}
                                 <div class="invalid-feedback" id="botFeedback">{{ error }}</div>
                             {% endfor %}
                         {% else %}
-                            {{ form.name(size=16, class_="form-control", onkeypress="clearInvalidState(this)") }}
+                            {{ form.app_name(size=16, class_="form-control", onkeypress="clearInvalidState(this)") }}
                         {% endif %}
                     </div>
                     <div class="form-group">
-                        {{ form.dsn.label }}
-                        {% if form.dsn.errors %}
-                            {{ form.dsn(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)") }}
-                            {% for error in form.dsn.errors %}
-                                <div class="invalid-feedback" id="botFeedback">{{ error }}</div>
-                            {% endfor %}
-                        {% else %}
-                            {{ form.dsn(size=16, class_="form-control", onkeypress="clearInvalidState(this)") }}
-                        {% endif %}
+                        {{ form.reddit_app.label }}
+                        {{ form.reddit_app(class_="custom-select") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.sentry_token.label }}
+                        {{ form.sentry_token(class_="custom-select") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.database_credential.label }}
+                        {{ form.database_credential(class_="custom-select") }}
                     </div>
                     <div class="form-group">
                         <div class="custom-control custom-switch">
