@@ -1,9 +1,8 @@
-import logging, os
+import logging
 
 import requests
-from flask import Blueprint, request, render_template, redirect, url_for, flash, jsonify
-from flask_login import current_user, login_user, logout_user, login_required
-from flask_restplus._http import HTTPStatus
+from flask import Blueprint, request, render_template, flash, jsonify
+from flask_login import current_user, login_required
 from wtforms import BooleanField
 
 from .parameters import PatchDatabaseCredentialDetailsParameters
@@ -25,9 +24,8 @@ def database_credentials(page, perPage):
     if request.method == 'POST':
         if form.validate_on_submit():
             data = form.data
-            # del data['csrf_token']
-            DatabaseCredential = DatabaseCredential(**data)
-            db.session.add(DatabaseCredential)
+            databaseCredential = DatabaseCredential(**data)
+            db.session.add(databaseCredential)
         else:
             return jsonify(status='error', errors=form.errors)
     if current_user:
@@ -41,7 +39,7 @@ def database_credentials(page, perPage):
         paginator = current_user.database_credentials.paginate(page, perPage, error_out=False)
     table = DatabaseCredentialTable(paginator.items, current_user=current_user)
     form = DatabaseCredentialForm()
-    return render_template('database_credentials.html', database_credentialsTable=table, database_credentialsForm=form, paginator=paginator, route='database_credentials.database_credentials', perPage=perPage)
+    return render_template('database_credentials.html', database_credentialsTable=table, database_credentialsForm=form, paginator=paginator, perPage=perPage)
 
 @login_required
 @DatabaseCredentialsBlueprint.route('/database_credentials/<DatabaseCredential:database_credential>/', methods=['GET', 'POST'])
@@ -63,9 +61,9 @@ def editDatabaseCredential(database_credential):
             if itemsToUpdate:
                 response = requests.patch(f'{request.host_url}api/v1/database_credentials/{database_credential.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
                 if response.status_code == 200:
-                    flash(f'Database Credential {database_credential.name!r} saved successfully!', 'success')
+                    flash(f'Database Credential {database_credential.app_name!r} saved successfully!', 'success')
                 else:
-                    flash(f'Failed to update Database Credential {database_credential.name!r}', 'error')
+                    flash(f'Failed to update Database Credential {database_credential.app_name!r}', 'error')
         else:
             return jsonify(status='error', errors=form.errors)
     return render_template('edit_database_credential.html', database_credential=database_credential, form=form)

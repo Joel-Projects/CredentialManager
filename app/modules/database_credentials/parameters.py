@@ -16,20 +16,21 @@ class ListDatabaseCredentialsParameters(PaginationParameters, validateOwner):
 
 class CreateDatabaseCredentialParameters(PostFormParameters, schemas.BaseDatabaseCredentialSchema, validateOwner):
     app_name = base_fields.String(required=True, description='Name of the Database Credential')
-    database_flavor = base_fields.String(required=True, description='Client ID of the Database Credential')
-    database_host = base_fields.String(required=True, description='Client ID of the Database Credential')
-    database_port = base_fields.String(required=True, description='Client ID of the Database Credential')
-    database_username = base_fields.String(required=True, description='Client ID of the Database Credential')
-    database_password = base_fields.String(required=True, description='Client ID of the Database Credential')
-    database = base_fields.String(description='Client secret of the Database Credential')
-    ssh = base_fields.String(required=True, description='User agent used for requests to Reddit\'s API')
-    ssh_host = base_fields.String(required=True, description='Type of the app. One of `web`, `installed`, or `script`')
-    ssh_port = base_fields.String(required=True, description='Type of the app. One of `web`, `installed`, or `script`')
-    ssh_username = base_fields.String(required=True, description='Redirect URI for Oauth2 flow. Defaults to user set redirect uri')
-    ssh_password = base_fields.String(required=True, description='Redirect URI for Oauth2 flow. Defaults to user set redirect uri')
-    ssh_key = base_fields.String(required=True, description='Redirect URI for Oauth2 flow. Defaults to user set redirect uri')
-    private_key = base_fields.String(required=True, description='Redirect URI for Oauth2 flow. Defaults to user set redirect uri')
-    enabled = base_fields.Boolean(default=True, description='Allows the app to be used')
+    database_flavor = base_fields.String(default='postgres', required=True, description='Type of database, defaults to `postgres`')
+    database = base_fields.String(default='postgres', description='Working database to use, defaults to `postgres`')
+    database_host = base_fields.String(default='localhost', required=True, description='Database server address, defaults to `localhost`')
+    database_port = base_fields.Integer(default=5432, required=True, description='Port the database server listens on, defaults to `5432`')
+    database_username = base_fields.String(required=True, description='Username to use to connect to the database')
+    database_password = base_fields.String(required=True, description='Password to use to connect to the database')
+    use_ssh = base_fields.Boolean(default=False, description='Determines if the database will be connected to through a tunnel')
+    ssh_host = base_fields.String(description='The address of the server that the SSH tunnel will connect to')
+    ssh_port = base_fields.Integer(description='The port the SSH tunnel will use')
+    ssh_username = base_fields.String(description='Username for the SSH tunnel')
+    ssh_password = base_fields.String(description='Password for the SSH tunnel')
+    use_ssh_key = base_fields.Boolean(default=False, description='Allows the credentials to be used')
+    private_key = base_fields.String(description='SSH private key. Note: No validation will be performed.')
+    private_key_passphrase = base_fields.String(description='Passphrase for the SSH key')
+    enabled = base_fields.Boolean(default=True, description='Allows the credentials to be used')
     owner_id = base_fields.Integer(description='Owner of the app. Requires Admin to create for other users.')
 
     class Meta(schemas.BaseDatabaseCredentialSchema.Meta):
@@ -51,13 +52,20 @@ class PatchDatabaseCredentialDetailsParameters(PatchJSONParameters):
     """
     fields = (
         DatabaseCredential.app_name.key,
-        DatabaseCredential.short_name.key,
-        DatabaseCredential.app_description.key,
-        DatabaseCredential.client_id.key,
-        DatabaseCredential.client_secret.key,
-        DatabaseCredential.user_agent.key,
-        DatabaseCredential.app_type.key,
-        DatabaseCredential.redirect_uri.key,
+        DatabaseCredential.database_flavor.key,
+        DatabaseCredential.database.key,
+        DatabaseCredential.database_host.key,
+        DatabaseCredential.database_port.key,
+        DatabaseCredential.database_username.key,
+        DatabaseCredential.database_password.key,
+        DatabaseCredential.use_ssh.key,
+        DatabaseCredential.ssh_host.key,
+        DatabaseCredential.ssh_port.key,
+        DatabaseCredential.ssh_username.key,
+        DatabaseCredential.ssh_password.key,
+        DatabaseCredential.use_ssh_key.key,
+        DatabaseCredential.private_key.key,
+        DatabaseCredential.private_key_passphrase.key,
         DatabaseCredential.enabled.key
     )
     PATH_CHOICES = tuple(f'/{field}' for field in fields)

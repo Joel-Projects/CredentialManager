@@ -24,6 +24,9 @@ from ..reddit_apps.models import RedditApp
 from ..sentry_tokens.tables import SentryTokenTable
 from ..sentry_tokens.forms import SentryTokenForm
 from ..sentry_tokens.models import SentryToken
+from ..database_credentials.tables import DatabaseCredentialTable
+from ..database_credentials.forms import DatabaseCredentialForm
+from ..database_credentials.models import DatabaseCredential
 
 
 log = logging.getLogger(__name__)
@@ -74,6 +77,10 @@ def editUser(user):
     reddit_apps = user.reddit_apps.all()
     kwargs['reddit_appsTable'] = RedditAppTable(reddit_apps, current_user=current_user)
     kwargs['reddit_appsForm'] = RedditAppForm()
+
+    database_credentials = user.database_credentials.all()
+    kwargs['database_credentialsTable'] = DatabaseCredentialTable(database_credentials, current_user=current_user)
+    kwargs['database_credentialsForm'] = DatabaseCredentialForm()
 
     form = EditUserForm(obj=user)
     usernameChanged = False
@@ -132,7 +139,7 @@ def itemsPerUser(user, item):
         'bots': [None, None, None, []],
         'reddit_apps': [RedditAppTable, RedditAppForm, RedditApp, []],
         'sentry_tokens': [SentryTokenTable, SentryTokenForm, SentryToken, []],
-        'database_credentials': [None, None, None, []]
+        'database_credentials': [DatabaseCredentialTable, DatabaseCredentialForm, DatabaseCredential, []]
     }
     item = item.lower()
     if not item in validItems:

@@ -28,11 +28,12 @@ class DetailedDatabaseCredentialSchema(BaseDatabaseCredentialSchema):
         fields = BaseDatabaseCredentialSchema.Meta.fields + (
             DatabaseCredential.database_port.key,
             DatabaseCredential.database_password.key,
-            DatabaseCredential.ssh.key,
+            DatabaseCredential.use_ssh.key,
             DatabaseCredential.ssh_host.key,
             DatabaseCredential.ssh_port.key,
             DatabaseCredential.ssh_username.key,
             DatabaseCredential.ssh_password.key,
+            DatabaseCredential.use_ssh_key.key,
             DatabaseCredential.private_key.key,
             DatabaseCredential.private_key_passphrase.key,
             DatabaseCredential.enabled.key,

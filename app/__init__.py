@@ -5,6 +5,7 @@ import os
 import sys
 
 from flask import Flask
+from jinja2 import Environment
 from werkzeug.middleware.proxy_fix import ProxyFix
 from .secrets import sentryDsn, ddAppKey, ddApiKey
 
@@ -50,6 +51,7 @@ def create_app(flask_config_name=None, **kwargs):
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
     app.jinja_env.auto_reload = True
+    app.jinja_env.add_extension('jinja2.ext.loopcontrols')
     from . import extensions
     extensions.init_app(app)
 

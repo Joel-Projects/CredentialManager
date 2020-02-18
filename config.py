@@ -30,6 +30,7 @@ class BaseConfig(object):
         'frontend',
         'users',
         'api_tokens',
+        'database_credentials',
         'reddit_apps',
         'sentry_tokens',
         'api',

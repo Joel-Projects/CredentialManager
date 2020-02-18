@@ -5,8 +5,8 @@ from werkzeug.routing import BaseConverter
 class DatabaseCredentialConverter(BaseConverter):
 
     def to_python(self, value):
-        DatabaseCredential = DatabaseCredential.query.filter(DatabaseCredential.id == value).first()
-        if DatabaseCredential:
-            return DatabaseCredential
+        databaseCredential = DatabaseCredential.query.filter(DatabaseCredential.id == value).first()
+        if databaseCredential:
+            return databaseCredential
         else:
             abort(404)

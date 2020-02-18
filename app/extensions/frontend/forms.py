@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from markupsafe import text_type
-from wtforms.fields import StringField, TextAreaField
+from wtforms.fields import StringField, BooleanField
 from wtforms.widgets import HTMLString, html_params
 from wtforms_alchemy import model_form_factory
 from html import escape
@@ -36,3 +36,34 @@ class TextAreaFieldWithDefault(StringField):
     multi-line input.
     """
     widget = TextArea()
+
+class HiddenFieldWithToggle(BooleanField):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __call__(self, **kwargs):
+        hiddenObject = kwargs.pop('hiddenObject')
+        targetFields = kwargs.pop('forFields')
+        fields = []
+        for field in targetFields:
+            fields.append(f'''
+                    var {field.id} = $('#{field.id}');
+                    {field.id}.prop('required', checked);
+                    ''')
+        fields = '\n'.join(fields)
+        return HTMLString(f'''
+        {self.meta.render_field(self, kwargs)}
+        <script>
+            $("#{self.id}").click(function () {{
+                var checked = $('#{self.id}').prop('checked');
+                var group = $('#{hiddenObject}');
+                var {self.id}_checked = 'n'
+                if (checked) {{
+                    {self.id}_checked = 'y'
+                }};
+                this.value = {self.id}_checked
+                group.prop('hidden', !checked);
+                {fields}
+        }});
+        </script>''')

@@ -20,6 +20,14 @@ $(function () {
     if (hash) {
         $(`.nav-tabs a[href="${hash.replace(prefix, "")}"]`).tab('show')
     }
+    $("#enabled").click(function () {
+        var checked = this.checked;
+        var enabled_checked = ''
+        if (checked) {
+            enabled_checked = 'y';
+        }
+        this.value = enabled_checked;
+    });
 });
 
 function saveItem(button) {
@@ -134,11 +142,15 @@ function toggleItem(itemType, id, name, nameAttr, enabledAttr) {
         });
 }
 
-function createItem(button, form, resource, additonal = false) {
+function createItem(button, form, resource, additonal = false, editor) {
     event.preventDefault();
     var data = {};
     $(`#${form} *`).filter(':input').each(function () {
-        data[this.name] = this.value;
+        if (this.type == 'checkbox') {
+            data[this.name] = this.checked;
+        } else {
+            data[this.name] = this.value;
+        }
     });
     if (editor) {
         data['default_settings'] = JSON.stringify(editor.getValue())

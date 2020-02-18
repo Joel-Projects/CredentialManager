@@ -25,13 +25,13 @@
                 <a class="nav-link" data-toggle="tab" id="tab_api_tokens" href="#api_tokens" aria-controls="api_tokens">API Tokens</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" id="tab_reddit_apps" href="#reddit_apps" aria-controls="reddit_apps">Reddit Apps</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" id="tab_sentry_tokens" href="#sentry_tokens" aria-controls="sentry_tokens">Sentry Tokens</a>
             </li>
-            {#            <li class="nav-item">#}
-            {#                <a class="nav-link" data-toggle="tab" id="tab_bots" href="#bots" aria-controls="Bots">Bots</a>#}
-            {#            </li>#}
             <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" id="tab_reddit_apps" href="#reddit_apps" aria-controls="reddit_apps">Reddit Apps</a>
+                <a class="nav-link" data-toggle="tab" id="tab_database_credentials" href="#database_credentials" aria-controls="database_credentials">Database Credentials</a>
             </li>
         </ul>
         <div class="tab-content py-3">
@@ -83,7 +83,7 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="custom-control custom-switch">
-                                        {{ usersForm.updatePassword(class_="custom-control-input", hiddenObject='passwordField', forField=usersForm.password) }}
+                                        {{ usersForm.updatePassword(class_="custom-control-input", hiddenObject='passwordField', forFields=[usersForm.password]) }}
                                         {{ usersForm.updatePassword.label(class_='custom-control-label') }}
                                         <small id="headerHelp" class="form-text text-muted">Check to update password</small>
                                     </div>
@@ -181,14 +181,19 @@
                     {% include 'api_tokensTable.html' %}
                 </div>
             </div>
+            <div class="tab-pane fade" id="reddit_apps">
+                <div class="container">
+                    {% include 'reddit_appsTable.html' %}
+                </div>
+            </div>
             <div class="tab-pane fade" id="sentry_tokens">
                 <div class="container">
                     {% include 'sentry_tokensTable.html' %}
                 </div>
             </div>
-            <div class="tab-pane fade" id="reddit_apps">
+            <div class="tab-pane fade" id="database_credentials">
                 <div class="container">
-                    {% include 'reddit_appsTable.html' %}
+                    {% include 'database_credentialsTable.html' %}
                 </div>
             </div>
         </div>
