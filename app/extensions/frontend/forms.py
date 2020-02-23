@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from markupsafe import text_type
 from wtforms.fields import StringField, BooleanField
 from wtforms.widgets import HTMLString, html_params
-from wtforms_alchemy import model_form_factory
+from wtforms_alchemy import model_form_factory, QuerySelectField
 from html import escape
 
 from app.extensions import db
@@ -67,3 +67,16 @@ class HiddenFieldWithToggle(BooleanField):
                 {fields}
         }});
         </script>''')
+
+class AppSelectField(QuerySelectField):
+
+    def __init__(self, *, queryKwargs={}, **kwargs):
+        self.queryKwargs = queryKwargs
+        super().__init__(**kwargs)
+
+    def _get_object_list(self):
+        if self._object_list is None:
+            query = (self.query if self.query is not None else self.query_factory(**self.queryKwargs))
+            get_pk = self.get_pk
+            self._object_list = list((text_type(get_pk(obj)), obj) for obj in query)
+        return self._object_list

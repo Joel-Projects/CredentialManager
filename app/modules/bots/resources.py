@@ -41,20 +41,20 @@ class Bots(Resource):
 
         Only Admins can specify ``owner`` to see Bots for other users. Regular users will see their own Bots.
         """
-        apiKeys = Bot.query
+        bots = Bot.query
         if 'owner_id' in args:
             owner_id = args['owner_id']
             if current_user.is_admin:
-                apiKeys = apiKeys.filter(Bot.owner_id == owner_id)
+                bots = bots.filter(Bot.owner_id == owner_id)
             else:
                 if owner_id == current_user.id:
-                    apiKeys = apiKeys.filter(Bot.owner == current_user)
+                    bots = bots.filter(Bot.owner == current_user)
                 else:
                     http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Bots.")
         else:
             if not current_user.is_admin:
-                apiKeys = apiKeys.filter(Bot.owner == current_user)
-        return apiKeys.offset(args['offset']).limit(args['limit'])
+                bots = bots.filter(Bot.owner == current_user)
+        return bots.offset(args['offset']).limit(args['limit'])
 
     @api.parameters(parameters.CreateBotParameters())
     @api.response(schemas.DetailedBotSchema())

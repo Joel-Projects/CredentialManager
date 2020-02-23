@@ -1,16 +1,3 @@
-function removeOptions(selectBox) {
-    var i;
-    for (i = selectBox.options.length - 1; i >= 1; i--) {
-        selectBox.remove(i);
-    }
-}
-
-function addOption(selectBox, value, option) {
-    var opt = document.createElement('option');
-    opt.appendChild(document.createTextNode(option));
-    opt.value = value;
-    selectBox.appendChild(opt);
-}
 
 $(document).ready(function () {
     $("#bots_table").tablesorter({
@@ -18,7 +5,6 @@ $(document).ready(function () {
         cancelSelection: false,
         sortReset: true
     });
-    console.log('here')
     $("#owner").change(function () {
         let user_id = parseInt($("#owner").val())
         $.ajax({

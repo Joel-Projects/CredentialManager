@@ -219,3 +219,17 @@ function copy(that) {
 function invalidateField(field) {
     field.classList.add('is-invalid')
 }
+
+function removeOptions(selectBox) {
+    var i;
+    for (i = selectBox.options.length - 1; i >= 1; i--) {
+        selectBox.remove(i);
+    }
+}
+
+function addOption(selectBox, value, option) {
+    var opt = document.createElement('option');
+    opt.appendChild(document.createTextNode(option));
+    opt.value = value;
+    selectBox.appendChild(opt);
+}

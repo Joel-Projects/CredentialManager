@@ -29,6 +29,24 @@ class DetailedRedditAppSchema(BaseRedditAppSchema):
             RedditApp.user_agent.key,
             RedditApp.app_type.key,
             RedditApp.redirect_uri.key,
+            RedditApp.state.key,
             RedditApp.enabled.key,
             RedditApp.owner_id.key
+        )
+
+class AuthUrlSchema(BaseRedditAppSchema):
+    """
+    Detailed Reddit App schema exposes all useful fields.
+    """
+    class Meta(BaseRedditAppSchema.Meta):
+        fields = BaseRedditAppSchema.Meta.fields + (
+            RedditApp.short_name.key,
+            RedditApp.app_description.key,
+            RedditApp.user_agent.key,
+            RedditApp.app_type.key,
+            RedditApp.redirect_uri.key,
+            RedditApp.state.key,
+            RedditApp.enabled.key,
+            RedditApp.owner_id.key,
+            'auth_url'
         )

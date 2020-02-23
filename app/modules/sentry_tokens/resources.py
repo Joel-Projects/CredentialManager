@@ -41,20 +41,20 @@ class SentryTokens(Resource):
 
         Only Admins can specify ``owner`` to see Sentry Tokens for other users. Regular users will see their own Sentry Tokens.
         """
-        apiKeys = SentryToken.query
+        sentryTokens = SentryToken.query
         if 'owner_id' in args:
             owner_id = args['owner_id']
             if current_user.is_admin:
-                apiKeys = apiKeys.filter(SentryToken.owner_id == owner_id)
+                sentryTokens = sentryTokens.filter(SentryToken.owner_id == owner_id)
             else:
                 if owner_id == current_user.id:
-                    apiKeys = apiKeys.filter(SentryToken.owner == current_user)
+                    sentryTokens = sentryTokens.filter(SentryToken.owner == current_user)
                 else:
                     http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Sentry Tokens.")
         else:
             if not current_user.is_admin:
-                apiKeys = apiKeys.filter(SentryToken.owner == current_user)
-        return apiKeys.offset(args['offset']).limit(args['limit'])
+                sentryTokens = sentryTokens.filter(SentryToken.owner == current_user)
+        return sentryTokens.offset(args['offset']).limit(args['limit'])
 
     @api.parameters(parameters.CreateSentryTokenParameters())
     @api.response(schemas.DetailedSentryTokenSchema())

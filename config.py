@@ -32,6 +32,7 @@ class BaseConfig(object):
         'api_tokens',
         'database_credentials',
         'reddit_apps',
+        'refresh_tokens',
         'sentry_tokens',
         'bots',
         'api',

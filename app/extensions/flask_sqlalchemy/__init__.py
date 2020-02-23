@@ -6,8 +6,9 @@ import operator
 
 import sqlalchemy
 from datetime import datetime
-from sqlalchemy import Column, DateTime
+from sqlalchemy import Column, DateTime, ForeignKey, Integer
 from flask_sqlalchemy import SQLAlchemy as BaseSQLAlchemy
+from sqlalchemy.orm import relationship, backref
 
 
 class AlembicDatabaseMigrationConfig(object):
@@ -87,3 +88,8 @@ class StrName(object):
 
     def __str__(self):
         return getattr(self, self._nameAttr)
+
+class Owner(object):
+    __tablename__ = None
+    owner_id = Column(Integer, ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'))
+    owner = relationship('User', backref=backref(__tablename__, lazy='dynamic'))

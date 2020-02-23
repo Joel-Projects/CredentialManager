@@ -22,7 +22,7 @@ def loadUserFromRequest(request):
             username, password = base64.b64decode(auth.replace('Basic ', '', 1)).decode().split(':')
             if username and password:
                 user = User.findWithPassword(username, password)
-                if user and not user.is_enabled:
+                if user and not user.is_active:
                     user = None
     except Exception as error:
         log.exception(error)

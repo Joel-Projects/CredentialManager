@@ -11,7 +11,7 @@ from .logging import Logging
 
 logging = Logging()
 
-from .flask_sqlalchemy import SQLAlchemy, Timestamp, InfoAttrs, StrName
+from .flask_sqlalchemy import SQLAlchemy, Timestamp, InfoAttrs, StrName, Owner
 db = SQLAlchemy()
 
 from sqlalchemy_utils import force_auto_coercion, force_instant_defaults

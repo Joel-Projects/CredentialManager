@@ -1,13 +1,10 @@
 from flask_login import current_user
-from wtforms.compat import text_type
 
 from app.extensions import ModelForm
 from wtforms_alchemy import QuerySelectField
 from .models import Bot
-from ..database_credentials.models import DatabaseCredential
-from ..reddit_apps.models import RedditApp
-from ..sentry_tokens.models import SentryToken
 from ..users.models import User
+from ...extensions.frontend.forms import AppSelectField
 
 
 def owners():
@@ -21,22 +18,6 @@ def sentry_tokens(owner):
 
 def database_credentials(owner):
     return owner.database_credentials
-
-class AppSelectField(QuerySelectField):
-
-    def __init__(self, *, queryKwargs={}, **kwargs):
-        self.queryKwargs = queryKwargs
-        super().__init__(**kwargs)
-
-    def _get_object_list(self):
-        if self._object_list is None:
-            query = (self.query if self.query is not None else self.query_factory(**self.queryKwargs))
-            get_pk = self.get_pk
-            self._object_list = list(
-                (text_type(get_pk(obj)), obj) for obj in query
-            )
-        return self._object_list
-
 
 class EditBotForm(ModelForm):
     class Meta:

@@ -41,20 +41,20 @@ class RedditApps(Resource):
 
         Only Admins can specify ``owner`` to see Reddit Apps for other users. Regular users will see their own Reddit Apps.
         """
-        apiKeys = RedditApp.query
+        redditApps = RedditApp.query
         if 'owner_id' in args:
             owner_id = args['owner_id']
             if current_user.is_admin:
-                apiKeys = apiKeys.filter(RedditApp.owner_id == owner_id)
+                redditApps = redditApps.filter(RedditApp.owner_id == owner_id)
             else:
                 if owner_id == current_user.id:
-                    apiKeys = apiKeys.filter(RedditApp.owner == current_user)
+                    redditApps = redditApps.filter(RedditApp.owner == current_user)
                 else:
                     http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Reddit Apps.")
         else:
             if not current_user.is_admin:
-                apiKeys = apiKeys.filter(RedditApp.owner == current_user)
-        return apiKeys.offset(args['offset']).limit(args['limit'])
+                redditApps = redditApps.filter(RedditApp.owner == current_user)
+        return redditApps.offset(args['offset']).limit(args['limit'])
 
     @api.parameters(parameters.CreateRedditAppParameters())
     @api.response(schemas.DetailedRedditAppSchema())
@@ -64,7 +64,7 @@ class RedditApps(Resource):
         """
         Create a new Reddit App.
 
-        Reddit Apps are used for logging and error reporting in applications
+        Reddit Apps are used for interacting with reddit
         """
         if getattr(args, 'owner_id', None):
             owner_id = args.owner_id
@@ -78,7 +78,18 @@ class RedditApps(Resource):
         else:
             owner = current_user
         with api.commit_or_abort(db.session, default_error_message="Failed to create a new Reddit App."):
-            newRedditApp = RedditApp(owner=owner, dsn=args.dsn, name=args.name)
+            data = {
+                'app_name', args.app_name,
+                'short_name', args.short_name,
+                'app_description', args.app_description,
+                'client_id', args.client_id,
+                'client_secret', args.client_secret,
+                'user_agent', args.user_agent,
+                'app_type', args.app_type,
+                'redirect_uri', args.redirect_uri,
+                'enabled', args.enabled
+            }
+            newRedditApp = RedditApp(owner=owner, **data)
             db.session.add(newRedditApp)
         return newRedditApp
 
@@ -125,4 +136,26 @@ class RedditAppByID(Resource):
         with api.commit_or_abort(db.session, default_error_message="Failed to update Reddit App details."):
             parameters.PatchRedditAppDetailsParameters.perform_patch(args, reddit_app)
             db.session.merge(reddit_app)
+        return reddit_app
+
+@api.route('/<int:reddit_app_id>/generate_auth')
+@api.login_required()
+@api.response(code=HTTPStatus.NOT_FOUND, description="Reddit App not found.")
+@api.resolveObjectToModel(RedditApp, 'reddit_app')
+class GenerateAuthUrl(Resource):
+    """
+    Generate a reddit auth url
+    """
+
+    @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['reddit_app']})
+    @api.parameters(parameters.GenerateAuthUrlParameters())
+    @api.response(schemas.AuthUrlSchema())
+    def post(self, args, reddit_app):
+        """
+        Generate a reddit auth url
+
+
+        """
+        auth_url = reddit_app.genAuthUrl(args['scopes'], args['duration'])
+        setattr(reddit_app, 'auth_url', auth_url)
         return reddit_app

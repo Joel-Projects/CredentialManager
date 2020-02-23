@@ -30,6 +30,9 @@ from ..bots.models import Bot
 from ..api_tokens.views import ApiTokenTable
 from ..api_tokens.forms import ApiTokenForm
 from ..api_tokens.models import ApiToken
+from ..refresh_tokens.views import RefreshTokenTable
+from ..refresh_tokens.forms import GenerateRefreshTokenForm
+from ..refresh_tokens.models import RefreshToken
 
 
 log = logging.getLogger(__name__)
@@ -56,13 +59,14 @@ def users(page, perPage):
             db.session.add(user)
         else:
             return jsonify(status='error', errors=form.errors)
-    if current_user:
+    if not current_user.is_anonymous:
         if current_user.is_internal:
             paginator = query.paginate(page, perPage, error_out=False)
         elif current_user.is_admin:
             paginator = query.filter_by(internal=False).paginate(page, perPage, error_out=False)
-    table = UserTable(paginator.items, current_user, 'username')
-    return render_template('users.html', usersTable=table, usersForm=form, paginator=paginator, route='users.users', perPage=perPage)
+        table = UserTable(paginator.items, current_user, 'username')
+        return render_template('users.html', usersTable=table, usersForm=form, paginator=paginator, route='users.users', perPage=perPage)
+    return ''
 
 @usersBlueprint.route('/u/<User:user>/', methods=['GET', 'POST'])
 @login_required
@@ -89,6 +93,10 @@ def editUser(user):
     api_tokens = user.api_tokens.all()
     kwargs['api_tokensTable'] = ApiTokenTable(api_tokens, current_user=current_user)
     kwargs['api_tokensForm'] = ApiTokenForm()
+
+    refresh_tokens = user.refresh_tokens.all()
+    kwargs['refresh_tokensTable'] = RefreshTokenTable(refresh_tokens, current_user=current_user)
+    kwargs['refresh_tokensForm'] = GenerateRefreshTokenForm()
 
     form = EditUserForm(obj=user)
     usernameChanged = False
@@ -147,7 +155,8 @@ def itemsPerUser(user, item):
         'reddit_apps': [RedditAppTable, RedditAppForm, RedditApp, []],
         'sentry_tokens': [SentryTokenTable, SentryTokenForm, SentryToken, []],
         'database_credentials': [DatabaseCredentialTable, DatabaseCredentialForm, DatabaseCredential, []],
-        'api_tokens': [ApiTokenTable, ApiTokenForm, ApiToken, ['length']]
+        'api_tokens': [ApiTokenTable, ApiTokenForm, ApiToken, ['length']],
+        'refresh_tokens': [RefreshTokenTable, GenerateRefreshTokenForm, RefreshToken, []]
     }
     item = item.lower()
     if not item in validItems:
@@ -164,6 +173,8 @@ def itemsPerUser(user, item):
             # del data['csrf_token']
             for delAttr in validItems[item][3]:
                 del data[delAttr]
+            # if item == 'refresh_tokens':
+
             model = Model(owner_id = data['owner'].id, **data)
             if item == 'api_tokens':
                 model.generate_token(length)
@@ -176,8 +187,6 @@ def itemsPerUser(user, item):
         f'{item}Table': table,
         f'{item}Form': form,
     }
-    # for key, value in kwargs:
-    #     if isinstance(value, )
     return render_template(f'{item}.html', user=user, **kwargs)
 
 # @login_required

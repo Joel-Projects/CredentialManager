@@ -15,7 +15,7 @@ class ListRedditAppsParameters(PaginationParameters, validateOwner):
     invalidOwnerMessage = 'You can only query your own {}.'
 
 class CreateRedditAppParameters(PostFormParameters, schemas.BaseRedditAppSchema, validateOwner):
-    app_name = base_fields.String(required=True, description='Name of the Reddit App')
+    reddit_app = base_fields.String(required=True, description='Name of the Reddit App')
     short_name = base_fields.String(description='Short name of the Reddit App')
     app_description = base_fields.String(description='Description of the Reddit App')
     client_id = base_fields.String(required=True, description='Client ID of the Reddit App')
@@ -55,3 +55,11 @@ class PatchRedditAppDetailsParameters(PatchJSONParameters):
         RedditApp.enabled.key
     )
     PATH_CHOICES = tuple(f'/{field}' for field in fields)
+
+class GenerateAuthUrlParameters(PostFormParameters):
+
+    scopes = base_fields.List(base_fields.String(required=True), required=True)
+    duration = base_fields.String(required=True)
+    state = base_fields.String()
+
+    invalidOwnerMessage = 'You can only query your own {}.'

@@ -41,20 +41,20 @@ class DatabaseCredentials(Resource):
 
         Only Admins can specify ``owner`` to see Database Credentials for other users. Regular users will see their own Database Credentials.
         """
-        apiKeys = DatabaseCredential.query
+        databaseCredentials = DatabaseCredential.query
         if 'owner_id' in args:
             owner_id = args['owner_id']
             if current_user.is_admin:
-                apiKeys = apiKeys.filter(DatabaseCredential.owner_id == owner_id)
+                databaseCredentials = databaseCredentials.filter(DatabaseCredential.owner_id == owner_id)
             else:
                 if owner_id == current_user.id:
-                    apiKeys = apiKeys.filter(DatabaseCredential.owner == current_user)
+                    databaseCredentials = databaseCredentials.filter(DatabaseCredential.owner == current_user)
                 else:
                     http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Database Credentials.")
         else:
             if not current_user.is_admin:
-                apiKeys = apiKeys.filter(DatabaseCredential.owner == current_user)
-        return apiKeys.offset(args['offset']).limit(args['limit'])
+                databaseCredentials = databaseCredentials.filter(DatabaseCredential.owner == current_user)
+        return databaseCredentials.offset(args['offset']).limit(args['limit'])
 
     @api.parameters(parameters.CreateDatabaseCredentialParameters())
     @api.response(schemas.DetailedDatabaseCredentialSchema())

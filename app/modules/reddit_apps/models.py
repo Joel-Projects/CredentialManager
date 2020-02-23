@@ -1,4 +1,4 @@
-import sqlalchemy
+import praw
 from sqlalchemy_utils import ChoiceType, URLType
 
 from app.extensions import db, InfoAttrs, Timestamp, StrName
@@ -47,6 +47,11 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
     def botsUsingApp(self):
         from app.modules.bots.models import Bot
         return Bot.query.filter_by(reddit_app=self).count()
+
+    def genAuthUrl(self, scopes, duration):
+        redditKwargs = ['client_id', 'client_secret', 'user_agent', 'redirect_uri']
+        reddit = praw.Reddit(**{key: getattr(self, key) for key in redditKwargs})
+        return reddit.auth.url(scopes, self.state, duration)
 
 # @sqlalchemy.event.listens_for(RedditApp, 'before_update', propagate=True)
 # def timestamp_before_update(mapper, connection, target):
