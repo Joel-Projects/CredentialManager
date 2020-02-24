@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Credential Manager Manager - User Verifications{% endblock %}
+{% block breadCrumbs %}
+    {% if user %}
+        <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
+        <li class="breadcrumb-item"><a href=/u/{{ user.username }}>{{ user.username }}</a></li>
+    {% endif %}
+    <li class="breadcrumb-item"><a href={{ url_for('user_verifications.user_verifications') }}>User Verifications</a></li>
+{% endblock %}
+{% block content %}
+    <body>
+    <script src="{{ url_for('user_verifications.static', filename='js/user_verifications.js') }}"></script>
+    {% include 'user_verificationsTable.html' %}
+{% endblock %}

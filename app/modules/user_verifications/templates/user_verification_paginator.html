@@ -1,0 +1,33 @@
+{% if user_verification_paginator and route and perPage %}
+    <div class="col">
+        <nav aria-label="paginator">
+            <ul class="pagination justify-content-center">
+                {% if user_verification_paginator.has_prev %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for(route, page=user_verification_paginator.prev_num) }}">&laquo;</a></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link btn disabled" href="#">&laquo;</a></li>
+                {% endif %}
+                {% for pageNumber in range(1, user_verification_paginator.pages + 1) %}
+                    <li class="page-item{% if pageNumber == user_verification_paginator.page %} active{% endif %}"><a class="page-link" href="{{ url_for(route, page=pageNumber) }}">{{ pageNumber }}</a></li>
+                {% endfor %}
+                {% if user_verification_paginator.has_next %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for(route, page=user_verification_paginator.next_num) }}">&raquo;</a></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link btn disabled" href="#">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    <div class="col">
+        <div class="btn-group float-right">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% if perPage in [10, 25, 50, 100] %}Showing {{ perPage }} results per page{% else %}Showing all results{% endif %}</button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="{{ url_for(route, page=user_verification_paginator.page, perPage=10) }}">10</a>
+                <a class="dropdown-item" href="{{ url_for(route, page=user_verification_paginator.page, perPage=25) }}">25</a>
+                <a class="dropdown-item" href="{{ url_for(route, page=user_verification_paginator.page, perPage=50) }}">50</a>
+                <a class="dropdown-item" href="{{ url_for(route, page=user_verification_paginator.page, perPage=100) }}">100</a>
+                <a class="dropdown-item" href="{{ url_for(route, page=user_verification_paginator.page, perPage=0) }}">All</a>
+            </div>
+        </div>
+    </div>
+{% endif %}

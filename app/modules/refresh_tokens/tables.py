@@ -14,15 +14,3 @@ class RefreshTokenTable(BaseTable):
         super().__init__(items)
 
     html_attrs = {'id': 'refresh_tokens_table'}
-    _formFields = [
-        'app_name',
-        'short_name',
-        'app_description',
-        'client_id',
-        'client_secret',
-        'user_agent',
-        'app_type',
-        'redirect_uri',
-        'enabled',
-        'owner'
-    ]

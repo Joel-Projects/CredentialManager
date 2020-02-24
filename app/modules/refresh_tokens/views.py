@@ -6,6 +6,9 @@ from flask_login import current_user, login_required
 from wtforms import BooleanField
 
 from .parameters import PatchRefreshTokenDetailsParameters
+from ..user_verifications.forms import UserVerificationForm
+from ..user_verifications.models import UserVerification
+from ..user_verifications.tables import UserVerificationTable
 from ..users.models import User
 from ...extensions import db, paginateArgs, verifyEditable
 
@@ -33,16 +36,22 @@ def refresh_tokens(page, perPage):
             return jsonify(status='error', errors=form.errors)
     if current_user:
         if current_user.is_admin and not current_user.is_internal:
-            paginator = RefreshToken.query.filter(*(RefreshToken.owner_id!=i.id for i in User.query.filter(User.internal==True).all())).paginate(page, perPage, error_out=False)
+            refreshTokenPaginator = RefreshToken.query.filter(*(RefreshToken.owner_id!=i.id for i in User.query.filter(User.internal==True).all())).paginate(page, perPage, error_out=False)
+            userVerificationPaginator = UserVerification.query.filter(*(UserVerification.owner_id!=i.id for i in User.query.filter(User.internal==True).all())).paginate(page, perPage, error_out=False)
         elif current_user.is_internal:
-            paginator = RefreshToken.query.paginate(page, perPage, error_out=False)
+            refreshTokenPaginator = RefreshToken.query.paginate(page, perPage, error_out=False)
+            userVerificationPaginator = UserVerification.query.paginate(page, perPage, error_out=False)
         else:
-            paginator = current_user.refresh_tokens.paginate(page, perPage, error_out=False)
+            refreshTokenPaginator = current_user.refresh_tokens.paginate(page, perPage, error_out=False)
+            userVerificationPaginator = current_user.verified.paginate(page, perPage, error_out=False)
     else:
-        paginator = current_user.refresh_tokens.paginate(page, perPage, error_out=False)
-    table = RefreshTokenTable(paginator.items, current_user=current_user)
+        refreshTokenPaginator = current_user.refresh_tokens.paginate(page, perPage, error_out=False)
+        userVerificationPaginator = current_user.verified.paginate(page, perPage, error_out=False)
+    table = RefreshTokenTable(refreshTokenPaginator.items, current_user=current_user)
     form = GenerateRefreshTokenForm()
-    return render_template('refresh_tokens.html', refresh_tokensTable=table, refresh_tokensForm=form, paginator=paginator, route='refresh_tokens.refresh_tokens', perPage=perPage)#, refresh_tokensTable=table, refresh_tokensForm=form)
+    userVerificationsTable = UserVerificationTable(refreshTokenPaginator.items, current_user=current_user)
+    userVerificationsForm = UserVerificationForm()
+    return render_template('refresh_tokens.html', refresh_tokensTable=table, refresh_tokensForm=form, refresh_token_paginator=refreshTokenPaginator, route='refresh_tokens.refresh_tokens', perPage=perPage, user_verificationsTable=userVerificationsTable, user_verificationsForm=userVerificationsForm, user_verification_paginator=userVerificationPaginator)
 
 # @refreshTokensBlueprint.route('/reddit_callback')
 # def reddit_callback():
