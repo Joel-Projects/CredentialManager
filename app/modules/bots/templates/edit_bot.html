@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Credential Manager - Edit Bot - {{ bot.name }}{% endblock %}
+{% block title %}Credential Manager - Edit Bot - {{ bot.app_name }}{% endblock %}
 {% block breadCrumbs %}
     <!--suppress HtmlUnknownTarget -->
     {% if user and (current_user.is_admin or current_user.is_internal or bot.check_owner(current_user)) %}

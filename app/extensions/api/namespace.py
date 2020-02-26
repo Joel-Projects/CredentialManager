@@ -16,9 +16,7 @@ from flask_restplus._http import HTTPStatus
 from . import http_exceptions
 from .webargs_parser import CustomWebargsParser
 
-
 log = logging.getLogger(__name__)
-
 
 class Namespace(BaseNamespace):
     """

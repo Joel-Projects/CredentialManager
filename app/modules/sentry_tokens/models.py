@@ -21,7 +21,7 @@ class SentryToken(db.Model, Timestamp, InfoAttrs, StrName):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     app_name = db.Column(db.String)
     dsn = db.Column(db.String, nullable=False, info={'label': 'DSN'})
-    enabled = db.Column(db.Boolean, default=True, info={'label': 'Enabled'})
+    enabled = db.Column(db.Boolean, default=True, info={'label': 'Enabled', 'default': True})
     owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'))
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
 

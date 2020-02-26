@@ -7,7 +7,7 @@ from datetime import datetime
 
 from sqlalchemy_utils import types as column_types
 from flask_login import UserMixin
-from app.extensions import db, Timestamp, InfoAttrs, StrName
+from app.extensions import db, Timestamp, InfoAttrs, StrName, QueryProperty
 from app.modules.api_tokens.models import ApiToken
 
 def getStaticRole(roleName, staticRole):
@@ -34,7 +34,7 @@ def getStaticRole(roleName, staticRole):
     return isStaticRole
 
 
-class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName):
+class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -112,7 +112,11 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName):
         return self == user
 
     def getDefault(self, setting):
-        return self.default_settings.get(setting, '')
+        default = self.default_settings.get(setting, '')
+        if not default:
+            if setting == 'redirect_uri':
+                default = 'https://credmgr.jesassn.org/oauth2/reddit_callback'
+        return default
 
     @classmethod
     def findWithPassword(cls, username, password):

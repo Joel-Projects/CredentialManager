@@ -19,7 +19,7 @@ def sentry_tokens(owner):
 def database_credentials(owner):
     return owner.database_credentials
 
-class EditBotForm(ModelForm):
+class BotForm(ModelForm):
     class Meta:
         model = Bot
         only = ['app_name', 'enabled']
@@ -27,6 +27,3 @@ class EditBotForm(ModelForm):
     reddit_app = AppSelectField(query_factory=reddit_apps, queryKwargs={'owner': current_user}, allow_blank=True)
     sentry_token = AppSelectField(query_factory=sentry_tokens, queryKwargs={'owner': current_user}, allow_blank=True)
     database_credential = AppSelectField(query_factory=database_credentials, queryKwargs={'owner': current_user}, allow_blank=True)
-
-class BotForm(EditBotForm):
-    pass

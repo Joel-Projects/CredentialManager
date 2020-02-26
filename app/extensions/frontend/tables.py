@@ -172,6 +172,12 @@ class BaseTable(Table):
         self.add_column('Edit', EditColumn('Edit', endpointAttr))
         super().__init__(items)
 
+    def th(self, col_key, col):
+        if col_key == 'Edit':
+            return element('th', content=self.th_contents(col_key, col), escape_content=False, attrs={'data-sorter': 'false' ,**col.th_html_attrs})
+        else:
+            return element('th', content=self.th_contents(col_key, col), escape_content=False, attrs=col.th_html_attrs)
+
     def tr(self, item):
         content = ''.join(c.td(item, attr) for attr, c in self._cols.items() if c.show)
         return element('tr', attrs=self.get_tr_attrs(item), content=content, escape_content=False)

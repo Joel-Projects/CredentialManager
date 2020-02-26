@@ -44,11 +44,16 @@
                             {{ sentry_tokensForm.owner.label }}
                             {{ sentry_tokensForm.owner(class_="custom-select") }}
                         </div>
-
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                                {{ sentry_tokensForm.enabled(checked=True, class_="custom-control-input") }}
+                                {{ sentry_tokensForm.enabled.label(class_='custom-control-label') }}
+                            </div>
+                        </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>
-                            <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="sentryTokenCreateNew">Add and New</button>
-                            <button type="submit" app_name="submit" tabindex="0" class="btn btn-primary" onclick="createItem(this, 'addSentryTokenForm', '{% if user %}/u/{{ user.username }}{% endif %}/sentry_tokens')" id="sentryTokenCreate">Add</button>
+{#                            <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="sentryTokenCreateNew">Add and New</button>#}
+                            <button type="submit" name="submit" tabindex="0" class="btn btn-primary" onclick="createItem(this, 'addSentryTokenForm', '{% if user %}/u/{{ user.username }}{% endif %}/sentry_tokens')" id="sentryTokenCreate">Add</button>
                         </div>
                     </form>
                 </div>

@@ -1,20 +1,17 @@
 {% if paginator and route and perPage %}
     <div class="col">
         <nav aria-label="paginator">
+{#            {{ macros.render_paginator(paginator, route) }}#}
             <ul class="pagination justify-content-center">
-                {% if paginator.has_prev %}
-                    <li class="page-item"><a class="page-link" href="{{ url_for(route, page=paginator.prev_num) }}">&laquo;</a></li>
-                {% else %}
-                    <li class="page-item"><a class="page-link btn disabled" href="#">&laquo;</a></li>
-                {% endif %}
-                {% for pageNumber in range(1, paginator.pages+1) %}
-                    <li class="page-item{% if pageNumber == paginator.page %} active{% endif %}"><a class="page-link" href="{{ url_for(route, page=pageNumber) }}">{{ pageNumber }}</a></li>
+                <li class="page-item"><a class="page-link btn{% if paginator.has_prev %}" href="{{ url_for(route, page=paginator.prev_num) }}"{% else %}disabled" href="#"{% endif %}>«</a></li>
+                {% for page in paginator.iter_pages(left_edge=1, left_current=2, right_current=3, right_edge=1) %}
+                    {% if page %}
+                        <li class="page-item{% if page == paginator.page %} active{% endif %}"><a class="page-link" href="{{ url_for(route, page=page) }}">{{ page }}</a></li>
+                    {% else %}
+{#                      <span class=ellipsis>…</span>#}
+                    {% endif %}
                 {% endfor %}
-                {% if paginator.has_next %}
-                    <li class="page-item"><a class="page-link" href="{{ url_for(route, page=paginator.next_num) }}">&raquo;</a></li>
-                {% else %}
-                    <li class="page-item"><a class="page-link btn disabled" href="#">&raquo;</a></li>
-                {% endif %}
+                <li class="page-item"><a class="page-link btn {% if paginator.has_next %}" href="{{ url_for(route, page=paginator.next_num) }}" {% else %}disabled" href="#"{% endif %}>»</a></li>
             </ul>
         </nav>
     </div>

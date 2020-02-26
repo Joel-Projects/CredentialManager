@@ -11,7 +11,7 @@ from .logging import Logging
 
 logging = Logging()
 
-from .flask_sqlalchemy import SQLAlchemy, Timestamp, InfoAttrs, StrName, Owner
+from .flask_sqlalchemy import SQLAlchemy, Timestamp, InfoAttrs, StrName, QueryProperty
 db = SQLAlchemy()
 
 from sqlalchemy_utils import force_auto_coercion, force_instant_defaults
@@ -40,6 +40,8 @@ from .frontend.decorators import paginateArgs, requiresAdmin, verifyEditable
 from . import api
 
 foreignKeyKwargs = dict(ondelete='SET NULL', onupdate='CASCADE')
+
+
 
 def init_app(app):
     '''

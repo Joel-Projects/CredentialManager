@@ -1,6 +1,6 @@
 """
 API Tokens module
-===========
+=================
 """
 import logging
 from app.extensions.api import api_v1

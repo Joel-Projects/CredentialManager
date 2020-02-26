@@ -12,7 +12,7 @@ from ...extensions.frontend.forms import HiddenFieldWithToggle
 def owners():
     return User.query
 
-class EditDatabaseCredentialForm(ModelForm):
+class DatabaseCredentialForm(ModelForm):
     class Meta:
         model = DatabaseCredential
         only = ['app_name', 'database_flavor', 'database_host', 'database_port', 'database_username', 'database_password', 'database', 'use_ssh', 'ssh_host', 'ssh_port', 'ssh_username', 'ssh_password', 'use_ssh_key', 'private_key', 'private_key_passphrase', 'enabled']
@@ -36,7 +36,4 @@ class EditDatabaseCredentialForm(ModelForm):
     use_ssh_key = HiddenFieldWithToggle('Use SSH key?', default=False, render_kw={'value': ''})
 
     owner = QuerySelectField(query_factory=owners, default=current_user, description=DatabaseCredential.owner_id.info['description'])
-
-class DatabaseCredentialForm(EditDatabaseCredentialForm):
-    pass
 

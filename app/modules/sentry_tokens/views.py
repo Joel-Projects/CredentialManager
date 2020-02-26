@@ -12,7 +12,7 @@ from ...extensions import db, paginateArgs, verifyEditable
 
 log = logging.getLogger(__name__)
 from .models import SentryToken
-from .forms import SentryTokenForm, EditSentryTokenForm
+from .forms import SentryTokenForm
 from .tables import SentryTokenTable
 
 sentryTokensBlueprint = Blueprint('sentry_tokens', __name__, template_folder='./templates', static_folder='./static', static_url_path='/sentry_tokens/static/')
@@ -45,7 +45,7 @@ def sentry_tokens(page, perPage):
 @sentryTokensBlueprint.route('/sentry_tokens/<SentryToken:sentry_token>/', methods=['GET', 'POST'])
 @verifyEditable('sentry_token')
 def editSentryToken(sentry_token):
-    form = EditSentryTokenForm(obj=sentry_token)
+    form = SentryTokenForm(obj=sentry_token)
     if request.method == 'POST':
         if form.validate_on_submit():
             itemsToUpdate = []

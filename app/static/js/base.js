@@ -71,7 +71,8 @@ function deleteItem(name, item_type, item_id) {
                 popNotification('error', data.message);
             } else {
                 popNotification('success', `Successfully deleted ${name}`);
-                window.location.href = window.location.href
+                // window.location.href = window.location.href
+                // history.go(-1);
             }
         });
 }
@@ -173,10 +174,10 @@ function createItem(button, form, resource, additonal = false, editor) {
                 if (additonal) {
                     $(`#${form}`)[0].reset()
                 } else {
-                    // noinspection SillyAssignmentJS
                     window.location.href = window.location.href
                 }
             }
+            // noinspection SillyAssignmentJS
         });
 }
 

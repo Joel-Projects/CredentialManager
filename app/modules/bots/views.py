@@ -12,7 +12,7 @@ from ...extensions import db, paginateArgs, verifyEditable
 
 log = logging.getLogger(__name__)
 from .models import Bot
-from .forms import BotForm, EditBotForm
+from .forms import BotForm
 from .tables import BotTable
 
 botsBlueprint = Blueprint('bots', __name__, template_folder='./templates', static_folder='./static', static_url_path='/bots/static/')
@@ -44,7 +44,7 @@ def bots(page, perPage):
 @botsBlueprint.route('/bots/<Bot:bot>/', methods=['GET', 'POST'])
 @verifyEditable('bot')
 def editBot(bot):
-    form = EditBotForm(obj=bot)
+    form = BotForm(obj=bot)
     if request.method == 'POST':
         if form.validate_on_submit():
             itemsToUpdate = []

@@ -21,7 +21,6 @@ from ..users.models import User
 log = logging.getLogger(__name__)
 api = Namespace('api_tokens', description="API Token Management")
 
-
 @api.route('/')
 @api.login_required()
 class ApiTokens(Resource):

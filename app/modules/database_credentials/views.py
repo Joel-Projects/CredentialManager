@@ -11,7 +11,7 @@ from ...extensions import db, paginateArgs, verifyEditable
 
 log = logging.getLogger(__name__)
 from .models import DatabaseCredential
-from .forms import DatabaseCredentialForm, EditDatabaseCredentialForm
+from .forms import DatabaseCredentialForm
 from .tables import DatabaseCredentialTable
 
 DatabaseCredentialsBlueprint = Blueprint('database_credentials', __name__, template_folder='./templates', static_folder='./static', static_url_path='/database_credentials/static/')
@@ -45,7 +45,7 @@ def database_credentials(page, perPage):
 @DatabaseCredentialsBlueprint.route('/database_credentials/<DatabaseCredential:database_credential>/', methods=['GET', 'POST'])
 @verifyEditable('database_credential')
 def editDatabaseCredential(database_credential):
-    form = EditDatabaseCredentialForm(obj=database_credential)
+    form = DatabaseCredentialForm(obj=database_credential)
     if request.method == 'POST':
         if form.validate_on_submit():
             itemsToUpdate = []
