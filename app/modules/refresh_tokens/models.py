@@ -1,4 +1,4 @@
-import json, logging, requests
+import json, logging, requests, praw
 from datetime import datetime
 
 from sqlalchemy_utils import ChoiceType
@@ -29,18 +29,18 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
     if not scopeJSON:
         with open('scopes.json', 'r') as f:
             scopeJSON = json.load(f)
-    scopes = [(scope['id'], scope['name']) for scope in scopeJSON.values()]
+    scopes = [(scope, scope['name']) for scope in scopeJSON.values()]
 
     __table_args__ = {'schema': 'credential_store'}
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    reddit_app_id = db.Column(db.ForeignKey('credential_store.reddit_apps.id', **foreignKeyKwargs), nullable=False, info={'label': 'Reddit App', 'description': 'Reddit App for users to authorize with'})
+    reddit_app_id = db.Column(db.ForeignKey('credential_store.reddit_apps.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, info={'label': 'Reddit App', 'description': 'Reddit App for users to authorize with'})
     reddit_app = db.relationship('RedditApp', primaryjoin='RefreshToken.reddit_app_id == RedditApp.id', backref='refresh_tokens')
     owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'), info={'label': 'Owner', 'description': 'Owner of the refresh token. Determines what Reddit Apps are displayed.'})
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     redditor = db.Column(db.String(22), nullable=False)
     refresh_token = db.Column(db.Text, unique=True, nullable=False)
-    scopes = db.Column(ChoiceType(scopes))
+    scopes = db.Column(db.JSON, default=[])
     issued_at = db.Column(db.DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False)
     revoked = db.Column(db.Boolean, default=False)
     revoked_at = db.Column(db.DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False)
@@ -52,3 +52,6 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
         if self.owner.is_internal:
             return user.is_internal
         return self.owner == user
+
+    def revoke(self):
+        self.revoked = True

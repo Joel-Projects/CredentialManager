@@ -58,6 +58,7 @@ class PatchRedditAppDetailsParameters(PatchJSONParameters):
 
 class GenerateAuthUrlParameters(PostFormParameters):
 
+    user_verification_id = base_fields.Integer()
     scopes = base_fields.List(base_fields.String(required=True), required=True)
     duration = base_fields.String(required=True)
     state = base_fields.String()

@@ -15,6 +15,7 @@ from app.extensions.api import Namespace, http_exceptions
 
 from . import schemas, parameters
 from .models import db, RedditApp
+from ..user_verifications.models import UserVerification
 from ..users import permissions
 from ..users.models import User
 
@@ -120,8 +121,11 @@ class RedditAppByID(Resource):
         """
         Delete a Reddit App by ID.
         """
-        with api.commit_or_abort(db.session, default_error_message="Failed to delete Reddit App."):
-            db.session.delete(reddit_app)
+        try:
+            with api.commit_or_abort(db.session, default_error_message="Failed to delete Reddit App."):
+                db.session.delete(reddit_app)
+        except Exception as error:
+            print(error)
         return None
 
     @api.login_required()
@@ -153,9 +157,11 @@ class GenerateAuthUrl(Resource):
     def post(self, args, reddit_app):
         """
         Generate a reddit auth url
-
-
         """
-        auth_url = reddit_app.genAuthUrl(args['scopes'], args['duration'])
+        user_verification_id = args.pop('user_verification_id', None)
+        user_verification = UserVerification.query.get(user_verification_id)
+        if not user_verification and len(str(user_verification_id)) == 18:
+            user_verification = UserVerification.query.filter(UserVerification.discord_id==user_verification_id)
+        auth_url = reddit_app.genAuthUrl(args['scopes'], args['duration'], user_verification)
         setattr(reddit_app, 'auth_url', auth_url)
         return reddit_app

@@ -11,6 +11,5 @@ class UserVerificationTable(BaseTable):
         if current_user.is_admin or current_user.is_internal:
             self.add_column('Owner', OwnerCol('Owner', attr_list=['owner', 'username']))
         super().__init__(items)
-        print()
 
     html_attrs = {'id': 'user_verifications_table'}

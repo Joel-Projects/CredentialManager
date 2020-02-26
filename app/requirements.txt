@@ -19,6 +19,7 @@ WTForms-Alchemy
 Flask-WTF
 flask_bootstrap4
 flask_debugtoolbar
+Flask-Moment
 gunicorn
 jinja2
 datadog

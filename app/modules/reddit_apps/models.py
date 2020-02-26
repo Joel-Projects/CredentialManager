@@ -1,7 +1,9 @@
-import praw
+import praw, base64, logging
 from sqlalchemy_utils import ChoiceType, URLType
 
 from app.extensions import db, InfoAttrs, Timestamp, StrName
+
+log = logging.getLogger(__name__)
 
 class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
 
@@ -13,6 +15,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
     _enabledAttr = 'enabled'
     _infoAttrs = {
         'id': 'Reddit App ID',
+        'app_type': 'App Type',
         'owner': 'Owner',
         'state': 'State',
         'botsUsingApp': 'Bots using this',
@@ -48,13 +51,32 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         from app.modules.bots.models import Bot
         return Bot.query.filter_by(reddit_app=self).count()
 
-    def genAuthUrl(self, scopes, duration):
+    def genAuthUrl(self, scopes, duration, user_verification):
+        reddit = self.redditInstance
+        state = self.state
+        if user_verification:
+            state = base64.urlsafe_b64encode(f'{state}:{user_verification.discord_id}'.encode())
+        return reddit.auth.url(scopes, state, duration)
+
+    def getAppFromState(self, state):
+        result: RedditApp
+        discord_id = None
+        try:
+            if state:
+                result = self.query.filter_by(state=state).first()
+                if result:
+                    return result, discord_id
+                else:
+                    decoded = base64.urlsafe_b64decode(state).decode()
+                    state, discord_id = decoded.split(':')
+                    discord_id = int(discord_id)
+                    result = self.query.filter_by(state=state).first()
+        except Exception as error:
+            log.exception(error)
+        return result, discord_id
+
+    @property
+    def redditInstance(self) -> praw.Reddit.__class__:
         redditKwargs = ['client_id', 'client_secret', 'user_agent', 'redirect_uri']
         reddit = praw.Reddit(**{key: getattr(self, key) for key in redditKwargs})
-        return reddit.auth.url(scopes, self.state, duration)
-
-# @sqlalchemy.event.listens_for(RedditApp, 'before_update', propagate=True)
-# def timestamp_before_update(mapper, connection, target):
-#     # When a model with a timestamp is updated; force update the updated
-#     # timestamp.
-#     target.state = datetime.astimezone(datetime.utcnow())
+        return reddit

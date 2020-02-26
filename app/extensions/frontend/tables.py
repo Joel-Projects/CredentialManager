@@ -1,6 +1,7 @@
 from flask_login import current_user
 from flask_table import Col, Table, LinkCol
 from flask_table.html import element
+from flask import current_app
 from pytz import timezone
 
 class BaseCol(Col):
@@ -20,7 +21,7 @@ class DatetimeColumn(BaseCol):
 
     def td_format(self, content):
         if content:
-            return content.astimezone().strftime(self.datetime_format)
+            return str(current_app.extensions['moment'](content).format('M/DD/YYYY, h:mm:ss a zz'))
         else:
             return 'Never'
 

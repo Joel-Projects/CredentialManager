@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% import 'macros.jinja2' as macros %}
-{% block title %}Credential Manager - Edit Reddit App - {{ reddit_app.name }}{% endblock %}
+{% import 'macros.html' as macros %}
+{% block title %}Credential Manager - Edit Reddit App - {{ reddit_app.app_name }}{% endblock %}
 {% block breadCrumbs %}
     <!--suppress HtmlUnknownTarget -->
     {% if user and (current_user.is_admin or current_user.is_internal or reddit_app.check_owner(current_user)) %}
@@ -40,6 +40,7 @@
                     {{ form.hidden_tag() }}
                     <input id="itemType" name="itemType" type="hidden" value="{{ reddit_app.__tablename__ }}">
                     <input id="itemId" name="itemId" type="hidden" value="{{ reddit_app.id }}">
+                    <input id="app_type" name="app_type" type="hidden" value="{{ reddit_app.app_type.code }}">
                     <div class="form-group" hidden>
                         {{ form.owner.label }}
                         {{ form.owner(class_="custom-select", default=reddit_app.owner, readonly=True) }}

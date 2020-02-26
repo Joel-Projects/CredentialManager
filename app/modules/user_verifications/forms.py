@@ -17,7 +17,7 @@ def reddit_apps(owner):
 class UserVerificationForm(ModelForm):
     class Meta:
         model = UserVerification
-        only = ['discord_id', 'redditor', 'extra_data']
+        only = ['discord_id', 'redditor', 'extra_data', 'enabled']
         fields = ['reddit_app', 'discord_id', 'redditor', 'extra_data']
 
         # fields = only

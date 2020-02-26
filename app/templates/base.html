@@ -38,7 +38,35 @@
         {#        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/css/theme.bootstrap.min.css" integrity="sha256-vgjicWNWkVklkfuqKnQth9ww987V7wCOzh6A0qkJ2Lw=" crossorigin="anonymous"/>#}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/css/theme.bootstrap_4.min.css" integrity="sha256-vFn0MM8utz2N3JoNzRxHXUtfCJLz5Pb9ygBY2exIaqg=" crossorigin="anonymous"/>
         <script src="{{ url_for('static', filename='js/base.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/moment-with-locales.min.js') }}"></script>
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        {#        {{ moment.include_moment(sri=False) }}#}
+        <script>
+            moment.locale("en");
+
+            function flask_moment_render(elem) {
+                $(elem).text(eval(`moment("${$(elem).data('timestamp')}").tz(moment.tz.guess()).${$(elem).data('format')};`));
+                $(elem).removeClass('flask-moment').show();
+            }
+
+            function flask_moment_render_all() {
+                $('.flask-moment').each(function () {
+                    flask_moment_render(this);
+                    if ($(this).data('refresh')) {
+                        (function (elem, interval) {
+                            setInterval(function () {
+                                flask_moment_render(elem)
+                            }, interval);
+                        })(this, $(this).data('refresh'));
+                    }
+                })
+            }
+
+            $(document).ready(function () {
+                flask_moment_render_all();
+            });
+        </script>
+        <script src="{{ url_for('static', filename='js/moment-timezone-with-data.min.js') }}"></script>
     {% endblock %}
     {#<script type="text/javascript">#}
     {#    var csrf_token = "{{ csrf_token() }}";#}

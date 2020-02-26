@@ -34,6 +34,8 @@ $(document).ready(function () {
     })
     $("#createRefreshTokenForm *").filter(':input').change(function () {
         let app_id = parseInt($('#reddit_app_id').val())
+        let verification_id = parseInt($('#user_verification_id').val())
+
         let owner_id = parseInt($('#owner').val())
         let permanent = $('#duration_permanent')[0]
         let temporary = $('#duration_temporary')[0]
@@ -54,14 +56,18 @@ $(document).ready(function () {
             } else {
                 duration = 'temporary'
             }
+            var data = {owner_id: owner_id, reddit_app: app_id, duration: duration, scopes: scopes};
+            if (!isNaN(verification_id)) {
+                data.user_verification_id = verification_id
+            }
             $.ajax({
                 type: 'POST',
                 traditional: true,
                 url: `/api/v1/reddit_apps/${app_id}/generate_auth`,
-                data: {owner_id: owner_id, reddit_app: app_id, duration: duration, scopes: scopes}
+                data: data
             })
                 .done(function (data) {
-                   $('#authUrl').val(data.auth_url)
+                    $('#authUrl').val(data.auth_url)
                 })
         }
     })

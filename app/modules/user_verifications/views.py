@@ -41,3 +41,31 @@ def user_verifications(page, perPage):
     table = UserVerificationTable(paginator.items, current_user=current_user)
     form = UserVerificationForm()
     return render_template('user_verifications.html', user_verificationsTable=table, user_verificationsForm=form, user_verification_paginator=paginator, route='user_verifications.user_verifications', perPage=perPage)
+
+
+@login_required
+@userVerificationsBlueprint.route('/user_verifications/<UserVerification:user_verification>/', methods=['GET', 'POST'])
+@verifyEditable('user_verification')
+def editUserVerification(user_verification):
+    form = UserVerificationForm(obj=user_verification)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            itemsToUpdate = []
+            for item in PatchUserVerificationDetailsParameters.fields:
+                if getattr(form, item, None) is not None:
+                    if not isinstance(getattr(form, item), BooleanField):
+                        if getattr(form, item).data:
+                            if getattr(user_verification, item) != getattr(form, item).data:
+                                itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
+                    else:
+                        if getattr(user_verification, item) != getattr(form, item).data:
+                            itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
+            if itemsToUpdate:
+                response = requests.patch(f'{request.host_url}api/v1/user_verifications/{user_verification.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
+                if response.status_code == 200:
+                    flash(f'User Verification {user_verification.discord_id!r} saved successfully!', 'success')
+                else:
+                    flash(f'Failed to update User Verification {user_verification.discord_id!r}', 'error')
+        # else:
+        #     return jsonify(status='error', errors=form.errors)
+    return render_template('edit_user_verification.html', user_verification=user_verification, form=form)

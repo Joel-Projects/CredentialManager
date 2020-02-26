@@ -6,7 +6,6 @@
     <div class="row">
         <div class="col">
             <button class="btn btn-primary" id="generateRefreshToken" data-toggle="collapse" data-target="#generateTokenCollapse" aria-expanded="false" aria-controls="generateTokenCollapse">Generate Auth Url</button>
-            <button class="btn btn-primary" id="createUserVerification" data-toggle="collapse" data-target="#createUserVerification" aria-expanded="false" aria-controls="createUserVerification">Create User Verification</button>
         </div>
         {% include 'refresh_token_paginator.html' %}
     </div>
@@ -31,6 +30,11 @@
                     {{ refresh_tokensForm.reddit_app_id.label }}
                     {{ refresh_tokensForm.reddit_app_id(class_="custom-select") }}
                     <small id="reddit_app_idHelp" class="form-text text-muted">{{ refresh_tokensForm.reddit_app_id.description }}</small>
+                </div>
+                <div class="form-group">
+                    {{ refresh_tokensForm.user_verification_id.label }}
+                    {{ refresh_tokensForm.user_verification_id(class_="custom-select") }}
+                    <small id="user_verification_idHelp" class="form-text text-muted">{{ refresh_tokensForm.user_verification_id.description }}</small>
                 </div>
                 <div class="form-group">
                     <div class="form-check">

@@ -28,5 +28,5 @@ class PatchUserVerificationDetailsParameters(PatchJSONParameters):
     """
     User Verification details updating parameters following PATCH JSON RFC.
     """
-    fields = (UserVerification.reddit_app_id.key, UserVerification.discord_id.key, UserVerification.redditor.key, UserVerification.extra_data.key)
+    fields = (UserVerification.reddit_app_id.key, UserVerification.discord_id.key, UserVerification.redditor.key, UserVerification.extra_data.key, UserVerification.enabled.key)
     PATH_CHOICES = tuple(f'/{field}' for field in fields)

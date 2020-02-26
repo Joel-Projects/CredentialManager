@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block nav %}
+
+{% endblock %}
+{% block page_header %}
+{% endblock %}
+{% block content %}
+    <link rel="stylesheet" href="{{ url_for('refresh_tokens.static', filename='css/oauth_result.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/addons.css') }}">
+    <script src="{{ url_for('refresh_tokens.static', filename='js/oauth_result.js') }}"></script>
+    <style>
+        /* ---- reset ---- */
+        body {
+            margin: 0;
+            font: normal 75% Arial, Helvetica, sans-serif;
+        }
+
+        canvas {
+            display: block;
+            vertical-align: bottom;
+        }
+
+        /* ---- particles.js container ---- */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #181616;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: 50% 50%;
+        }
+
+        .panel {
+            text-align: left;
+            position: relative;
+            max-width: 80%;
+            /*z-index: 10; */
+            {#width: 30%;#}
+            {#height: 50%;#}
+
+            background: #303030;
+            padding: 20px;
+            border-radius: 4px;
+            box-sizing: border-box;
+            z-index: 100;
+            top: 45%;
+
+            transform: translateY(-50%);
+            align-self: center;
+        }
+
+        .hr {
+            color: #efefef;
+            border-color: inherit !important;
+        }
+    </style>
+    <body>
+    <div class="parent" style="text-align: center; position: absolute; height: 100%; width: 100%;">
+
+        <div class="panel" style="display: inline-block;">
+            <h2 class="display-6">{{ header }}</h2>
+            {% if success %}
+                <hr>
+                <h5>Hello, <a href="https://www.reddit.com/user/{{ user }}">{{ user }}</a>{{ message }}</h5>
+                {#                    <p>Redirecting to Reddit after <span id="countdown">10</span> seconds...</p>#}
+                {#                    <p>#}
+                {#                        <script type="text/javascript">#}
+                {#                            function countdown() {#}
+                {#                                (seconds -= 1) < 0 ? window.location = "https://www.reddit.com" : (document.getElementById("countdown").innerHTML = seconds, window.setTimeout("countdown()", 1e3))#}
+                {#                            }#}
+                {##}
+                {#                            var seconds = 10;#}
+                {#                            countdown();#}
+                {#                        </script>#}
+                {#                    </p>#}
+            {% elif error %}
+                <h3 class="display-6">Uh oh!</h3>
+                <hr>
+                <h5>Something went wrong please contact <a href="https://www.reddit.com/message/compose?to=Lil_SpazJoekp&amp;subject=Reddit%20Auth">u/Lil_SpazJoekp</a> for help.</h5>
+            {% else %}
+                <hr>
+                <h5>Hello, contact a Bot Squad member for instructions on verifying and/or authorizing your Reddit account</h5>
+            {% endif %}
+        </div>
+    </div>
+    <div id="particles-js">
+        <canvas class="particles-js-canvas-el" style="width: 100%; height: 100%;"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <!-- stats.js lib -->
+    <script>
+        particlesJS("particles-js", {
+            "particles": {
+                "number": {"value": 80, "density": {"enable": true, "value_area": 800}},
+                "color": {"value": "#{% if error %}ff0000{% else %}ffffff{% endif %}"},
+                "shape": {
+                    "type": "circle",
+                    "stroke": {"width": 0, "color": "#000000"},
+                    "polygon": {"nb_sides": 5},
+                    "image": {"src": "img/github.svg", "width": 100, "height": 100}
+                },
+                "opacity": {
+                    "value": 0.7339188901252391,
+                    "random": true,
+                    "anim": {"enable": false, "speed": 1, "opacity_min": 0.1, "sync": false}
+                },
+                "size": {
+                    "value": 7.891600969088593,
+                    "random": true,
+                    "anim": {"enable": true, "speed": 12, "size_min": 0.1, "sync": false}
+                },
+                "line_linked": {"enable": true, "distance": 150, "color": "#{% if error %}ff0000{% else %}ffffff{% endif %}", "opacity": 0.4, "width": 1},
+                "move": {
+                    "enable": true,
+                    "speed": 3,
+                    "direction": "none",
+                    "random": false,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false,
+                    "attract": {"enable": true, "rotateX": 600, "rotateY": 1200}
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": {"enable": true, "mode": "repulse"},
+                    "onclick": {"enable": true, "mode": "push"},
+                    "resize": true
+                },
+                "modes": {
+                    "grab": {"distance": 143.84694684855307, "line_linked": {"opacity": 0.2347227842978552}},
+                    "bubble": {"distance": 400, "size": 40, "duration": 2, "opacity": 8, "speed": 3},
+                    "repulse": {"distance": 103.8894616128439, "duration": 0.4},
+                    "push": {"particles_nb": 4},
+                    "remove": {"particles_nb": 2}
+                }
+            },
+            "retina_detect": true
+        });
+        var count_particles, stats, update;
+        stats = new Stats;
+        stats.setMode(0);
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.left = '0px';
+        stats.domElement.style.top = '0px';
+        document.body.appendChild(stats.domElement);
+        count_particles = document.querySelector('.js-count-particles');
+        update = function () {
+            stats.begin();
+            stats.end();
+            if (window.pJSDom[0].pJS.particles && window.pJSDom[0].pJS.particles.array) {
+                count_particles.innerText = window.pJSDom[0].pJS.particles.array.length;
+            }
+            requestAnimationFrame(update);
+        };
+        requestAnimationFrame(update);
+    </script>
+    </body>
+{% endblock %}

@@ -12,7 +12,7 @@ from ...extensions import db, paginateArgs, verifyEditable
 
 log = logging.getLogger(__name__)
 from .models import RedditApp
-from .forms import RedditAppForm, EditRedditAppForm
+from .forms import RedditAppForm
 from .tables import RedditAppTable
 
 redditAppsBlueprint = Blueprint('reddit_apps', __name__, template_folder='./templates', static_folder='./static', static_url_path='/reddit_apps/static/')
@@ -47,7 +47,7 @@ def reddit_apps(page, perPage):
 @redditAppsBlueprint.route('/reddit_apps/<RedditApp:reddit_app>/', methods=['GET', 'POST'])
 @verifyEditable('reddit_app')
 def editRedditApp(reddit_app):
-    form = EditRedditAppForm(obj=reddit_app)
+    form = RedditAppForm(obj=reddit_app)
     if request.method == 'POST':
         if form.validate_on_submit():
             itemsToUpdate = []
@@ -63,11 +63,11 @@ def editRedditApp(reddit_app):
             if itemsToUpdate:
                 response = requests.patch(f'{request.host_url}api/v1/reddit_apps/{reddit_app.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
                 if response.status_code == 200:
-                    flash(f'Reddit App {reddit_app.name!r} saved successfully!', 'success')
+                    flash(f'Reddit App {reddit_app.app_name!r} saved successfully!', 'success')
                 else:
-                    flash(f'Failed to update Reddit App {reddit_app.name!r}', 'error')
-        else:
-            return jsonify(status='error', errors=form.errors)
+                    flash(f'Failed to update Reddit App {reddit_app.app_name!r}', 'error')
+        # else:
+        #     return jsonify(status='error', errors=form.errors)
     return render_template('edit_reddit_app.html', reddit_app=reddit_app, form=form)
 
 # @redditAppsBlueprint.route('/reddit_callback')
