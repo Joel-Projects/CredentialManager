@@ -39,9 +39,9 @@ log = logging.getLogger(__name__)
 
 usersBlueprint = Blueprint('users', __name__, template_folder='./templates', static_folder='./static', static_url_path='/users/static/')
 
+@usersBlueprint.route('/users', methods=['GET', 'POST'])
 @requiresAdmin
 @login_required
-@usersBlueprint.route('/users', methods=['GET', 'POST'])
 @paginateArgs(User)
 def users(page, perPage):
     query = User.query
@@ -59,14 +59,12 @@ def users(page, perPage):
             db.session.add(user)
         else:
             return jsonify(status='error', errors=form.errors)
-    if not current_user.is_anonymous:
-        if current_user.is_internal:
-            paginator = query.paginate(page, perPage, error_out=False)
-        elif current_user.is_admin:
-            paginator = query.filter_by(internal=False).paginate(page, perPage, error_out=False)
-        table = UserTable(paginator.items, current_user, 'username')
-        return render_template('users.html', usersTable=table, usersForm=form, paginator=paginator, route='users.users', perPage=perPage)
-    return ''
+    if current_user.is_internal:
+        paginator = query.paginate(page, perPage, error_out=False)
+    elif current_user.is_admin:
+        paginator = query.filter_by(internal=False).paginate(page, perPage, error_out=False)
+    table = UserTable(paginator.items, current_user, endpointAttr='username')
+    return render_template('users.html', usersTable=table, usersForm=form, paginator=paginator, route='users.users', perPage=perPage)
 
 @usersBlueprint.route('/u/<User:user>/', methods=['GET', 'POST'])
 @login_required

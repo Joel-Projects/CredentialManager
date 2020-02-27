@@ -16,8 +16,8 @@ from .tables import DatabaseCredentialTable
 
 DatabaseCredentialsBlueprint = Blueprint('database_credentials', __name__, template_folder='./templates', static_folder='./static', static_url_path='/database_credentials/static/')
 
-@login_required
 @DatabaseCredentialsBlueprint.route('/database_credentials', methods=['GET', 'POST'])
+@login_required
 @paginateArgs(DatabaseCredential)
 def database_credentials(page, perPage):
     form = DatabaseCredentialForm()
@@ -41,8 +41,8 @@ def database_credentials(page, perPage):
     form = DatabaseCredentialForm()
     return render_template('database_credentials.html', database_credentialsTable=table, database_credentialsForm=form, paginator=paginator, perPage=perPage)
 
-@login_required
 @DatabaseCredentialsBlueprint.route('/database_credentials/<DatabaseCredential:database_credential>/', methods=['GET', 'POST'])
+@login_required
 @verifyEditable('database_credential')
 def editDatabaseCredential(database_credential):
     form = DatabaseCredentialForm(obj=database_credential)

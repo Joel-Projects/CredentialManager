@@ -17,8 +17,8 @@ from .tables import SentryTokenTable
 
 sentryTokensBlueprint = Blueprint('sentry_tokens', __name__, template_folder='./templates', static_folder='./static', static_url_path='/sentry_tokens/static/')
 
-@login_required
 @sentryTokensBlueprint.route('/sentry_tokens', methods=['GET', 'POST'])
+@login_required
 @paginateArgs(SentryToken)
 def sentry_tokens(page, perPage):
     form = SentryTokenForm()
@@ -30,19 +30,18 @@ def sentry_tokens(page, perPage):
             db.session.add(sentryToken)
         else:
             return jsonify(status='error', errors=form.errors)
+    paginator = current_user.sentry_tokens.paginate(page, perPage, error_out=False)
     if current_user:
         if current_user.is_admin and not current_user.is_internal:
             paginator = SentryToken.query.filter(*(SentryToken.owner_id!=i.id for i in User.query.filter(User.internal==True).all())).paginate(page, perPage, error_out=False)
         elif current_user.is_internal:
             paginator = SentryToken.query.paginate(page, perPage, error_out=False)
-    else:
-        paginator = current_user.sentry_tokens.paginate(page, perPage, error_out=False)
     table = SentryTokenTable(paginator.items, current_user=current_user)
     form = SentryTokenForm()
     return render_template('sentry_tokens.html', sentry_tokensTable=table, sentry_tokensForm=form, paginator=paginator, route='sentry_tokens.sentry_tokens', perPage=perPage)
 
-@login_required
 @sentryTokensBlueprint.route('/sentry_tokens/<SentryToken:sentry_token>/', methods=['GET', 'POST'])
+@login_required
 @verifyEditable('sentry_token')
 def editSentryToken(sentry_token):
     form = SentryTokenForm(obj=sentry_token)

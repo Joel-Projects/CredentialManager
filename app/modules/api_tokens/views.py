@@ -17,8 +17,8 @@ log = logging.getLogger(__name__)
 apiTokensBlueprint = Blueprint('api_tokens', __name__, template_folder='./templates', static_folder='./static', static_url_path='/api_tokens/static/')
 
 
-@login_required
 @apiTokensBlueprint.route('/api_tokens', methods=['GET', 'POST'])
+@login_required
 @paginateArgs(ApiToken)
 def api_tokens(page=1, perPage=10):
     form = ApiTokenForm()
@@ -42,8 +42,8 @@ def api_tokens(page=1, perPage=10):
     table = ApiTokenTable(paginator.items, current_user=current_user)
     return render_template('api_tokens.html', api_tokensTable=table, api_tokensForm=form, paginator=paginator, route='api_tokens.api_tokens', perPage=perPage)
 
-@login_required
 @apiTokensBlueprint.route('/api_tokens/<ApiToken:api_token>/', methods=['GET', 'POST'])
+@login_required
 @verifyEditable('api_token')
 def editApiToken(api_token):
     form = EditApiTokenForm(obj=api_token)

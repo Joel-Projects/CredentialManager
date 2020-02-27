@@ -44,8 +44,6 @@ class BaseConfig(object):
     STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
 
     SWAGGER_UI_JSONEDITOR = True
-
-    # TODO: consider if these are relevant for this project
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     WTF_CSRF_CHECK_DEFAULT = False
     WTF_CSRF_ENABLED = False
@@ -57,6 +55,7 @@ class ProductionConfig(BaseConfig):
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
     DEBUG_TB_INTERCEPT_REDIRECTS = False
+    TEMPLATES_AUTO_RELOAD = True
 
 class TestingConfig(BaseConfig):
     TESTING = True

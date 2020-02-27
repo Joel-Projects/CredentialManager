@@ -9,7 +9,7 @@
     {% else %}
         <li class="breadcrumb-item"><a href="/bots/">Bots</a></li>
     {% endif %}
-    <li class="breadcrumb-item"><a href="/bots/{{ bot.id }}">{{ bot.name }}</a></li>
+    <li class="breadcrumb-item"><a href="/bots/{{ bot.id }}">{{ bot.app_name }}</a></li>
 {% endblock %}
 {% block activeItem %}active item{% endblock %}
 {% block content %}
@@ -24,13 +24,17 @@
                     <h4>Bot Info</h4>
                     <hr style="border-top: 1px solid">
                     {% for attr, displayName in bot._infoAttrs.items() %}
+                        <strong>{{ displayName }}:</strong>
+                        <br>
                         {% if attr == 'owner' and not bot.check_owner(current_user) and (current_user.is_admin or current_user.is_internal) %}
-                            <strong>{{ displayName }}:</strong><br><a href="/u/{{ bot.getInfoAttr(attr).username }}">{{ bot.getInfoAttr(attr).username }}</a><br><br>
+                            <a href="/u/{{ bot.getInfoAttr(attr).username }}">{{ bot.getInfoAttr(attr).username }}</a>
                         {% elif bot.getInfoAttr(attr).__class__.__name__ == 'datetime' %}
-                            <strong>{{ displayName }}:</strong><br><a>{{ bot.getInfoAttr(attr).strftime('%m/%d/%Y %I:%M:%S %p') }}</a><br><br>
+                            <a>{{ moment(bot.getInfoAttr(attr)).format('M/DD/YYYY, h:mm:ss a zz') }}</a>
                         {% else %}
-                            <strong>{{ displayName }}:</strong><br><a>{{ bot.getInfoAttr(attr) }}</a><br><br>
+                            <a>{{ bot.getInfoAttr(attr) }}</a>
                         {% endif %}
+                        <br>
+                        <br>
                     {% endfor %}
                 </div>
             </div>
@@ -78,7 +82,7 @@
                         <button class="btn btn-primary" type="submit" name="save" onclick="saveItem(this)" id="save" value="save">Save</button>
                     </div>
                 </form>
-                <button class="btn btn-danger" id="delete" data-target="#confirmationModal" onclick="showDeleteModal('{{ bot.name }}', 'bots', {{ bot.id }})" data-toggle="modal">Delete</button>
+                <button class="btn btn-danger" id="delete" data-target="#confirmationModal" onclick="showDeleteModal('{{ bot.app_name }}', 'bots', {{ bot.id }})" data-toggle="modal">Delete</button>
             </div>
         </div>
     </div>

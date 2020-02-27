@@ -204,13 +204,6 @@ class Namespace(BaseNamespace):
 
                 protected_func = _permission_decorator(func)
                 self._register_access_restriction_decorator(protected_func, _permission_decorator)
-
-            # Apply `_role_permission_applied` marker for Role Permissions,
-            # so don't apply unnecessary permissions in `login_required`
-            # decorator.
-            #
-            # TODO: Change this behavior when implement advanced OPTIONS
-            # method support
             if (
                     isinstance(permission, permissions.RolePermission)
                     or

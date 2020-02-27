@@ -17,8 +17,8 @@ from .tables import RedditAppTable
 
 redditAppsBlueprint = Blueprint('reddit_apps', __name__, template_folder='./templates', static_folder='./static', static_url_path='/reddit_apps/static/')
 
-@login_required
 @redditAppsBlueprint.route('/reddit_apps', methods=['GET', 'POST'])
+@login_required
 @paginateArgs(RedditApp)
 def reddit_apps(page, perPage):
     form = RedditAppForm()
@@ -43,8 +43,8 @@ def reddit_apps(page, perPage):
     form = RedditAppForm()
     return render_template('reddit_apps.html', reddit_appsTable=table, reddit_appsForm=form, paginator=paginator, route='reddit_apps.reddit_apps', perPage=perPage)
 
-@login_required
 @redditAppsBlueprint.route('/reddit_apps/<RedditApp:reddit_app>/', methods=['GET', 'POST'])
+@login_required
 @verifyEditable('reddit_app')
 def editRedditApp(reddit_app):
     form = RedditAppForm(obj=reddit_app)

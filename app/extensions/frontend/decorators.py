@@ -23,9 +23,9 @@ def paginateArgs(model):
 def requiresAdmin(func):
     @wraps(func)
     def decorated(*args, **kwargs):
-        if current_user and not current_user.is_admin and not current_user.is_internal:
-            abort(403)
-        return func(*args, **kwargs)
+        if current_user and (current_user.is_admin or current_user.is_internal):
+            return func(*args, **kwargs)
+        abort(403)
     return decorated
 
 def verifyEditable(kwargName):
@@ -35,7 +35,7 @@ def verifyEditable(kwargName):
             currentObject = kwargs[kwargName]
             if current_user and (current_user.is_admin or current_user.is_internal or currentObject.check_owner(current_user)):
                 if isinstance(currentObject, User):
-                    if current_user.is_internal != currentObject.is_internal:
+                    if currentObject.is_internal and not current_user.is_internal:
                         abort(403)
                 elif current_user.is_internal != currentObject.owner.is_internal:
                     abort(403)

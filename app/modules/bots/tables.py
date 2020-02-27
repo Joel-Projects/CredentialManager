@@ -4,7 +4,7 @@ from app.extensions.frontend.tables import DatetimeColumn, BaseCol, BaseTable, O
 class BotTable(BaseTable):
 
     def __init__(self, items, current_user=None):
-        self.add_column('Name', BaseCol('Name', 'app_name'))
+        self.add_column('Name', BaseCol('Name', 'app_name', td_html_attrs={'style':'text-align:left'}))
         self.add_column('Reddit App', AppNameCol('Reddit App', attr_list=['reddit_app', 'app_name']))
         self.add_column('Sentry Token', AppNameCol('Sentry Token', attr_list=['sentry_token', 'app_name']))
         self.add_column('Database Credentials', AppNameCol('Database Credential', attr_list=['database_credential', 'app_name']))

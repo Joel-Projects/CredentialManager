@@ -138,7 +138,7 @@
                                         display: none !important;
                                     }
                                 </style>
-                                <div class="form-group" {% if not current_user.is_admin or not current_user.is_internal %}hidden{% endif %}>
+                                <div class="form-group" {% if not current_user.is_admin and not current_user.is_internal %}hidden{% endif %}>
                                     <div class="custom-control custom-switch">
                                         {{ usersForm.is_admin(default=user.is_admin, class_="custom-control-input") }}
                                         {{ usersForm.is_admin.label(class_='custom-control-label') }}

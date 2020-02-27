@@ -17,8 +17,8 @@ from .tables import BotTable
 
 botsBlueprint = Blueprint('bots', __name__, template_folder='./templates', static_folder='./static', static_url_path='/bots/static/')
 
-@login_required
 @botsBlueprint.route('/bots', methods=['GET', 'POST'])
+@login_required
 @paginateArgs(Bot)
 def bots(page, perPage):
     form = BotForm()
@@ -40,8 +40,8 @@ def bots(page, perPage):
     form = BotForm()
     return render_template('bots.html', botsTable=table, botsForm=form, paginator=paginator, route='bots.bots', perPage=perPage)
 
-@login_required
 @botsBlueprint.route('/bots/<Bot:bot>/', methods=['GET', 'POST'])
+@login_required
 @verifyEditable('bot')
 def editBot(bot):
     form = BotForm(obj=bot)
