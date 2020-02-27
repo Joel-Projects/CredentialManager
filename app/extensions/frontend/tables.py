@@ -2,7 +2,7 @@ from flask_login import current_user
 from flask_table import Col, Table, LinkCol
 from flask_table.html import element
 from flask import current_app
-from pytz import timezone
+from datetime import timezone
 
 class BaseCol(Col):
 
@@ -21,7 +21,7 @@ class DatetimeColumn(BaseCol):
 
     def td_format(self, content):
         if content:
-            return str(current_app.extensions['moment'](content).format('M/DD/YYYY, h:mm:ss a zz'))
+            return str(current_app.extensions['moment'](content.astimezone(timezone.utc)).format('M/DD/YYYY, h:mm:ss a zz'))
         else:
             return 'Never'
 
@@ -129,7 +129,11 @@ class ObjectCountCol(BaseCol):
         item, item_id, owner = item
         return f'<a href="/u/{owner.username}/{item.attr.target_mapper.entity.__tablename__}">{item.count()}</a>'
 
-class EditColumn(ModifiedCol):
+class DropdownActionColumn(ModifiedCol):
+
+    def __init__(self, name, *args, toggle=True, **kwargs):
+        super(DropdownActionColumn, self).__init__(name, *args, **kwargs)
+        self.toggle = toggle
 
     def td_contents(self, item, attr_list):
         return self.td_format((self.from_attr_list(item, attr_list), item))
@@ -141,23 +145,24 @@ class EditColumn(ModifiedCol):
         else:
             itemSubPath = item.__tablename__
         href = f'/{itemSubPath}/{content}'
-        if hasattr(item, 'enabled'):
-            enabled = item.enabled
+        if self.toggle:
+            enabled = getattr(item, item._enabledAttr)
+            if enabled:
+                color = 'E74C3C'
+                text = 'Disable'
+            else:
+                color = '00BC8C'
+                text = 'Enable'
+            toggleStr = f'''<a class="dropdown-item" id="{item.__tablename__}_{item.id}_toggle" style="color: #{color}" onclick="toggleItem('{item.__tablename__}', {item.id}, '{getattr(item, item._nameAttr)}', '{item._nameAttr}', '{item._enabledAttr}')">{text}</a>'''
         else:
-            enabled = item.is_active
-        if enabled:
-            color = 'E74C3C'
-            text = 'Disable'
-        else:
-            color = '00BC8C'
-            text = 'Enable'
-        toggleStr = f'''<a class="dropdown-item" id="{item.__tablename__}_{item.id}_toggle" style="color: #{color}" onclick="toggleItem('{item.__tablename__}', {item.id}, '{getattr(item, item._nameAttr)}', '{item._nameAttr}', '{item._enabledAttr}')">{text}</a>'''
+            toggleStr = ''
+
         return f'''<div aria-label="Button group with nested dropdown" class="btn-group" role="group">
-    <button type="button" class="btn btn-primary" onclick="location.href='{href}'">Edit</button>
+    <button type="button" class="btn btn-primary" onclick="location.href='{href}'">{self.name}</button>
     <div class="btn-group" role="group">
         <button id="{item.__tablename__}_{item.id}_buttonGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
         <div class="dropdown-menu" aria-labelledby="{item.__tablename__}_{item.id}_buttonGroup" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 36px, 0px);">
-            <a class="dropdown-item" href="{href}">Edit</a>
+            <a class="dropdown-item" href="{href}">{self.name}</a>
             {toggleStr}
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" onclick="showDeleteModal('{getattr(item, item._nameAttr)}', '{item.__tablename__}', {item.id}, {item.loopIndex})" style="color: red">Delete</a>
@@ -168,8 +173,13 @@ class EditColumn(ModifiedCol):
 
 class BaseTable(Table):
 
-    def __init__(self, items, current_user=None, endpointAttr='id'):
-        self.add_column('Edit', EditColumn('Edit', endpointAttr))
+    def __init__(self, items, editable=True, canBeDisabled=True, current_user=None, endpointAttr='id'):
+        if editable:
+            name = 'Edit'
+        else:
+            name = 'View'
+        self.add_column(name, DropdownActionColumn(name, endpointAttr, toggle=canBeDisabled))
+
         super().__init__(items)
 
     def th(self, col_key, col):

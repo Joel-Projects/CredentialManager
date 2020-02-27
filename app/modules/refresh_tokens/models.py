@@ -1,10 +1,11 @@
 import json, logging, requests, praw
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy_utils import ChoiceType
 from app.extensions import db, InfoAttrs, StrName, foreignKeyKwargs
 
 log = logging.getLogger(__name__)
+
 class RefreshToken(db.Model, InfoAttrs, StrName):
 
     def __init__(self, *args, **kwargs):
@@ -12,13 +13,15 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
 
     __tablename__ = 'refresh_tokens'
     _nameAttr = 'app_name'
-    _enabledAttr = 'enabled'
     _infoAttrs = {
         'id': 'Refresh Token ID',
-        'app_name': 'App Name',
+        'reddit_app': 'Reddit App',
         'redditor': 'Redditor',
+        'owner': 'Owner',
+        'refresh_token': 'Refresh Token',
         'scopes': 'Authorized Scopes',
-        'issued': 'Issued at'
+        'issued_at': 'Issued at',
+        'revoked_at': 'Revoked at'
     }
     scopeJSON = None
     try:
@@ -29,7 +32,6 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
     if not scopeJSON:
         with open('scopes.json', 'r') as f:
             scopeJSON = json.load(f)
-    scopes = [(scope, scope['name']) for scope in scopeJSON.values()]
 
     __table_args__ = {'schema': 'credential_store'}
 
@@ -41,10 +43,9 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
     redditor = db.Column(db.String(22), nullable=False)
     refresh_token = db.Column(db.Text, unique=True, nullable=False)
     scopes = db.Column(db.JSON, default=[])
-    issued_at = db.Column(db.DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False)
+    issued_at = db.Column(db.DateTime(True), default=datetime.utcnow(), nullable=False)
     revoked = db.Column(db.Boolean, default=False)
-    revoked_at = db.Column(db.DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False)
-    enabled = db.Column(db.Boolean, default=True, info={'label': 'Enable?', 'description': 'Allows the refresh token to be used'})
+    revoked_at = db.Column(db.DateTime(True))
 
     uniqueConstrant = db.Index('only_one_active_token', reddit_app_id, redditor, revoked, unique=True, postgresql_where=(~revoked))
 
@@ -55,3 +56,17 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
 
     def revoke(self):
         self.revoked = True
+        self.revoked_at = datetime.now(timezone.utc)
+
+    @property
+    def app_name(self):
+        return self.reddit_app.app_name
+
+    @property
+    def valid(self):
+        return not self.revoked
+
+    @property
+    def chunkScopes(self):
+        scopes = [(scope, scope in self.scopes, value['description']) for scope, value in self.scopeJSON.items()]
+        return [scopes[x:x+4] for x in range(0, len(scopes), 4)]

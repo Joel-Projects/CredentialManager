@@ -3,7 +3,7 @@ from app.extensions.frontend.tables import DatetimeColumn, BaseCol, BaseTable, O
 class UserVerificationTable(BaseTable):
 
     def __init__(self, items, current_user=None):
-        self.add_column('Redditor', BaseCol('Redditor', 'redditor'))
+        self.add_column('Redditor', BaseCol('Redditor', 'redditor', td_html_attrs={'style':'text-align:left'}))
         self.add_column('Discord Member ID', BaseCol('Discord Member ID', 'discord_id'))
         self.add_column('Reddit App', BaseCol('Reddit App', 'reddit_app'))
         self.add_column('Verified At', DatetimeColumn('Verified At', attr='verified_at', datetime_format='%m/%d/%Y %I:%M:%S %p %Z'))

@@ -1,5 +1,14 @@
 {% import 'macros.html' as macros %}
 <div class="container">
+    <div class="container">
+        <form>
+            <div class="custom-control custom-switch">
+                <input {% if showOld %} checked {% endif %}class="custom-control-input" id="showInvlalid" onclick='window.location.assign("/refresh_tokens?showOld={{ not showOld }}")' type="checkbox">
+                <label class="custom-control-label" for="showInvlalid">Show All</label>
+                <small id="invalidDisplayHelp" class="form-text text-muted">Check this to display old tokens</small>
+            </div>
+        </form>
+    </div>
     <div class="table-responsive">
         {{ refresh_tokensTable }}
     </div>
@@ -9,13 +18,6 @@
         </div>
         {% include 'refresh_token_paginator.html' %}
     </div>
-    <script>
-        $("#refresh_tokens_table").tablesorter({
-            theme: "bootstrap",
-            cancelSelection: false,
-            sortReset: true
-        });
-    </script>
     <div class="collapse" id="generateTokenCollapse">
         <h5 class="card-title">Generate Auth Url</h5>
         <div class="card card-body">

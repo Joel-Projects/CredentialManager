@@ -16,8 +16,8 @@ from .tables import UserVerificationTable, UserVerificationTable
 
 userVerificationsBlueprint = Blueprint('user_verifications', __name__, template_folder='./templates', static_folder='./static', static_url_path='/user_verifications/static/')
 
-@login_required
 @userVerificationsBlueprint.route('/user_verifications', methods=['GET', 'POST'])
+@login_required
 @paginateArgs(UserVerification)
 def user_verifications(page, perPage):
     form = UserVerificationForm()
@@ -43,8 +43,8 @@ def user_verifications(page, perPage):
     return render_template('user_verifications.html', user_verificationsTable=table, user_verificationsForm=form, user_verification_paginator=paginator, route='user_verifications.user_verifications', perPage=perPage)
 
 
-@login_required
 @userVerificationsBlueprint.route('/user_verifications/<UserVerification:user_verification>/', methods=['GET', 'POST'])
+@login_required
 @verifyEditable('user_verification')
 def editUserVerification(user_verification):
     form = UserVerificationForm(obj=user_verification)

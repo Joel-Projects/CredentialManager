@@ -10,7 +10,7 @@
     {% else %}
         <li class="breadcrumb-item"><a href="/user_verifications/">User Verifications</a></li>
     {% endif %}
-    <li class="breadcrumb-item"><a href="/user_verifications/{{ user_verification.id }}">{{ user_verification.discord_id }}</a></li>
+    <li class="breadcrumb-item"><a href="/user_verifications/{{ user_verification.id }}">{{ user_verification.discord_id }}{% if user_verification.redditor %} - {{ user_verification.redditor }}{% endif %}</a></li>
 {% endblock %}
 {% block activeItem %}active item{% endblock %}
 {% block content %}
@@ -28,7 +28,7 @@
                         {% if attr == 'owner' and not user_verification.check_owner(current_user) and (current_user.is_admin or current_user.is_internal) %}
                             <strong>{{ displayName }}:</strong><br><a href="/u/{{ user_verification.getInfoAttr(attr).username }}">{{ user_verification.getInfoAttr(attr).username }}</a><br><br>
                         {% elif user_verification.getInfoAttr(attr).__class__.__name__ == 'datetime' %}
-                            <strong>{{ displayName }}:</strong><br><a>{{ user_verification.getInfoAttr(attr).strftime('%m/%d/%Y %I:%M:%S %p') }}</a><br><br>
+                            <strong>{{ displayName }}:</strong><br><a>{{ moment(user_verification.getInfoAttr(attr)).format('M/DD/YYYY, h:mm:ss a zz') }}</a><br><br>
                         {% else %}
                             <strong>{{ displayName }}:</strong><br><a>{{ user_verification.getInfoAttr(attr) }}</a><br><br>
                         {% endif %}
