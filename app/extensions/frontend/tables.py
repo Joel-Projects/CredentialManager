@@ -15,10 +15,6 @@ class BaseCol(Col):
 
 class DatetimeColumn(BaseCol):
 
-    def __init__(self, name, datetime_format='short', **kwargs):
-        super(DatetimeColumn, self).__init__(name, **kwargs)
-        self.datetime_format = datetime_format
-
     def td_format(self, content):
         if content:
             return str(current_app.extensions['moment'](content.astimezone(timezone.utc)).format('M/DD/YYYY, h:mm:ss a zz'))
@@ -86,15 +82,13 @@ class CreatedBy(BaseCol):
     def td_format(self, item):
         content, item, tooltip = item
         link = ''
-        if item.createdBy.is_internal:
-            if current_user.is_internal:
-                link = f'href = "/u/{content}"'
-        else:
-            link = f'href = "/u/{content}"'
-        if content:
-            return f'<a {link}>{content}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{tooltip}"><i class="far fa-question-circle"></i></span></sup>'
-        else:
-            return f'<a>{content}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{tooltip}"><i class="far fa-question-circle"></i></span></sup>'
+        if item.createdBy:
+            if item.createdBy.is_internal:
+                if current_user.is_internal:
+                    link = f' href = "/u/{content}"'
+            else:
+                link = f' href = "/u/{content}"'
+        return f'<a{link}>{content}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" data-html="true" title=\'{tooltip}\'><i class="far fa-question-circle"></i></span></sup>'
 
 class OwnerCol(BaseCol):
 

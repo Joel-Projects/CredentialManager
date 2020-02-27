@@ -79,9 +79,12 @@ def timestamp_before_update(mapper, connection, target):
 class InfoAttrs(object):
 
     def getInfoAttr(self, path):
-        attr = operator.attrgetter(path)(self)
-        if callable(attr):
-            attr = attr()
+        try:
+            attr = operator.attrgetter(path)(self)
+            if callable(attr):
+                attr = attr()
+        except AttributeError:
+            attr = None
         return attr
 
 class StrName(object):

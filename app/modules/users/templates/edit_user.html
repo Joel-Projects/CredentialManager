@@ -46,8 +46,18 @@
                                 <h4>User Info</h4>
                                 <hr style="border-top: 1px solid" ;>
                                 {% for attr, displayName in user._infoAttrs.items() %}
-                                    {% if attr in ['createdBy.username', 'updatedBy.username'] and (current_user.is_admin or current_user.is_internal) %}
-                                        <strong>{{ displayName }}:</strong><br><a href="/u/{{ user.getInfoAttr(attr) }}">{{ user.getInfoAttr(attr) }}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{{ attr.split('By')[0].capitalize() }} at: {{ user.getInfoAttr(attr.split('By')[0]).strftime('%m/%d/%Y %I:%M:%S %p') }}"><i class="far fa-question-circle"></i></span></sup><br><br>
+                                    {% if attr == 'createdBy.username' and (current_user.is_admin or current_user.is_internal) %}
+                                        {% if user.created_by %}
+                                            <strong>{{ displayName }}:</strong><br><a href="/u/{{ user.getInfoAttr(attr) }}">{{ user.created_by.username }}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{{ attr.split('By')[0].capitalize() }} at: {{ user.getInfoAttr(attr.split('By')[0]).strftime('%m/%d/%Y %I:%M:%S %p') }}"><i class="far fa-question-circle"></i></span></sup><br><br>
+                                        {% else %}
+                                            <strong>{{ displayName }}:</strong><br><a>{{ user.getInfoAttr(attr) }}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{{ attr.split('By')[0].capitalize() }} at: {{ user.getInfoAttr(attr.split('By')[0]).strftime('%m/%d/%Y %I:%M:%S %p') }}"><i class="far fa-question-circle"></i></span></sup><br><br>
+                                        {% endif %}
+                                    {% elif attr == 'updatedBy.username' and (current_user.is_admin or current_user.is_internal) %}
+                                        {% if user.updated_by %}
+                                            <strong>{{ displayName }}:</strong><br><a href="/u/{{ user.getInfoAttr(attr) }}">{{ user.getInfoAttr(attr) }}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{{ attr.split('By')[0].capitalize() }} at: {{ user.getInfoAttr(attr.split('By')[0]).strftime('%m/%d/%Y %I:%M:%S %p') }}"><i class="far fa-question-circle"></i></span></sup><br><br>
+                                        {% else %}
+                                            <strong>{{ displayName }}:</strong><br><a>{{ user.getInfoAttr(attr) }}</a><sup><span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip" title="" data-original-title="{{ attr.split('By')[0].capitalize() }} at: {{ user.getInfoAttr(attr.split('By')[0]).strftime('%m/%d/%Y %I:%M:%S %p') }}"><i class="far fa-question-circle"></i></span></sup><br><br>
+                                        {% endif %}
                                     {% elif 'count' in attr %}
                                         <strong>{{ displayName }}:</strong><br><a href="/u/{{ user.username }}/{{ attr.split('.')[0] }}">{{ user.getInfoAttr(attr) }}</a><br><br>
                                     {% else %}

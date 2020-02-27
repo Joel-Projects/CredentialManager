@@ -40,8 +40,8 @@ log = logging.getLogger(__name__)
 usersBlueprint = Blueprint('users', __name__, template_folder='./templates', static_folder='./static', static_url_path='/users/static/')
 
 @usersBlueprint.route('/users', methods=['GET', 'POST'])
-@requiresAdmin
 @login_required
+@requiresAdmin
 @paginateArgs(User)
 def users(page, perPage):
     query = User.query
@@ -145,8 +145,8 @@ def editUser(user):
 
 
 # noinspection PyUnresolvedReferences
-@login_required
 @usersBlueprint.route('/u/<User:user>/<item>/', methods=['GET', 'POST'])
+@login_required
 def itemsPerUser(user, item):
     validItems = {
         'bots': [BotTable, BotForm, Bot, []],

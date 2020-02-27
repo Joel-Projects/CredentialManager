@@ -8,7 +8,7 @@ class DatabaseCredentialTable(BaseTable):
         self.add_column('Flavor', BaseCol('Flavor', 'database_flavor'))
         self.add_column('Database Host', BaseCol('Database Host', 'database_host'))
         self.add_column('SSH Tunnel', BoolIconColumn('SSH Tunnel', 'use_ssh'))
-        self.add_column('Created', DatetimeColumn('Created', attr='created', datetime_format='%m/%d/%Y %I:%M:%S %p %Z'))
+        self.add_column('Created', DatetimeColumn('Created', attr='created'))
         self.add_column('Enabled', BoolIconColumn('Enabled', 'enabled'))
 
         if current_user.is_admin or current_user.is_internal:

@@ -1,3 +1,5 @@
+from flask import current_app
+from datetime import datetime, timezone
 from flask_login import current_user
 from flask_table import Col, LinkCol
 
@@ -13,8 +15,9 @@ class UserTable(BaseTable):
         self.add_column('Sentry Tokens', ObjectCountCol('Sentry Tokens', 'sentry_tokens'))
         self.add_column('API Tokens', ObjectCountCol('API Tokens', 'api_tokens'))
         self.add_column('Active', BoolIconColumn('Active', 'is_active'))
-        self.add_column('Created By', CreatedBy('Created By', attr_list=['createdBy', 'username'], tooltip=lambda item: f"Created at: {item.updated.astimezone().strftime('%m/%d/%Y %I:%M:%S %p %Z')}"))
-
+        # self.add_column('Created By', CreatedBy('Created By', attr_list=['createdBy', 'username'], tooltip=lambda item: f"Created at: {item.updated.astimezone().strftime('%m/%d/%Y %I:%M:%S %p %Z')}"))
+        # https://getbootstrap.com/docs/4.4/components/tooltips/#markup
+        self.add_column('Created By', OwnerCol('Name', 'username'))
         self.add_column('Active', BoolIconColumn('Active', 'is_active'))
         self.add_column('Admin', BoolIconColumn('Admin', 'is_admin'))
 

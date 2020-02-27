@@ -26,7 +26,7 @@ class DetailedBotSchema(BaseBotSchema):
     """
     reddit_app = base_fields.Nested(BaseRedditAppSchema)
     sentry_token = base_fields.Nested(BaseSentryTokenSchema)
-    database_credentials = base_fields.Nested(BaseDatabaseCredentialSchema)
+    database_credential = base_fields.Nested(BaseDatabaseCredentialSchema)
 
     class Meta(BaseBotSchema.Meta):
         fields = BaseBotSchema.Meta.fields + (
