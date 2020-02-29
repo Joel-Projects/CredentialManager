@@ -9,28 +9,7 @@
 {% endblock %}
 {% block content %}
     <body>
-    <div class="container">
-        <ul class="nav nav-tabs" id="userTab">
-            <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" id="tab_refresh_tokens" href="#refresh_tokens" aria-controls="refresh_tokens">Refresh Tokens</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" id="tab_user_verification" href="#user_verification" aria-controls="user_verification">User Verification</a>
-            </li>
-        </ul>
-        <div class="tab-content py-3">
-            <div class="tab-pane active" id="refresh_tokens">
-                <div class="container">
-                    <script src="{{ url_for('refresh_tokens.static', filename='js/refresh_tokens.js') }}"></script>
-                    {% include 'refresh_tokensTable.html' %}
-                </div>
-            </div>
-            <div class="tab-pane fade" id="user_verification">
-                <div class="container">
-                    {% include 'user_verificationsTable.html' %}
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <script src="{{ url_for('refresh_tokens.static', filename='js/refresh_tokens.js') }}"></script>
+    {% include 'refresh_tokensTable.html' with context %}
+    </body>
 {% endblock %}

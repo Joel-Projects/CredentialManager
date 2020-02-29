@@ -65,6 +65,6 @@ def editApiToken(api_token):
                     flash(f'API Token {api_token.name!r} saved successfully!', 'success')
                 else:
                     flash(f'Failed to update API Token {api_token.name!r}', 'error')
-        else:
-            return jsonify(status='error', errors=form.errors)
+        # else:
+            # return jsonify(status='error', errors=form.errors)
     return render_template('edit_api_token.html', api_token=api_token, form=form)

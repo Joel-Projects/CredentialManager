@@ -52,23 +52,15 @@
                                     </div>
                                     <div class="form-group">
                                         {{ usersForm.password.label }}
-                                        {{ usersForm.password(size=32, class_="form-control") }}<br>
-                                        {% for error in usersForm.password.errors %}
-                                            <span style="color: red;">[{{ error }}]</span>
-                                        {% endfor %}
+                                        {% if usersForm.password.errors %}
+                                            {{ usersForm.password(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                            {% for error in usersForm.password.errors %}
+                                                <div class="invalid-feedback" id="passwordFeedback">{{ error }}</div>
+                                            {% endfor %}
+                                        {% else %}
+                                            {{ usersForm.password(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                        {% endif %}
                                     </div>
-                                    {#                                    <div class="form-group">#}
-                                    {#                                        {{ usersForm.default_redirect_uri.label }}#}
-                                    {#                                        {% if usersForm.default_redirect_uri.errors %}#}
-                                    {#                                            {{ usersForm.default_redirect_uri(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}#}
-                                    {#                                            {% for error in usersForm.default_redirect_uri.errors %}#}
-                                    {#                                                <div class="invalid-feedback" id="default_redirect_uriFeedback">{{ error }}</div>#}
-                                    {#                                            {% endfor %}#}
-                                    {#                                        {% else %}#}
-                                    {#                                            {{ usersForm.default_redirect_uri(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}#}
-                                    {#                                        {% endif %}#}
-                                    {#                                        <small id="headerHelp" class="form-text text-muted">Defines the user's default redirect URI for reddit apps for OAuth 2 authentication</small>#}
-                                    {#                                    </div>#}
                                     <div class="form-group">
                                         <label for="custom_settings">Default Settings</label>
                                         <div id="custom_settings"></div>

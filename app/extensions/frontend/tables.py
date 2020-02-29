@@ -159,7 +159,7 @@ class DropdownActionColumn(ModifiedCol):
             <a class="dropdown-item" href="{href}">{self.name}</a>
             {toggleStr}
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" onclick="showDeleteModal('{getattr(item, item._nameAttr)}', '{item.__tablename__}', {item.id}, {item.loopIndex})" style="color: red">Delete</a>
+            <a class="dropdown-item" onclick="showTableItemDeleteModal('{getattr(item, item._nameAttr)}', '{item.__tablename__}', {item.id}, {item.loopIndex})" style="color: red">Delete</a>
         </div>
     </div>
 </div>

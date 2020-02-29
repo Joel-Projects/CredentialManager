@@ -4,13 +4,9 @@ from wtforms.validators import Optional
 from wtforms.widgets import HTMLString
 
 from app.extensions import ModelForm
-from wtforms_alchemy import QuerySelectField, InputRequired
+from wtforms_alchemy import InputRequired
 from .models import DatabaseCredential
-from ..users.models import User
-from ...extensions.frontend.forms import HiddenFieldWithToggle
-
-def owners():
-    return User.query
+from ...extensions.frontend.forms import HiddenFieldWithToggle, AppSelectField, owners
 
 class DatabaseCredentialForm(ModelForm):
     class Meta:
@@ -35,5 +31,5 @@ class DatabaseCredentialForm(ModelForm):
     use_ssh = HiddenFieldWithToggle('Use SSH?', default=False, render_kw={'value': ''})
     use_ssh_key = HiddenFieldWithToggle('Use SSH key?', default=False, render_kw={'value': ''})
 
-    owner = QuerySelectField(query_factory=owners, default=current_user, description=DatabaseCredential.owner_id.info['description'])
+    owner = AppSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user, description=DatabaseCredential.owner_id.info['description'])
 

@@ -3,7 +3,7 @@
     <div class="container">
         <form>
             <div class="custom-control custom-switch">
-                <input {% if showOld %} checked {% endif %}class="custom-control-input" id="showInvlalid" onclick='window.location.assign("/refresh_tokens?showOld={{ not showOld }}")' type="checkbox">
+                <input {% if showOld %} checked {% endif %}class="custom-control-input" id="showInvlalid" onclick='window.location.assign(`?showOld={{ not showOld }}${window.location.hash}`)' type="checkbox">
                 <label class="custom-control-label" for="showInvlalid">Show All</label>
                 <small id="invalidDisplayHelp" class="form-text text-muted">Check this to display old tokens</small>
             </div>
@@ -16,7 +16,7 @@
         <div class="col">
             <button class="btn btn-primary" id="generateRefreshToken" data-toggle="collapse" data-target="#generateTokenCollapse" aria-expanded="false" aria-controls="generateTokenCollapse">Generate Auth Url</button>
         </div>
-        {% include 'refresh_token_paginator.html' %}
+        {% include 'paginator.html' %}
     </div>
     <div class="collapse" id="generateTokenCollapse">
         <h5 class="card-title">Generate Auth Url</h5>

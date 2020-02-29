@@ -63,6 +63,6 @@ def editBot(bot):
                     flash(f'Bot {bot.app_name!r} saved successfully!', 'success')
                 else:
                     flash(f'Failed to update Bot {bot.app_name!r}', 'error')
-        else:
-            return jsonify(status='error', errors=form.errors)
+        # else:
+        #     return jsonify(status='error', errors=form.errors)
     return render_template('edit_bot.html', bot=bot, form=form)

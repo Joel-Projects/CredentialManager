@@ -80,3 +80,10 @@ class AppSelectField(QuerySelectField):
             get_pk = self.get_pk
             self._object_list = list((text_type(get_pk(obj)), obj) for obj in query)
         return self._object_list
+
+def owners(current_user):
+    from app.modules.users.models import User
+    if current_user.is_internal:
+        return User.query
+    else:
+        return User.query.filter_by(internal=False)

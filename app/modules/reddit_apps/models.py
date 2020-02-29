@@ -19,6 +19,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         'owner': 'Owner',
         'state': 'State',
         'botsUsingApp': 'Bots using this',
+        'refreshTokens': 'Refresh Tokens',
         'created': 'Created at',
         'updated': 'Last updated at'
     }
@@ -45,6 +46,10 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         if self.owner.is_internal:
             return user.is_internal
         return self.owner == user
+
+    @property
+    def refreshTokens(self):
+        return len(self.refresh_tokens)
 
     @property
     def botsUsingApp(self):

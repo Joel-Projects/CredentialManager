@@ -1,13 +1,12 @@
 from flask_login import current_user
 from wtforms.fields import SubmitField, FormField, StringField
+from wtforms.validators import URL
+
 from app.extensions import ModelForm
-from wtforms_alchemy import Length, QuerySelectField, Unique, InputRequired
+from wtforms_alchemy import Length, Unique, InputRequired
 from .models import SentryToken
-from ..users.models import User
+from ...extensions.frontend.forms import AppSelectField, owners
 
-
-def owners():
-    return User.query
 
 class SentryTokenForm(ModelForm):
     class Meta:
@@ -15,4 +14,5 @@ class SentryTokenForm(ModelForm):
         only = ['dsn', 'enabled']
         field_args = {'enabled': {'default': True}}
     app_name = StringField('Name', validators=[InputRequired(), Unique([SentryToken.owner, SentryToken.app_name]), Length(3)])
-    owner = QuerySelectField(query_factory=owners, default=current_user)
+    dsn = StringField('DSN', validators=[InputRequired(), URL()])
+    owner = AppSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user)

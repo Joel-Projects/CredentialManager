@@ -10,9 +10,7 @@ from .models import RefreshToken
 from .forms import GenerateRefreshTokenForm
 from .tables import RefreshTokenTable
 from ..reddit_apps.models import RedditApp
-from ..user_verifications.forms import UserVerificationForm
 from ..user_verifications.models import UserVerification
-from ..user_verifications.tables import UserVerificationTable
 from ..users.models import User
 from ...extensions import db, paginateArgs, verifyEditable
 
@@ -27,22 +25,16 @@ def refresh_tokens(page, perPage):
     showOld = request.args.get('showOld', 'False') == 'True'
     if current_user:
         if current_user.is_admin and not current_user.is_internal:
-            refreshTokenPaginator = RefreshToken.query.filter(*(RefreshToken.owner_id!=i.id for i in User.query.filter(User.internal==True).all()), or_(RefreshToken.revoked==False, RefreshToken.revoked==showOld)).paginate(page, perPage, error_out=False)
-            userVerificationPaginator = UserVerification.query.filter(*(UserVerification.owner_id!=i.id for i in User.query.filter(User.internal==True).all())).paginate(page, perPage, error_out=False)
+            paginator = RefreshToken.query.filter(*(RefreshToken.owner_id!=i.id for i in User.query.filter(User.internal==True).all()), or_(RefreshToken.revoked==False, RefreshToken.revoked==showOld)).paginate(page, perPage, error_out=False)
         elif current_user.is_internal:
-            refreshTokenPaginator = RefreshToken.query.filter(or_(RefreshToken.revoked==False, RefreshToken.revoked==showOld)).paginate(page, perPage, error_out=False)
-            userVerificationPaginator = UserVerification.query.paginate(page, perPage, error_out=False)
+            paginator = RefreshToken.query.filter(or_(RefreshToken.revoked==False, RefreshToken.revoked==showOld)).paginate(page, perPage, error_out=False)
         else:
-            refreshTokenPaginator = current_user.refresh_tokens.filter(or_(RefreshToken.revoked==False, RefreshToken.revoked==showOld)).paginate(page, perPage, error_out=False)
-            userVerificationPaginator = current_user.user_verifications.paginate(page, perPage, error_out=False)
+            paginator = current_user.refresh_tokens.filter(or_(RefreshToken.revoked==False, RefreshToken.revoked==showOld)).paginate(page, perPage, error_out=False)
     else:
-        refreshTokenPaginator = current_user.refresh_tokens.filter(or_(RefreshToken.revoked==False, RefreshToken.revoked==showOld)).paginate(page, perPage, error_out=False)
-        userVerificationPaginator = current_user.user_verifications.paginate(page, perPage, error_out=False)
-    table = RefreshTokenTable(refreshTokenPaginator.items, current_user=current_user, showOld=showOld)
+        paginator = current_user.refresh_tokens.filter(or_(RefreshToken.revoked==False, RefreshToken.revoked==showOld)).paginate(page, perPage, error_out=False)
+    table = RefreshTokenTable(paginator.items, current_user=current_user, showOld=showOld)
     form = GenerateRefreshTokenForm()
-    userVerificationsTable = UserVerificationTable(userVerificationPaginator.items, current_user=current_user)
-    userVerificationsForm = UserVerificationForm()
-    return render_template('refresh_tokens.html', refresh_tokensTable=table, refresh_tokensForm=form, refresh_token_paginator=refreshTokenPaginator, route='refresh_tokens.refresh_tokens', perPage=perPage, user_verificationsTable=userVerificationsTable, user_verificationsForm=userVerificationsForm, user_verification_paginator=userVerificationPaginator, showOld=showOld)
+    return render_template('refresh_tokens.html', refresh_tokensTable=table, refresh_tokensForm=form, paginator=paginator, route='refresh_tokens.refresh_tokens', perPage=perPage, showOld=showOld)
 
 @refreshTokensBlueprint.route('/refresh_tokens/<RefreshToken:refresh_token>/')
 @login_required

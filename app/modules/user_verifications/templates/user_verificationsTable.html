@@ -8,7 +8,7 @@
         <div class="col">
             <button class="btn btn-primary" id="createUserVerification" data-toggle="modal" data-target="#createUserVerificationModal">Create User Verification</button>
         </div>
-        {% include 'user_verification_paginator.html' %}
+        {% include 'paginator.html' %}
     </div>
     <div class="modal fade" id="createUserVerificationModal" tabindex="-1" role="dialog" aria-labelledby="createUserVerificationModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -27,7 +27,7 @@
                                 <div class="form-group">
                                     {{ user_verificationsForm[fieldName].label }}
                                     {{ user_verificationsForm[fieldName](class_="custom-select") }}
-                                    <small id="headerHelp" class="form-text text-muted">{{ user_verificationsForm[fieldName].description }}</small>
+                                    <small id="{{ fieldName }}Help" class="form-text text-muted">{{ user_verificationsForm[fieldName].description }}</small>
                                 </div>
                             {% else %}
                                 {{ macros.textField(user_verificationsForm, fieldName) }}
@@ -36,7 +36,7 @@
                         <div class="form-group" {% if not current_user.is_admin and not current_user.is_internal %}hidden{% endif %}>
                             {{ user_verificationsForm.owner.label }}
                             {{ user_verificationsForm.owner(class_="custom-select", default=user or current_user) }}
-                            <small id="headerHelp" class="form-text text-muted">{{ user_verificationsForm.owner.description }}</small>
+                            <small id="{{ fieldName }}Help" class="form-text text-muted">{{ user_verificationsForm.owner.description }}</small>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>
@@ -47,11 +47,4 @@
             </div>
         </div>
     </div>
-    <script>
-        $("#user_verifications_table").tablesorter({
-            theme: "bootstrap",
-            cancelSelection: false,
-            sortReset: true
-        });
-    </script>
 </div>

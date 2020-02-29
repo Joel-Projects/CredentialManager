@@ -63,6 +63,6 @@ def editSentryToken(sentry_token):
                     flash(f'Sentry Token {sentry_token.app_name!r} saved successfully!', 'success')
                 else:
                     flash(f'Failed to update Sentry Token {sentry_token.app_name!r}', 'error')
-        else:
-            return jsonify(status='error', errors=form.errors)
+        # else:
+        #     return jsonify(status='error', errors=form.errors)
     return render_template('edit_sentry_token.html', sentry_token=sentry_token, form=form)

@@ -64,6 +64,6 @@ def editDatabaseCredential(database_credential):
                     flash(f'Database Credential {database_credential.app_name!r} saved successfully!', 'success')
                 else:
                     flash(f'Failed to update Database Credential {database_credential.app_name!r}', 'error')
-        else:
-            return jsonify(status='error', errors=form.errors)
+        # else:
+        #     return jsonify(status='error', errors=form.errors)
     return render_template('edit_database_credential.html', database_credential=database_credential, form=form)

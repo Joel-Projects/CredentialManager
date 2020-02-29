@@ -1,5 +1,6 @@
 import logging, requests, json
 from functools import wraps
+from sqlalchemy import or_
 
 from flask import Blueprint, render_template, request, flash, current_app, redirect, jsonify
 from flask_login import current_user, login_required
@@ -33,7 +34,9 @@ from ..api_tokens.models import ApiToken
 from ..refresh_tokens.views import RefreshTokenTable
 from ..refresh_tokens.forms import GenerateRefreshTokenForm
 from ..refresh_tokens.models import RefreshToken
-
+from ..user_verifications.views import UserVerificationTable
+from ..user_verifications.forms import UserVerificationForm
+from ..user_verifications.models import UserVerification
 
 log = logging.getLogger(__name__)
 
@@ -71,7 +74,7 @@ def users(page, perPage):
 @verifyEditable('user')
 def editUser(user):
     kwargs = {}
-
+    showOld = request.args.get('showOld', 'False') == 'True'
     bots = user.bots.all()
     kwargs['botsTable'] = BotTable(bots, current_user=current_user)
     kwargs['botsForm'] = BotForm()
@@ -92,9 +95,13 @@ def editUser(user):
     kwargs['api_tokensTable'] = ApiTokenTable(api_tokens, current_user=current_user)
     kwargs['api_tokensForm'] = ApiTokenForm()
 
-    refresh_tokens = user.refresh_tokens.all()
+    refresh_tokens = user.refresh_tokens.filter(or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld)).all()
     kwargs['refresh_tokensTable'] = RefreshTokenTable(refresh_tokens, current_user=current_user)
     kwargs['refresh_tokensForm'] = GenerateRefreshTokenForm()
+
+    user_verifications = user.user_verifications.all()
+    kwargs['user_verificationsTable'] = UserVerificationTable(user_verifications, current_user=current_user)
+    kwargs['user_verificationsForm'] = UserVerificationForm()
 
     form = EditUserForm(obj=user)
     usernameChanged = False
@@ -102,7 +109,10 @@ def editUser(user):
     if request.method == 'POST':
         if form.validate_on_submit():
             itemsToUpdate = []
-            defaultSettings = {item['setting']: item['value'] for item in unflatten(dict([(a.replace('[Setting]', '.setting').replace('[Default Value]', '.value'), b) for a, b in dict(request.form).items() if a.startswith('root')]))['root']}
+            unflattenedForm = unflatten(dict([(a.replace('[Setting]', '.setting').replace('[Default Value]', '.value'), b) for a, b in dict(request.form).items() if a.startswith('root')]))
+            defaultSettings = {}
+            if 'root' in unflattenedForm:
+                defaultSettings = {item['setting']: item['value'] for item in unflattenedForm['root']}
             if user.default_settings != defaultSettings:
                 itemsToUpdate.append({"op": "replace", "path": f'/default_settings', "value": defaultSettings})
                 newDefaultSettings = defaultSettings
@@ -132,8 +142,8 @@ def editUser(user):
             if usernameChanged:
                 # noinspection PyUnboundLocalVariable
                 return redirect(f'{newUsername}')
-        else:
-            return jsonify(status='error', errors=form.errors)
+        # else:
+        #     return jsonify(status='error', errors=form.errors)
     for key, value in kwargs.items():
         if isinstance(value, ModelForm):
             if 'owner' in value:
@@ -141,7 +151,7 @@ def editUser(user):
             for defaultSetting, settingValue in user.default_settings.items():
                 if defaultSetting in value.data:
                     getattr(value, defaultSetting).data = settingValue
-    return render_template('edit_user.html', user=user, usersForm=form, defaultSettings=json.dumps([{"Setting": key,"Default Value": value} for key, value in newDefaultSettings.items()]), **kwargs)
+    return render_template('edit_user.html', user=user, usersForm=form, defaultSettings=json.dumps([{"Setting": key,"Default Value": value} for key, value in newDefaultSettings.items()]), showOld=showOld, **kwargs)
 
 
 # noinspection PyUnresolvedReferences
@@ -154,7 +164,8 @@ def itemsPerUser(user, item):
         'sentry_tokens': [SentryTokenTable, SentryTokenForm, SentryToken, []],
         'database_credentials': [DatabaseCredentialTable, DatabaseCredentialForm, DatabaseCredential, []],
         'api_tokens': [ApiTokenTable, ApiTokenForm, ApiToken, ['length']],
-        'refresh_tokens': [RefreshTokenTable, GenerateRefreshTokenForm, RefreshToken, []]
+        'refresh_tokens': [RefreshTokenTable, GenerateRefreshTokenForm, RefreshToken, []],
+        'user_verifications': [UserVerificationTable, UserVerificationForm, UserVerification, []]
     }
     item = item.lower()
     if not item in validItems:

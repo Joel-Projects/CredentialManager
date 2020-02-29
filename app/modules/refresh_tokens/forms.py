@@ -1,15 +1,10 @@
 from flask_login import current_user
 from wtforms import BooleanField
 from wtforms.validators import InputRequired
-from wtforms_alchemy import QuerySelectField
-
 from app.extensions import ModelForm
 from .models import RefreshToken
-from ..users.models import User
-from ...extensions.frontend.forms import AppSelectField
+from ...extensions.frontend.forms import AppSelectField, owners
 
-def owners():
-    return User.query
 
 def reddit_apps(owner):
     return owner.reddit_apps
@@ -33,4 +28,4 @@ class GenerateRefreshTokenForm(ModelForm):
         if id == 'identity':
             checked = True
         locals()[id] = BooleanField(label=id, description=description, default=checked)
-    owner = QuerySelectField(query_factory=owners, default=current_user, description=RefreshToken.owner_id.info['description'])
+    owner = AppSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user, description=RefreshToken.owner_id.info['description'])

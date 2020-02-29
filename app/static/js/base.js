@@ -46,7 +46,7 @@ function doneSave(id, form) {
     $(`#${id}`).html('Save');
 };
 
-function deleteTableItem(table, name, item_type, item_id, row_id, redirectUrl = null) {
+function deleteTableItem(table, name, item_type, item_id, row_id) {
     $.ajax({
         type: 'DELETE',
         url: `/api/v1/${item_type}/${item_id}`
@@ -71,7 +71,7 @@ function deleteItem(name, item_type, item_id) {
                 popNotification('error', data.message);
             } else {
                 popNotification('success', `Successfully deleted ${name}`);
-                window.location.href = window.location.href
+                window.location.href = `/${item_type}`;
                 // history.go(-1);
             }
         });
@@ -174,7 +174,11 @@ function createItem(button, form, resource, additonal = false, editor) {
                 if (additonal) {
                     $(`#${form}`)[0].reset()
                 } else {
-                    window.location.href = window.location.href
+                    if (window.location.hash) {
+                        window.location.reload()
+                    } else {
+                        window.location.href = window.location.href
+                    }
                 }
             }
             // noinspection SillyAssignmentJS
@@ -184,6 +188,7 @@ function createItem(button, form, resource, additonal = false, editor) {
 
 function clearInvalidState(textBox) {
     textBox.classList.remove("is-invalid")
+    $(`#${textBox.id}Feedback`).remove();
 }
 
 function resetForm(formId, focusElement, focus) {
@@ -199,7 +204,7 @@ function showTableItemDeleteModal(name, item_type, item_id, row_id) {
     $(`#confirmationModal`).modal('show')
 }
 
-function showDeleteModal(name, item_type, item_id, row_id) {
+function showDeleteModal(name, item_type, item_id) {
     document.getElementById('delete-modal-body').innerHTML = `Are you <strong>sure</strong> you want to delete "${name}"?`;
     document.getElementById('delete-modal-footer').innerHTML = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteItem('${name}', '${item_type}', ${item_id})" data-dismiss="modal" id="deleteConfirm">Delete "${name}"</button>`;
     $(`#confirmationModal`).modal('show')
