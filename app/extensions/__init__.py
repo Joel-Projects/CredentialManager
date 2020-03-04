@@ -33,6 +33,9 @@ debugToolBar = DebugToolbarExtension()
 from flask_moment import Moment
 moment = Moment()
 
+from flask_cors import CORS
+cross_origin_resource_sharing = CORS()
+
 from .frontend.forms import ModelForm
 from .frontend.errors import unauthorizedError, notFoundError
 from .frontend.decorators import paginateArgs, requiresAdmin, verifyEditable
@@ -47,7 +50,7 @@ def init_app(app):
     '''
     Application extensions initialization.
     '''
-    extensions = [logging, db, login_manager, marshmallow, api, bootstrap, moment]
+    extensions = [cross_origin_resource_sharing, logging, db, login_manager, marshmallow, api, bootstrap, moment]
     if int(os.getenv('FLASK_DEBUG', '0')):
         extensions.append(debugToolBar)
     for extension in extensions:
