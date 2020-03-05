@@ -1,13 +1,12 @@
-Flask #>=1.1,<2
-
+Flask
 flask-restplus>=0.11.0,<0.13
 Flask-Table
 Flask-CORS
 
-SQLAlchemy #>=1.3.0,<2
-SQLAlchemy-Utils #>=0.34,<0.35
-Flask-SQLAlchemy #>=2.4,<3
-Alembic #>=1.0,<2
+SQLAlchemy
+SQLAlchemy-Utils
+Flask-SQLAlchemy
+Alembic
 werkzeug>=0.15,<0.16
 
 marshmallow>=2.13.5,<3
@@ -28,7 +27,8 @@ datadog_logger
 praw
 sentry-sdk[flask]
 passlib[bcrypt]
-Flask-Login #>=0.4.0,<0.5
-permission #>=0.4.1,<0.5
+Flask-Login
+permission
 psycopg2-binary
 unflatten
+colorlog

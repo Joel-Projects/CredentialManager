@@ -1,5 +1,7 @@
 import logging, requests, json
 from functools import wraps
+from inspect import getframeinfo, currentframe
+
 from sqlalchemy import or_
 
 from flask import Blueprint, render_template, request, flash, current_app, redirect, jsonify
@@ -104,54 +106,103 @@ def editUser(user):
     kwargs['user_verificationsForm'] = UserVerificationForm()
 
     form = EditUserForm(obj=user)
+    log.info(getframeinfo(currentframe()).lineno)
     usernameChanged = False
+    log.info(getframeinfo(currentframe()).lineno)
     newDefaultSettings = user.default_settings
+    log.info(getframeinfo(currentframe()).lineno)
     if request.method == 'POST':
+        log.info(getframeinfo(currentframe()).lineno)
         if form.validate_on_submit():
+            log.info(getframeinfo(currentframe()).lineno)
             itemsToUpdate = []
+            log.info(getframeinfo(currentframe()).lineno)
             unflattenedForm = unflatten(dict([(a.replace('[Setting]', '.setting').replace('[Default Value]', '.value'), b) for a, b in dict(request.form).items() if a.startswith('root')]))
+            log.info(getframeinfo(currentframe()).lineno)
             defaultSettings = {}
+            log.info(getframeinfo(currentframe()).lineno)
             if 'root' in unflattenedForm:
+                log.info(getframeinfo(currentframe()).lineno)
                 defaultSettings = {item['setting']: item['value'] for item in unflattenedForm['root']}
+                log.info(getframeinfo(currentframe()).lineno)
             if user.default_settings != defaultSettings:
+                log.info(getframeinfo(currentframe()).lineno)
                 itemsToUpdate.append({"op": "replace", "path": f'/default_settings', "value": defaultSettings})
+                log.info(getframeinfo(currentframe()).lineno)
                 newDefaultSettings = defaultSettings
+                log.info(getframeinfo(currentframe()).lineno)
             else:
+                log.info(getframeinfo(currentframe()).lineno)
                 newDefaultSettings = user.default_settings
+                log.info(getframeinfo(currentframe()).lineno)
             for item in PatchUserDetailsParameters.getPatchFields():
+                log.info(getframeinfo(currentframe()).lineno)
                 if getattr(form, item, None) is not None:
+                    log.info(getframeinfo(currentframe()).lineno)
                     if not isinstance(getattr(form, item), BooleanField):
+                        log.info(getframeinfo(currentframe()).lineno)
                         if getattr(form, item).data:
+                            log.info(getframeinfo(currentframe()).lineno)
                             if getattr(user, item) != getattr(form, item).data:
+                                log.info(getframeinfo(currentframe()).lineno)
                                 if item == 'username':
+                                    log.info(getframeinfo(currentframe()).lineno)
                                     usernameChanged = True
+                                    log.info(getframeinfo(currentframe()).lineno)
                                     newUsername = getattr(form, item).data
+                                    log.info(getframeinfo(currentframe()).lineno)
                                 if item == 'password':
+                                    log.info(getframeinfo(currentframe()).lineno)
                                     if not form.updatePassword.data:
+                                        log.info(getframeinfo(currentframe()).lineno)
                                         continue
+                                        log.info(getframeinfo(currentframe()).lineno)
                                 itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
+                                log.info(getframeinfo(currentframe()).lineno)
                     else:
+                        log.info(getframeinfo(currentframe()).lineno)
                         if getattr(user, item) != getattr(form, item).data:
+                            log.info(getframeinfo(currentframe()).lineno)
                             itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
+                            log.info(getframeinfo(currentframe()).lineno)
             if itemsToUpdate:
+                log.info(getframeinfo(currentframe()).lineno)
                 response = requests.patch(f'{request.host_url}api/v1/users/{user.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
+                log.info(getframeinfo(currentframe()).lineno)
                 if response.status_code == 200:
+                    log.info(getframeinfo(currentframe()).lineno)
                     flash(f'User {user.username!r} saved successfully!', 'success')
+                    log.info(getframeinfo(currentframe()).lineno)
                 else:
+                    log.info(getframeinfo(currentframe()).lineno)
                     flash(f'Failed to update user {user.username!r}', 'error')
+                    log.info(getframeinfo(currentframe()).lineno)
             if usernameChanged:
+                log.info(getframeinfo(currentframe()).lineno)
                 # noinspection PyUnboundLocalVariable
+                log.info(getframeinfo(currentframe()).lineno)
                 return redirect(f'{newUsername}')
+            log.info(getframeinfo(currentframe()).lineno)
         # else:
+        log.info(getframeinfo(currentframe()).lineno)
         #     return jsonify(status='error', errors=form.errors)
+        log.info(getframeinfo(currentframe()).lineno)
     for key, value in kwargs.items():
+        log.info(getframeinfo(currentframe()).lineno)
         if isinstance(value, ModelForm):
+            log.info(getframeinfo(currentframe()).lineno)
             if 'owner' in value:
+                log.info(getframeinfo(currentframe()).lineno)
                 value.owner.data = user or current_user
+                log.info(getframeinfo(currentframe()).lineno)
             for defaultSetting, settingValue in user.default_settings.items():
+                log.info(getframeinfo(currentframe()).lineno)
                 if defaultSetting in value.data:
+                    log.info(getframeinfo(currentframe()).lineno)
                     getattr(value, defaultSetting).data = settingValue
+                    log.info(getframeinfo(currentframe()).lineno)
     return render_template('edit_user.html', user=user, usersForm=form, defaultSettings=json.dumps([{"Setting": key,"Default Value": value} for key, value in newDefaultSettings.items()]), showOld=showOld, **kwargs)
+log.info(getframeinfo(currentframe()).lineno)
 
 
 # noinspection PyUnresolvedReferences
