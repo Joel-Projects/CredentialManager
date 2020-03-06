@@ -1,11 +1,11 @@
 import logging
 
-import requests
 from flask import Blueprint, request, render_template, jsonify, flash
 from flask_login import current_user, login_required
 from wtforms import BooleanField
 
 from .forms import ApiTokenForm, EditApiTokenForm
+from .resources import api
 from .models import ApiToken
 from .parameters import PatchApiTokenDetailsParameters
 from .tables import ApiTokenTable
@@ -26,7 +26,6 @@ def api_tokens(page=1, perPage=10):
         if form.validate_on_submit():
             data = form.data
             length = int(data['length'])
-            # del data['csrf_token']
             del data['length']
             apiToken = ApiToken(**data)
             apiToken.generate_token(length)
@@ -60,11 +59,14 @@ def editApiToken(api_token):
                         if getattr(api_token, item) != getattr(form, item).data:
                             itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
             if itemsToUpdate:
-                response = requests.patch(f'{request.host_url}api/v1/api_tokens/{api_token.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
-                if response.status_code == 200:
-                    flash(f'API Token {api_token.name!r} saved successfully!', 'success')
-                else:
+                for item in itemsToUpdate:
+                    PatchApiTokenDetailsParameters().validate_patch_structure(item)
+                try:
+                    with api.commit_or_abort(db.session, default_error_message="Failed to update API Token details."):
+                        PatchApiTokenDetailsParameters.perform_patch(itemsToUpdate, api_token)
+                        db.session.merge(api_token)
+                        flash(f'API Token {api_token.name!r} saved successfully!', 'success')
+                except Exception as error:
+                    log.exception(error)
                     flash(f'Failed to update API Token {api_token.name!r}', 'error')
-        # else:
-            # return jsonify(status='error', errors=form.errors)
     return render_template('edit_api_token.html', api_token=api_token, form=form)

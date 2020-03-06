@@ -1,11 +1,8 @@
 import logging, praw, os, requests
 from datetime import datetime, timezone
-from flask import Blueprint, request, render_template, flash, jsonify
+from flask import Blueprint, request, render_template
 from flask_login import current_user, login_required
 from sqlalchemy import or_
-from wtforms import BooleanField
-
-from .parameters import PatchRefreshTokenDetailsParameters
 from .models import RefreshToken
 from .forms import GenerateRefreshTokenForm
 from .tables import RefreshTokenTable
@@ -40,27 +37,6 @@ def refresh_tokens(page, perPage):
 @login_required
 @verifyEditable('refresh_token')
 def editRefreshToken(refresh_token):
-    # form = RefreshTokenForm(obj=refresh_token)
-    # if request.method == 'POST':
-    #     if form.validate_on_submit():
-    #         itemsToUpdate = []
-    #         for item in PatchRefreshTokenDetailsParameters.fields:
-    #             if getattr(form, item, None) is not None:
-    #                 if not isinstance(getattr(form, item), BooleanField):
-    #                     if getattr(form, item).data:
-    #                         if getattr(refresh_token, item) != getattr(form, item).data:
-    #                             itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
-    #                 else:
-    #                     if getattr(refresh_token, item) != getattr(form, item).data:
-    #                         itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
-    #         if itemsToUpdate:
-    #             response = requests.patch(f'{request.host_url}api/v1/refresh_tokens/{refresh_token.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
-    #             if response.status_code == 200:
-    #                 flash(f'Refresh Token {refresh_token.app_name!r} saved successfully!', 'success')
-    #             else:
-    #                 flash(f'Failed to update Refresh Token {refresh_token.app_name!r}', 'error')
-    #     # else:
-        #     return jsonify(status='error', errors=form.errors)
     return render_template('edit_refresh_token.html', refresh_token=refresh_token)
 
 @refreshTokensBlueprint.route('/oauth2/reddit_callback')

@@ -1,18 +1,18 @@
-import logging, praw
+import logging
 
-import requests
 from flask import Blueprint, request, render_template, flash, jsonify
 from flask_login import current_user, login_required
 from wtforms import BooleanField
 
 from .parameters import PatchUserVerificationDetailsParameters
+from .resources import api
 from ..users.models import User
 from ...extensions import db, paginateArgs, verifyEditable
 
 log = logging.getLogger(__name__)
 from .models import UserVerification
 from .forms import UserVerificationForm
-from .tables import UserVerificationTable, UserVerificationTable
+from .tables import UserVerificationTable
 
 userVerificationsBlueprint = Blueprint('user_verifications', __name__, template_folder='./templates', static_folder='./static', static_url_path='/user_verifications/static/')
 
@@ -24,7 +24,6 @@ def user_verifications(page, perPage):
     if request.method == 'POST':
         if form.validate_on_submit():
             data = form.data
-            # del data['csrf_token']
             userVerification = UserVerification(**data)
             db.session.add(userVerification)
         else:
@@ -41,7 +40,6 @@ def user_verifications(page, perPage):
     table = UserVerificationTable(paginator.items, current_user=current_user)
     form = UserVerificationForm()
     return render_template('user_verifications.html', user_verificationsTable=table, user_verificationsForm=form, user_verification_paginator=paginator, route='user_verifications.user_verifications', perPage=perPage)
-
 
 @userVerificationsBlueprint.route('/user_verifications/<UserVerification:user_verification>/', methods=['GET', 'POST'])
 @login_required
@@ -61,11 +59,14 @@ def editUserVerification(user_verification):
                         if getattr(user_verification, item) != getattr(form, item).data:
                             itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
             if itemsToUpdate:
-                response = requests.patch(f'{request.host_url}api/v1/user_verifications/{user_verification.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
-                if response.status_code == 200:
-                    flash(f'User Verification {user_verification.discord_id!r} saved successfully!', 'success')
-                else:
-                    flash(f'Failed to update User Verification {user_verification.discord_id!r}', 'error')
-        # else:
-        #     return jsonify(status='error', errors=form.errors)
+                for item in itemsToUpdate:
+                    PatchUserVerificationDetailsParameters().validate_patch_structure(item)
+                try:
+                    with api.commit_or_abort(db.session, default_error_message="Failed to update User Verification details."):
+                        PatchUserVerificationDetailsParameters.perform_patch(itemsToUpdate, user_verification)
+                        db.session.merge(user_verification)
+                        flash(f'User Verification for Discord Member {user_verification.discord_id} saved successfully!', 'success')
+                except Exception as error:
+                    log.exception(error)
+                    flash(f'Failed to update User Verification for Discord Member {user_verification.discord_id}', 'error')
     return render_template('edit_user_verification.html', user_verification=user_verification, form=form)

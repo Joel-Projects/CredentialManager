@@ -1,11 +1,11 @@
 import logging
 
-import requests
 from flask import Blueprint, request, render_template, flash, jsonify
 from flask_login import current_user, login_required
 from wtforms import BooleanField
 
 from .parameters import PatchDatabaseCredentialDetailsParameters
+from .resources import api
 from ..users.models import User
 from ...extensions import db, paginateArgs, verifyEditable
 
@@ -59,11 +59,14 @@ def editDatabaseCredential(database_credential):
                         if getattr(database_credential, item) != getattr(form, item).data:
                             itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
             if itemsToUpdate:
-                response = requests.patch(f'{request.host_url}api/v1/database_credentials/{database_credential.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
-                if response.status_code == 200:
-                    flash(f'Database Credential {database_credential.app_name!r} saved successfully!', 'success')
-                else:
-                    flash(f'Failed to update Database Credential {database_credential.app_name!r}', 'error')
-        # else:
-        #     return jsonify(status='error', errors=form.errors)
+                for item in itemsToUpdate:
+                    PatchDatabaseCredentialDetailsParameters().validate_patch_structure(item)
+                try:
+                    with api.commit_or_abort(db.session, default_error_message="Failed to update Database Credentials details."):
+                        PatchDatabaseCredentialDetailsParameters.perform_patch(itemsToUpdate, database_credential)
+                        db.session.merge(database_credential)
+                        flash(f'Database Credentials {database_credential.app_name!r} saved successfully!', 'success')
+                except Exception as error:
+                    log.exception(error)
+                    flash(f'Failed to update Database Credentials {database_credential.app_name!r}', 'error')
     return render_template('edit_database_credential.html', database_credential=database_credential, form=form)

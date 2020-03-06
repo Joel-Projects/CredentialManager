@@ -1,12 +1,11 @@
-import logging, os
+import logging
 
-import requests
-from flask import Blueprint, request, render_template, redirect, url_for, flash, jsonify
-from flask_login import current_user, login_user, logout_user, login_required
-from flask_restplus._http import HTTPStatus
+from flask import Blueprint, request, render_template, flash, jsonify
+from flask_login import current_user, login_required
 from wtforms import BooleanField
 
 from .parameters import PatchRedditAppDetailsParameters
+from .resources import api
 from ..users.models import User
 from ...extensions import db, paginateArgs, verifyEditable
 
@@ -25,7 +24,6 @@ def reddit_apps(page, perPage):
     if request.method == 'POST':
         if form.validate_on_submit():
             data = form.data
-            # del data['csrf_token']
             redditApp = RedditApp(**data)
             db.session.add(redditApp)
         else:
@@ -61,83 +59,14 @@ def editRedditApp(reddit_app):
                         if getattr(reddit_app, item) != getattr(form, item).data:
                             itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
             if itemsToUpdate:
-                response = requests.patch(f'{request.host_url}api/v1/reddit_apps/{reddit_app.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
-                if response.status_code == 200:
-                    flash(f'Reddit App {reddit_app.app_name!r} saved successfully!', 'success')
-                else:
+                for item in itemsToUpdate:
+                    PatchRedditAppDetailsParameters().validate_patch_structure(item)
+                try:
+                    with api.commit_or_abort(db.session, default_error_message="Failed to update Reddit App details."):
+                        PatchRedditAppDetailsParameters.perform_patch(itemsToUpdate, reddit_app)
+                        db.session.merge(reddit_app)
+                        flash(f'Reddit App {reddit_app.app_name!r} saved successfully!', 'success')
+                except Exception as error:
+                    log.exception(error)
                     flash(f'Failed to update Reddit App {reddit_app.app_name!r}', 'error')
-        # else:
-        #     return jsonify(status='error', errors=form.errors)
     return render_template('edit_reddit_app.html', reddit_app=reddit_app, form=form)
-
-# @redditAppsBlueprint.route('/reddit_callback')
-# def reddit_callback():
-#     state = request.args.get('state', '')
-#     code = request.args.get('code')
-#     if state == '' or code == '':
-#         return 'Hello, please contact <a href="https://www.reddit.com/message/compose?to=Lil_SpazJoekp&amp;subject=Reddit%20Auth">u/Lil_SpazJoekp</a> for help.'
-#     try:
-#         encodedAuthor = None
-#         redditapps = getRedditApps()
-#         if len(state) == 128:
-#             encodedAuthor = state[64:]
-#             state = state[:64]
-#         if state in redditapps:
-#             redditConfig = redditapps[state]
-#             appType = redditConfig['type']
-#             client_id = redditConfig['client_id']
-#             client_secret = redditConfig['client_secret']
-#             redirect_uri = redditConfig['redirect_uri']
-#             user_agent = redditConfig['user_agent']
-#             appName = redditConfig['app_name']
-#             webhookUrl = 'https://discordapp.com/api/webhooks/638068060044918802/0jdPhgxwt-0IEVOfXyKj03xQC-xDFKJk8Dr4TcfKf3_nmsW9t3QzpRIOE4dmS5l2aMoL'
-#             crypto = services._BotServices__TokenCrypto(appName, sql)
-#             reddit = praw.Reddit(**redditConfig)
-#             if encodedAuthor:
-#                 webhook = Webhook.from_url(webhookUrl, adapter=RequestsWebhookAdapter())
-#                 state = encodedAuthor
-#                 try:
-#                     token = reddit.auth.authorize(code)
-#                 except prawcore.exceptions.OAuthException as error:
-#                     return handleError(error, appName)
-#                 user = reddit.user.me(use_cache=False).name
-#                 logger.info(f'user: {user}')
-#                 sql.execute('SELECT * FROM verified WHERE encoded_id=%s', (state,))
-#                 results = sql.fetchone()
-#                 logger.info(f'results: {results}')
-#                 newUser = True
-#                 if results:
-#                     if results.redditor:
-#                         newUser = False
-#                     sql.execute('UPDATE verified SET redditor=%s WHERE encoded_id=%s',  (user, state))
-#                     if newUser:
-#                         webhook.send(f'.done {results.member_id}')
-#                     return render_template('success.html', user=user)
-#                 else:
-#                     return render_template('help.html')
-#             else:
-#                 # redirect_uri = 'http://localhost:5000/reddit_oauth'
-#                 try:
-#                     token = reddit.auth.authorize(code)
-#                 except prawcore.exceptions.OAuthException as error:
-#                     return handleError(error, appName)
-#                 redditor = reddit.user.me(use_cache=False).name
-#                 scopes = list(reddit.auth.scopes())
-#                 issued = psycopg2.TimestampFromTicks(time.time())
-#                 data = (base64.b64encode(crypto.encrypt(token)).decode(), redditor, client_id, scopes, appName, appType, issued)
-#                 print(f'data: {data}')
-#                 log(f'data: {data}')
-#                 sql.execute("SELECT * FROM oauth.refreshtokens WHERE redditor=%s AND appname=%s AND NOT revoked", (redditor, appName))
-#                 results = sql.fetchall()
-#                 if results:
-#                     for result in results:
-#                         sql.execute('UPDATE oauth.refreshtokens SET refreshtoken = %s, scopes = %s, issued = %s WHERE redditor=%s AND appname=%s', (base64.b64encode(crypto.encrypt(token)).decode(), scopes, issued, redditor, appName))
-#                         sql.execute('INSERT INTO oauth.oldrefreshtokens(refreshtoken, redditor, clientid, scopes, appname, apptype, issued, revoked) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', result)
-#                 else:
-#                     sql.execute('INSERT INTO oauth.refreshtokens(refreshtoken, redditor, clientid, scopes, appname, apptype, issued) VALUES (%s, %s, %s, %s, %s, %s, %s)', data)
-#                 data = ()
-#                 return render_template('success.html', user=redditor, app=appName)
-#         else:
-#             return 'Hello, please contact <a href="https://www.reddit.com/message/compose?to=Lil_SpazJoekp&amp;subject=Reddit%20Auth">u/Lil_SpazJoekp</a> for help.'
-#     except Exception as error:
-#         return handleError(error, appName)

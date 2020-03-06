@@ -1,12 +1,11 @@
-import logging, os
+import logging
 
-import requests
-from flask import Blueprint, request, render_template, redirect, url_for, flash, jsonify
-from flask_login import current_user, login_user, logout_user, login_required
-from flask_restplus._http import HTTPStatus
+from flask import Blueprint, request, render_template, flash, jsonify
+from flask_login import current_user, login_required
 from wtforms import BooleanField
 
 from .parameters import PatchBotDetailsParameters
+from .resources import api
 from ..users.models import User
 from ...extensions import db, paginateArgs, verifyEditable
 
@@ -25,7 +24,6 @@ def bots(page, perPage):
     if request.method == 'POST':
         if form.validate_on_submit():
             data = form.data
-            # del data['csrf_token']
             bot = Bot(**data)
             db.session.add(bot)
         else:
@@ -58,11 +56,14 @@ def editBot(bot):
                         if getattr(bot, item) != getattr(form, item).data:
                             itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
             if itemsToUpdate:
-                response = requests.patch(f'{request.host_url}api/v1/bots/{bot.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
-                if response.status_code == 200:
-                    flash(f'Bot {bot.app_name!r} saved successfully!', 'success')
-                else:
+                for item in itemsToUpdate:
+                    PatchBotDetailsParameters().validate_patch_structure(item)
+                try:
+                    with api.commit_or_abort(db.session, default_error_message="Failed to update Bot details."):
+                        PatchBotDetailsParameters.perform_patch(itemsToUpdate, bot)
+                        db.session.merge(bot)
+                        flash(f'Bot {bot.app_name!r} saved successfully!', 'success')
+                except Exception as error:
+                    log.exception(error)
                     flash(f'Failed to update Bot {bot.app_name!r}', 'error')
-        # else:
-        #     return jsonify(status='error', errors=form.errors)
     return render_template('edit_bot.html', bot=bot, form=form)
