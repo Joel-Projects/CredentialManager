@@ -8,6 +8,7 @@ from wtforms import BooleanField
 
 from .forms import UserForm, EditUserForm
 from .parameters import PatchUserDetailsParameters
+from .resources import api
 from .tables import UserTable
 from .models import User
 from ...extensions import db, paginateArgs, requiresAdmin, verifyEditable, ModelForm
@@ -65,6 +66,7 @@ def users(page, perPage):
     return render_template('users.html', usersTable=table, usersForm=form, paginator=paginator, route='users.users', perPage=perPage)
 
 @usersBlueprint.route('/u/<User:user>/', methods=['GET', 'POST'])
+@usersBlueprint.route('/profile', methods=['GET', 'POST'], defaults={'user': current_user})
 @login_required
 @verifyEditable('user')
 def editUser(user):
