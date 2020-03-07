@@ -4,9 +4,9 @@ services:
   - postgres:latest
 
 stages:
+  - test
   - build
   - release
-  - test
   - sentry_release
 
 variables:
@@ -15,6 +15,7 @@ variables:
   POSTGRES_DB: 'postgres_test'
   POSTGRES_USER: 'postgres'
   POSTGRES_PASSWORD: ''
+  POSTGRES_HOST_AUTH_METHOD: 'trust'
 
 #before_script:
 #  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
@@ -41,7 +42,7 @@ test:pytest:
     DATABASE_URL: "postgresql://postgres:@postgres:5432/postgres_test"
   script:
     - pip install -r tests/requirements.txt
-    - coverage run --source='.' pytest
+    - pytest
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
 
 sentry_release:
