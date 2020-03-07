@@ -14,6 +14,7 @@ variables:
   CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
   POSTGRES_DB: 'postgres_test'
   POSTGRES_USER: 'postgres'
+  POSTGRES_HOST: 'localhost'
   POSTGRES_PASSWORD: ''
   POSTGRES_HOST_AUTH_METHOD: 'trust'
 
