@@ -56,12 +56,10 @@ class DevelopmentConfig(BaseConfig):
     DEBUG = True
     DEBUG_TB_INTERCEPT_REDIRECTS = False
     TEMPLATES_AUTO_RELOAD = True
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', f'postgresql://{BaseConfig.DB_USER}:{BaseConfig.DB_PASSWORD}@{BaseConfig.DB_HOST}:{BaseConfig.DB_PORT}/{BaseConfig.DB_NAME}')
 
 class TestingConfig(BaseConfig):
     TESTING = True
 
     DB_NAME = 'postgres_test'
-    if os.getenv('DATABASE_URI'):
-        SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
-    else:
-        SQLALCHEMY_DATABASE_URI = f'postgresql://{BaseConfig.DB_USER}:{BaseConfig.DB_PASSWORD}@{BaseConfig.DB_HOST}:{BaseConfig.DB_PORT}/{DB_NAME}'
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', f'postgresql://{BaseConfig.DB_USER}:{BaseConfig.DB_PASSWORD}@{BaseConfig.DB_HOST}:{BaseConfig.DB_PORT}/{DB_NAME}')

@@ -12,11 +12,6 @@ stages:
 variables:
   CONTAINER_BUILD_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
-  POSTGRES_DB: 'postgres_test'
-  POSTGRES_USER: 'postgres'
-  POSTGRES_HOST: 'localhost'
-  POSTGRES_PASSWORD: ''
-  POSTGRES_HOST_AUTH_METHOD: 'trust'
 
 #before_script:
 #  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
@@ -39,11 +34,18 @@ release:
 test:pytest:
   image: python:3.7
   stage: test
+  variables:
+    POSTGRES_DB: 'postgres_test'
+    POSTGRES_USER: 'postgres'
+    POSTGRES_HOST: 'localhost'
+    POSTGRES_PASSWORD: ''
+    POSTGRES_HOST_AUTH_METHOD: 'trust'
+    DATABASE_URI: "postgresql://postgres:@localhost:5432/postgres_test"
+    DATABASE_URL: "postgresql://postgres:@localhost:5432/postgres_test"
   script:
     - pip install -r requirements.txt
     - pip install -r tests/requirements.txt
-    - export DATABASE_URI=$DATABASE_URI
-    - DATABASE_URI=$DATABASE_URI pytest
+    - pytest
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
 
 sentry_release:
