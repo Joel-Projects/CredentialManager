@@ -58,6 +58,8 @@ def init_app(app):
 
     app.register_error_handler(403, unauthorizedError)
     app.register_error_handler(404, notFoundError)
+    with db.get_engine(app=app).connect() as sql:
+        sql.execute('CREATE SCHEMA IF NOT EXISTS credential_store;')
     db.create_all(app=app)
     from app.modules.users.models import User
     if not app.testing:
