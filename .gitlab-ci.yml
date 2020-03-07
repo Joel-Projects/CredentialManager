@@ -41,6 +41,7 @@ test:pytest:
   variables:
     DATABASE_URL: "postgresql://postgres:@postgres:5432/postgres_test"
   script:
+    - pip install -r requirements.txt
     - pip install -r tests/requirements.txt
     - pytest
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
