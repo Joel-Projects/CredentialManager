@@ -17,7 +17,7 @@ def test_create_app():
 def test_create_app_passing_flask_config_name(monkeypatch, flask_config_name):
     if flask_config_name == 'production':
         from config import ProductionConfig
-        monkeypatch.setattr(ProductionConfig, 'SQLALCHEMY_DATABASE_URI', os.getenv('SQLALCHEMY_DATABASE_URI', 'postgresql://postgres:@localhost/postgres_test'))
+        monkeypatch.setattr(ProductionConfig, 'SQLALCHEMY_DATABASE_URI', os.getenv('DATABASE_URI', 'postgresql://postgres:@localhost/postgres_test'))
         monkeypatch.setattr(ProductionConfig, 'SECRET_KEY', 'secret')
     create_app(flask_config_name=flask_config_name)
 
@@ -26,7 +26,7 @@ def test_create_app_passing_FLASK_CONFIG_env(monkeypatch, flask_config_name):
     monkeypatch.setenv('FLASK_CONFIG', flask_config_name)
     if flask_config_name == 'production':
         from config import ProductionConfig
-        monkeypatch.setattr(ProductionConfig, 'SQLALCHEMY_DATABASE_URI', os.getenv('SQLALCHEMY_DATABASE_URI', 'postgresql://postgres:@localhost/postgres_test'))
+        monkeypatch.setattr(ProductionConfig, 'SQLALCHEMY_DATABASE_URI', os.getenv('DATABASE_URI', 'postgresql://postgres:@localhost/postgres_test'))
         monkeypatch.setattr(ProductionConfig, 'SECRET_KEY', 'secret')
     create_app()
 

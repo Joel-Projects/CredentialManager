@@ -37,12 +37,11 @@ test:pytest:
   variables:
     POSTGRES_DB: 'postgres_test'
     POSTGRES_USER: 'postgres'
-    POSTGRES_HOST: 'localhost'
     POSTGRES_PASSWORD: ''
     POSTGRES_HOST_AUTH_METHOD: 'trust'
-    DATABASE_URI: "postgresql://postgres:@localhost:5432/postgres_test"
-    DATABASE_URL: "postgresql://postgres:@localhost:5432/postgres_test"
+    DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
   script:
+#    - echo $DATABASE_URI
     - pip install -r requirements.txt
     - pip install -r tests/requirements.txt
     - pytest
