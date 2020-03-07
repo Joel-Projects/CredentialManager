@@ -44,7 +44,7 @@ test:pytest:
     - pip install -r requirements.txt
     - pip install -r tests/requirements.txt
     - export DATABASE_URI=$DATABASE_URI
-    - pytest
+    - DATABASE_URI=$DATABASE_URI pytest
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
 
 sentry_release:
