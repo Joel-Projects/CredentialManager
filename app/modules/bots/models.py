@@ -9,6 +9,7 @@ class Bot(db.Model, Timestamp, InfoAttrs, StrName):
         super().__init__(*args, **kwargs)
 
     __tablename__ = 'bots'
+    _displayNamePlural = 'Bots'
     _nameAttr = 'app_name'
     _enabledAttr = 'enabled'
 

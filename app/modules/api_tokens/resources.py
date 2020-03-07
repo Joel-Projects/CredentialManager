@@ -43,7 +43,7 @@ class ApiTokens(Resource):
         apiKeys = ApiToken.query
         if 'owner_id' in args:
             owner_id = args['owner_id']
-            if current_user.is_admin:
+            if current_user.is_admin or current_user.is_internal:
                 apiKeys = apiKeys.filter(ApiToken.owner_id == owner_id)
             else:
                 if owner_id == current_user.id:
@@ -65,20 +65,15 @@ class ApiTokens(Resource):
 
         API token can be used instead of username/password. Include the API token in the ``X-API-KEY`` header
         """
-        if hasattr(args, 'owner_id'):
+        owner = current_user
+        if args.owner_id:
             owner_id = args.owner_id
-            if current_user.is_admin:
+            if current_user.is_admin or current_user.is_internal:
                 owner = User.query.get(owner_id)
             else:
-                if owner_id == current_user.id:
-                    owner = current_user
-                else:
+                if owner_id != current_user.id:
                     http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create API Tokens for other users.")
-        else:
-            if not current_user.is_admin:
-                owner = current_user
         with api.commit_or_abort(db.session, default_error_message="Failed to create a new API Token."):
-            # todo: make token length a changable setting from the web interface
             newApiToken = ApiToken(owner=owner, token=security.gen_salt(32), name=args.name)
             db.session.add(newApiToken)
         return newApiToken

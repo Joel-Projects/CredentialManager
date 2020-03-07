@@ -11,7 +11,8 @@ from app.extensions.api.parameters import PaginationParameters, validateOwner
 class ListApiTokensParameters(PaginationParameters, validateOwner):
 
     owner_id = base_fields.Integer()
-
+    class Meta:
+        model = ApiToken
     invalidOwnerMessage = 'You can only query your own {}.'
 
 class CreateApiTokenParameters(PostFormParameters, schemas.BaseApiTokenSchema, validateOwner):

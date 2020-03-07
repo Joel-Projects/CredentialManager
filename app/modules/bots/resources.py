@@ -1,15 +1,13 @@
-# pylint: disable=too-few-public-methods,invalid-name,bad-continuation
-"""
-RESTful API Auth resources
+'''
+RESTful API Bot resources
 --------------------------
-"""
+'''
 
 import logging
 
 from flask_login import current_user
 from flask_restplus_patched import Resource
 from flask_restplus._http import HTTPStatus
-from werkzeug import security
 
 from app.extensions.api import Namespace, http_exceptions
 
@@ -44,7 +42,7 @@ class Bots(Resource):
         bots = Bot.query
         if 'owner_id' in args:
             owner_id = args['owner_id']
-            if current_user.is_admin:
+            if current_user.is_admin or current_user.is_internal:
                 bots = bots.filter(Bot.owner_id == owner_id)
             else:
                 if owner_id == current_user.id:
@@ -68,7 +66,7 @@ class Bots(Resource):
         """
         if getattr(args, 'owner_id', None):
             owner_id = args.owner_id
-            if current_user.is_admin:
+            if current_user.is_admin or current_user.is_internal:
                 owner = User.query.get(owner_id)
             else:
                 if owner_id == current_user.id:
@@ -77,14 +75,14 @@ class Bots(Resource):
                     http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create Bots for other users.")
         else:
             owner = current_user
-        with api.commit_or_abort(db.session, default_error_message="Failed to create a new Bot."):
+        with api.commit_or_abort(db.session, default_error_message='Failed to create a new Bot.'):
             newBot = Bot(owner=owner, dsn=args.dsn, name=args.name)
             db.session.add(newBot)
         return newBot
 
 @api.route('/<int:bot_id>')
 @api.login_required()
-@api.response(code=HTTPStatus.NOT_FOUND, description="Bot not found.")
+@api.response(code=HTTPStatus.NOT_FOUND, description='Bot not found.')
 @api.resolveObjectToModel(Bot, 'bot')
 class BotByID(Resource):
     """
@@ -108,7 +106,7 @@ class BotByID(Resource):
         """
         Delete a Bot by ID.
         """
-        with api.commit_or_abort(db.session, default_error_message="Failed to delete Bot."):
+        with api.commit_or_abort(db.session, default_error_message='Failed to delete Bot.'):
             db.session.delete(bot)
         return None
 
@@ -121,7 +119,40 @@ class BotByID(Resource):
         """
         Patch bot details by ID.
         """
-        with api.commit_or_abort(db.session, default_error_message="Failed to update Bot details."):
+        with api.commit_or_abort(db.session, default_error_message='Failed to update Bot details.'):
             parameters.PatchBotDetailsParameters.perform_patch(args, bot)
             db.session.merge(bot)
         return bot
+
+@api.route('/by_name')
+@api.login_required()
+@api.response(code=HTTPStatus.NOT_FOUND, description='Bot not found.')
+class GetBotByRedditor(Resource):
+    '''
+    Get Refresh Token by name
+    '''
+
+    @api.parameters(parameters.GetBotByName(), locations=('query',))
+    @api.response(schemas.DetailedBotSchema())
+    def get(self, args):
+        """
+        Get Refresh Token by reddit app and redditor.
+
+        Only Admins can specify ``owner_id`` to get other users' Bot details.
+        If ``owner_id`` is not specified, only your Bots will be queried.
+        """
+        bots = Bot.query
+        app_name = args['app_name']
+        if 'owner_id' in args:
+            owner_id = args['owner_id']
+            if current_user.is_admin or current_user.is_internal:
+                bots = bots.filter_by(owner_id=owner_id, app_name=app_name)
+            else:
+                if owner_id == current_user.id:
+                    bots = bots.filter_by(owner=current_user, app_name=app_name)
+                else:
+                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Bots.")
+        else:
+            if not current_user.is_admin:
+                bots = bots.filter_by(owner=current_user, app_name=app_name)
+        return bots.first_or_404(f'Bot {app_name!r} does not exist for the specified user.')

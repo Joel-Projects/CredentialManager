@@ -5,8 +5,4 @@ from werkzeug.routing import BaseConverter
 class UserConverter(BaseConverter):
 
     def to_python(self, value):
-        user = User.query.filter(User.username.ilike(value)).first()
-        if user:
-            return user
-        else:
-            abort(404)
+        return User.query.filter(User.username.ilike(value)).first_or_404()

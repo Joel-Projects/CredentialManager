@@ -1,22 +1,20 @@
-# pylint: disable=too-few-public-methods,invalid-name,bad-continuation
-"""
-RESTful API Auth resources
+'''
+RESTful API Refresh Token resources
 --------------------------
-"""
+'''
 
 import logging
 
 from flask_login import current_user
 from flask_restplus_patched import Resource
 from flask_restplus._http import HTTPStatus
-from werkzeug import security
 
 from app.extensions.api import Namespace, http_exceptions
 
 from . import schemas, parameters
 from .models import db, RefreshToken
+from ..reddit_apps.models import RedditApp
 from ..users import permissions
-from ..users.models import User
 
 log = logging.getLogger(__name__)
 api = Namespace('refresh_tokens', description="Refresh Token Management")
@@ -29,7 +27,6 @@ class RefreshTokens(Resource):
     Manipulations with Refresh Tokens.
     """
 
-    # @api.permission_required(permissions.AdminRolePermission())
     @api.response(schemas.BaseRefreshTokenSchema(many=True))
     @api.parameters(parameters.ListRefreshTokensParameters(), locations=('query',))
     def get(self, args):
@@ -39,12 +36,12 @@ class RefreshTokens(Resource):
         Returns a list of Refresh Tokens starting from ``offset`` limited by
         ``limit`` parameter.
 
-        Only Admins can specify ``owner`` to see Refresh Tokens for other users. Regular users will see their own Refresh Tokens.
+        Only Admins can specify ``owner`` to see Refresh Tokens for other users' Reddit Apps. Regular users will see their own Reddit Apps' Refresh Tokens.
         """
         refreshTokens = RefreshToken.query
         if 'owner_id' in args:
             owner_id = args['owner_id']
-            if current_user.is_admin:
+            if current_user.is_admin or current_user.is_internal:
                 refreshTokens = refreshTokens.filter(RefreshToken.owner_id == owner_id)
             else:
                 if owner_id == current_user.id:
@@ -56,32 +53,6 @@ class RefreshTokens(Resource):
                 refreshTokens = refreshTokens.filter(RefreshToken.owner == current_user)
         return refreshTokens.offset(args['offset']).limit(args['limit'])
 
-    @api.parameters(parameters.CreateRefreshTokenParameters())
-    @api.response(schemas.DetailedRefreshTokenSchema())
-    @api.response(code=HTTPStatus.FORBIDDEN)
-    @api.response(code=HTTPStatus.CONFLICT)
-    def post(self, args):
-        """
-        Create a new Refresh Token.
-
-        Refresh Tokens authencating as an user with Reddit's API
-        """
-        if getattr(args, 'owner_id', None):
-            owner_id = args.owner_id
-            if current_user.is_admin:
-                owner = User.query.get(owner_id)
-            else:
-                if owner_id == current_user.id:
-                    owner = current_user
-                else:
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create Refresh Tokens for other users.")
-        else:
-            owner = current_user
-        with api.commit_or_abort(db.session, default_error_message="Failed to create a new Refresh Token."):
-            newRefreshToken = RefreshToken(owner=owner, dsn=args.dsn, name=args.name)
-            db.session.add(newRefreshToken)
-        return newRefreshToken
-
 @api.route('/<int:refresh_token_id>')
 @api.login_required()
 @api.response(code=HTTPStatus.NOT_FOUND, description="Refresh Token not found.")
@@ -91,7 +62,6 @@ class RefreshTokenByID(Resource):
     Manipulations with a specific Refresh Token.
     """
 
-    @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['refresh_token']})
     @api.response(schemas.DetailedRefreshTokenSchema())
     def get(self, refresh_token):
@@ -100,7 +70,6 @@ class RefreshTokenByID(Resource):
         """
         return refresh_token
 
-    @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['refresh_token']})
     @api.permission_required(permissions.WriteAccessPermission())
     @api.response(code=HTTPStatus.CONFLICT)
@@ -113,7 +82,6 @@ class RefreshTokenByID(Resource):
             db.session.delete(refresh_token)
         return None
 
-    @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['refresh_token']})
     @api.parameters(parameters.PatchRefreshTokenDetailsParameters())
     @api.response(schemas.DetailedRefreshTokenSchema())
@@ -126,3 +94,29 @@ class RefreshTokenByID(Resource):
             parameters.PatchRefreshTokenDetailsParameters.perform_patch(args, refresh_token)
             db.session.merge(refresh_token)
         return refresh_token
+
+@api.route('/by_redditor')
+@api.login_required()
+class GetRefreshTokenByRedditor(Resource):
+    '''
+    Get Refresh Token by Redditor
+    '''
+
+    @api.parameters(parameters.GetRefreshTokenByRedditor(), locations=('query',))
+    @api.response(schemas.DetailedRefreshTokenSchema())
+    def get(self, args):
+        """
+        Get Refresh Token by reddit app and redditor.
+
+        Only Admins can see Refresh Tokens for other users' Reddit Apps. Regular users will see their own Reddit Apps' Refresh Tokens.
+        """
+        redditApp = RedditApp.query.get_or_404(args['reddit_app_id'])
+        refreshTokens = RefreshToken.query
+        if current_user.is_admin or current_user.is_internal:
+            refreshToken = refreshTokens.filter_by(redditor=args['redditor'], reddit_app_id=redditApp.id, revoked=False)
+        else:
+            if redditApp.owner_id == current_user.id:
+                refreshToken = refreshTokens.filter_by(redditor=args['redditor'], reddit_app_id=redditApp.id, revoked=False)
+            else:
+                http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Refresh Tokens.")
+        return refreshToken.first_or_404(f'Redditor {args["redditor"]!r} does not exist.')

@@ -40,6 +40,7 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
         super().__init__(*args, **kwargs)
 
     __tablename__ = 'users'
+    _displayNamePlural = 'Users'
     _nameAttr = 'username'
     _enabledAttr = 'is_active'
     _infoAttrs = {

@@ -45,7 +45,7 @@ class RedditApps(Resource):
         redditApps = RedditApp.query
         if 'owner_id' in args:
             owner_id = args['owner_id']
-            if current_user.is_admin:
+            if current_user.is_admin or current_user.is_internal:
                 redditApps = redditApps.filter(RedditApp.owner_id == owner_id)
             else:
                 if owner_id == current_user.id:
@@ -69,7 +69,7 @@ class RedditApps(Resource):
         """
         if getattr(args, 'owner_id', None):
             owner_id = args.owner_id
-            if current_user.is_admin:
+            if current_user.is_admin or current_user.is_internal:
                 owner = User.query.get(owner_id)
             else:
                 if owner_id == current_user.id:

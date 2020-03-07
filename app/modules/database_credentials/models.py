@@ -10,6 +10,7 @@ class DatabaseCredential(db.Model, Timestamp, InfoAttrs, StrName):
 
     __tablename__ = 'database_credentials'
     _nameAttr = 'app_name'
+    _displayNamePlural = 'Database Credentials'
     _enabledAttr = 'enabled'
     _infoAttrs = {
         'id': 'Database Credential ID',

@@ -1,5 +1,5 @@
 """
-Teams module
+Front End module
 ============
 """
 

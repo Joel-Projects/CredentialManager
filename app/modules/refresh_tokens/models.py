@@ -12,6 +12,7 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
         super().__init__(*args, **kwargs)
 
     __tablename__ = 'refresh_tokens'
+    _displayNamePlural = 'Refresh Tokens'
     _nameAttr = 'app_name'
     _infoAttrs = {
         'id': 'Refresh Token ID',

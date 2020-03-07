@@ -11,6 +11,7 @@ class UserVerification(db.Model, InfoAttrs):
         super().__init__(*args, **kwargs)
 
     __tablename__ = 'user_verifications'
+    _displayNamePlural = 'User Verifications'
     _nameAttr = 'discord_id'
     _enabledAttr = 'enabled'
 

@@ -29,7 +29,7 @@ class Parameters(Schema):
         """
         This is a no-op function which shadows ``ModelSchema.make_instance``
         method (when inherited classes inherit from ``ModelSchema``). Thus, we
-        avoid a new instance creation because it is undesirable behaviour for
+        avoid a new instance creation because it is undesirable behavior for
         parameters (they can be used not only for saving new instances).
         """
         return
@@ -82,7 +82,7 @@ class PatchJSONParameters(Parameters):
         super(PatchJSONParameters, self).__init__(*args, **kwargs)
         if not self.PATH_CHOICES:
             raise ValueError(f"{self.__class__.__name__}.PATH_CHOICES has to be set")
-        # Make a copy of `validators` as otherwise we will modify the behaviour
+        # Make a copy of `validators` as otherwise we will modify the behavior
         # of all `marshmallow.Schema`-based classes
         self.fields['op'].validators = self.fields['op'].validators + [validate.OneOf(self.OPERATION_CHOICES)]
         self.fields['path'].validators = self.fields['path'].validators + [validate.OneOf(self.PATH_CHOICES)]

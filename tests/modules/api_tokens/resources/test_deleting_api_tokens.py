@@ -6,8 +6,6 @@ def assertSuccess(response, token):
     assert response.content_type == 'text/html; charset=utf-8'
     assert response.content_length is None
 
-    from app.modules.api_tokens.models import ApiToken
-
     initalToken = ApiToken.query.get(token.id)
     assert initalToken is None
 
@@ -17,8 +15,6 @@ def assertFail(response, token):
     assert isinstance(response.json, dict)
     assert set(response.json.keys()) >= {'status', 'message'}
     assert response.json['message'] == "You don't have the permission to access the requested resource."
-
-    from app.modules.users.models import ApiToken
 
     createdApiToken = ApiToken.query.get(token.id)
     assert createdApiToken is not None
@@ -30,11 +26,8 @@ def assertInactive(response, token):
     assert set(response.json.keys()) >= {'status', 'message'}
     assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
 
-    from app.modules.users.models import ApiToken
-
     createdApiToken = ApiToken.query.get(token.id)
     assert createdApiToken is not None
-
 
 # noinspection PyUnresolvedReferences
 @pytest.mark.parametrize('token', [pytest.lazy_fixture('regularUserApiToken'), pytest.lazy_fixture('adminUserApiToken'), pytest.lazy_fixture('internalUserApiToken')], ids=['regular_user_token', 'admin_user_token', 'internal_user_token'])

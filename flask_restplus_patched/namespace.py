@@ -123,7 +123,7 @@ class Namespace(OriginalNamespace):
         Endpoint parameters registration decorator.
         """
         def decorator(func):
-            if locations is None and parameters.many:
+            if locations is None and getattr(parameters, 'many', None):
                 _locations = ('json', )
             else:
                 _locations = locations

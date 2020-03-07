@@ -60,14 +60,15 @@ def init_app(app):
     app.register_error_handler(404, notFoundError)
     db.create_all(app=app)
     from app.modules.users.models import User
-    with app.app_context():
-        with db.session.begin():
-            if User.query.count() == 0:
-                internalUser = User(username='internal', password='q', is_active=True, is_regular_user=True, is_internal=True)
-                db.session.add(internalUser)
-                internalUser.created_by = internalUser.updated_by = 1
-                rootUser = User(username='root', password='q', is_active=True, is_regular_user=True, is_admin=True, created_by=1, updated_by=1)
-                db.session.add(rootUser)
+    if not app.testing:
+        with app.app_context():
+            with db.session.begin():
+                if User.query.count() == 0:
+                    internalUser = User(username='internal', password='q', is_active=True, is_regular_user=True, is_internal=True)
+                    db.session.add(internalUser)
+                    internalUser.created_by = internalUser.updated_by = 1
+                    rootUser = User(username='root', password='q', is_active=True, is_regular_user=True, is_admin=True, created_by=1, updated_by=1)
+                    db.session.add(rootUser)
     try:
         with db.get_engine(app=app).connect() as sql:
             sql.execute('''

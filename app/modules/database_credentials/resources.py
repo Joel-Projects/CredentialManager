@@ -44,7 +44,7 @@ class DatabaseCredentials(Resource):
         databaseCredentials = DatabaseCredential.query
         if 'owner_id' in args:
             owner_id = args['owner_id']
-            if current_user.is_admin:
+            if current_user.is_admin or current_user.is_internal:
                 databaseCredentials = databaseCredentials.filter(DatabaseCredential.owner_id == owner_id)
             else:
                 if owner_id == current_user.id:
@@ -68,7 +68,7 @@ class DatabaseCredentials(Resource):
         """
         if getattr(args, 'owner_id', None):
             owner_id = args.owner_id
-            if current_user.is_admin:
+            if current_user.is_admin or current_user.is_internal:
                 owner = User.query.get(owner_id)
             else:
                 if owner_id == current_user.id:

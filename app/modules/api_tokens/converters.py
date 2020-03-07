@@ -5,8 +5,4 @@ from werkzeug.routing import BaseConverter
 class ApiTokenConverter(BaseConverter):
 
     def to_python(self, value):
-        apiToken = ApiToken.query.filter(ApiToken.id == value).first()
-        if apiToken:
-            return apiToken
-        else:
-            abort(404)
+        return ApiToken.query.filter(ApiToken.id == value).first_or_404()

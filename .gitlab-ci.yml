@@ -1,15 +1,20 @@
 image: docker:latest
 services:
   - docker:dind
+  - postgres:latest
 
 stages:
   - build
   - release
+  - test
   - sentry_release
 
 variables:
   CONTAINER_BUILD_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
+  POSTGRES_DB: 'postgres_test'
+  POSTGRES_USER: 'postgres'
+  POSTGRES_PASSWORD: ''
 
 #before_script:
 #  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
@@ -29,13 +34,23 @@ release:
     - docker tag $CONTAINER_BUILD_IMAGE $CONTAINER_RELEASE_IMAGE
     - docker push $CONTAINER_RELEASE_IMAGE
 
+test:pytest:
+  image: python:3.7
+  stage: test
+  variables:
+    DATABASE_URL: "postgresql://postgres:@postgres:5432/postgres_test"
+  script:
+    - pip install -r tests/requirements.txt
+    - coverage run --source='.' pytest
+  coverage: '/^TOTAL.*\s+(\d+\%)$/'
+
 sentry_release:
   image: python:latest
   stage: .post
   script:
-     - echo "release to sentry"
-     - pip install requests
-     - export author=$(git show -s --format='%an' HEAD)
-     - export email=$(git show -s --format='%ae' HEAD)
-     - export message=$(git show -s --format='%s' HEAD)
-     - python3 release.py $SENTRY_AUTH_TOKEN $CI_COMMIT_SHA $CI_PROJECT_NAME '$author' $email '$message'
+    - echo "release to sentry"
+    - pip install requests
+    - export author=$(git show -s --format='%an' HEAD)
+    - export email=$(git show -s --format='%ae' HEAD)
+    - export message=$(git show -s --format='%s' HEAD)
+    - python3 release.py $SENTRY_AUTH_TOKEN $CI_COMMIT_SHA $CI_PROJECT_NAME '$author' $email '$message'

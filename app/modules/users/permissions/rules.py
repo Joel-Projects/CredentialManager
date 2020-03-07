@@ -33,7 +33,6 @@ class Rule(BaseRule):
 
     def base(self):
         # XXX: it handles only the first appropriate Rule base class
-        # TODO: PR this case to permission project
         for base_class in self.__class__.__bases__:
             if issubclass(base_class, Rule):
                 if base_class in {Rule, BaseRule}:

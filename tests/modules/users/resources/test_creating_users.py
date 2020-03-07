@@ -1,5 +1,6 @@
 import pytest
 from flask_login import current_user
+from datetime import datetime, timezone
 
 from app.modules.users.models import User
 
@@ -22,7 +23,7 @@ def assertSuccess(response):
 
     for key, value in response.json.items():
         if key in ['created', 'updated']:
-            assert value.split('+')[0] == getattr(createdUser, key).isoformat()
+            assert value == datetime.astimezone(getattr(createdUser, key), timezone.utc).isoformat()
         else:
             assert value == getattr(createdUser, key)
 

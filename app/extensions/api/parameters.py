@@ -5,14 +5,14 @@ Common reusable Parameters classes
 from http import HTTPStatus
 
 from flask_login import current_user
-from marshmallow import validate, validates
+from marshmallow import validate, validates, ValidationError
 
 from flask_marshmallow import base_fields
 
 from app.extensions.api import http_exceptions
 from app.modules.users import permissions
 from app.modules.users.models import User
-from flask_restplus_patched import Parameters, ValidationError
+from flask_restplus_patched import Parameters
 
 
 class PaginationParameters(Parameters):

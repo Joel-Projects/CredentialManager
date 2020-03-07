@@ -6,6 +6,7 @@ class SentryToken(db.Model, Timestamp, InfoAttrs, StrName):
         super().__init__(*args, **kwargs)
 
     __tablename__ = 'sentry_tokens'
+    _displayNamePlural = 'Sentry Tokens'
     _nameAttr = 'app_name'
     _enabledAttr = 'enabled'
 

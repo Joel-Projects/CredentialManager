@@ -11,6 +11,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         super().__init__(*args, **kwargs)
 
     __tablename__ = 'reddit_apps'
+    _displayNamePlural = 'Reddit Apps'
     _nameAttr = 'app_name'
     _enabledAttr = 'enabled'
     _infoAttrs = {

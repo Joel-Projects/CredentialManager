@@ -13,6 +13,7 @@ class ApiToken(db.Model, Timestamp, InfoAttrs):
 
     __tablename__ = 'api_tokens'
     _nameAttr = 'name'
+    _displayNamePlural = 'API Tokens'
     _enabledAttr = 'enabled'
     _infoAttrs = {
         'id': 'API Token ID',

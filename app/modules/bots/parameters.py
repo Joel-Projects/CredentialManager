@@ -3,7 +3,7 @@ from flask_marshmallow import base_fields
 
 from .models import Bot
 from . import schemas
-from flask_restplus_patched import PostFormParameters, PatchJSONParameters
+from flask_restplus_patched import PostFormParameters, PatchJSONParameters, Parameters
 from marshmallow import validates, ValidationError
 
 from app.extensions.api.parameters import PaginationParameters, validateOwner
@@ -13,6 +13,11 @@ class ListBotsParameters(PaginationParameters, validateOwner):
     owner_id = base_fields.Integer()
 
     invalidOwnerMessage = 'You can only query your own {}.'
+
+class GetBotByName(Parameters):
+
+    app_name = base_fields.String(required=True, description='Name of the Bot')
+    owner_id = base_fields.Integer(description='Owner of the bot. Requires Admin to get for other users.')
 
 class CreateBotParameters(PostFormParameters, schemas.BaseBotSchema, validateOwner):
     app_name = base_fields.String(required=True, description='Name of the Bot')

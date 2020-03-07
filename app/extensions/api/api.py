@@ -2,9 +2,6 @@
 Extended Api implementation with an application-specific helpers
 ----------------------------------------------------------------
 """
-import six
-from six import iteritems
-
 from flask_restplus_patched import Api as BaseApi
 
 from .namespace import Namespace

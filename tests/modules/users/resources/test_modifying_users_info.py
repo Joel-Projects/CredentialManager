@@ -1,4 +1,3 @@
-# pylint: disable=missing-docstring
 import json
 
 
@@ -10,15 +9,10 @@ def test_modifying_user_info_by_owner(flask_app_client, regular_user, db):
             content_type='application/json',
             data=json.dumps([
                 {
-                    'op': 'test',
-                    'path': '/current_password',
-                    'value': regular_user.password_secret,
-                },
-                {
                     'op': 'replace',
                     'path': '/default_settings',
                     'value': {'database_flavor': 'postgres', 'database_host': 'localhost'},
-                },
+                }
             ])
         )
 
@@ -47,11 +41,6 @@ def test_modifying_user_info_by_admin(flask_app_client, admin_user, regular_user
         response = flask_app_client.patch(f'/api/v1/users/{regular_user.id}',
             content_type='application/json',
             data=json.dumps([
-                {
-                    'op': 'test',
-                    'path': '/current_password',
-                    'value': admin_user.password_secret,
-                },
                 {
                     'op': 'replace',
                     'path': '/default_settings',
@@ -106,11 +95,6 @@ def test_modifying_user_info_admin_fields_by_not_admin(flask_app_client, regular
             content_type='application/json',
             data=json.dumps([
                 {
-                    'op': 'test',
-                    'path': '/current_password',
-                    'value': regular_user.password_secret,
-                },
-                {
                     'op': 'replace',
                     'path': '/default_settings',
                     'value': {'database_flavor': 'postgres', 'database_host': 'localhost'},
@@ -144,63 +128,19 @@ def test_modifying_user_info_with_invalid_format_must_fail(flask_app_client, reg
     with flask_app_client.login(regular_user):
         response = flask_app_client.patch(f'/api/v1/users/{regular_user.id}',
             content_type='application/json',
-            data=json.dumps([
-                {
-                    'op': 'test',
-                    'path': '/username',
-                    'value': '',
-                },
-                {
-                    'op': 'replace',
-                    'path': '/default_settings',
-                },
-            ])
-        )
+            data=json.dumps([{'op': 'test', 'path': '/username', 'value': '', }, {'op': 'replace', 'path': '/default_settings', }, ]))
 
     assert response.status_code == 422
     assert response.content_type == 'application/json'
     assert isinstance(response.json, dict)
     assert set(response.json.keys()) >= {'status', 'message'}
 
-def test_modifying_user_info_with_invalid_password_must_fail(flask_app_client, regular_user):
+def test_modifying_user_info_with_conflict_data_must_fail(flask_app_client, admin_user, regular_user):
 
     with flask_app_client.login(regular_user):
         response = flask_app_client.patch(f'/api/v1/users/{regular_user.id}',
             content_type='application/json',
             data=json.dumps([
-                {
-                    'op': 'test',
-                    'path': '/current_password',
-                    'value': "invalid_password",
-                },
-                {
-                    'op': 'replace',
-                    'path': '/default_settings',
-                    'value': {'database_flavor': 'postgres', 'database_host': 'localhost'},
-                },
-            ])
-        )
-
-    assert response.status_code == 403
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-
-def test_modifying_user_info_with_conflict_data_must_fail(
-        flask_app_client,
-        admin_user,
-        regular_user
-):
-
-    with flask_app_client.login(regular_user):
-        response = flask_app_client.patch(f'/api/v1/users/{regular_user.id}',
-            content_type='application/json',
-            data=json.dumps([
-                {
-                    'op': 'test',
-                    'path': '/current_password',
-                    'value': regular_user.password_secret,
-                },
                 {
                     'op': 'replace',
                     'path': '/username',
