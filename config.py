@@ -61,4 +61,7 @@ class TestingConfig(BaseConfig):
     TESTING = True
 
     DB_NAME = 'postgres_test'
-    SQLALCHEMY_DATABASE_URI = f'postgresql://{BaseConfig.DB_USER}:{BaseConfig.DB_PASSWORD}@{BaseConfig.DB_HOST}:{BaseConfig.DB_PORT}/{DB_NAME}'
+    if os.getenv('DATABASE_URI'):
+        SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
+    else:
+        SQLALCHEMY_DATABASE_URI = f'postgresql://{BaseConfig.DB_USER}:{BaseConfig.DB_PASSWORD}@{BaseConfig.DB_HOST}:{BaseConfig.DB_PORT}/{DB_NAME}'
