@@ -1,4 +1,3 @@
-# pylint: disable=line-too-long
 '''
 Boilerplates
 '''
@@ -8,18 +7,16 @@ import logging
 import os
 import re
 
+
 try:
     from invoke import ctask as task
 except ImportError:  # Invoke 0.13 renamed ctask to task
     from invoke import task
 
-
 log = logging.getLogger(__name__)
-
 
 @task
 def crud_module(context, module_name='', module_name_singular=''):
-
     '''
     Create CRUD (Create-Read-Update-Delete) empty module.
 

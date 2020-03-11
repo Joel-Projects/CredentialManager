@@ -1,10 +1,10 @@
-"""
+'''
 Testing utils
 -------------
-"""
+'''
 
 from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import datetime
 import json, flask
 
 from flask import Response
@@ -14,29 +14,29 @@ from flask_login import login_user, current_user, logout_user
 from base64 import b64encode
 from flask_wtf.csrf import generate_csrf
 
+
 class RequestShim(object):
     def __init__(self, client):
         self.client = client
         self.vary = set({})
 
     def set_cookie(self, key, value='', *args, **kwargs):
-        "Set the cookie on the Flask test client."
-        server_name = flask.current_app.config["SERVER_NAME"] or "localhost"
+        'Set the cookie on the Flask test client.'
+        server_name = flask.current_app.config['SERVER_NAME'] or 'localhost'
         kwargs.pop('samesite')
         return self.client.set_cookie(server_name, key=key, value=value, *args, **kwargs)
 
     def delete_cookie(self, key, *args, **kwargs):
-        "Delete the cookie on the Flask test client."
-        server_name = flask.current_app.config["SERVER_NAME"] or "localhost"
+        'Delete the cookie on the Flask test client.'
+        server_name = flask.current_app.config['SERVER_NAME'] or 'localhost'
         kwargs.pop('samesite')
         return self.client.delete_cookie(server_name, key=key, *args, **kwargs)
 
-
 class AutoAuthFlaskClient(FlaskClient):
-    """
+    '''
     A helper FlaskClient class with a useful for testing ``login`` context
     manager.
-    """
+    '''
 
     def __init__(self, *args, **kwargs):
         super(AutoAuthFlaskClient, self).__init__(*args, **kwargs)
@@ -69,21 +69,19 @@ class AutoAuthFlaskClient(FlaskClient):
         return super(AutoAuthFlaskClient, self).open(*args, **kwargs)
 
 class JSONResponse(Response):
-
-    """
+    '''
     A Response class with extra useful helpers, i.e. ``.json`` property.
-    """
+    '''
 
     @cached_property
     def json(self):
         return json.loads(self.get_data(as_text=True))
 
-
-def generate_user_instance(user_id=None, username="username", password=None, default_settings=None, created=None, updated=None, is_active=True, is_regular_user=True, is_admin=False, is_internal=False):
-    """
+def generate_user_instance(user_id=None, username='username', password=None, default_settings=None, created=None, updated=None, is_active=True, is_regular_user=True, is_admin=False, is_internal=False):
+    '''
     Returns:
         user_instance (User) - an not committed to DB instance of a User model.
-    """
+    '''
 
     if default_settings is None:
         default_settings = {'database_flavor': 'postgres', 'database_host': 'localhost'}

@@ -1,14 +1,3 @@
-"""
-Modules
-=======
-
-Modules enable logical resource separation.
-
-You may control enabled modules by modifying ``ENABLED_MODULES`` config
-variable.
-"""
-
-
 def init_app(app, **kwargs):
     from importlib import import_module
 

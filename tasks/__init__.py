@@ -1,16 +1,16 @@
-# pylint: disable=invalid-name,wrong-import-position
-"""
+'''
 The starting point of Invoke tasks for Example RESTful API Server project.
-"""
+'''
 
 import logging
 import os
 import platform
 
+
 logging.basicConfig()
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-#logging.getLogger('app').setLevel(logging.DEBUG)
+# logging.getLogger('app').setLevel(logging.DEBUG)
 
 try:
     import colorlog
@@ -52,11 +52,11 @@ else:
         logger.addHandler(handler)
     handler.setFormatter(formatter)
 
-
 from invoke import Collection
 from invoke.executor import Executor
 
 from . import app
+
 
 # NOTE: `namespace` or `ns` name is required!
 namespace = Collection(
@@ -64,9 +64,9 @@ namespace = Collection(
 )
 
 def invoke_execute(context, command_name, **kwargs):
-    """
+    '''
     Helper function to make invoke-tasks execution easier.
-    """
+    '''
     results = Executor(namespace, config=context.config).execute((command_name, kwargs))
     target_task = context.root_namespace[command_name]
     return results[target_task]

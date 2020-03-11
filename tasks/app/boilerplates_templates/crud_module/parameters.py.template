@@ -2,16 +2,17 @@ from flask_marshmallow import base_fields
 from flask_restplus_patched import PostFormParameters, PatchJSONParameters
 
 from . import schemas
-from .models import {{ model_name }}
+from .models import
 
 
-class Create{{ model_name }}Parameters(PostFormParameters, schemas.Detailed{{ model_name }}Schema):
+{{model_name}}
 
-    class Meta(schemas.Detailed{{ model_name }}Schema.Meta):
+class Create{{model_name}}Parameters(PostFormParameters, schemas.Detailed{{model_name}}Schema):
+
+    class Meta(schemas.Detailed{{model_name}}Schema.Meta):
         pass
 
-
-class Patch{{ model_name }}DetailsParameters(PatchJSONParameters):
+class Patch{{model_name}}DetailsParameters(PatchJSONParameters):
 
     OPERATION_CHOICES = (PatchJSONParameters.OP_REPLACE,)
 

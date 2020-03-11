@@ -1,5 +1,3 @@
-# pylint: disable=invalid-name,missing-docstring
-
 from app.modules.users import schemas
 
 
@@ -9,7 +7,7 @@ def test_BaseUserSchema_dump_empty_input():
     assert dumped_result.data == {}
 
 def test_BaseUserSchema_dump_user_instance(user_instance):
-    user_instance.password = "password"
+    user_instance.password = 'password'
     dumped_result = schemas.BaseUserSchema().dump(user_instance)
     assert dumped_result.errors == {}
     assert 'password' not in dumped_result.data
@@ -19,7 +17,7 @@ def test_BaseUserSchema_dump_user_instance(user_instance):
     }
 
 def test_DetailedUserSchema_dump_user_instance(user_instance):
-    user_instance.password = "password"
+    user_instance.password = 'password'
     dumped_result = schemas.DetailedUserSchema().dump(user_instance)
     assert dumped_result.errors == {}
     assert 'password' not in dumped_result.data

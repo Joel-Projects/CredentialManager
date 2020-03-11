@@ -5,11 +5,10 @@ from six import itervalues
 from flask_marshmallow import Schema, base_fields
 from marshmallow import validate, validates_schema, ValidationError
 
+
 log = logging.getLogger(__name__)
 
-
 class Parameters(Schema):
-
     class Meta:
         ordered = True
 
@@ -26,12 +25,12 @@ class Parameters(Schema):
 
     def make_instance(self, data):
 
-        """
+        '''
         This is a no-op function which shadows ``ModelSchema.make_instance``
         method (when inherited classes inherit from ``ModelSchema``). Thus, we
         avoid a new instance creation because it is undesirable behavior for
         parameters (they can be used not only for saving new instances).
-        """
+        '''
         return
 
 class PostFormParameters(Parameters):
@@ -44,11 +43,10 @@ class PostFormParameters(Parameters):
             if not field.metadata.get('location'):
                 field.metadata['location'] = 'form'
 
-
 class PatchJSONParameters(Parameters):
-    """
+    '''
     Base parameters class for handling PATCH arguments according to RFC 6902.
-    """
+    '''
 
     # All operations described in RFC 6902
     OP_ADD = 'add'
@@ -81,7 +79,7 @@ class PatchJSONParameters(Parameters):
         kwargs['many'] = True
         super(PatchJSONParameters, self).__init__(*args, **kwargs)
         if not self.PATH_CHOICES:
-            raise ValueError(f"{self.__class__.__name__}.PATH_CHOICES has to be set")
+            raise ValueError(f'{self.__class__.__name__}.PATH_CHOICES has to be set')
         # Make a copy of `validators` as otherwise we will modify the behavior
         # of all `marshmallow.Schema`-based classes
         self.fields['op'].validators = self.fields['op'].validators + [validate.OneOf(self.OPERATION_CHOICES)]
@@ -89,7 +87,7 @@ class PatchJSONParameters(Parameters):
 
     @validates_schema
     def validate_patch_structure(self, data):
-        """
+        '''
         Common validation of PATCH structure
 
         Provide check that 'value' present in all operations expect it.
@@ -98,7 +96,7 @@ class PatchJSONParameters(Parameters):
         without '/' at the start. Supposed that if 'path' is present than it
         is prepended with '/'.
         Removing '/' in the beginning to simplify usage in resource.
-        """
+        '''
         if data['op'] not in self.NO_VALUE_OPERATIONS and 'value' not in data:
             raise ValidationError('value is required')
 
@@ -109,21 +107,21 @@ class PatchJSONParameters(Parameters):
 
     @classmethod
     def perform_patch(cls, operations, obj, state=None):
-        """
+        '''
         Performs all necessary operations by calling class methods with
         corresponding names.
-        """
+        '''
         if state is None:
             state = {}
         for operation in operations:
             if not cls._process_patch_operation(operation, obj=obj, state=state):
                 log.info(f'{obj.__class__.__name__} patching has been stopped because of unknown operation {operation}')
-                raise ValidationError(f"Failed to update {obj.__class__.__name__} details. Operation {operation} could not succeed.")
+                raise ValidationError(f'Failed to update {obj.__class__.__name__} details. Operation {operation} could not succeed.')
         return True
 
     @classmethod
     def _process_patch_operation(cls, operation, obj, state):
-        """
+        '''
         Args:
             operation (dict): one patch operation in RFC 6902 format.
             obj (object): an instance which is needed to be patched.
@@ -131,7 +129,7 @@ class PatchJSONParameters(Parameters):
 
         Returns:
             processing_status (bool): True if operation was handled, otherwise False.
-        """
+        '''
         field_operaion = operation['op']
 
         if field_operaion == cls.OP_REPLACE:
@@ -156,7 +154,7 @@ class PatchJSONParameters(Parameters):
 
     @classmethod
     def replace(cls, obj, field, value, state):
-        """
+        '''
         This is method for replace operation. It is separated to provide a
         possibility to easily override it in your Parameters.
 
@@ -168,7 +166,7 @@ class PatchJSONParameters(Parameters):
 
         Returns:
             processing_status (bool): True
-        """
+        '''
         if not hasattr(obj, field):
             raise ValidationError("Field '%s' does not exist, so it cannot be patched" % field)
         setattr(obj, field, value)
@@ -176,7 +174,7 @@ class PatchJSONParameters(Parameters):
 
     @classmethod
     def test(cls, obj, field, value, state):
-        """
+        '''
         This is method for test operation. It is separated to provide a
         possibility to easily override it in your Parameters.
 
@@ -188,7 +186,7 @@ class PatchJSONParameters(Parameters):
 
         Returns:
             processing_status (bool): True
-        """
+        '''
         return getattr(obj, field) == value
 
     @classmethod

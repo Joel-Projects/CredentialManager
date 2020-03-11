@@ -1,6 +1,6 @@
 from flask_marshmallow import base_fields
-from flask_restplus_patched import ModelSchema
 
+from flask_restplus_patched import ModelSchema
 from .models import Bot
 from ..database_credentials.schemas import BaseDatabaseCredentialSchema
 from ..reddit_apps.schemas import BaseRedditAppSchema
@@ -8,9 +8,10 @@ from ..sentry_tokens.schemas import BaseSentryTokenSchema
 
 
 class BaseBotSchema(ModelSchema):
-    """
+    '''
     Base Bot schema exposes only the most general fields.
-    """
+    '''
+
     class Meta:
         model = Bot
         fields = (
@@ -19,11 +20,10 @@ class BaseBotSchema(ModelSchema):
             Bot.enabled.key
         )
 
-
 class DetailedBotSchema(BaseBotSchema):
-    """
+    '''
     Detailed Bot schema exposes all useful fields.
-    """
+    '''
     reddit_app = base_fields.Nested(BaseRedditAppSchema)
     sentry_token = base_fields.Nested(BaseSentryTokenSchema)
     database_credential = base_fields.Nested(BaseDatabaseCredentialSchema)

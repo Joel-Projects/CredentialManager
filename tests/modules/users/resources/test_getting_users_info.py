@@ -1,8 +1,7 @@
-# pylint: disable=missing-docstring
 import pytest
 
-def test_getting_list_of_users_by_unauthorized_user_must_fail(flask_app_client, regular_user):
 
+def test_getting_list_of_users_by_unauthorized_user_must_fail(flask_app_client, regular_user):
     with flask_app_client.login(regular_user) as client:
         response = client.get('/api/v1/users/')
 
@@ -11,7 +10,6 @@ def test_getting_list_of_users_by_unauthorized_user_must_fail(flask_app_client, 
     assert set(response.json.keys()) >= {'status', 'message'}
 
 def test_getting_list_of_users_by_authorized_user(flask_app_client, admin_user):
-
     with flask_app_client.login(admin_user) as client:
         response = client.get('/api/v1/users/')
 
@@ -21,7 +19,6 @@ def test_getting_list_of_users_by_authorized_user(flask_app_client, admin_user):
     assert set(response.json[0].keys()) >= {'id', 'username'}
 
 def test_getting_user_info_by_unauthorized_user(flask_app_client, regular_user, admin_user):
-
     with flask_app_client.login(regular_user):
         response = flask_app_client.get(f'/api/v1/users/{admin_user.id}')
 
@@ -31,7 +28,6 @@ def test_getting_user_info_by_unauthorized_user(flask_app_client, regular_user, 
     assert set(response.json.keys()) >= {'status', 'message'}
 
 def test_getting_user_info_by_authorized_user(flask_app_client, regular_user, admin_user):
-
     with flask_app_client.login(admin_user):
         response = flask_app_client.get(f'/api/v1/users/{regular_user.id:d}')
 
@@ -42,7 +38,6 @@ def test_getting_user_info_by_authorized_user(flask_app_client, regular_user, ad
     assert 'password' not in response.json.keys()
 
 def test_getting_user_info_by_owner(flask_app_client, regular_user):
-
     with flask_app_client.login(regular_user):
         response = flask_app_client.get(f'/api/v1/users/{regular_user.id}')
 
@@ -53,7 +48,6 @@ def test_getting_user_info_by_owner(flask_app_client, regular_user):
     assert 'password' not in response.json.keys()
 
 def test_getting_user_me_info(flask_app_client, regular_user):
-
     with flask_app_client.login(regular_user):
         response = flask_app_client.get('/api/v1/users/me')
 

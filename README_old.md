@@ -556,9 +556,9 @@ installed when the application is deployed.
     from . import api
 
     def init_app(app):
-        """
+        '''
         Application extensions initialization.
-        """
+        '''
         for extension in (
                 # ... other extensions.
                 limiter,  # Add this
@@ -572,9 +572,9 @@ installed when the application is deployed.
 
     @api.route('/account/verify')
     class IdentityVerify(Resource):
-        """
+        '''
         Handle identity verification.
-        """
+        '''
         # Notice this is different from the simple example at the top of flask-limiter doc page.
         # The reason is explained here: https://flask-limiter.readthedocs.io/en/stable/#using-flask-pluggable-views
         decorators = [limiter.limit("10/second")] # config as you need. 
@@ -686,18 +686,18 @@ api = Namespace('my-objects-controller', description="My Objects Controller", pa
 
 @api.route('/')
 class MyObjects(Resource):
-    """
+    '''
     Manipulations with My Objects.
-    """
+    '''
 
     @api.parameters(CreateMyObjectParameters())
     @api.response(MyObjectSchema())
     @api.response(code=HTTPStatus.CONFLICT)
     @api.doc(id='create_my_object')
     def post(self, args):
-        """
+        '''
         Create a new My Object.
-        """
+        '''
         return create_my_object(args)
 ```
 

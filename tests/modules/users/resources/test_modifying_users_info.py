@@ -2,19 +2,18 @@ import json
 
 
 def test_modifying_user_info_by_owner(flask_app_client, regular_user, db):
-
     saved_default_settings = regular_user.default_settings
     with flask_app_client.login(regular_user):
         response = flask_app_client.patch(f'/api/v1/users/{regular_user.id:d}',
-            content_type='application/json',
-            data=json.dumps([
-                {
-                    'op': 'replace',
-                    'path': '/default_settings',
-                    'value': {'database_flavor': 'postgres', 'database_host': 'localhost'},
-                }
-            ])
-        )
+                                          content_type='application/json',
+                                          data=json.dumps([
+                                              {
+                                                  'op': 'replace',
+                                                  'path': '/default_settings',
+                                                  'value': {'database_flavor': 'postgres', 'database_host': 'localhost'},
+                                              }
+                                          ])
+                                          )
 
     assert response.status_code == 200
     assert response.content_type == 'application/json'
@@ -35,34 +34,33 @@ def test_modifying_user_info_by_owner(flask_app_client, regular_user, db):
         db.session.merge(user1_instance)
 
 def test_modifying_user_info_by_admin(flask_app_client, admin_user, regular_user, db):
-
     saved_default_settings = regular_user.default_settings
     with flask_app_client.login(admin_user):
         response = flask_app_client.patch(f'/api/v1/users/{regular_user.id}',
-            content_type='application/json',
-            data=json.dumps([
-                {
-                    'op': 'replace',
-                    'path': '/default_settings',
-                    'value': {'database_flavor': 'postgres', 'database_host': 'localhost'},
-                },
-                {
-                    'op': 'replace',
-                    'path': '/is_active',
-                    'value': False,
-                },
-                {
-                    'op': 'replace',
-                    'path': '/is_regular_user',
-                    'value': False,
-                },
-                {
-                    'op': 'replace',
-                    'path': '/is_admin',
-                    'value': True,
-                },
-            ])
-        )
+                                          content_type='application/json',
+                                          data=json.dumps([
+                                              {
+                                                  'op': 'replace',
+                                                  'path': '/default_settings',
+                                                  'value': {'database_flavor': 'postgres', 'database_host': 'localhost'},
+                                              },
+                                              {
+                                                  'op': 'replace',
+                                                  'path': '/is_active',
+                                                  'value': False,
+                                              },
+                                              {
+                                                  'op': 'replace',
+                                                  'path': '/is_regular_user',
+                                                  'value': False,
+                                              },
+                                              {
+                                                  'op': 'replace',
+                                                  'path': '/is_admin',
+                                                  'value': True,
+                                              },
+                                          ])
+                                          )
 
     assert response.status_code == 200
     assert response.content_type == 'application/json'
@@ -89,46 +87,43 @@ def test_modifying_user_info_by_admin(flask_app_client, admin_user, regular_user
         db.session.merge(user1_instance)
 
 def test_modifying_user_info_admin_fields_by_not_admin(flask_app_client, regular_user, db):
-
     with flask_app_client.login(regular_user):
         response = flask_app_client.patch(f'/api/v1/users/{regular_user.id}',
-            content_type='application/json',
-            data=json.dumps([
-                {
-                    'op': 'replace',
-                    'path': '/default_settings',
-                    'value': {'database_flavor': 'postgres', 'database_host': 'localhost'},
-                },
-                {
-                    'op': 'replace',
-                    'path': '/is_active',
-                    'value': False,
-                },
-                {
-                    'op': 'replace',
-                    'path': '/is_regular_user',
-                    'value': False,
-                },
-                {
-                    'op': 'replace',
-                    'path': '/is_admin',
-                    'value': True,
-                },
-            ])
-        )
+                                          content_type='application/json',
+                                          data=json.dumps([
+                                              {
+                                                  'op': 'replace',
+                                                  'path': '/default_settings',
+                                                  'value': {'database_flavor': 'postgres', 'database_host': 'localhost'},
+                                              },
+                                              {
+                                                  'op': 'replace',
+                                                  'path': '/is_active',
+                                                  'value': False,
+                                              },
+                                              {
+                                                  'op': 'replace',
+                                                  'path': '/is_regular_user',
+                                                  'value': False,
+                                              },
+                                              {
+                                                  'op': 'replace',
+                                                  'path': '/is_admin',
+                                                  'value': True,
+                                              },
+                                          ])
+                                          )
 
     assert response.status_code == 403
     assert response.content_type == 'application/json'
     assert isinstance(response.json, dict)
     assert set(response.json.keys()) >= {'status', 'message'}
 
-
 def test_modifying_user_info_with_invalid_format_must_fail(flask_app_client, regular_user):
-
     with flask_app_client.login(regular_user):
         response = flask_app_client.patch(f'/api/v1/users/{regular_user.id}',
-            content_type='application/json',
-            data=json.dumps([{'op': 'test', 'path': '/username', 'value': '', }, {'op': 'replace', 'path': '/default_settings', }, ]))
+                                          content_type='application/json',
+                                          data=json.dumps([{'op': 'test', 'path': '/username', 'value': '', }, {'op': 'replace', 'path': '/default_settings', }, ]))
 
     assert response.status_code == 422
     assert response.content_type == 'application/json'
@@ -136,18 +131,17 @@ def test_modifying_user_info_with_invalid_format_must_fail(flask_app_client, reg
     assert set(response.json.keys()) >= {'status', 'message'}
 
 def test_modifying_user_info_with_conflict_data_must_fail(flask_app_client, admin_user, regular_user):
-
     with flask_app_client.login(regular_user):
         response = flask_app_client.patch(f'/api/v1/users/{regular_user.id}',
-            content_type='application/json',
-            data=json.dumps([
-                {
-                    'op': 'replace',
-                    'path': '/username',
-                    'value': admin_user.username,
-                },
-            ])
-        )
+                                          content_type='application/json',
+                                          data=json.dumps([
+                                              {
+                                                  'op': 'replace',
+                                                  'path': '/username',
+                                                  'value': admin_user.username,
+                                              },
+                                          ])
+                                          )
 
     assert response.status_code == 409
     assert response.content_type == 'application/json'

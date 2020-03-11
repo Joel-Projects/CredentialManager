@@ -1,8 +1,10 @@
-import json, logging, requests, praw
+import json
+import logging
+import requests
 from datetime import datetime, timezone
 
-from sqlalchemy_utils import ChoiceType
-from app.extensions import db, InfoAttrs, StrName, foreignKeyKwargs
+from app.extensions import InfoAttrs, StrName, db
+
 
 log = logging.getLogger(__name__)
 
@@ -70,4 +72,4 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
     @property
     def chunkScopes(self):
         scopes = [(scope, scope in self.scopes, value['description']) for scope, value in self.scopeJSON.items()]
-        return [scopes[x:x+4] for x in range(0, len(scopes), 4)]
+        return [scopes[x:x + 4] for x in range(0, len(scopes), 4)]

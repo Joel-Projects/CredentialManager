@@ -1,7 +1,3 @@
-"""
-Common reusable Parameters classes
-----------------------------------
-"""
 from http import HTTPStatus
 
 from flask_login import current_user
@@ -16,14 +12,13 @@ from flask_restplus_patched import Parameters
 
 
 class PaginationParameters(Parameters):
-
     limit = base_fields.Integer(
-        description="limit a number of items (allowed range is 1-100), default is 20.",
+        description='limit a number of items (allowed range is 1-100), default is 20.',
         missing=20,
         validate=validate.Range(min=1, max=100)
     )
     offset = base_fields.Integer(
-        description="a number of items to skip, default is 0.",
+        description='a number of items to skip, default is 0.',
         missing=0,
         validate=validate.Range(min=0)
     )
@@ -32,7 +27,6 @@ def validateOwnerExists(user_id: int) -> User:
     return User.query.get(user_id)
 
 class validateOwner(Parameters):
-
     owner_id_attr = 'owner_id'
 
     invalidOwnerMessage = "You don't have the permission to create {} for other users."

@@ -1,18 +1,19 @@
 from flask_login import current_user
-from wtforms.fields import StringField, BooleanField
+from wtforms.fields import StringField
 from wtforms.validators import Optional
-from wtforms.widgets import HTMLString
+from wtforms_alchemy import InputRequired
 
 from app.extensions import ModelForm
-from wtforms_alchemy import InputRequired
 from .models import DatabaseCredential
-from ...extensions.frontend.forms import HiddenFieldWithToggle, AppSelectField, owners
+from ...extensions.frontend.forms import AppSelectField, HiddenFieldWithToggle, owners
+
 
 class DatabaseCredentialForm(ModelForm):
     class Meta:
         model = DatabaseCredential
         only = ['app_name', 'database_flavor', 'database_host', 'database_port', 'database_username', 'database_password', 'database', 'use_ssh', 'ssh_host', 'ssh_port', 'ssh_username', 'ssh_password', 'use_ssh_key', 'private_key', 'private_key_passphrase', 'enabled']
         fields = [['app_name', 'database_flavor'], ['database_host', 'database_port'], ['database_username', 'database_password'], 'database', 'use_ssh', ['ssh_host', 'ssh_port'], ['ssh_username', 'ssh_password'], 'use_ssh_key', 'private_key', 'private_key_passphrase', 'enabled']
+
     if current_user:
         databaseFlavorDefault = current_user.getDefault('user_agent')
         databaseHostDefault = current_user.getDefault('user_agent')
@@ -32,4 +33,3 @@ class DatabaseCredentialForm(ModelForm):
     use_ssh_key = HiddenFieldWithToggle('Use SSH key?', default=False, render_kw={'value': ''})
 
     owner = AppSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user, description=DatabaseCredential.owner_id.info['description'])
-

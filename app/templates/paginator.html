@@ -1,14 +1,14 @@
 {% if paginator and route and perPage %}
     <div class="col">
         <nav aria-label="paginator">
-{#            {{ macros.renderPaginator(paginator, route) }}#}
+            {#            {{ macros.renderPaginator(paginator, route) }}#}
             <ul class="pagination justify-content-center">
                 <li class="page-item"><a class="page-link {% if paginator.has_prev %}" href="{{ url_for(route, page=paginator.prev_num) }}"{% else %}disabled" href="#"{% endif %}>«</a></li>
                 {% for page in paginator.iter_pages(left_edge=1, left_current=2, right_current=3, right_edge=1) %}
                     {% if page %}
                         <li class="page-item{% if page == paginator.page %} active{% endif %}"><a class="page-link" href="{{ url_for(route, page=page) }}">{{ page }}</a></li>
                     {% else %}
-{#                      <span class=ellipsis>…</span>#}
+                        {#                      <span class=ellipsis>…</span>#}
                     {% endif %}
                 {% endfor %}
                 <li class="page-item"><a class="page-link {% if paginator.has_next %}" href="{{ url_for(route, page=paginator.next_num) }}" {% else %}disabled" href="#"{% endif %}>»</a></li>

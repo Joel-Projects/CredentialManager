@@ -1,22 +1,22 @@
-"""
+'''
 Swagger related invoke tasks
-"""
+'''
 from __future__ import print_function
 
 import logging
 import os
+
 
 try:
     from invoke import ctask as task
 except ImportError:  # Invoke 0.13 renamed ctask to task
     from invoke import task
 
-
 @task(default=True)
 def export(context, output_format='json', quiet=False):
-    """
+    '''
     Export swagger.json content
-    """
+    '''
     # set logging level to ERROR to avoid [INFO] messages in result
     logging.getLogger().setLevel(logging.ERROR)
 
@@ -26,7 +26,6 @@ def export(context, output_format='json', quiet=False):
     if not quiet:
         print(swagger_content.decode('utf-8'))
     return swagger_content
-
 
 @task
 def codegen(context, language, version, dry_run=False, offline=False):
@@ -50,28 +49,28 @@ def codegen(context, language, version, dry_run=False, offline=False):
 
     if not offline:
         run(
-            "docker pull 'khorolets/swagger-codegen'"
+            "docker pull 'khorolets/swagger-codegen''
         )
 
     run(
-        "cd './clients/%(language)s' ;"
+        'cd './clients/%(language)s' ;'
         # Tar the config files to pass them into swagger-codegen docker-container.
-        "tar -c swagger.json swagger_codegen_config.json"
-        "  | docker run --interactive --rm --entrypoint /bin/sh 'khorolets/swagger-codegen' -c \""
+        'tar -c swagger.json swagger_codegen_config.json'
+        '  | docker run --interactive --rm --entrypoint /bin/sh 'khorolets/swagger-codegen' -c \''
         # Unpack them, generate library code with these files.
-        "      tar -x ;"
-        "      java -jar '/opt/swagger-codegen/modules/swagger-codegen-cli/target/swagger-codegen-cli.jar'"
-        "        generate"
-        "          --input-spec './swagger.json'"
-        "          --lang '%(language)s'"
-        "          --output './dist'"
-        "          --config './swagger_codegen_config.json'"
-        "          --additional-properties 'packageVersion=%(version)s,projectVersion=%(version)s'"
-        "          >&2 ;"
+        '      tar -x ;'
+        "      java -jar '/opt/swagger-codegen/modules/swagger-codegen-cli/target/swagger-codegen-cli.jar''
+        '        generate'
+        '          --input-spec './swagger.json''
+        '          --lang '%(language)s''
+        '          --output './dist''
+        '          --config './swagger_codegen_config.json''
+        '          --additional-properties 'packageVersion=%(version)s,projectVersion=%(version)s''
+        '          >&2 ;'
         # tar the generated code and return it.
-        "      tar -c dist\""
+        '      tar -c dist\''
         # Finally, untar library source into current directory.
-        "  | tar -x"
+        '  | tar -x'
         % {
             'language': language,
             'version': version,

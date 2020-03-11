@@ -61,7 +61,7 @@ $(document).ready(function () {
                 data: {owner_id: owner_id, reddit_app: app_id, duration: duration, scopes: scopes}
             })
                 .done(function (data) {
-                   $('#authUrl').val(data.auth_url)
+                    $('#authUrl').val(data.auth_url)
                 })
         }
     })

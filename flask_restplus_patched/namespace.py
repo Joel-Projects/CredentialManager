@@ -16,7 +16,6 @@ from .model import Model, DefaultHTTPErrorSchema
 
 
 class Namespace(OriginalNamespace):
-
     WEBARGS_PARSER = webargs_parser
 
     def _handle_api_doc(self, cls, doc):
@@ -36,7 +35,7 @@ class Namespace(OriginalNamespace):
         cls.__apidoc__ = merge(getattr(cls, '__apidoc__', {}), doc)
 
     def resolve_object(self, object_arg_name, resolver):
-        """
+        '''
         A helper decorator to resolve object instance from arguments (e.g. identity).
 
         Example:
@@ -48,7 +47,8 @@ class Namespace(OriginalNamespace):
         ...    )
         ...    def get(self, user):
         ...        # user is a User instance here
-        """
+        '''
+
         def decorator(func_or_class):
             if isinstance(func_or_class, type):
                 # Handle Resource classes decoration
@@ -60,11 +60,13 @@ class Namespace(OriginalNamespace):
             def wrapper(*args, **kwargs):
                 kwargs[object_arg_name] = resolver(kwargs)
                 return func_or_class(*args, **kwargs)
+
             return wrapper
+
         return decorator
 
     def resolveFromArgs(self, object_arg_name, resolver):
-        """
+        '''
         A helper decorator to resolve object instance from arguments (e.g. identity).
 
         Example:
@@ -76,7 +78,8 @@ class Namespace(OriginalNamespace):
         ...    )
         ...    def get(self, user):
         ...        # user is a User instance here
-        """
+        '''
+
         def decorator(func_or_class):
             if isinstance(func_or_class, type):
                 # Handle Resource classes decoration
@@ -88,13 +91,15 @@ class Namespace(OriginalNamespace):
             def wrapper(*args, **kwargs):
                 kwargs[object_arg_name] = resolver(kwargs)
                 return func_or_class(*args, **kwargs)
+
             return wrapper
+
         return decorator
 
     def model(self, name=None, model=None, mask=None, **kwargs):
-        """
+        '''
         Model registration decorator.
-        """
+        '''
         if isinstance(model, (flask_marshmallow.Schema, flask_marshmallow.base_fields.FieldABC)):
             if not name:
                 name = model.__class__.__name__
@@ -119,27 +124,25 @@ class Namespace(OriginalNamespace):
         return merge(getattr(cls, '__apidoc__', {}), doc)
 
     def parameters(self, parameters, locations=None):
-        """
+        '''
         Endpoint parameters registration decorator.
-        """
+        '''
+
         def decorator(func):
             if locations is None and getattr(parameters, 'many', None):
-                _locations = ('json', )
+                _locations = ('json',)
             else:
                 _locations = locations
             if _locations is not None:
                 parameters.context['in'] = _locations
 
             return self.doc(params=parameters)(
-                self.response(code=HTTPStatus.UNPROCESSABLE_ENTITY)(
-                    self.WEBARGS_PARSER.use_args(parameters)(func)
-                )
-            )
+                self.response(code=HTTPStatus.UNPROCESSABLE_ENTITY)(self.WEBARGS_PARSER.use_args(parameters)(func)))
 
         return decorator
 
     def response(self, model=None, code=HTTPStatus.OK, description=None, **kwargs):
-        """
+        '''
         Endpoint response OpenAPI documentation decorator.
 
         It automatically documents HTTPError%(code)d responses with relevant
@@ -160,25 +163,23 @@ class Namespace(OriginalNamespace):
         ...     if not user.is_admin:
         ...         abort(HTTPStatus.FORBIDDEN)
         ...     return Team.query.all()
-        """
+        '''
         code = HTTPStatus(code)
         if code is HTTPStatus.NO_CONTENT:
             assert model is None
         if model is None and code not in {HTTPStatus.ACCEPTED, HTTPStatus.NO_CONTENT}:
             if code.value not in http_exceptions.default_exceptions:
-                raise ValueError(f"`model` parameter is required for code {code:d}")
-            model = self.model(
-                name=f'HTTPError{code:d}',
-                model=DefaultHTTPErrorSchema(http_code=code)
-            )
+                raise ValueError(f'`model` parameter is required for code {code:d}')
+            model = self.model(name=f'HTTPError{code:d}', model=DefaultHTTPErrorSchema(http_code=code))
         if description is None:
             description = code.description
 
         def response_serializer_decorator(func):
-            """
+            '''
             This decorator handles responses to serialize the returned value
             with a given model.
-            """
+            '''
+
             def dump_wrapper(*args, **kwargs):
 
                 response = func(*args, **kwargs)
@@ -186,7 +187,7 @@ class Namespace(OriginalNamespace):
 
                 if response is None:
                     if model is not None:
-                        raise ValueError(f"Response cannot not be None with HTTP status {code:d}")
+                        raise ValueError(f'Response cannot not be None with HTTP status {code:d}')
                     return flask.Response(status=code)
                 elif isinstance(response, flask.Response) or model is None:
                     return response
@@ -227,11 +228,7 @@ class Namespace(OriginalNamespace):
                 if getattr(model, 'many', False):
                     api_model = [api_model]
 
-            doc_decorator = self.doc(
-                    responses={
-                            code.value: (description, api_model)
-                        }
-                )
+            doc_decorator = self.doc(responses={code.value: (description, api_model)})
             return doc_decorator(decorated_func_or_class)
 
         return decorator
@@ -242,7 +239,7 @@ class Namespace(OriginalNamespace):
         def wrapper(self, *args, **kwargs):
             if 'Access-Control-Request-Method' in flask.request.headers:
                 response = flask.Response(status=HTTPStatus.OK)
-                response.headers['Access-Control-Allow-Methods'] = ", ".join(self.methods)
+                response.headers['Access-Control-Allow-Methods'] = ', '.join(self.methods)
                 return response
             return func(self, *args, **kwargs)
 

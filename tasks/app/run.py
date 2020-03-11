@@ -1,7 +1,6 @@
-# pylint: disable=too-many-arguments
-"""
+'''
 Application execution related tasks for Invoke.
-"""
+'''
 
 try:
     from importlib import reload
@@ -11,11 +10,11 @@ import os
 import platform
 import warnings
 
+
 try:
     from invoke import ctask as task
 except ImportError:  # Invoke 0.13 renamed ctask to task
     from invoke import task
-
 
 @task(default=True)
 def run(
@@ -28,10 +27,10 @@ def run(
         uwsgi=False,
         uwsgi_mode='http',
         uwsgi_extra_options='',
-    ):
-    """
+):
+    '''
     Run Example RESTful API Server.
-    """
+    '''
     if flask_config is not None:
         os.environ['FLASK_CONFIG'] = flask_config
 
@@ -60,14 +59,14 @@ def run(
     use_reloader = app.debug
     if uwsgi:
         uwsgi_args = [
-            "uwsgi",
-            "--need-app",
-            "--manage-script-name",
-            "--mount", "/=app:create_app()",
-            "--%s-socket" % uwsgi_mode, "%s:%d" % (host, port),
+            'uwsgi',
+            '--need-app',
+            '--manage-script-name',
+            '--mount', '/=app:create_app()',
+            '--%s-socket' % uwsgi_mode, '%s:%d' % (host, port),
         ]
         if use_reloader:
-            uwsgi_args += ["--python-auto-reload", "2"]
+            uwsgi_args += ['--python-auto-reload', '2']
         if uwsgi_extra_options:
             uwsgi_args += uwsgi_extra_options.split(' ')
         os.execvpe('uwsgi', uwsgi_args, os.environ)

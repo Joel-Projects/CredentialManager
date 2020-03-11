@@ -3,7 +3,7 @@ from sqlalchemy_utils import Timestamp
 from app.extensions import db
 
 
-class {{ model_name }}(db.Model, Timestamp):
+class {{model_name}}(db.Model, Timestamp):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(length=50), nullable=False)

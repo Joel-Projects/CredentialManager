@@ -1,8 +1,9 @@
 from flask_login import current_user
-from flask_table import Col, Table, LinkCol
+from flask_table import Col, Table
 from flask_table.html import element
 from flask import current_app
 from datetime import timezone
+
 
 class BaseCol(Col):
 
@@ -11,7 +12,6 @@ class BaseCol(Col):
         if not 'style' in kwargs['td_html_attrs']:
             kwargs['td_html_attrs']['style'] = 'text-align:center'
         super(BaseCol, self).__init__(*args, **kwargs)
-
 
 class DatetimeColumn(BaseCol):
 
@@ -68,7 +68,6 @@ class CreatedBy(BaseCol):
 
     def __init__(self, name, tooltip, **kwargs):
         super(CreatedBy, self).__init__(name, **kwargs)
-        # self.attrName = attrName
         self.tooltip = tooltip
 
     def from_attr_list(self, item, attr_list):
@@ -178,7 +177,7 @@ class BaseTable(Table):
 
     def th(self, col_key, col):
         if col_key == 'Edit':
-            return element('th', content=self.th_contents(col_key, col), escape_content=False, attrs={'data-sorter': 'false' ,**col.th_html_attrs})
+            return element('th', content=self.th_contents(col_key, col), escape_content=False, attrs={'data-sorter': 'false', **col.th_html_attrs})
         else:
             return element('th', content=self.th_contents(col_key, col), escape_content=False, attrs=col.th_html_attrs)
 
@@ -196,11 +195,8 @@ class BaseTable(Table):
         outContent = '\n'.join(out)
         content = f'\n{outContent}\n'
         return element('tbody', content=content, escape_content=False)
+
     allow_empty = True
     classes = ['table', 'table-hover', 'table-bordered', 'table-striped']
     thead_classes = ['thead-dark']
     thead_attrs = {'style': 'text-align:center'}
-
-
-
-

@@ -1,24 +1,18 @@
-"""
-Input arguments (Parameters) for User resources RESTful API
------------------------------------------------------------
-"""
-
 from flask_login import current_user
 from flask_marshmallow import base_fields
-from flask_restplus_patched import PostFormParameters, PatchJSONParameters
 from flask_restplus._http import HTTPStatus
-from marshmallow import validates, ValidationError
+from marshmallow import validates
 
 from app.extensions.api import abort
-
-from . import schemas, permissions
+from flask_restplus_patched import PatchJSONParameters, PostFormParameters
+from . import permissions, schemas
 from .models import User
 
 
 class CreateUserParameters(PostFormParameters, schemas.BaseUserSchema):
-    """
+    '''
     New user creation parameters.
-    """
+    '''
 
     username = base_fields.String(description='Username for new user (Example: ```spaz```)', required=True)
     password = base_fields.String(description='Password for new user (Example: ```supersecurepassword```)', required=True)
@@ -41,14 +35,12 @@ class CreateUserParameters(PostFormParameters, schemas.BaseUserSchema):
         fields = schemas.BaseUserSchema.Meta.fields + ('password', 'default_settings', 'is_admin', 'is_active', 'is_regular_user', 'is_internal', 'reddit_username')
 
 class DeleteUserParameters(PostFormParameters, schemas.BaseUserSchema):
-
     user_id = base_fields.Integer(required=True)
 
 class PatchUserDetailsParameters(PatchJSONParameters):
-
-    """
+    '''
     User details updating parameters following PATCH JSON RFC.
-    """
+    '''
     fields = (User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, User.default_settings.key, User.username.key, User.updated_by.key, User.reddit_username.key)
     PATH_CHOICES = tuple(f'/{field}' for field in fields)
 
@@ -61,12 +53,12 @@ class PatchUserDetailsParameters(PatchJSONParameters):
 
     @classmethod
     def test(cls, obj, field, value, state):
-        """
+        '''
         Additional check for 'current_password' as User hasn't field 'current_password'
-        """
+        '''
         if field == 'current_password':
             if current_user.password != value and obj.password != value:
-                abort(code=HTTPStatus.FORBIDDEN, message="Wrong password")
+                abort(code=HTTPStatus.FORBIDDEN, message='Wrong password')
             else:
                 state['current_password'] = value
                 return True
@@ -74,17 +66,17 @@ class PatchUserDetailsParameters(PatchJSONParameters):
 
     @classmethod
     def replace(cls, obj, field, value, state):
-        """
+        '''
         Some fields require extra permissions to be changed.
 
         Changing `is_active`, `is_regular_user`, or `is_admin` property requires current user to be Admin.
-        """
+        '''
 
         if field in {User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_admin.fget.__name__}:
-                with permissions.AdminRolePermission():
-                    if current_user == obj:
-                        abort(code=HTTPStatus.NOT_ACCEPTABLE, message="You can't disable your own account.")
-                    pass
+            with permissions.AdminRolePermission():
+                if current_user == obj:
+                    abort(code=HTTPStatus.NOT_ACCEPTABLE, message="You can't disable your own account.")
+                pass
         if field == User.is_internal.fget.__name__:
             with permissions.InternalRolePermission():
                 pass

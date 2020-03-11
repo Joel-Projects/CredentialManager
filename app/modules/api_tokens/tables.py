@@ -1,6 +1,6 @@
 from flask_table import Col, LinkCol
 
-from app.extensions.frontend.tables import BaseTable, BoolIconColumn, DatetimeColumn, OwnerCol, CopyableField
+from app.extensions.frontend.tables import BaseTable, BoolIconColumn, CopyableField, DatetimeColumn, OwnerCol
 
 
 class ApiTokenTable(BaseTable):

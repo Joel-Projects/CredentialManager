@@ -1,18 +1,17 @@
-"""
+'''
 Application environment related tasks for Invoke.
-"""
+'''
 
 try:
     from invoke import ctask as task
 except ImportError:  # Invoke 0.13 renamed ctask to task
     from invoke import task
 
-
 @task
 def enter(context, install_dependencies=True, upgrade_db=True):
-    """
+    '''
     Enter into IPython notebook shell with an initialized app.
-    """
+    '''
     if install_dependencies:
         context.invoke_execute(context, 'app.dependencies.install')
     if upgrade_db:
@@ -23,7 +22,6 @@ def enter(context, install_dependencies=True, upgrade_db=True):
             upgrade_db=False,
             skip_on_failure=True
         )
-
 
     import pprint
 

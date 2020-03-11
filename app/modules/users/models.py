@@ -1,24 +1,23 @@
-'''
-User database model
--------------------
-'''
 import enum
 from datetime import datetime
 
-from sqlalchemy_utils import types as column_types
 from flask_login import UserMixin
-from app.extensions import db, Timestamp, InfoAttrs, StrName, QueryProperty
+from sqlalchemy_utils import types as column_types
+
+from app.extensions import InfoAttrs, QueryProperty, StrName, Timestamp, db
 from app.modules.api_tokens.models import ApiToken
 
+
 def getStaticRole(roleName, staticRole):
-    """
+    '''
     A helper function that aims to provide a property getter and setter
     for static roles.
 
     Args:
         roleName (str)
         staticRole (int) - a bit mask for a specific role
-    """
+    '''
+
     @property
     def isStaticRole(self):
         return self.hasStaticRole(staticRole)
@@ -32,7 +31,6 @@ def getStaticRole(roleName, staticRole):
 
     isStaticRole.fget.__name__ = roleName
     return isStaticRole
-
 
 class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
 
@@ -69,10 +67,10 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
     internal = db.Column(db.Boolean, default=False)
 
     class StaticRoles(enum.Enum):
-        INTERNAL = (0x8000, "Internal")
-        ADMIN = (0x4000, "Admin")
-        REGULAR_USER = (0x2000, "Regular User")
-        ACTIVE = (0x1000, "Active Account")
+        INTERNAL = (0x8000, 'Internal')
+        ADMIN = (0x4000, 'Admin')
+        REGULAR_USER = (0x2000, 'Regular User')
+        ACTIVE = (0x1000, 'Active Account')
 
         @property
         def mask(self):

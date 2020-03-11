@@ -1,4 +1,5 @@
 from flask_login import current_user
+
 from app.extensions import ModelForm
 from .models import UserVerification
 from ...extensions.frontend.forms import AppSelectField, owners
@@ -15,7 +16,7 @@ class UserVerificationForm(ModelForm):
 
         # fields = only
         #     field_args = {'reddit_app_id': {'validators': [InputRequired('You must select a Reddit App')]}}
-    #
+
     # discord_id = IntegerField()
     # extra_data = TextAreaField()
     # redditor = TextField()

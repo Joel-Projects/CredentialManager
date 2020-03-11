@@ -1,13 +1,13 @@
-from flask_marshmallow import base_fields
 from flask_restplus_patched import ModelSchema
 
 from .models import DatabaseCredential
 
 
 class BaseDatabaseCredentialSchema(ModelSchema):
-    """
+    '''
     Base Database Credential schema exposes only the most general fields.
-    """
+    '''
+
     class Meta:
         model = DatabaseCredential
         fields = (
@@ -19,11 +19,11 @@ class BaseDatabaseCredentialSchema(ModelSchema):
             DatabaseCredential.database_flavor.key
         )
 
-
 class DetailedDatabaseCredentialSchema(BaseDatabaseCredentialSchema):
-    """
+    '''
     Detailed Database Credential schema exposes all useful fields.
-    """
+    '''
+
     class Meta(BaseDatabaseCredentialSchema.Meta):
         fields = BaseDatabaseCredentialSchema.Meta.fields + (
             DatabaseCredential.database_port.key,

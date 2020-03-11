@@ -1,6 +1,6 @@
-"""
+'''
 Application Users management related tasks for Invoke.
-"""
+'''
 
 from getpass import getpass
 
@@ -15,13 +15,13 @@ def create_user(
         is_admin=False,
         is_regular_user=True,
         is_active=True
-    ):
-    """
+):
+    '''
     Create a new user.
-    """
+    '''
     from app.modules.users.models import User
 
-    password = getpass("Enter password: ")
+    password = getpass('Enter password: ')
 
     new_user = User(
         username=username,

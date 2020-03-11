@@ -8,6 +8,7 @@ from .swagger import Swagger
 
 import logging
 
+
 log = logging.getLogger(__name__)
 
 class Api(OriginalApi):
@@ -41,7 +42,6 @@ class Api(OriginalApi):
         _namespace = Namespace(*args, **kwargs)
         self.add_namespace(_namespace)
         return _namespace
-
 
 # Return validation errors as JSON
 def handle_validation_error(err):

@@ -1,9 +1,8 @@
-import base64, hashlib, random
-import operator
+import base64
+import hashlib
+import random
 
-from wtforms_alchemy import Unique
-
-from app.extensions import db, Timestamp, InfoAttrs
+from app.extensions import InfoAttrs, Timestamp, db
 
 
 class ApiToken(db.Model, Timestamp, InfoAttrs):
@@ -28,7 +27,6 @@ class ApiToken(db.Model, Timestamp, InfoAttrs):
     name = db.Column(db.String, nullable=False, info={'label': 'Name'})
     token = db.Column(db.String, nullable=False, info={'label': 'API Token'})
     enabled = db.Column(db.Boolean, default=True, info={'label': 'Enabled'})
-    # owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='restrict', onupdate='CASCADE'))
     owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'))
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     last_used = db.Column(db.DateTime(True))

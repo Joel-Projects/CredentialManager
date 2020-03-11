@@ -1,6 +1,7 @@
-from app.extensions.api import abort
-from app.modules.api_tokens.models import ApiToken
 from werkzeug.routing import BaseConverter
+
+from app.modules.api_tokens.models import ApiToken
+
 
 class ApiTokenConverter(BaseConverter):
 

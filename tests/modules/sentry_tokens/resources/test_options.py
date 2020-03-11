@@ -1,4 +1,4 @@
-# # pylint: disable=missing-docstring
+#
 # import pytest
 #
 # @pytest.mark.parametrize('path,status_code', (

@@ -1,5 +1,6 @@
 import os
 
+
 class BaseConfig(object):
     SECRET_KEY = 'this-really-needs-to-be-changed'
     SENTRY_DSN = os.getenv('SENTRY_DSN')
@@ -7,7 +8,6 @@ class BaseConfig(object):
     DD_APP_KEY = os.getenv('DD_APP_KEY')
     PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
-    # POSTGRESQL
     DB_USER = 'postgres'
     DB_PASSWORD = ''
     DB_NAME = 'postgres'
@@ -18,7 +18,7 @@ class BaseConfig(object):
     DEBUG = False
     ERROR_404_HELP = False
 
-    SWAGGER_SUPPORTED_SUBMIT_METHODS = ["get", "put", "post", "delete", "patch"]
+    SWAGGER_SUPPORTED_SUBMIT_METHODS = ['get', 'put', 'post', 'delete', 'patch']
     SWAGGER_UI_OPERATION_ID = True
     SWAGGER_UI_REQUEST_DURATION = True
 
@@ -60,6 +60,8 @@ class DevelopmentConfig(BaseConfig):
 
 class TestingConfig(BaseConfig):
     TESTING = True
-
+    SECURITY_HASHING_SCHEMES = ['plaintext']
+    SECURITY_PASSWORD_HASH = 'plaintext'
+    SECURITY_DEPRECATED_HASHING_SCHEMES = []
     DB_NAME = 'postgres_test'
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', f'postgresql://{BaseConfig.DB_USER}:{BaseConfig.DB_PASSWORD}@{BaseConfig.DB_HOST}:{BaseConfig.DB_PORT}/{DB_NAME}')

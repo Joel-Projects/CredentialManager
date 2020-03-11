@@ -1,40 +1,41 @@
-import logging, json
-from sqlalchemy import or_
+import json
+import logging
 
-from flask import Blueprint, render_template, request, flash, redirect, jsonify
+from flask import Blueprint, flash, jsonify, redirect, render_template, request
 from flask_login import current_user, login_required
+from sqlalchemy import or_
 from unflatten import unflatten
 from wtforms import BooleanField
 
-from .forms import UserForm, EditUserForm
+from .forms import EditUserForm, UserForm
+from .models import User
 from .parameters import PatchUserDetailsParameters
 from .resources import api
 from .tables import UserTable
-from .models import User
-from ...extensions import db, paginateArgs, requiresAdmin, verifyEditable, ModelForm
-from ...extensions.api import abort
-
-from ..reddit_apps.tables import RedditAppTable
-from ..reddit_apps.forms import RedditAppForm
-from ..reddit_apps.models import RedditApp
-from ..sentry_tokens.tables import SentryTokenTable
-from ..sentry_tokens.forms import SentryTokenForm
-from ..sentry_tokens.models import SentryToken
-from ..database_credentials.tables import DatabaseCredentialTable
-from ..database_credentials.forms import DatabaseCredentialForm
-from ..database_credentials.models import DatabaseCredential
-from ..bots.tables import BotTable
-from ..bots.forms import BotForm
-from ..bots.models import Bot
-from ..api_tokens.views import ApiTokenTable
 from ..api_tokens.forms import ApiTokenForm
 from ..api_tokens.models import ApiToken
-from ..refresh_tokens.views import RefreshTokenTable
+from ..api_tokens.views import ApiTokenTable
+from ..bots.forms import BotForm
+from ..bots.models import Bot
+from ..bots.tables import BotTable
+from ..database_credentials.forms import DatabaseCredentialForm
+from ..database_credentials.models import DatabaseCredential
+from ..database_credentials.tables import DatabaseCredentialTable
+from ..reddit_apps.forms import RedditAppForm
+from ..reddit_apps.models import RedditApp
+from ..reddit_apps.tables import RedditAppTable
 from ..refresh_tokens.forms import GenerateRefreshTokenForm
 from ..refresh_tokens.models import RefreshToken
-from ..user_verifications.views import UserVerificationTable
+from ..refresh_tokens.views import RefreshTokenTable
+from ..sentry_tokens.forms import SentryTokenForm
+from ..sentry_tokens.models import SentryToken
+from ..sentry_tokens.tables import SentryTokenTable
 from ..user_verifications.forms import UserVerificationForm
 from ..user_verifications.models import UserVerification
+from ..user_verifications.views import UserVerificationTable
+from ...extensions import ModelForm, db, paginateArgs, requiresAdmin, verifyEditable
+from ...extensions.api import abort
+
 
 log = logging.getLogger(__name__)
 
@@ -112,7 +113,7 @@ def editUser(user):
             if 'root' in unflattenedForm:
                 defaultSettings = {item['setting']: item['value'] for item in unflattenedForm['root']}
             if user.default_settings != defaultSettings:
-                itemsToUpdate.append({"op": "replace", "path": f'/default_settings', "value": defaultSettings})
+                itemsToUpdate.append({'op': 'replace', 'path': f'/default_settings', 'value': defaultSettings})
                 newDefaultSettings = defaultSettings
             else:
                 newDefaultSettings = user.default_settings
@@ -126,15 +127,15 @@ def editUser(user):
                                 if item == 'password':
                                     if not form.updatePassword.data:
                                         continue
-                                itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
+                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
                     else:
                         if getattr(user, item) != getattr(form, item).data:
-                            itemsToUpdate.append({"op": "replace", "path": f'/{item}', "value": getattr(form, item).data})
+                            itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
             if itemsToUpdate:
                 for item in itemsToUpdate:
                     PatchUserDetailsParameters().validate_patch_structure(item)
                 try:
-                    with api.commit_or_abort(db.session, default_error_message="Failed to update User details."):
+                    with api.commit_or_abort(db.session, default_error_message='Failed to update User details.'):
                         PatchUserDetailsParameters.perform_patch(itemsToUpdate, user)
                         db.session.merge(user)
                         flash(f'User {user.username!r} saved successfully!', 'success')
@@ -150,8 +151,7 @@ def editUser(user):
             for defaultSetting, settingValue in user.default_settings.items():
                 if defaultSetting in value.data:
                     getattr(value, defaultSetting).data = settingValue
-    return render_template('edit_user.html', user=user, usersForm=form, defaultSettings=json.dumps([{"Setting": key,"Default Value": value} for key, value in newDefaultSettings.items()]), showOld=showOld, **kwargs)
-
+    return render_template('edit_user.html', user=user, usersForm=form, defaultSettings=json.dumps([{'Setting': key, 'Default Value': value} for key, value in newDefaultSettings.items()]), showOld=showOld, **kwargs)
 
 # noinspection PyUnresolvedReferences
 @usersBlueprint.route('/u/<User:user>/<item>/', methods=['GET', 'POST'])
@@ -178,12 +178,10 @@ def itemsPerUser(user, item):
             data = form.data
             if item == 'api_tokens':
                 length = int(data['length'])
-            # del data['csrf_token']
             for delAttr in validItems[item][3]:
                 del data[delAttr]
-            # if item == 'refresh_tokens':
 
-            model = Model(owner_id = data['owner'].id, **data)
+            model = Model(owner_id=data['owner'].id, **data)
             if item == 'api_tokens':
                 model.generate_token(length)
             db.session.add(model)
@@ -224,10 +222,10 @@ def itemsPerUser(user, item):
 #                     if not isinstance(getattr(form, field), BooleanField):
 #                         if getattr(form, field).data:
 #                             if getattr(model, field) != getattr(form, field).data:
-#                                 itemsToUpdate.append({"op": "replace", "path": f'/{field}', "value": getattr(form, field).data})
+#                                 itemsToUpdate.append({'op': 'replace', 'path': f'/{field}', 'value': getattr(form, field).data})
 #                     else:
 #                         if getattr(model, field) != getattr(form, field).data:
-#                             itemsToUpdate.append({"op": "replace", "path": f'/{field}', "value": getattr(form, field).data})
+#                             itemsToUpdate.append({'op': 'replace', 'path': f'/{field}', 'value': getattr(form, field).data})
 #             if itemsToUpdate:
 #                 response = requests.patch(f'{request.host_url}api/v1/api_tokens/{model.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
 #                 if response.status_code == 200:

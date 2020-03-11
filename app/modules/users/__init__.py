@@ -1,17 +1,10 @@
-"""
-Users module
-============
-"""
-
 from app.extensions.api import api_v1
 
 
 def init_app(app, **kwargs):
-
-    """
+    '''
     Init users module.
-    """
-    # Touch underlying modules
+    '''
     from . import models, resources, converters, views
 
     api_v1.add_namespace(resources.api)

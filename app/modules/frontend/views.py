@@ -1,8 +1,8 @@
 import logging
-from functools import wraps
 
-from flask import Blueprint, request, render_template, redirect, url_for, flash
-from flask_login import current_user, login_user, logout_user, login_required
+from flask import Blueprint, redirect, render_template
+from flask_login import current_user, login_required
+
 
 log = logging.getLogger(__name__)
 
@@ -19,6 +19,7 @@ def root():
 @login_required
 def dash():
     return render_template('dash.html')
+
 #
 # def requiresAdmin(func):
 #     @wraps(func)
@@ -112,7 +113,7 @@ def dash():
 #                 data = (base64.b64encode(crypto.encrypt(token)).decode(), redditor, client_id, scopes, appName, appType, issued)
 #                 print(f'data: {data}')
 #                 log(f'data: {data}')
-#                 sql.execute("SELECT * FROM oauth.refreshtokens WHERE redditor=%s AND appname=%s AND NOT revoked", (redditor, appName))
+#                 sql.execute('SELECT * FROM oauth.refreshtokens WHERE redditor=%s AND appname=%s AND NOT revoked', (redditor, appName))
 #                 results = sql.fetchall()
 #                 if results:
 #                     for result in results:

@@ -7,29 +7,29 @@ from app.modules.users.models import User
 
 
 class DenyAbortMixin(object):
-    """
+    '''
     A helper permissions mixin raising an HTTP Error (specified in
     ``DENY_ABORT_CODE``) on deny.
 
     NOTE: Apply this mixin before Rule class so it can override NotImplemented
     deny method.
-    """
+    '''
 
     DENY_ABORT_HTTP_CODE = HTTPStatus.FORBIDDEN
     DENY_ABORT_MESSAGE = None
 
     def deny(self):
-        """
+        '''
         Abort HTTP request by raising HTTP error exception with a specified
         HTTP code.
-        """
+        '''
         return abort(code=self.DENY_ABORT_HTTP_CODE, message=self.DENY_ABORT_MESSAGE)
 
 class Rule(BaseRule):
-    """
+    '''
     Experimental base Rule class that helps to automatically handle inherited
     rules.
-    """
+    '''
 
     def base(self):
         # XXX: it handles only the first appropriate Rule base class
@@ -41,25 +41,25 @@ class Rule(BaseRule):
         return None
 
 class AllowAllRule(Rule):
-    """
+    '''
     Helper rule that always grants access.
-    """
+    '''
 
     def check(self):
         return True
 
 class WriteAccessRule(DenyAbortMixin, Rule):
-    """
+    '''
     Ensure that the current_user has has write access.
-    """
+    '''
 
     def check(self):
         return current_user.is_regular_user
 
 class ActiveUserRoleRule(DenyAbortMixin, Rule):
-    """
+    '''
     Ensure that the current_user is activated.
-    """
+    '''
 
     def check(self):
         # Do not override DENY_ABORT_HTTP_CODE because inherited classes will
@@ -69,9 +69,9 @@ class ActiveUserRoleRule(DenyAbortMixin, Rule):
         return current_user.is_active
 
 class PasswordRequiredRule(DenyAbortMixin, Rule):
-    """
+    '''
     Ensure that the current user has provided a correct password.
-    """
+    '''
 
     def __init__(self, password, **kwargs):
         super(PasswordRequiredRule, self).__init__(**kwargs)
@@ -81,9 +81,9 @@ class PasswordRequiredRule(DenyAbortMixin, Rule):
         return current_user.password == self._password
 
 class AdminRoleRule(ActiveUserRoleRule):
-    """
+    '''
     Ensure that the current_user has an Admin role.
-    """
+    '''
 
     def __init__(self, obj=None, **kwargs):
         super(AdminRoleRule, self).__init__(**kwargs)
@@ -100,25 +100,25 @@ class AdminRoleRule(ActiveUserRoleRule):
         return current_user.is_admin
 
 class InternalRoleRule(ActiveUserRoleRule):
-    """
+    '''
     Ensure that the current_user has an Internal role.
-    """
+    '''
 
     def check(self):
         return current_user.is_internal
 
 class PartialPermissionDeniedRule(Rule):
-    """
+    '''
     Helper rule that must fail on every check since it should never be checked.
-    """
+    '''
 
     def check(self):
-        raise RuntimeError("Partial permissions are not intended to be checked")
+        raise RuntimeError('Partial permissions are not intended to be checked')
 
 class OwnerRoleRule(ActiveUserRoleRule):
-    """
+    '''
     Ensure that the current_user has an Owner access to the given object.
-    """
+    '''
 
     def __init__(self, obj, **kwargs):
         super(OwnerRoleRule, self).__init__(**kwargs)

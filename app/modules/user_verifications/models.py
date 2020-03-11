@@ -1,7 +1,8 @@
 import logging
 from datetime import datetime
 
-from app.extensions import db, InfoAttrs, StrName, foreignKeyKwargs
+from app.extensions import InfoAttrs, db, foreignKeyKwargs
+
 
 log = logging.getLogger(__name__)
 

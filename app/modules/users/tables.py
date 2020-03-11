@@ -1,14 +1,12 @@
-from flask import current_app
-from datetime import datetime, timezone
 from flask_login import current_user
-from flask_table import Col, LinkCol
 
-from app.extensions.frontend.tables import BaseTable, BoolIconColumn, CreatedBy, ObjectCountCol, OwnerCol
+from app.extensions.frontend.tables import BaseTable, BoolIconColumn, ObjectCountCol, OwnerCol
+
 
 class UserTable(BaseTable):
 
     def __init__(self, items, *args, **kwargs):
-        self.add_column('Username', OwnerCol('Name', 'username', td_html_attrs={'style':'text-align:left'}))
+        self.add_column('Username', OwnerCol('Name', 'username', td_html_attrs={'style': 'text-align:left'}))
         self.add_column('Bots', ObjectCountCol('Bots', 'bots'))
         self.add_column('Reddit Apps', ObjectCountCol('Reddit Apps', 'reddit_apps'))
         self.add_column('Database Credentials', ObjectCountCol('Database Credentials', 'database_credentials'))

@@ -1,10 +1,10 @@
-from app.extensions.frontend.tables import DatetimeColumn, BaseCol, BaseTable, OwnerCol, BoolIconColumn
+from app.extensions.frontend.tables import BaseCol, BaseTable, BoolIconColumn, DatetimeColumn, OwnerCol
 
 
 class DatabaseCredentialTable(BaseTable):
 
     def __init__(self, items, current_user=None):
-        self.add_column('Name', BaseCol('Name', 'app_name', td_html_attrs={'style':'text-align:left'}))
+        self.add_column('Name', BaseCol('Name', 'app_name', td_html_attrs={'style': 'text-align:left'}))
         self.add_column('Flavor', BaseCol('Flavor', 'database_flavor'))
         self.add_column('Database Host', BaseCol('Database Host', 'database_host'))
         self.add_column('SSH Tunnel', BoolIconColumn('SSH Tunnel', 'use_ssh'))

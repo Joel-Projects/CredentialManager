@@ -1,6 +1,8 @@
+from werkzeug.routing import BaseConverter
+
 from app.extensions.api import abort
 from app.modules.sentry_tokens.models import SentryToken
-from werkzeug.routing import BaseConverter
+
 
 class SentryTokenConverter(BaseConverter):
 

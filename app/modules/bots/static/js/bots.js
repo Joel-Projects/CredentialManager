@@ -1,4 +1,3 @@
-
 $(document).ready(function () {
     $("#bots_table").tablesorter({
         theme: "bootstrap",

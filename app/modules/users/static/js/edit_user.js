@@ -1,4 +1,4 @@
-    $("#editUserForm").submit(function (e) {
-        e.preventDefault();
+$("#editUserForm").submit(function (e) {
+    e.preventDefault();
 
-    });
+});

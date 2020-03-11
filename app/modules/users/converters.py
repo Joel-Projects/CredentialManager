@@ -1,6 +1,7 @@
-from app.extensions.api import abort
-from app.modules.users.models import User
 from werkzeug.routing import BaseConverter
+
+from app.modules.users.models import User
+
 
 class UserConverter(BaseConverter):
 

@@ -1,9 +1,8 @@
-# pylint: disable=missing-docstring
-"""
+'''
 This file contains initialization data for development usage only.
 
 You can execute this code via ``invoke app.db.init_development_data``
-"""
+'''
 from app.extensions import db, api
 
 from app.modules.users.models import User
@@ -42,19 +41,18 @@ def init_users():
         db.session.add(internal_user)
     return root_user, docs_user, regular_user
 
-def init_auth(root_user, docs_user, regular_user ):
+def init_auth(root_user, docs_user, regular_user):
     with db.session.begin():
-        apiToken = ApiToken(name='test', token='secret', owner_id=docs_user.id,)
+        apiToken = ApiToken(name='test', token='secret', owner_id=docs_user.id, )
         db.session.add(apiToken)
-        apiToken2 = ApiToken(name='test', token='secret', owner_id=root_user.id,)
+        apiToken2 = ApiToken(name='test', token='secret', owner_id=root_user.id, )
         db.session.add(apiToken2)
-        apiToken3 = ApiToken(name='test', token='secret', owner_id=regular_user.id,)
+        apiToken3 = ApiToken(name='test', token='secret', owner_id=regular_user.id, )
         db.session.add(apiToken3)
     return apiToken
 
 def init():
-
-    assert User.query.count() == 0,  "Database is not empty. You should not re-apply fixtures! Aborted."
+    assert User.query.count() == 0, 'Database is not empty. You should not re-apply fixtures! Aborted.'
 
     root_user, docs_user, regular_user = init_users()
     init_auth(root_user, docs_user, regular_user)

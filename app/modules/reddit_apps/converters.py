@@ -1,6 +1,8 @@
+from werkzeug.routing import BaseConverter
+
 from app.extensions.api import abort
 from .models import RedditApp
-from werkzeug.routing import BaseConverter
+
 
 class RedditAppConverter(BaseConverter):
 

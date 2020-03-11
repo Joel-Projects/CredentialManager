@@ -1,12 +1,6 @@
-from datetime import datetime, timedelta
-
-from mock import Mock
-
 from flask import request
 
 from app.modules import auth
-from app.modules import api_tokens
-from app.modules.api_tokens.models import ApiToken
 
 
 def test_loading_user_from_anonymous_request(flask_app):

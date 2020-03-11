@@ -1,13 +1,9 @@
-"""
-Auth module
-===========
-"""
-import logging, base64
-from datetime import timedelta
+import base64
+import logging
 
 from app.extensions import login_manager
-from flask_login import login_user, current_user
 from app.modules.users.models import User
+
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +25,6 @@ def loadUserFromRequest(request):
     return user
 
 def init_app(app, **kwargs):
-
     login_manager.request_loader(loadUserFromRequest)
     login_manager.login_view = 'auth.login'
 

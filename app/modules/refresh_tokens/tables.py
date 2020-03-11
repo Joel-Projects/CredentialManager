@@ -1,10 +1,10 @@
-from app.extensions.frontend.tables import DatetimeColumn, BaseCol, BaseTable, OwnerCol, BoolIconColumn
+from app.extensions.frontend.tables import BaseCol, BaseTable, BoolIconColumn, DatetimeColumn, OwnerCol
 
 
 class RefreshTokenTable(BaseTable):
 
     def __init__(self, items, current_user=None, showOld=False):
-        self.add_column('Redditor', BaseCol('Redditor', 'redditor', td_html_attrs={'style':'text-align:left'}))
+        self.add_column('Redditor', BaseCol('Redditor', 'redditor', td_html_attrs={'style': 'text-align:left'}))
         self.add_column('Reddit App', BaseCol('Reddit App', 'reddit_app'))
         self.add_column('Issued At', DatetimeColumn('Issued', attr='issued_at'))
         if showOld:

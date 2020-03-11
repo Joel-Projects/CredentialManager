@@ -1,7 +1,5 @@
-import sqlalchemy
-from sqlalchemy_utils import ChoiceType, URLType
+from app.extensions import InfoAttrs, StrName, Timestamp, db
 
-from app.extensions import db, InfoAttrs, Timestamp, StrName
 
 class DatabaseCredential(db.Model, Timestamp, InfoAttrs, StrName):
 

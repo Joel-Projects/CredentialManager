@@ -125,9 +125,9 @@
 }
 
 .jumbotron {
-  overflow-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .container {
-  padding-bottom: 15px !important;
+    padding-bottom: 15px !important;
 }

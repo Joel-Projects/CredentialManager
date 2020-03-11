@@ -1,14 +1,9 @@
-'''
-Flask-SQLAlchemy adapter
-------------------------
-'''
 import operator
 
 import sqlalchemy
 from datetime import datetime
-from sqlalchemy import Column, DateTime, ForeignKey, Integer
+from sqlalchemy import Column, DateTime
 from flask_sqlalchemy import SQLAlchemy as BaseSQLAlchemy, _QueryProperty
-from sqlalchemy.orm import relationship, backref
 
 
 class AlembicDatabaseMigrationConfig(object):
@@ -42,38 +37,17 @@ class SQLAlchemy(BaseSQLAlchemy):
         super(SQLAlchemy, self).init_app(app)
 
         database_uri = app.config['SQLALCHEMY_DATABASE_URI']
-        assert database_uri, "SQLALCHEMY_DATABASE_URI must be configured!"
+        assert database_uri, 'SQLALCHEMY_DATABASE_URI must be configured!'
 
         app.extensions['migrate'] = AlembicDatabaseMigrationConfig(self, compare_type=True)
 
 class Timestamp(object):
-    '''Adds `created` and `updated` columns to a derived declarative model.
-
-    The `created` column is handled through a default and the `updated`
-    column is handled through a `before_update` event that propagates
-    for all derived declarative models.
-
-    ::
-
-
-        import sqlalchemy as sa
-        from sqlalchemy_utils import Timestamp
-
-
-        class SomeModel(Base, Timestamp):
-            __tablename__ = 'somemodel'
-            id = sa.Column(sa.Integer, primary_key=True)
-    '''
-
     created = Column(DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False)
     updated = Column(DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False)
-
 
 # noinspection PyUnresolvedReferences
 @sqlalchemy.event.listens_for(Timestamp, 'before_update', propagate=True)
 def timestamp_before_update(mapper, connection, target):
-    # When a model with a timestamp is updated; force update the updated
-    # timestamp.
     target.updated = datetime.astimezone(datetime.utcnow())
 
 class InfoAttrs(object):
@@ -91,7 +65,6 @@ class StrName(object):
 
     def __str__(self):
         return getattr(self, self._nameAttr)
-
 
 class QueryProperty(object):
     query = _QueryProperty(super(SQLAlchemy))

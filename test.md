@@ -30,7 +30,8 @@
         - [ ] list for user
         - [ ] tests for each
     - sentry_tokens
-        - [ ] create - [ ] needs more testing
+        - [ ] create 
+        - [ ] needs more testing
         - [ ] delete
         - [ ] list for user
         - [ ] tests for each
@@ -133,14 +134,3 @@
         - [x] toggle
             - [x] main endpoint
             - [x] user/profile view
-            
-            
-test
-web app
-IMm-Mg5agA_JZw
-change icon
-secret	_NK5DW8t52Wj7WMrsbHHAqyYvv4
-name
-description
-about url
-redirect uri

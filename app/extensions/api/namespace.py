@@ -1,8 +1,3 @@
-"""
-Extended Api Namespace implementation with an application-specific helpers
---------------------------------------------------------------------------
-"""
-import functools
 from contextlib import contextmanager
 from functools import wraps
 import logging
@@ -16,17 +11,15 @@ from flask_restplus._http import HTTPStatus
 from . import http_exceptions
 from .webargs_parser import CustomWebargsParser
 
+
 log = logging.getLogger(__name__)
 
 class Namespace(BaseNamespace):
-    """
-    Having app-specific handlers here.
-    """
 
     WEBARGS_PARSER = CustomWebargsParser()
 
     def resolveObjectToModel(self, model, object_arg_name, identity_arg_names=None):
-        """
+        '''
         A helper decorator to resolve DB record instance by id.
 
         Arguments:
@@ -46,17 +39,17 @@ class Namespace(BaseNamespace):
         >>> @namespace.resolveObjectToModel(MyModel, 'my_model', ('user_id', 'model_name'))
         ... def get_object_by_two_primary_keys(my_model):
         ...     return my_model
-        >>> get_object_by_two_primary_keys(user_id=3, model_name="test")
-        <MyModel(user_id=3, name="test", ...)>
-        """
+        >>> get_object_by_two_primary_keys(user_id=3, model_name='test')
+        <MyModel(user_id=3, name='test', ...)>
+        '''
         if identity_arg_names is None:
             identity_arg_names = (f'{object_arg_name}_id',)
         elif not isinstance(identity_arg_names, (list, tuple)):
-            identity_arg_names = (identity_arg_names, )
+            identity_arg_names = (identity_arg_names,)
         return self.resolve_object(object_arg_name, resolver=lambda kwargs: model.query.get_or_404([kwargs.pop(identity_arg_name) for identity_arg_name in identity_arg_names]))
 
     def resolveItemTypeToModel(self, object_arg_name, identity_arg_names=None):
-        """
+        '''
         A helper decorator to resolve DB record instance by id.
 
         Arguments:
@@ -76,17 +69,17 @@ class Namespace(BaseNamespace):
         >>> @namespace.resolveObjectToModel(MyModel, 'my_model', ('user_id', 'model_name'))
         ... def get_object_by_two_primary_keys(my_model):
         ...     return my_model
-        >>> get_object_by_two_primary_keys(user_id=3, model_name="test")
-        <MyModel(user_id=3, name="test", ...)>
-        """
+        >>> get_object_by_two_primary_keys(user_id=3, model_name='test')
+        <MyModel(user_id=3, name='test', ...)>
+        '''
         if identity_arg_names is None:
             identity_arg_names = (f'{object_arg_name}_id',)
         elif not isinstance(identity_arg_names, (list, tuple)):
-            identity_arg_names = (identity_arg_names, )
+            identity_arg_names = (identity_arg_names,)
         return self.resolve_object(object_arg_name, resolver=lambda kwargs: model.query.get_or_404([kwargs.pop(identity_arg_name) for identity_arg_name in identity_arg_names]))
 
     def resolveObjectToModelFromArgs(self, model, object_arg_name, identity_arg_names=None):
-        """
+        '''
         A helper decorator to resolve DB record instance by id.
 
         Arguments:
@@ -106,24 +99,24 @@ class Namespace(BaseNamespace):
         >>> @namespace.resolveObjectToModel(MyModel, 'my_model', ('user_id', 'model_name'))
         ... def get_object_by_two_primary_keys(my_model):
         ...     return my_model
-        >>> get_object_by_two_primary_keys(user_id=3, model_name="test")
-        <MyModel(user_id=3, name="test", ...)>
-        """
+        >>> get_object_by_two_primary_keys(user_id=3, model_name='test')
+        <MyModel(user_id=3, name='test', ...)>
+        '''
         if identity_arg_names is None:
             identity_arg_names = (f'{object_arg_name}_id',)
         elif not isinstance(identity_arg_names, (list, tuple)):
-            identity_arg_names = (identity_arg_names, )
+            identity_arg_names = (identity_arg_names,)
         return self.resolveFromArgs(object_arg_name, resolver=lambda kwargs: model.query.get_or_404([kwargs.pop(identity_arg_name) for identity_arg_name in identity_arg_names]))
 
     def model(self, name=None, model=None, **kwargs):
 
-        """
+        '''
         A decorator which registers a model (aka schema / definition).
 
         This extended implementation auto-generates a name for
         ``Flask-Marshmallow.Schema``-based instances by using a class name
         with stripped off `Schema` prefix.
-        """
+        '''
         if isinstance(model, flask_marshmallow.Schema) and not name:
             name = model.__class__.__name__
             if name.endswith('Schema'):
@@ -148,12 +141,12 @@ class Namespace(BaseNamespace):
             else:
                 protected_func = self.permission_required(permissions.ActiveUserRolePermission())(func)
 
-            return self.doc(security=['apiKey', 'basic'])(self.response(code=HTTPStatus.UNAUTHORIZED.value, description="Authentication is required"))(protected_func)
+            return self.doc(security=['apiKey', 'basic'])(self.response(code=HTTPStatus.UNAUTHORIZED.value, description='Authentication is required'))(protected_func)
 
         return decorator
 
     def permission_required(self, permission, kwargs_on_request=None):
-        """
+        '''
         A decorator which restricts access for users with a specific
         permissions only.
 
@@ -179,11 +172,12 @@ class Namespace(BaseNamespace):
         ...     # This line will be reached only if OwnerRolePermission check
         ...     # is passed!
         ...     return team
-        """
+        '''
+
         def decorator(func):
-            """
+            '''
             A helper wrapper.
-            """
+            '''
             # Avoid circilar dependency
             from app.modules.users import permissions
 
@@ -200,6 +194,7 @@ class Namespace(BaseNamespace):
                         def wrapper(*args, **kwargs):
                             with permission(**kwargs_on_request(kwargs)):
                                 return func(*args, **kwargs)
+
                         return wrapper
 
                 protected_func = _permission_decorator(func)
@@ -208,14 +203,14 @@ class Namespace(BaseNamespace):
                     isinstance(permission, permissions.RolePermission)
                     or
                     (
-                        isinstance(permission, type) and issubclass(permission, permissions.RolePermission)
+                            isinstance(permission, type) and issubclass(permission, permissions.RolePermission)
                     )
             ):
                 protected_func._role_permission_applied = True
 
             permission_description = permission.__doc__.strip()
             return self.doc(
-                description=f"**PERMISSIONS: {permission_description}**\n\n"
+                description=f'**PERMISSIONS: {permission_description}**\n\n'
             )(self.response(
                 code=HTTPStatus.FORBIDDEN.value,
                 description=permission_description
@@ -224,23 +219,23 @@ class Namespace(BaseNamespace):
         return decorator
 
     def _register_access_restriction_decorator(self, func, decorator_to_register):
-        """
+        '''
         Helper function to register decorator to function to perform checks
         in options method
-        """
+        '''
         if not hasattr(func, '_access_restriction_decorators'):
             func._access_restriction_decorators = []
         func._access_restriction_decorators.append(decorator_to_register)
 
     def paginate(self, parameters=None, locations=None):
-        """
+        '''
         Endpoint parameters registration decorator special for pagination.
         If ``parameters`` is not provided default PaginationParameters will be
         used.
 
         Also, any custom Parameters can be used, but it needs to have ``limit`` and ``offset``
         fields.
-        """
+        '''
         if not parameters:
             # Use default parameters if None specified
             from app.extensions.api.parameters import PaginationParameters
@@ -255,18 +250,20 @@ class Namespace(BaseNamespace):
                 queryset = func(self_, parameters_args, *args, **kwargs)
                 total_count = queryset.count()
                 return queryset.offset(parameters_args['offset']).limit(parameters_args['limit']), HTTPStatus.OK, {'X-Total-Count': total_count}
+
             return self.parameters(parameters, locations)(wrapper)
+
         return decorator
 
     @contextmanager
-    def commit_or_abort(self, session, default_error_message="The operation failed to complete", **kwargs):
+    def commit_or_abort(self, session, default_error_message='The operation failed to complete', **kwargs):
 
         try:
             with session.begin():
                 yield
         except ValueError as exception:
-            log.info(f"Database transaction was rolled back due to: {exception!r}")
+            log.info(f'Database transaction was rolled back due to: {exception!r}')
             http_exceptions.abort(code=HTTPStatus.CONFLICT, message=str(exception), **kwargs)
         except sqlalchemy.exc.IntegrityError as exception:
-            log.info(f"Database transaction was rolled back due to: {exception!r}")
+            log.info(f'Database transaction was rolled back due to: {exception!r}')
             http_exceptions.abort(code=HTTPStatus.CONFLICT, message=default_error_message, **kwargs)

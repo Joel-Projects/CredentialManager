@@ -1,13 +1,13 @@
-from flask_marshmallow import base_fields
 from flask_restplus_patched import ModelSchema
 
 from .models import RefreshToken
 
 
 class BaseRefreshTokenSchema(ModelSchema):
-    """
+    '''
     Base Refresh Token schema exposes only the most general fields.
-    """
+    '''
+
     class Meta:
         model = RefreshToken
         fields = (
@@ -18,9 +18,10 @@ class BaseRefreshTokenSchema(ModelSchema):
         )
 
 class DetailedRefreshTokenSchema(BaseRefreshTokenSchema):
-    """
+    '''
     Detailed Refresh Token schema exposes all useful fields.
-    """
+    '''
+
     class Meta(BaseRefreshTokenSchema.Meta):
         fields = BaseRefreshTokenSchema.Meta.fields + (
             RefreshToken.owner_id.key,

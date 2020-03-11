@@ -1,6 +1,8 @@
+from werkzeug.routing import BaseConverter
+
 from app.extensions.api import abort
 from app.modules.bots.models import Bot
-from werkzeug.routing import BaseConverter
+
 
 class BotConverter(BaseConverter):
 

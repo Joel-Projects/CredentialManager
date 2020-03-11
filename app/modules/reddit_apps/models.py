@@ -1,7 +1,13 @@
-import praw, base64, logging
+import base64
+import logging
+import praw
+from flask_login import current_user
+from flask_restplus._http import HTTPStatus
 from sqlalchemy_utils import ChoiceType, URLType
 
-from app.extensions import db, InfoAttrs, Timestamp, StrName
+from app.extensions import InfoAttrs, StrName, Timestamp, db
+from app.extensions.api import http_exceptions
+
 
 log = logging.getLogger(__name__)
 
@@ -80,6 +86,16 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         except Exception as error:
             log.exception(error)
         return result, discord_id
+
+    def getRefreshToken(self, redditor):
+        if current_user.is_admin or current_user.is_internal:
+            tokens = [i for i in self.refresh_tokens if i.redditor == redditor and not i.revoked]
+        else:
+            tokens = [i for i in self.refresh_tokens if i.redditor == redditor and not i.revoked and i.owner == current_user]
+        if tokens:
+            return tokens[0]
+        else:
+            http_exceptions.abort(HTTPStatus.NOT_FOUND, 'Refresh token for specified Redditor was not found.')
 
     @property
     def redditInstance(self) -> praw.Reddit.__class__:

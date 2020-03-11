@@ -1,15 +1,13 @@
-from flask_login import current_user
 from flask_marshmallow import base_fields
-
-from .models import SentryToken
-from . import schemas
-from flask_restplus_patched import PostFormParameters, PatchJSONParameters
-from marshmallow import validates, ValidationError
+from marshmallow import ValidationError, validates
 
 from app.extensions.api.parameters import PaginationParameters, validateOwner
+from flask_restplus_patched import PatchJSONParameters, PostFormParameters
+from . import schemas
+from .models import SentryToken
+
 
 class ListSentryTokensParameters(PaginationParameters, validateOwner):
-
     owner_id = base_fields.Integer()
 
     invalidOwnerMessage = 'You can only query your own {}.'
@@ -25,11 +23,11 @@ class CreateSentryTokenParameters(PostFormParameters, schemas.BaseSentryTokenSch
     @validates('app_name')
     def validateName(self, data):
         if len(data) < 3:
-            raise ValidationError("Name must be greater than 3 characters long.")
+            raise ValidationError('Name must be greater than 3 characters long.')
 
 class PatchSentryTokenDetailsParameters(PatchJSONParameters):
-    """
+    '''
     Sentry Token details updating parameters following PATCH JSON RFC.
-    """
+    '''
     fields = (SentryToken.app_name.key, SentryToken.dsn.key, SentryToken.enabled.key)
     PATH_CHOICES = tuple(f'/{field}' for field in fields)

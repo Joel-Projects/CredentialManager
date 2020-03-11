@@ -12,16 +12,13 @@ class SchemaMixin(object):
         # marshmallow.Schema doesn't support deepcopyng.
         return self
 
-
 class Schema(SchemaMixin, flask_marshmallow.Schema):
     pass
-
 
 if flask_marshmallow.has_sqla:
     class ModelSchema(SchemaMixin, flask_marshmallow.sqla.ModelSchema):
         dateformat = '%m/%d/%Y %I:%M:%S %p %Z'
         pass
-
 
 class DefaultHTTPErrorSchema(Schema):
     status = flask_marshmallow.base_fields.Integer()
@@ -31,7 +28,6 @@ class DefaultHTTPErrorSchema(Schema):
         super(DefaultHTTPErrorSchema, self).__init__(**kwargs)
         self.fields['status'].default = http_code
 
-
 class Model(OriginalModel):
 
     def __init__(self, name, model, **kwargs):
@@ -39,7 +35,6 @@ class Model(OriginalModel):
         if not hasattr(model, '__schema__') and not (isinstance(model, list) and '__schema__' in model[0]):
             model = {'__schema__': model}
         super(Model, self).__init__(name, model, **kwargs)
-
 
     @cached_property
     def __schema__(self):

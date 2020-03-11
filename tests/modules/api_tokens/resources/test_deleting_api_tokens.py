@@ -1,6 +1,7 @@
 import pytest
 from app.modules.api_tokens.models import ApiToken
 
+
 def assertSuccess(response, token):
     assert response.status_code == 204
     assert response.content_type == 'text/html; charset=utf-8'
@@ -33,7 +34,6 @@ def assertInactive(response, token):
 @pytest.mark.parametrize('token', [pytest.lazy_fixture('regularUserApiToken'), pytest.lazy_fixture('adminUserApiToken'), pytest.lazy_fixture('internalUserApiToken')], ids=['regular_user_token', 'admin_user_token', 'internal_user_token'])
 @pytest.mark.parametrize('deletingUser', [pytest.lazy_fixture('admin_user'), pytest.lazy_fixture('deactivated_admin_user'), pytest.lazy_fixture('internal_user'), pytest.lazy_fixture('regular_user')], ids=['as_admin_user', 'as_deactivated_admin_user', 'as_internal_user', 'as_regular_user'])
 def test_deleting_api_token(flask_app_client, token: ApiToken, deletingUser):
-
     with flask_app_client.login(deletingUser):
         response = flask_app_client.delete(f'/api/v1/api_tokens/{token.id}')
 

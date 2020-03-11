@@ -1,4 +1,3 @@
-# pylint: disable=missing-docstring
 import json
 
 from jsonschema import RefResolver

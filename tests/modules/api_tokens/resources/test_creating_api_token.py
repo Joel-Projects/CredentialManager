@@ -1,4 +1,3 @@
-
 def assertSuccess(response, tokenOwner):
     assert response.status_code == 200
     assert response.content_type == 'application/json'
@@ -20,14 +19,14 @@ def assertSuccess(response, tokenOwner):
 def test_creating_api_token_for_admin_user_by_admin_user(flask_app_client, admin_user, admin_user2):
     tokenOwner = admin_user
     with flask_app_client.login(admin_user2):
-        response = flask_app_client.post('/api/v1/api_tokens/',data={'name': 'testToken', 'owner_id': tokenOwner.id})
+        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
 
     assertSuccess(response, tokenOwner)
 
 def test_creating_api_token_for_admin_user_by_deactivated_admin_user(flask_app_client, admin_user, deactivated_admin_user):
     tokenOwner = admin_user
     with flask_app_client.login(deactivated_admin_user):
-        response = flask_app_client.post('/api/v1/api_tokens/',data={'name': 'testToken', 'owner_id': tokenOwner.id})
+        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
 
     assert response.status_code == 401
     assert response.content_type == 'application/json'
@@ -43,14 +42,14 @@ def test_creating_api_token_for_admin_user_by_deactivated_admin_user(flask_app_c
 def test_creating_api_token_for_admin_user_by_internal_user(flask_app_client, admin_user, internal_user):
     tokenOwner = admin_user
     with flask_app_client.login(internal_user):
-        response = flask_app_client.post('/api/v1/api_tokens/',data={'name': 'testToken', 'owner_id': tokenOwner.id})
+        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
 
     assertSuccess(response, tokenOwner)
 
 def test_creating_api_token_for_admin_user_by_regular_user(flask_app_client, admin_user, regular_user):
     tokenOwner = admin_user
     with flask_app_client.login(regular_user):
-        response = flask_app_client.post('/api/v1/api_tokens/',data={'name': 'testToken', 'owner_id': tokenOwner.id})
+        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
 
     assert response.status_code == 403
     assert response.content_type == 'application/json'
@@ -61,14 +60,14 @@ def test_creating_api_token_for_admin_user_by_regular_user(flask_app_client, adm
 def test_creating_api_token_for_admin_user_by_self(flask_app_client, admin_user):
     tokenOwner = admin_user
     with flask_app_client.login(admin_user):
-        response = flask_app_client.post('/api/v1/api_tokens/',data={'name': 'testToken', 'owner_id': tokenOwner.id})
+        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
 
     assertSuccess(response, tokenOwner)
 
 def test_creating_api_token_for_internal_user_by_admin_user(flask_app_client, internal_user, admin_user):
     tokenOwner = internal_user
     with flask_app_client.login(admin_user):
-        response = flask_app_client.post('/api/v1/api_tokens/',data={'name': 'testToken', 'owner_id': tokenOwner.id})
+        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
 
     assert response.status_code == 403
     assert response.content_type == 'application/json'
@@ -79,7 +78,7 @@ def test_creating_api_token_for_internal_user_by_admin_user(flask_app_client, in
 def test_creating_api_token_for_internal_user_by_deactivated_admin_user(flask_app_client, internal_user, deactivated_admin_user):
     tokenOwner = internal_user
     with flask_app_client.login(deactivated_admin_user):
-        response = flask_app_client.post('/api/v1/api_tokens/',data={'name': 'testToken', 'owner_id': tokenOwner.id})
+        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
 
     assert response.status_code == 401
     assert response.content_type == 'application/json'
@@ -95,14 +94,14 @@ def test_creating_api_token_for_internal_user_by_deactivated_admin_user(flask_ap
 def test_creating_api_token_for_internal_user_by_internal_user(flask_app_client, internal_user, internal_user2):
     tokenOwner = internal_user
     with flask_app_client.login(internal_user2):
-        response = flask_app_client.post('/api/v1/api_tokens/',data={'name': 'testToken', 'owner_id': tokenOwner.id})
+        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
 
     assertSuccess(response, tokenOwner)
 
 def test_creating_api_token_for_internal_user_by_regular_user(flask_app_client, internal_user, regular_user):
     tokenOwner = internal_user
     with flask_app_client.login(regular_user):
-        response = flask_app_client.post('/api/v1/api_tokens/',data={'name': 'testToken', 'owner_id': tokenOwner.id})
+        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
 
     assert response.status_code == 403
     assert response.content_type == 'application/json'
@@ -113,14 +112,14 @@ def test_creating_api_token_for_internal_user_by_regular_user(flask_app_client, 
 def test_creating_api_token_for_internal_user_by_self(flask_app_client, internal_user):
     tokenOwner = internal_user
     with flask_app_client.login(internal_user):
-        response = flask_app_client.post('/api/v1/api_tokens/',data={'name': 'testToken', 'owner_id': tokenOwner.id})
+        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
 
     assertSuccess(response, tokenOwner)
 
 def test_creating_api_token_for_regular_user_by_admin_user(flask_app_client, regular_user, admin_user):
     tokenOwner = regular_user
     with flask_app_client.login(admin_user):
-        response = flask_app_client.post('/api/v1/api_tokens/',data={'name': 'testToken', 'owner_id': tokenOwner.id})
+        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
 
     assertSuccess(response, tokenOwner)
 
@@ -137,14 +136,14 @@ def test_creating_api_token_for_regular_user_by_regular_user(flask_app_client, r
 def test_creating_api_token_for_regular_user_by_self(flask_app_client, regular_user):
     tokenOwner = regular_user
     with flask_app_client.login(regular_user):
-        response = flask_app_client.post('/api/v1/api_tokens/',data={'name': 'testToken'})
+        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken'})
 
     assertSuccess(response, tokenOwner)
 
 def test_creating_api_token_for_regular_user_by_self_with_id(flask_app_client, regular_user):
     tokenOwner = regular_user
     with flask_app_client.login(regular_user):
-        response = flask_app_client.post('/api/v1/api_tokens/',data={'name': 'testToken', 'owner_id': regular_user.id})
+        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': regular_user.id})
 
     assertSuccess(response, tokenOwner)
 
@@ -156,7 +155,7 @@ def test_creating_api_token_for_non_existent_user(flask_app_client, admin_user):
     assert response.content_type == 'application/json'
     assert isinstance(response.json, dict)
     assert set(response.json.keys()) >= {'status', 'message', 'messages'}
-    assert response.json['message'] == "The request was well-formed but was unable to be followed due to semantic errors."
+    assert response.json['message'] == 'The request was well-formed but was unable to be followed due to semantic errors.'
 
     def test_creating_api_token_for_bad_name(flask_app_client, admin_user):
         with flask_app_client.login(admin_user):
@@ -166,4 +165,4 @@ def test_creating_api_token_for_non_existent_user(flask_app_client, admin_user):
         assert response.content_type == 'application/json'
         assert isinstance(response.json, dict)
         assert set(response.json.keys()) >= {'status', 'message', 'messages'}
-        assert response.json['message'] == "The request was well-formed but was unable to be followed due to semantic errors."
+        assert response.json['message'] == 'The request was well-formed but was unable to be followed due to semantic errors.'

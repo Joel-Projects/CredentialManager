@@ -1,8 +1,7 @@
-# pylint: disable=missing-docstring
 import json
 
-def test_delete_admin_user_by_admin_user(flask_app_client, admin_user, admin_user2):
 
+def test_delete_admin_user_by_admin_user(flask_app_client, admin_user, admin_user2):
     userToDelete = admin_user2
     with flask_app_client.login(admin_user):
         response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
@@ -49,7 +48,6 @@ def test_delete_admin_user_by_deactivated_regular_user(flask_app_client, admin_u
     assert initalUser is not None
 
 def test_delete_admin_user_by_internal_user(flask_app_client, admin_user, internal_user):
-
     userToDelete = admin_user
     with flask_app_client.login(internal_user):
         response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
@@ -64,7 +62,6 @@ def test_delete_admin_user_by_internal_user(flask_app_client, admin_user, intern
     assert initalUser is None
 
 def test_delete_admin_user_by_regular_user(flask_app_client, admin_user, regular_user):
-
     userToDelete = admin_user
     with flask_app_client.login(regular_user):
         response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
@@ -81,7 +78,6 @@ def test_delete_admin_user_by_regular_user(flask_app_client, admin_user, regular
     assert initalUser is not None
 
 def test_delete_admin_user_by_self(flask_app_client, admin_user):
-
     userToDelete = admin_user
     with flask_app_client.login(admin_user):
         response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
@@ -282,7 +278,6 @@ def test_delete_deactivated_regular_user_by_self(flask_app_client, deactivated_r
     assert initalUser is not None
 
 def test_delete_internal_user_by_admin_user(flask_app_client, admin_user, internal_user):
-
     userToDelete = internal_user
     with flask_app_client.login(admin_user):
         response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
@@ -331,7 +326,6 @@ def test_delete_internal_user_by_deactivated_regular_user(flask_app_client, inte
     assert initalUser is not None
 
 def test_delete_internal_user_by_internal_user(flask_app_client, internal_user, internal_user2):
-
     userToDelete = internal_user
     with flask_app_client.login(internal_user2):
         response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
@@ -346,7 +340,6 @@ def test_delete_internal_user_by_internal_user(flask_app_client, internal_user, 
     assert initalUser is None
 
 def test_delete_internal_user_by_regular_user(flask_app_client, regular_user, internal_user):
-
     userToDelete = internal_user
     with flask_app_client.login(regular_user):
         response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
@@ -363,7 +356,6 @@ def test_delete_internal_user_by_regular_user(flask_app_client, regular_user, in
     assert initalUser is not None
 
 def test_delete_internal_user_by_self(flask_app_client, internal_user):
-
     userToDelete = internal_user
     with flask_app_client.login(internal_user):
         response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
@@ -379,7 +371,6 @@ def test_delete_internal_user_by_self(flask_app_client, internal_user):
     assert initalUser is not None
 
 def test_delete_regular_user_by_admin_user(flask_app_client, admin_user, regular_user):
-
     userToDelete = regular_user
     with flask_app_client.login(admin_user):
         response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
@@ -426,7 +417,6 @@ def test_delete_regular_user_by_deactivated_regular_user(flask_app_client, regul
     assert initalUser is not None
 
 def test_delete_regular_user_by_internal_user(flask_app_client, internal_user, regular_user):
-
     userToDelete = regular_user
     with flask_app_client.login(internal_user):
         response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
@@ -441,7 +431,6 @@ def test_delete_regular_user_by_internal_user(flask_app_client, internal_user, r
     assert initalUser is None
 
 def test_delete_regular_user_by_regular_user(flask_app_client, regular_user, regular_user2):
-
     userToDelete = regular_user2
     with flask_app_client.login(regular_user):
         response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
@@ -458,7 +447,6 @@ def test_delete_regular_user_by_regular_user(flask_app_client, regular_user, reg
     assert initalUser is not None
 
 def test_delete_regular_user_by_self(flask_app_client, regular_user):
-
     userToDelete = regular_user
     with flask_app_client.login(regular_user):
         response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')

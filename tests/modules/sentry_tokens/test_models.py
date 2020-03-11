@@ -1,4 +1,3 @@
-
 # def test_ApiToken_check_owner(readonly_user, regular_user):
 #     regular_user_team_member = models.TeamMember.query.filter(models.TeamMember.team == team_for_regular_user, models.TeamMember.user == readonly_user).first()
 #     assert regular_user_team_member.check_owner(readonly_user)

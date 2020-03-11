@@ -52,8 +52,8 @@ def assertInactive(response, loginAs):
     assert createdUser is None
 
 # noinspection PyUnresolvedReferences
-@pytest.mark.parametrize('is_active',[True, False], ids=['is_active', 'is_not_active'])
-@pytest.mark.parametrize('is_internal,is_admin,is_regular_user',[(True, False, False), (False, True, True), (False, False, True)], ids=['internal_user', 'admin_user', 'regular_user'])
+@pytest.mark.parametrize('is_active', [True, False], ids=['is_active', 'is_not_active'])
+@pytest.mark.parametrize('is_internal,is_admin,is_regular_user', [(True, False, False), (False, True, True), (False, False, True)], ids=['internal_user', 'admin_user', 'regular_user'])
 @pytest.mark.parametrize('loginAs', [pytest.lazy_fixture('admin_user'), pytest.lazy_fixture('deactivated_admin_user'), pytest.lazy_fixture('internal_user'), pytest.lazy_fixture('regular_user')], ids=['as_admin_user', 'as_deactivated_admin_user', 'as_internal_user', 'as_regular_user'])
 def test_creating_user(flask_app_client, is_internal, is_admin, is_regular_user, is_active, loginAs: User):
     with flask_app_client.login(loginAs):
@@ -71,7 +71,6 @@ def test_creating_user(flask_app_client, is_internal, is_admin, is_regular_user,
     else:
         assertFail(response, loginAs)
 
-
 def test_creating_conflict_user(flask_app_client, admin_user):
     with flask_app_client.login(admin_user):
         response = flask_app_client.post('/api/v1/users/', data={'username': 'admin_user', 'password': 'testPassword'})
@@ -80,7 +79,7 @@ def test_creating_conflict_user(flask_app_client, admin_user):
         assert response.content_type == 'application/json'
         assert isinstance(response.json, dict)
         assert set(response.json.keys()) >= {'status', 'message'}
-        assert response.json['message'] == "Failed to create a new user."
+        assert response.json['message'] == 'Failed to create a new user.'
 
         from app.modules.users.models import User
 

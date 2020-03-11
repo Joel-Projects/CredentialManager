@@ -1,11 +1,3 @@
-'''
-Extensions setup
-================
-
-Extensions provide access to common resources of the application.
-
-Please, put new extension instantiations and initializations here.
-'''
 import os
 from .logging import Logging
 
@@ -43,8 +35,6 @@ from .frontend.decorators import paginateArgs, requiresAdmin, verifyEditable
 from . import api
 
 foreignKeyKwargs = dict(ondelete='SET NULL', onupdate='CASCADE')
-
-
 
 def init_app(app):
     '''

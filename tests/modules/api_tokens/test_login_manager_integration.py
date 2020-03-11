@@ -1,6 +1,7 @@
 from flask import request
 from app.modules import auth
 
+
 def test_loading_user_from_anonymous_request(flask_app):
     with flask_app.test_request_context('/'):
         assert auth.loadUserFromRequest(request) is None

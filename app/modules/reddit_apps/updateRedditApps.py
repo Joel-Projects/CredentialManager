@@ -1,6 +1,7 @@
+import psycopg2
 from BotUtils.CommonUtils import BotServices
 from bs4 import BeautifulSoup
-import sys, psycopg2, os
+
 
 services = BotServices('personalBot')
 sql = services.postgres()
@@ -70,4 +71,4 @@ urls.sort(key=lambda k: k[0])
 with open('linksToClick.txt', 'w') as f:
     f.write('\n'.join(linksToClick))
 
-print() 
+print()

@@ -1,6 +1,6 @@
 from sqlalchemy_utils import Timestamp
 
-from app.extensions import db, InfoAttrs, foreignKeyKwargs, StrName
+from app.extensions import InfoAttrs, StrName, db, foreignKeyKwargs
 
 
 class Bot(db.Model, Timestamp, InfoAttrs, StrName):

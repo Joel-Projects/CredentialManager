@@ -1,11 +1,13 @@
 import logging
 
-from flask import Blueprint, request, render_template, redirect, url_for, flash
-from flask_login import current_user, login_user, logout_user
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import login_user, logout_user
+
 
 log = logging.getLogger(__name__)
 from app.modules.users.models import User
 from app.modules.api_tokens.models import db
+
 
 auth_blueprint = Blueprint('auth', __name__)
 

@@ -1,5 +1,3 @@
-# pylint: disable=invalid-name,missing-docstring
-
 import pytest
 
 from app.modules.users import models
@@ -8,11 +6,9 @@ from app.modules.users import models
 def test_User_repr(user_instance):
     assert len(str(user_instance)) > 0
 
-
 def test_User_auth(user_instance):
     assert user_instance.is_authenticated
     assert not user_instance.is_anonymous
-
 
 @pytest.mark.parametrize('init_static_roles,is_internal,is_admin,is_regular_user,is_active', [(_init_static_roles, _is_internal, _is_admin, _is_regular_user, _is_active) for _init_static_roles in (0, (models.User.StaticRoles.INTERNAL.mask | models.User.StaticRoles.ADMIN.mask | models.User.StaticRoles.REGULAR_USER.mask | models.User.StaticRoles.ACTIVE.mask)) for _is_internal in (False, True) for _is_admin in (False, True) for _is_regular_user in (False, True) for _is_active in (False, True)])
 def test_User_static_roles_setting(
@@ -22,13 +18,13 @@ def test_User_static_roles_setting(
         is_regular_user,
         is_active,
         user_instance
-    ):
-    """
+):
+    '''
     Static User Roles are saved as bit flags into one ``static_roles``
     integer field. Ideally, it would be better implemented as a custom field,
     and the plugin would be tested separately, but for now this implementation
     is fine, so we test it as it is.
-    """
+    '''
     user_instance.static_roles = init_static_roles
 
     if is_internal:
@@ -63,14 +59,11 @@ def test_User_static_roles_setting(
     if not is_active and not is_regular_user and not is_admin and not is_internal:
         assert user_instance.static_roles == 0
 
-
 def test_User_check_owner(user_instance):
     assert user_instance.check_owner(user_instance)
     assert not user_instance.check_owner(models.User())
 
-
-def test_User_findWithPassword(patch_User_password_scheme, db): # pylint: disable=unused-argument
-
+def test_User_findWithPassword(patch_User_password_scheme, db):
     def create_user(username, password):
         user = models.User(
             username=username,
@@ -78,17 +71,17 @@ def test_User_findWithPassword(patch_User_password_scheme, db): # pylint: disabl
         )
         return user
 
-    user1 = create_user("user1", "user1password")
-    user2 = create_user("user2", "user2password")
+    user1 = create_user('user1', 'user1password')
+    user2 = create_user('user2', 'user2password')
     with db.session.begin():
         db.session.add(user1)
         db.session.add(user2)
 
-    assert models.User.findWithPassword("user1", "user1password") == user1
-    assert models.User.findWithPassword("user1", "wrong-user1password") is None
-    assert models.User.findWithPassword("user2", "user1password") is None
-    assert models.User.findWithPassword("user2", "user2password") == user2
-    assert models.User.findWithPassword("nouser", "userpassword") is None
+    assert models.User.findWithPassword('user1', 'user1password') == user1
+    assert models.User.findWithPassword('user1', 'wrong-user1password') is None
+    assert models.User.findWithPassword('user2', 'user1password') is None
+    assert models.User.findWithPassword('user2', 'user2password') == user2
+    assert models.User.findWithPassword('nouser', 'userpassword') is None
 
     with db.session.begin():
         db.session.delete(user1)

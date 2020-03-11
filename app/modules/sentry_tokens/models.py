@@ -1,4 +1,5 @@
-from app.extensions import db, InfoAttrs, Timestamp, StrName
+from app.extensions import InfoAttrs, StrName, Timestamp, db
+
 
 class SentryToken(db.Model, Timestamp, InfoAttrs, StrName):
 

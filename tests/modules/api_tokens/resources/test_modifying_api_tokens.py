@@ -1,4 +1,4 @@
-# # # pylint: disable=missing-docstring
+# #
 #
 # import json
 #
@@ -7,7 +7,7 @@
 #
 # def test_new_team_creation(flask_app_client, db, regular_user):
 #
-#     team_title = "Test Team Title"
+#     team_title = 'Test Team Title'
 #     with flask_app_client.login(regular_user, auth_scopes=('teams:write', )):
 #         response = flask_app_client.post('/api/v1/teams/', data={'title': team_title})
 #
@@ -24,7 +24,7 @@
 #
 # def test_new_team_first_member_is_creator(flask_app_client, db, regular_user):
 #
-#     team_title = "Test Team Title"
+#     team_title = 'Test Team Title'
 #     with flask_app_client.login(
 #             regular_user,
 #             auth_scopes=('teams:write', 'teams:read')
@@ -49,7 +49,7 @@
 # def test_new_team_creation_with_invalid_data_must_fail(flask_app_client, regular_user):
 #
 #     with flask_app_client.login(regular_user, auth_scopes=('teams:write', )):
-#         response = flask_app_client.post('/api/v1/teams/', data={'title': ""})
+#         response = flask_app_client.post('/api/v1/teams/', data={'title': ''})
 #
 #     assert response.status_code == 409
 #     assert response.content_type == 'application/json'
@@ -58,7 +58,7 @@
 #
 # def test_update_team_info(flask_app_client, regular_user, team_for_regular_user):
 #
-#     team_title = "Test Team Title"
+#     team_title = 'Test Team Title'
 #     with flask_app_client.login(regular_user, auth_scopes=('teams:write', )):
 #         response = flask_app_client.patch(
 #             '/api/v1/teams/%d' % team_for_regular_user.id,

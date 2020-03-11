@@ -1,59 +1,95 @@
 image: docker:latest
 services:
-  - docker:dind
-  - postgres:latest
+    - docker:dind
+    - postgres:latest
 
 stages:
-  - test
-  - build
-  - release
-  - sentry_release
+    - build
+    - release
+    - test
+    - sentry_release
 
 variables:
-  CONTAINER_BUILD_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
-
-#before_script:
-#  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+    CONTAINER_BUILD_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
 
 build:
-  stage: build
-  script:
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
-    - docker build --pull -t $CONTAINER_BUILD_IMAGE .
-    - docker push $CONTAINER_BUILD_IMAGE
+    stage: build
+    script:
+        - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+        - docker build --pull -t $CONTAINER_BUILD_IMAGE .
+        - docker push $CONTAINER_BUILD_IMAGE
 
 release:
-  stage: release
-  script:
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
-    - docker pull $CONTAINER_BUILD_IMAGE
-    - docker tag $CONTAINER_BUILD_IMAGE $CONTAINER_RELEASE_IMAGE
-    - docker push $CONTAINER_RELEASE_IMAGE
+    stage: release
+    script:
+        - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+        - docker pull $CONTAINER_BUILD_IMAGE
+        - docker tag $CONTAINER_BUILD_IMAGE $CONTAINER_RELEASE_IMAGE
+        - docker push $CONTAINER_RELEASE_IMAGE
 
-test:pytest:
-  image: python:3.7
-  stage: test
-  variables:
-    POSTGRES_DB: 'postgres_test'
-    POSTGRES_USER: 'postgres'
-    POSTGRES_PASSWORD: ''
-    POSTGRES_HOST_AUTH_METHOD: 'trust'
-    DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
-  script:
-#    - echo $DATABASE_URI
-    - pip install -r requirements.txt
-    - pip install -r tests/requirements.txt
-    - pytest
-  coverage: '/^TOTAL.*\s+(\d+\%)$/'
+test:pytest3.7:
+    image: python:3.7
+    stage: test
+    allow_failure: true
+    variables:
+        POSTGRES_DB: 'postgres_test'
+        POSTGRES_USER: 'postgres'
+        POSTGRES_PASSWORD: ''
+        POSTGRES_HOST_AUTH_METHOD: 'trust'
+        DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
+    script:
+        - pip install -r requirements.txt -r tests/requirements.txt
+        - pytest --cov-report=term --cov=app --cov=tests tests
+
+test:pytest3.6:
+    image: python:3.6
+    stage: test
+    allow_failure: true
+    variables:
+        POSTGRES_DB: 'postgres_test'
+        POSTGRES_USER: 'postgres'
+        POSTGRES_PASSWORD: ''
+        POSTGRES_HOST_AUTH_METHOD: 'trust'
+        DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
+    script:
+        - pip install -r requirements.txt  -r tests/requirements.txt
+        - pytest --cov-report=term --cov=app --cov=tests tests
+
+test:pytest3.5:
+    image: python:3.5
+    stage: test
+    allow_failure: true
+    variables:
+        POSTGRES_DB: 'postgres_test'
+        POSTGRES_USER: 'postgres'
+        POSTGRES_PASSWORD: ''
+        POSTGRES_HOST_AUTH_METHOD: 'trust'
+        DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
+    script:
+        - pip install -r requirements.txt -r tests/requirements.txt
+        - pytest --cov-report=term --cov=app --cov=tests tests
+
+test:sonarqube:
+    image: sonarsource/sonar-scanner-cli:latest
+    stage: test
+    allow_failure: true
+    variables:
+      SONAR_TOKEN: $SONAR_TOKEN
+      SONAR_HOST_URL: "https://qube.jesassn.org"
+      GIT_DEPTH: 0
+    script:
+        - sonar-scanner -Dsonar.qualitygate.wait=true
+    only:
+        - master
 
 sentry_release:
-  image: python:latest
-  stage: .post
-  script:
-    - echo "release to sentry"
-    - pip install requests
-    - export author=$(git show -s --format='%an' HEAD)
-    - export email=$(git show -s --format='%ae' HEAD)
-    - export message=$(git show -s --format='%s' HEAD)
-    - python3 release.py $SENTRY_AUTH_TOKEN $CI_COMMIT_SHA $CI_PROJECT_NAME '$author' $email '$message'
+    image: python:latest
+    stage: .post
+    script:
+        - echo "release to sentry"
+        - pip install requests
+        - export author=$(git show -s --format='%an' HEAD)
+        - export email=$(git show -s --format='%ae' HEAD)
+        - export message=$(git show -s --format='%s' HEAD)
+        - python3 release.py $SENTRY_AUTH_TOKEN $CI_COMMIT_SHA $CI_PROJECT_NAME '$author' $email '$message'

@@ -1,15 +1,13 @@
-from flask_login import current_user
 from flask_marshmallow import base_fields
-
-from .models import RedditApp
-from . import schemas
-from flask_restplus_patched import PostFormParameters, PatchJSONParameters
-from marshmallow import validates, ValidationError
+from marshmallow import ValidationError, validates
 
 from app.extensions.api.parameters import PaginationParameters, validateOwner
+from flask_restplus_patched import PatchJSONParameters, PostFormParameters
+from . import schemas
+from .models import RedditApp
+
 
 class ListRedditAppsParameters(PaginationParameters, validateOwner):
-
     owner_id = base_fields.Integer()
 
     invalidOwnerMessage = 'You can only query your own {}.'
@@ -32,7 +30,7 @@ class CreateRedditAppParameters(PostFormParameters, schemas.BaseRedditAppSchema,
     @validates('app_name')
     def validateName(self, data):
         if len(data) < 3:
-            raise ValidationError("Name must be greater than 3 characters long.")
+            raise ValidationError('Name must be greater than 3 characters long.')
 
     @validates('app_type')
     def validateAppType(self, data):
@@ -40,9 +38,9 @@ class CreateRedditAppParameters(PostFormParameters, schemas.BaseRedditAppSchema,
             raise ValidationError("App type is not valid. Valid types are: 'web', 'installed'. or 'script'`")
 
 class PatchRedditAppDetailsParameters(PatchJSONParameters):
-    """
+    '''
     Reddit App details updating parameters following PATCH JSON RFC.
-    """
+    '''
     fields = (
         RedditApp.app_name.key,
         RedditApp.short_name.key,
@@ -57,10 +55,12 @@ class PatchRedditAppDetailsParameters(PatchJSONParameters):
     PATH_CHOICES = tuple(f'/{field}' for field in fields)
 
 class GenerateAuthUrlParameters(PostFormParameters):
-
     user_verification_id = base_fields.Integer()
     scopes = base_fields.List(base_fields.String(required=True), required=True)
     duration = base_fields.String(required=True)
     state = base_fields.String()
 
     invalidOwnerMessage = 'You can only query your own {}.'
+
+class GetRefreshTokenByRedditor(PostFormParameters):
+    redditor = base_fields.String(required=True, description='Redditor the Refresh Token is for')
