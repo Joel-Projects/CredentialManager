@@ -28,6 +28,20 @@ release:
         - docker tag $CONTAINER_BUILD_IMAGE $CONTAINER_RELEASE_IMAGE
         - docker push $CONTAINER_RELEASE_IMAGE
 
+test:pytest3.8:
+    image: python:3.8
+    stage: test
+    allow_failure: true
+    variables:
+        POSTGRES_DB: 'postgres_test'
+        POSTGRES_USER: 'postgres'
+        POSTGRES_PASSWORD: ''
+        POSTGRES_HOST_AUTH_METHOD: 'trust'
+        DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
+    script:
+        - pip install -r requirements.txt -r tests/requirements.txt
+        - pytest --cov-report=term --cov=app --cov=tests tests
+
 test:pytest3.7:
     image: python:3.7
     stage: test
@@ -54,20 +68,6 @@ test:pytest3.6:
         DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
     script:
         - pip install -r requirements.txt  -r tests/requirements.txt
-        - pytest --cov-report=term --cov=app --cov=tests tests
-
-test:pytest3.5:
-    image: python:3.5
-    stage: test
-    allow_failure: true
-    variables:
-        POSTGRES_DB: 'postgres_test'
-        POSTGRES_USER: 'postgres'
-        POSTGRES_PASSWORD: ''
-        POSTGRES_HOST_AUTH_METHOD: 'trust'
-        DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
-    script:
-        - pip install -r requirements.txt -r tests/requirements.txt
         - pytest --cov-report=term --cov=app --cov=tests tests
 
 test:sonarqube:
