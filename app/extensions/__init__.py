@@ -1,4 +1,5 @@
-import os, logging
+import os
+from logging import getLogger
 from .logging import Logging
 
 logging = Logging()
@@ -35,7 +36,7 @@ from .frontend.decorators import paginateArgs, requiresAdmin, verifyEditable
 from . import api
 
 foreignKeyKwargs = dict(ondelete='SET NULL', onupdate='CASCADE')
-log = logging.getLogger(__name__)
+log = getLogger(__name__)
 
 def init_app(app):
     '''
