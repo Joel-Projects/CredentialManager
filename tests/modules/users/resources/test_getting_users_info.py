@@ -33,26 +33,26 @@ def test_getting_user(flask_app_client, loginAs, userToGet):
         if loginAs.is_internal:
             assertSuccess(response, None, User, DetailedUserSchema)
         elif loginAs.is_admin:
-            assert403(response, User, created=False, internal=True)
+            assert403(response, User, internal=True)
         else:
-            assert403(response, User, created=False, internal=True)
+            assert403(response, User, internal=True)
     elif loginAs.is_admin or loginAs.is_internal:
         assertSuccess(response, None, User, DetailedUserSchema)
     else:
-        assert403(response, User, created=False, internal=True)
+        assert403(response, User, internal=True)
 
 @pytest.mark.parametrize('loginAs', [pytest.lazy_fixture('admin_user_deactivated'), pytest.lazy_fixture('internal_user_deactivated'), pytest.lazy_fixture('regular_user_deactivated')], ids=['as_deactivated_admin_user', 'as_deactivated_internal_user', 'as_deactivated_regular_user'])
 @pytest.mark.parametrize('userToGet', [pytest.lazy_fixture('internal_user2'), pytest.lazy_fixture('admin_user2'), pytest.lazy_fixture('regular_user2')], ids=['get_admin_user', 'get_internal_user', 'get_regular_user'])
 def test_getting_user_deactivated(flask_app_client, loginAs, userToGet):
     with flask_app_client.login(loginAs):
         response = flask_app_client.get(f'/api/v1/users/{userToGet.id}')
-    assert401(response, User, loginAs=loginAs, created=False)
+    assert401(response, User, loginAs=loginAs, action='None')
 
 def test_getting_list_of_users_by_unauthorized_user_must_fail(flask_app_client, regular_user):
     with flask_app_client.login(regular_user) as client:
         response = client.get('/api/v1/users/')
 
-    assert403(response, User, loginAs=regular_user, created=False, internal=True)
+    assert403(response, User, loginAs=regular_user, internal=True)
 
 def test_getting_list_of_users_by_authorized_user(flask_app_client, admin_user):
     with flask_app_client.login(admin_user) as client:

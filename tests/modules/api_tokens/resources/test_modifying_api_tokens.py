@@ -90,7 +90,7 @@ def test_modifying_api_token_by_self(flask_app_client, regularUserInstance, regu
 def test_modifying_api_token_info_with_invalid_format_must_fail(flask_app_client, regularUserInstance, regularUserApiToken):
     regularUserApiToken.owner = regularUserInstance
     response = flask_app_client.patch(f'/api/v1/api_tokens/{regularUserInstance.id}', content_type='application/json', data=json.dumps([{'op': 'test', 'path': '/name', 'value': '', }, {'op': 'replace', 'path': '/enabled', }, ]))
-    assert422(response, ApiToken, [('1', {'_schema': ['value is required']})], oldItem=regularUserApiToken, patch=True)
+    assert422(response, ApiToken, [('1', {'_schema': ['value is required']})], oldItem=regularUserApiToken, action='patch')
 
 def test_modifying_api_token_info_with_conflict_data_must_fail(flask_app_client, regularUserInstance, regularUserApiToken, adminUserApiToken):
     regularUserApiToken.owner = regularUserInstance
@@ -98,4 +98,4 @@ def test_modifying_api_token_info_with_conflict_data_must_fail(flask_app_client,
     adminUserApiToken.owner = regularUserInstance
     response = flask_app_client.patch(f'/api/v1/api_tokens/{regularUserApiToken.id}', content_type='application/json', data=json.dumps([{'op': 'replace', 'path': '/name', 'value': adminUserApiToken.name}]))
 
-    assert409(response, ApiToken, 'Failed to update API Token details.', messageAttrs=[('1', {'_schema': ['value is required']})], oldItem=regularUserApiToken, patch=True)
+    assert409(response, ApiToken, 'Failed to update API Token details.', loginAs=regularUserInstance, messageAttrs=[('1', {'_schema': ['value is required']})], oldItem=regularUserApiToken, action='patch')

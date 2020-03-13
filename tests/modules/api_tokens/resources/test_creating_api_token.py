@@ -28,17 +28,17 @@ def test_creating_api(flask_app_client, loginAs, owner):
         if loginAs.is_internal:
             assertSuccess(response, owner, ApiToken, DetailedApiTokenSchema)
         else:
-            assert403(response, ApiToken, internal=True)
+            assert403(response, ApiToken, internal=True, action='create')
     elif loginAs.is_admin or loginAs.is_internal:
         assertSuccess(response, owner, ApiToken, DetailedApiTokenSchema)
     else:
-        assert403(response, ApiToken)
+        assert403(response, ApiToken, action='create')
 
 def test_creating_api_token_by_deactivated_user(flask_app_client, regular_user_deactivated):
     with flask_app_client.login(regular_user_deactivated):
         response = flask_app_client.post(path, data={'name': 'testToken'})
     model = ApiToken
-    assert401(response, model, loginAs=regular_user_deactivated)
+    assert401(response, model=model, loginAs=regular_user_deactivated)
 
 def test_creating_api_token_for_self(flask_app_client, regularUserInstance):
     response = flask_app_client.post(path, data={'name': 'testToken'})
@@ -57,13 +57,13 @@ def test_creating_api_token_with_different_length(flask_app_client, regularUserI
 def test_creating_api_token_with_bad_name(flask_app_client, loginAs):
     response = flask_app_client.post(path, data={'name': 'to'})
 
-    assert422(response, ApiToken, [('name', ['Name must be greater than 3 characters long.'])])
+    assert422(response, ApiToken, messageAttrs=[('name', ['Name must be greater than 3 characters long.'])])
 
 @pytest.mark.parametrize('length', [8, 256])
 def test_creating_api_token_with_bad_length(flask_app_client, regularUserInstance, length):
     response = flask_app_client.post(path, data={'name': 'token', 'length': length})
 
     if length < 16:
-        assert422(response, ApiToken, [('length', ['Length must be greater than 16.'])])
+        assert422(response, ApiToken, messageAttrs=[('length', ['Length must be greater than 16.'])])
     elif length > 128:
-        assert422(response, ApiToken, [('length', ['Length must be less than 128.'])])
+        assert422(response, ApiToken, messageAttrs=[('length', ['Length must be less than 128.'])])

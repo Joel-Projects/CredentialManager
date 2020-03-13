@@ -81,33 +81,42 @@ def generateUserInstance(user_id=None, username='username', password=None, defau
     user_instance.password_secret = password
     return user_instance
 
-def assertValidResponseContentType(response):
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
+def assertValidResponseContentType(response, delete=False):
+    if delete:
+        assert response.content_type == 'text/html; charset=utf-8'
+        assert response.content_length is None
+    else:
+        assert response.content_type == 'application/json'
+        assert isinstance(response.json, dict)
 
-def assertSuccess(response, owner, model, schema):
-    assert response.status_code == 200
-    assertValidResponseContentType(response)
-    assert set(response.json.keys()) >= set(schema.Meta.fields)
-    for field in schema.Meta.fields:
-        if response.json[field]:
-            if isinstance(getattr(model, field), property):
-                assert isinstance(response.json[field], bool)
-            else:
-                if getattr(model, field).type.python_type == datetime:
-                    assert isinstance(response.json[field], str)
+def assertSuccess(response, owner, model, schema, deleteItemId=None):
+    assertValidResponseContentType(response, delete=deleteItemId)
+    if deleteItemId:
+        assert response.status_code == 204
+        item = model.query.get(deleteItemId)
+        assert item is None
+    else:
+        assert response.status_code == 200
+        assert set(response.json.keys()) >= set(schema.Meta.fields)
+        for field in schema.Meta.fields:
+            if response.json[field]:
+                if isinstance(getattr(model, field), property):
+                    assert isinstance(response.json[field], bool)
                 else:
-                    assert isinstance(response.json[field], getattr(model, field).type.python_type)
-    createdItem = model.query.filter_by(id=response.json['id']).first()
-    assert createdItem is not None
-    if 'owner_id' in response.json:
-        assert response.json['owner_id'] == owner.id
-    for field in schema.Meta.fields:
-        if response.json[field]:
-            if isinstance(getattr(createdItem, field), datetime):
-                assert response.json[field] == datetime.astimezone(getattr(createdItem, field), timezone.utc).isoformat()
-            else:
-                assert response.json[field] == getattr(createdItem, field)
+                    if getattr(model, field).type.python_type == datetime:
+                        assert isinstance(response.json[field], str)
+                    else:
+                        assert isinstance(response.json[field], getattr(model, field).type.python_type)
+        createdItem = model.query.filter_by(id=response.json['id']).first()
+        assert createdItem is not None
+        if 'owner_id' in response.json:
+            assert response.json['owner_id'] == owner.id
+        for field in schema.Meta.fields:
+            if response.json[field]:
+                if isinstance(getattr(createdItem, field), datetime):
+                    assert response.json[field] == datetime.astimezone(getattr(createdItem, field), timezone.utc).isoformat()
+                else:
+                    assert response.json[field] == getattr(createdItem, field)
 
 def itemNotCreated(model, *, loginAs):
     items = model.query.all()
@@ -117,11 +126,15 @@ def itemNotCreated(model, *, loginAs):
     else:
         assert len(items) == 0
 
-def itemNotModified(model, oldItem, *, loginAs):
+def itemNotModified(model, oldItem):
     item = model.query.get(oldItem.id)
     assert item == oldItem
 
-def __assertResponseError(response, code, message, model, loginAs, created=True, keys=None, messageAttrs=None, patch=False, oldItem=None):
+def itemNotDeleted(model, oldItem):
+    item = model.query.get(oldItem.id)
+    assert item is not None
+
+def __assertResponseError(response, code, message, action='created', keys=None, messageAttrs=None, **kwargs):
     if keys is None:
         keys = {'status', 'message'}
     assert response.status_code == code
@@ -132,22 +145,24 @@ def __assertResponseError(response, code, message, model, loginAs, created=True,
     if 'messages' in response.json:
         for messageAttr, message in messageAttrs:
             assert response.json['messages'][messageAttr] == message
-    if patch:
-        itemNotModified(model, oldItem, loginAs=loginAs)
-    elif created:
-        itemNotCreated(model, loginAs=loginAs)
+    if action == 'patch':
+        itemNotModified(**{k: v for k, v in kwargs.items() if k in ['model', 'oldItem']})
+    elif action == 'created':
+        itemNotCreated(**{k: v for k, v in kwargs.items() if k in ['model', 'loginAs']})
+    elif action == 'deleted':
+        itemNotDeleted(**{k: v for k, v in kwargs.items() if k in ['model', 'oldItem']})
 
-def assert401(response, model, *, created=True, loginAs):
-    __assertResponseError(response, 401, "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.", model, loginAs, created=created)
+def assert401(response, model, *, loginAs, action='None'):
+    __assertResponseError(response, 401, "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.", model=model, loginAs=loginAs, action=action)
 
-def assert403(response, model, *, created=True, loginAs=None, internal=False):
+def assert403(response, model, *, action=None, loginAs=None, internal=False, oldItem=None):
     if internal:
-        __assertResponseError(response, 403, "You don't have the permission to access the requested resource.", model, loginAs, created=created)
+        __assertResponseError(response, 403, "You don't have the permission to access the requested resource.", action=action, model=model, loginAs=loginAs, oldItem=oldItem)
     else:
-        __assertResponseError(response, 403, f"You don't have the permission to create {model._displayNamePlural} for other users.", model, loginAs, created=created)
+        __assertResponseError(response, 403, f"You don't have the permission to create {model._displayNamePlural} for other users.", action=action, model=model, loginAs=loginAs, oldItem=oldItem)
 
-def assert409(response, model, message, *, messageAttrs=None, oldItem=None, patch=False, loginAs=None):
-    __assertResponseError(response, 409, message, model, loginAs, messageAttrs=messageAttrs, patch=patch, oldItem=oldItem)
+def assert409(response, model, message, loginAs, **kwargs):
+    __assertResponseError(response, 409, message=message, model=model, loginAs=loginAs, **kwargs)
 
-def assert422(response, model, messageAttrs, *, oldItem=None, patch=False, loginAs=None):
-    __assertResponseError(response, 422, 'The request was well-formed but was unable to be followed due to semantic errors.', model, loginAs, keys={'status', 'message', 'messages'}, messageAttrs=messageAttrs, patch=patch, oldItem=oldItem)
+def assert422(response, model, messageAttrs, *, loginAs=None, **kwargs):
+    __assertResponseError(response, 422, 'The request was well-formed but was unable to be followed due to semantic errors.', model=model, loginAs=loginAs, keys={'status', 'message', 'messages'}, messageAttrs=messageAttrs, **kwargs)

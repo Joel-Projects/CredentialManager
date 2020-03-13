@@ -59,118 +59,91 @@ def test_PasswordRequiredPermissionMixin():
 
 def test_WriteAccessPermission_authenticated_user(regularUserInstance):
     regularUserInstance.is_regular_user = True
-    with permissions.WriteAccessPermission():
-        pass
+    permissions.WriteAccessPermission().__enter__()
     regularUserInstance.is_regular_user = False
     with pytest.raises(HTTPException):
-        with permissions.WriteAccessPermission():
-            pass
+        permissions.WriteAccessPermission().__enter__()
 
 def test_RolePermission():
-    with permissions.RolePermission():
-        pass
+    permissions.RolePermission().__enter__()
     with pytest.raises(RuntimeError):
-        with permissions.RolePermission(partial=True):
-            pass
+        permissions.RolePermission(partial=True).__enter__()
 
 def test_ActiveUserRolePermission_anonymous_user(anonymousUserInstance):
     with pytest.raises(HTTPException):
-        with permissions.ActiveUserRolePermission():
-            pass
+        permissions.ActiveUserRolePermission().__enter__()
 
 def test_ActiveUserRolePermission_authenticated_user(regularUserInstance):
     regularUserInstance.is_active = True
-    with permissions.ActiveUserRolePermission():
-        pass
+    permissions.ActiveUserRolePermission().__enter__()
     regularUserInstance.is_active = False
     with pytest.raises(HTTPException):
-        with permissions.ActiveUserRolePermission():
-            pass
+        permissions.ActiveUserRolePermission().__enter__()
 
 def test_AdminRolePermission_anonymous_user(anonymousUserInstance):
     with pytest.raises(HTTPException):
-        with permissions.AdminRolePermission():
-            pass
+        permissions.AdminRolePermission().__enter__()
 
 def test_AdminRolePermission_authenticated_user(regularUserInstance):
     regularUserInstance.is_admin = True
-    with permissions.AdminRolePermission():
-        pass
+    permissions.AdminRolePermission().__enter__()
     regularUserInstance.is_admin = False
     with pytest.raises(HTTPException):
-        with permissions.AdminRolePermission():
-            pass
+        permissions.AdminRolePermission().__enter__()
 
 def test_AdminRolePermission_anonymous_user_with_password(anonymousUserInstance):
     with pytest.raises(HTTPException):
-        with permissions.AdminRolePermission(password_required=True, password='any_password'):
-            pass
+        permissions.AdminRolePermission(password_required=True, password='any_password').__enter__()
 
 def test_AdminRolePermission_authenticated_user_with_password_is_admin(regularUserInstance):
     regularUserInstance.password = 'correct_password'
     regularUserInstance.is_admin = True
-    with permissions.AdminRolePermission(password_required=True, password='correct_password'):
-        pass
+    permissions.AdminRolePermission(password_required=True, password='correct_password').__enter__()
     with pytest.raises(HTTPException):
-        with permissions.AdminRolePermission(password_required=True, password='wrong_password'):
-            pass
+        permissions.AdminRolePermission(password_required=True, password='wrong_password').__enter__()
 
 def test_AdminRolePermission_authenticated_user_with_password_not_admin(regularUserInstance):
     regularUserInstance.password = 'correct_password'
     regularUserInstance.is_admin = False
     with pytest.raises(HTTPException):
-        with permissions.AdminRolePermission(password_required=True, password='correct_password'):
-            pass
+        permissions.AdminRolePermission(password_required=True, password='correct_password').__enter__()
     with pytest.raises(HTTPException):
-        with permissions.AdminRolePermission(password_required=True, password='wrong_password'):
-            pass
+        permissions.AdminRolePermission(password_required=True, password='wrong_password').__enter__()
 
 def test_OwnerRolePermission_anonymous_user(anonymousUserInstance):
     with pytest.raises(HTTPException):
-        with permissions.OwnerRolePermission():
-            pass
+        permissions.OwnerRolePermission().__enter__()
 
 def test_OwnerRolePermission_authenticated_user(regularUserInstance):
     obj = Mock()
     obj.owner.is_internal = False
     obj.check_owner = lambda user: user == regularUserInstance
-    with permissions.OwnerRolePermission(obj=obj):
-        pass
+    permissions.OwnerRolePermission(obj=obj).__enter__()
     del obj.check_owner
     with pytest.raises(HTTPException):
-        with permissions.OwnerRolePermission():
-            pass
+        permissions.OwnerRolePermission().__enter__()
 
 def test_OwnerRolePermission_anonymous_user_with_password(anonymousUserInstance):
     obj = Mock()
     obj.owner.is_internal = False
     obj.check_owner = lambda user: False
     with pytest.raises(HTTPException):
-        with permissions.OwnerRolePermission(
-                obj=obj,
-                password_required=True,
-                password='any_password'
-        ):
-            pass
+        permissions.OwnerRolePermission(obj=obj, password_required=True, password='any_password').__enter__()
 
 def test_OwnerRolePermission_authenticated_user_with_password_with_check_owner(regularUserInstance):
     regularUserInstance.password = 'correct_password'
     obj = Mock()
     obj.owner.is_internal = False
     obj.check_owner = lambda user: user == regularUserInstance
-    with permissions.OwnerRolePermission(obj=obj, password_required=True, password='correct_password'):
-        pass
+    permissions.OwnerRolePermission(obj=obj, password_required=True, password='correct_password').__enter__()
     with pytest.raises(HTTPException):
-        with permissions.OwnerRolePermission(obj=obj, password_required=True, password='wrong_password'):
-            pass
+        permissions.OwnerRolePermission(obj=obj, password_required=True, password='wrong_password').__enter__()
 
 def test_OwnerRolePermission_authenticated_user_with_password_without_check_owner(regularUserInstance):
     regularUserInstance.password = 'correct_password'
     obj = Mock()
     del obj.check_owner
     with pytest.raises(HTTPException):
-        with permissions.OwnerRolePermission(obj=obj, password_required=True, password='correct_password'):
-            pass
+        permissions.OwnerRolePermission(obj=obj, password_required=True, password='correct_password').__enter__()
     with pytest.raises(HTTPException):
-        with permissions.OwnerRolePermission(obj=obj, password_required=True, password='wrong_password'):
-            pass
+        permissions.OwnerRolePermission(obj=obj, password_required=True, password='wrong_password').__enter__()
