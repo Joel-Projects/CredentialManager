@@ -109,7 +109,6 @@ class AppsByUserID(Resource):
         '''
         Get items that is owned by user.
         '''
-        print()
         return user
 
 @api.route('/me')

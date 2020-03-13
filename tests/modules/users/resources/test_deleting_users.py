@@ -37,23 +37,26 @@ def assert409(response, userToDelete):
 
 users = [
     pytest.lazy_fixture('adminUserInstance'),
-    pytest.lazy_fixture('adminUserInstance2'),
     pytest.lazy_fixture('internalUserInstance'),
-    pytest.lazy_fixture('internalUserInstance2'),
-    pytest.lazy_fixture('regularUserInstance'),
-    pytest.lazy_fixture('regularUserInstance2')
+    pytest.lazy_fixture('regularUserInstance')
 ]
 labels = [
     'as_admin_user',
-    'as_admin_user_2',
     'as_internal_user',
-    'as_internal_user_2',
-    'as_regular_user',
-    'as_regular_user_2'
+    'as_regular_user'
+]
+
+usersToDelete = [
+    pytest.lazy_fixture('internal_user'),
+    pytest.lazy_fixture('internal_user2'),
+    pytest.lazy_fixture('admin_user'),
+    pytest.lazy_fixture('admin_user2'),
+    pytest.lazy_fixture('regular_user'),
+    pytest.lazy_fixture('regular_user2'),
 ]
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
-@pytest.mark.parametrize('userToDelete', [pytest.lazy_fixture('internalUserInstance'), pytest.lazy_fixture('adminUserInstance'), pytest.lazy_fixture('regularUserInstance')], ids=['as_admin_user', 'as_internal_user', 'as_regular_user'])
+@pytest.mark.parametrize('userToDelete', usersToDelete, ids=['delete_admin_user', 'delete_admin_user2', 'delete_internal_user', 'delete_internal_user2', 'delete_regular_user', 'delete_regular_user2'])
 def test_deleting_user(flask_app_client, loginAs: User, userToDelete: User):
     response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
 
@@ -74,8 +77,8 @@ def test_deleting_user(flask_app_client, loginAs: User, userToDelete: User):
 
 
 @pytest.mark.parametrize('loginAs', [pytest.lazy_fixture('adminUserInstanceDeactivated'), pytest.lazy_fixture('internalUserInstanceDeactivated'), pytest.lazy_fixture('regularUserInstanceDeactivated')], ids=['as_deactivated_admin_user', 'as_deactivated_internal_user', 'as_deactivated_regular_user'])
-@pytest.mark.parametrize('userToDelete', [pytest.lazy_fixture('internalUserInstance'), pytest.lazy_fixture('adminUserInstance'), pytest.lazy_fixture('regularUserInstance')], ids=['as_admin_user', 'as_internal_user', 'as_regular_user'])
+@pytest.mark.parametrize('userToDelete', [pytest.lazy_fixture('internal_user'), pytest.lazy_fixture('admin_user'), pytest.lazy_fixture('regular_user')], ids=['delete_admin_user', 'delete_internal_user', 'delete_regular_user'])
 def test_deleting_user_deactivated(flask_app_client, loginAs: User, userToDelete: User):
     with flask_app_client.login(loginAs):
-        response = flask_app_client.delete(f'/api/v1/users/2')
+        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
     assert401(response, userToDelete)

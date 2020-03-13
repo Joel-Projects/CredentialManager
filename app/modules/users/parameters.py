@@ -52,19 +52,6 @@ class PatchUserDetailsParameters(PatchJSONParameters):
             return User.password.key, User.is_active.fget.__name__, User.is_admin.fget.__name__, User.default_settings.key, User.username.key, User.updated_by.key, User.reddit_username.key
 
     @classmethod
-    def test(cls, obj, field, value, state):
-        '''
-        Additional check for 'current_password' as User hasn't field 'current_password'
-        '''
-        if field == 'current_password':
-            if current_user.password != value and obj.password != value:
-                abort(code=HTTPStatus.FORBIDDEN, message='Wrong password')
-            else:
-                state['current_password'] = value
-                return True
-        return PatchJSONParameters.test(obj, field, value, state)
-
-    @classmethod
     def replace(cls, obj, field, value, state):
         '''
         Some fields require extra permissions to be changed.

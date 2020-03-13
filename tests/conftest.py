@@ -1,9 +1,9 @@
 import pytest
 
-from tests import utils
-
 from app import create_app
 from app.modules.users import models
+from .modules.users.conftest import *
+from tests import utils
 
 
 @pytest.yield_fixture()
@@ -31,7 +31,7 @@ def temp_db_instance_helper(db):
 
         mapper = instance.__class__.__mapper__
         assert len(mapper.primary_key) >= 1
-        instance.__class__.query.filter(mapper.primary_key[0] == mapper.primary_key_from_instance(instance)[0]).delete()
+        instance.__class__.query.filter_by(id=instance.id).delete()
 
     return temp_db_instance_manager
 
@@ -70,48 +70,23 @@ def regular_user(temp_db_instance_helper, patch_user_password_scheme):
         yield _
 
 @pytest.yield_fixture()
+def regular_user_deactivated(temp_db_instance_helper, patch_user_password_scheme):
+    for _ in temp_db_instance_helper(utils.generateUserInstance(username='regular_user', is_active=False)):
+        yield _
+
+@pytest.yield_fixture()
 def regular_user2(temp_db_instance_helper, patch_user_password_scheme):
     for _ in temp_db_instance_helper(utils.generateUserInstance(username='regular_user2')):
         yield _
 
 @pytest.yield_fixture()
-def readonly_user(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='readonly_user', is_regular_user=False)):
-        yield _
-
-@pytest.yield_fixture()
-def deactivated_regular_user(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='deactivated_regular_user', is_active=False)):
-        yield _
-
-@pytest.yield_fixture()
-def deactivated_regular_user2(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='deactivated_regular_user2', is_active=False)):
-        yield _
-
-@pytest.yield_fixture()
-def deactivated_admin_user(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='deactivated_admin_user', is_active=False, is_admin=True)):
-        yield _
-
-@pytest.yield_fixture()
-def deactivated_admin_user2(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='deactivated_admin_user2', is_active=False, is_admin=True)):
-        yield _
-
-@pytest.yield_fixture()
-def deactivated_internal_user(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='deactivated_internal_user', is_regular_user=False, is_admin=False, is_active=False, is_internal=True)):
-        yield _
-
-@pytest.yield_fixture()
-def deactivated_internal_user2(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='deactivated_internal_user2', is_regular_user=False, is_admin=False, is_active=False, is_internal=True)):
-        yield _
-
-@pytest.yield_fixture()
 def admin_user(temp_db_instance_helper, patch_user_password_scheme):
     for _ in temp_db_instance_helper(utils.generateUserInstance(username='admin_user', is_admin=True)):
+        yield _
+
+@pytest.yield_fixture()
+def admin_user_deactivated(temp_db_instance_helper, patch_user_password_scheme):
+    for _ in temp_db_instance_helper(utils.generateUserInstance(username='admin_user', is_admin=True, is_active=False)):
         yield _
 
 @pytest.yield_fixture()
@@ -121,7 +96,12 @@ def admin_user2(temp_db_instance_helper, patch_user_password_scheme):
 
 @pytest.yield_fixture()
 def internal_user(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='internal_user', is_regular_user=False, is_admin=False, is_active=True, is_internal=True)):
+    for _ in temp_db_instance_helper(utils.generateUserInstance(username='internal_user', is_regular_user=False, is_admin=False, is_internal=True)):
+        yield _
+
+@pytest.yield_fixture()
+def internal_user_deactivated(temp_db_instance_helper, patch_user_password_scheme):
+    for _ in temp_db_instance_helper(utils.generateUserInstance(username='internal_user', is_regular_user=False, is_admin=False, is_internal=True, is_active=False)):
         yield _
 
 @pytest.yield_fixture()

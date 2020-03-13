@@ -68,7 +68,7 @@ class ApiTokens(Resource):
                 if owner_id != current_user.id:
                     http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create API Tokens for other users.")
         with api.commit_or_abort(db.session, default_error_message='Failed to create a new API Token.'):
-            newApiToken = ApiToken(owner=owner, token=security.gen_salt(32), name=args.name)
+            newApiToken = ApiToken(name=args.name, token=ApiToken.generate_token(args.length), length=args.length, owner=owner)
             db.session.add(newApiToken)
         return newApiToken
 

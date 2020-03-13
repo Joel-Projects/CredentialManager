@@ -1,194 +1,101 @@
-# #
-#
-# import json
-#
-# from app.modules.teams import models
-#
-#
-# def test_new_team_creation(flask_app_client, db, regular_user):
-#
-#     team_title = 'Test Team Title'
-#     with flask_app_client.login(regular_user, auth_scopes=('teams:write', )):
-#         response = flask_app_client.post('/api/v1/teams/', data={'title': team_title})
-#
-#     assert response.status_code == 200
-#     assert response.content_type == 'application/json'
-#     assert set(response.json.keys()) >= {'id', 'title'}
-#     assert response.json['title'] == team_title
-#
-#     # Cleanup
-#     team = models.Team.query.get(response.json['id'])
-#     assert team.title == team_title
-#     with db.session.begin():
-#         db.session.delete(team)
-#
-# def test_new_team_first_member_is_creator(flask_app_client, db, regular_user):
-#
-#     team_title = 'Test Team Title'
-#     with flask_app_client.login(
-#             regular_user,
-#             auth_scopes=('teams:write', 'teams:read')
-#         ):
-#         response = flask_app_client.post('/api/v1/teams/', data={'title': team_title})
-#
-#     assert response.status_code == 200
-#     assert response.content_type == 'application/json'
-#     assert set(response.json.keys()) >= {'id', 'title'}
-#     assert response.json['title'] == team_title
-#     assert len(response.json['members']) == 1
-#     assert response.json['members'][0]['user']['id'] == regular_user.id
-#     assert response.json['members'][0]['is_leader'] == True
-#
-#     # Cleanup
-#     team = models.Team.query.get(response.json['id'])
-#     assert team.title == team_title
-#     with db.session.begin():
-#         db.session.delete(team)
-#
-#
-# def test_new_team_creation_with_invalid_data_must_fail(flask_app_client, regular_user):
-#
-#     with flask_app_client.login(regular_user, auth_scopes=('teams:write', )):
-#         response = flask_app_client.post('/api/v1/teams/', data={'title': ''})
-#
-#     assert response.status_code == 409
-#     assert response.content_type == 'application/json'
-#     assert set(response.json.keys()) >= {'status', 'message'}
-#
-#
-# def test_update_team_info(flask_app_client, regular_user, team_for_regular_user):
-#
-#     team_title = 'Test Team Title'
-#     with flask_app_client.login(regular_user, auth_scopes=('teams:write', )):
-#         response = flask_app_client.patch(
-#             '/api/v1/teams/%d' % team_for_regular_user.id,
-#             content_type='application/json',
-#             data=json.dumps([
-#                 {
-#                     'op': 'replace',
-#                     'path': '/title',
-#                     'value': team_title
-#                 },
-#             ])
-#         )
-#
-#     assert response.status_code == 200
-#     assert response.content_type == 'application/json'
-#     assert set(response.json.keys()) >= {'id', 'title'}
-#     assert response.json['id'] == team_for_regular_user.id
-#     assert response.json['title'] == team_title
-#     assert team_for_regular_user.title == team_title
-#
-#
-# def test_update_team_info_with_invalid_data_must_fail(
-#         flask_app_client,
-#         regular_user,
-#         team_for_regular_user
-# ):
-#
-#     with flask_app_client.login(regular_user, auth_scopes=('teams:write', )):
-#         response = flask_app_client.patch(
-#             '/api/v1/teams/%d' % team_for_regular_user.id,
-#             content_type='application/json',
-#             data=json.dumps([
-#                 {
-#                     'op': 'replace',
-#                     'path': '/title',
-#                     'value': '',
-#                 },
-#             ])
-#         )
-#
-#     assert response.status_code == 409
-#     assert response.content_type == 'application/json'
-#     assert set(response.json.keys()) >= {'status', 'message'}
-#
-#
-# def test_update_team_info_without_value_must_fail(
-#         flask_app_client,
-#         regular_user,
-#         team_for_regular_user
-# ):
-#     with flask_app_client.login(regular_user, auth_scopes=('teams:write', )):
-#         response = flask_app_client.patch(
-#             '/api/v1/teams/%d' % team_for_regular_user.id,
-#             content_type='application/json',
-#             data=json.dumps([
-#                 {
-#                     'op': 'replace',
-#                     'path': '/title',
-#                 }
-#             ])
-#         )
-#
-#     assert response.status_code == 422
-#     assert response.content_type == 'application/json'
-#     assert set(response.json.keys()) >= {'status', 'message'}
-#
-#
-# def test_update_team_info_without_slash_in_path_must_fail(
-#         flask_app_client,
-#         regular_user,
-#         team_for_regular_user
-# ):
-#     with flask_app_client.login(regular_user, auth_scopes=('teams:write',)):
-#         response = flask_app_client.patch(
-#             '/api/v1/teams/%d' % team_for_regular_user.id,
-#             content_type='application/json',
-#             data=json.dumps([
-#                 {
-#                     'op': 'replace',
-#                     'path': 'title',
-#                     'value': 'New Team Value',
-#                 }
-#             ])
-#         )
-#
-#     assert response.status_code == 422
-#     assert response.content_type == 'application/json'
-#     assert set(response.json.keys()) >= {'status', 'message'}
-#
-#
-# def test_team_deletion(flask_app_client, regular_user, team_for_regular_user):
-#     with flask_app_client.login(regular_user, auth_scopes=('teams:write', )):
-#         response = flask_app_client.delete(
-#             '/api/v1/teams/%d' % team_for_regular_user.id
-#         )
-#
-#     assert response.status_code == 204
-#
-#
-# def test_add_new_team_member(flask_app_client, db, regular_user, admin_user, team_for_regular_user):
-#
-#     with flask_app_client.login(regular_user, auth_scopes=('teams:write', )):
-#         response = flask_app_client.post(
-#             '/api/v1/teams/%d/members/' % team_for_regular_user.id,
-#             data={
-#                 'user_id': admin_user.id,
-#             }
-#         )
-#
-#     assert response.status_code == 200
-#     assert response.content_type == 'application/json'
-#     assert set(response.json.keys()) >= {'team', 'user', 'is_leader'}
-#     assert response.json['team']['id'] == team_for_regular_user.id
-#     assert response.json['user']['id'] == admin_user.id
-#
-#     # Cleanup
-#     team_members = models.TeamMember.query.filter_by(team=team_for_regular_user, user=admin_user)
-#     assert team_members.count() == 1
-#     with db.session.begin():
-#         team_members.delete()
-#
-#
-# def test_delete_team_member(
-#         flask_app_client, db, regular_user, readonly_user, team_for_regular_user
-# ):
-#
-#     with flask_app_client.login(regular_user, auth_scopes=('teams:write', )):
-#         response = flask_app_client.delete(
-#             '/api/v1/teams/%d/members/%d' % (team_for_regular_user.id, readonly_user.id),
-#         )
-#
-#     assert response.status_code == 200
-#     assert response.content_type == 'application/json'
+import json
+from datetime import datetime, timezone
+
+import pytest
+
+from app.modules.api_tokens.models import ApiToken
+from app.modules.api_tokens.schemas import DetailedApiTokenSchema
+from tests.utils import assert409, assert422
+
+
+def assertSuccess(owner, response):
+    assert response.status_code == 200
+    assert response.content_type == 'application/json'
+    assert isinstance(response.json, dict)
+    for field in DetailedApiTokenSchema.Meta.fields:
+        if response.json[field]:
+            if getattr(ApiToken, field).type.python_type == datetime:
+                assert isinstance(response.json[field], str)
+            else:
+                assert isinstance(response.json[field], getattr(ApiToken, field).type.python_type)
+    createdApiToken = ApiToken.query.filter_by(id=response.json['id']).first()
+    assert createdApiToken is not None
+    assert response.json['owner_id'] == owner.id
+    for field in DetailedApiTokenSchema.Meta.fields:
+        if response.json[field]:
+            if isinstance(getattr(createdApiToken, field), datetime):
+                assert response.json[field] == datetime.astimezone(getattr(createdApiToken, field), timezone.utc).isoformat()
+            else:
+                assert response.json[field] == getattr(createdApiToken, field)
+
+def assertFail(token, response):
+    assert response.status_code == 403
+    assert response.content_type == 'application/json'
+    assert isinstance(response.json, dict)
+    assert set(response.json.keys()) >= {'status', 'message'}
+    assert response.json['message'] == "You don't have the permission to access the requested resource."
+    createdToken = ApiToken.query.filter(ApiToken.id != token.id).first()
+    assert createdToken is None
+
+data = [
+    {
+        'op': 'replace',
+        'path': '/name',
+        'value': 'newName',
+    },
+    {
+        'op': 'replace',
+        'path': '/enabled',
+        'value': False,
+    }
+]
+users = [
+    pytest.lazy_fixture('adminUserInstance'),
+    pytest.lazy_fixture('internalUserInstance'),
+    pytest.lazy_fixture('regularUserInstance')
+]
+labels = [
+    'as_admin_user',
+    'as_internal_user',
+    'as_regular_user'
+]
+
+tokens = [
+    pytest.lazy_fixture('regularUserApiToken'),
+    pytest.lazy_fixture('adminUserApiToken'),
+    pytest.lazy_fixture('internalUserApiToken'),
+]
+
+@pytest.mark.parametrize('token', tokens, ids=['modify_regular_user_token', 'modify_admin_user_token', 'modify_regular_user_token'])
+@pytest.mark.parametrize('loginAs', users, ids=labels)
+def test_modifying_api_token(flask_app_client, token, loginAs):
+    response = flask_app_client.patch(f'/api/v1/api_tokens/{token.id:d}', content_type='application/json', data=json.dumps(data))
+
+    if token.owner.is_internal:
+        if loginAs.is_internal:
+            assertSuccess(token.owner, response)
+        else:
+            assertFail(token, response)
+    elif loginAs.is_admin or loginAs.is_internal:
+        assertSuccess(token.owner, response)
+    else:
+        assertFail(token, response)
+
+def test_modifying_api_token_by_self(flask_app_client, regularUserInstance, regularUserApiToken):
+    regularUserApiToken.owner = regularUserInstance
+    response = flask_app_client.patch(f'/api/v1/api_tokens/{regularUserApiToken.id}', content_type='application/json', data=json.dumps(data))
+
+    assertSuccess(regularUserInstance, response)
+
+def test_modifying_api_token_info_with_invalid_format_must_fail(flask_app_client, regularUserInstance, regularUserApiToken):
+    regularUserApiToken.owner = regularUserInstance
+    response = flask_app_client.patch(f'/api/v1/api_tokens/{regularUserInstance.id}', content_type='application/json', data=json.dumps([{'op': 'test', 'path': '/name', 'value': '', }, {'op': 'replace', 'path': '/enabled', }, ]))
+    assert422(response, ApiToken, [('1', {'_schema': ['value is required']})], oldItem=regularUserApiToken, patch=True)
+
+def test_modifying_api_token_info_with_conflict_data_must_fail(flask_app_client, regularUserInstance, regularUserApiToken, adminUserApiToken):
+    regularUserApiToken.owner = regularUserInstance
+    adminUserApiToken.name = 'differentName'
+    adminUserApiToken.owner = regularUserInstance
+    response = flask_app_client.patch(f'/api/v1/api_tokens/{regularUserApiToken.id}', content_type='application/json', data=json.dumps([{'op': 'replace', 'path': '/name', 'value': adminUserApiToken.name}]))
+
+    assert409(response, ApiToken, 'Failed to update API Token details.', messageAttrs=[('1', {'_schema': ['value is required']})], oldItem=regularUserApiToken, patch=True)

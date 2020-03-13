@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 import json, flask
 
 from flask import Response
@@ -7,23 +7,8 @@ from flask.testing import FlaskClient
 from werkzeug.utils import cached_property
 from base64 import b64encode
 
+from app.modules.users.models import User
 
-class RequestShim(object):
-    def __init__(self, client):
-        self.client = client
-        self.vary = set({})
-
-    def set_cookie(self, key, value='', *args, **kwargs):
-        'Set the cookie on the Flask test client.'
-        server_name = flask.current_app.config['SERVER_NAME'] or 'localhost'
-        kwargs.pop('samesite')
-        return self.client.set_cookie(server_name, key=key, value=value, *args, **kwargs)
-
-    def delete_cookie(self, key, *args, **kwargs):
-        'Delete the cookie on the Flask test client.'
-        server_name = flask.current_app.config['SERVER_NAME'] or 'localhost'
-        kwargs.pop('samesite')
-        return self.client.delete_cookie(server_name, key=key, *args, **kwargs)
 
 class AutoAuthFlaskClient(FlaskClient):
     '''
@@ -95,3 +80,74 @@ def generateUserInstance(user_id=None, username='username', password=None, defau
     )
     user_instance.password_secret = password
     return user_instance
+
+def assertValidResponseContentType(response):
+    assert response.content_type == 'application/json'
+    assert isinstance(response.json, dict)
+
+def assertSuccess(response, owner, model, schema):
+    assert response.status_code == 200
+    assertValidResponseContentType(response)
+    assert set(response.json.keys()) >= set(schema.Meta.fields)
+    for field in schema.Meta.fields:
+        if response.json[field]:
+            if isinstance(getattr(model, field), property):
+                assert isinstance(response.json[field], bool)
+            else:
+                if getattr(model, field).type.python_type == datetime:
+                    assert isinstance(response.json[field], str)
+                else:
+                    assert isinstance(response.json[field], getattr(model, field).type.python_type)
+    createdItem = model.query.filter_by(id=response.json['id']).first()
+    assert createdItem is not None
+    if 'owner_id' in response.json:
+        assert response.json['owner_id'] == owner.id
+    for field in schema.Meta.fields:
+        if response.json[field]:
+            if isinstance(getattr(createdItem, field), datetime):
+                assert response.json[field] == datetime.astimezone(getattr(createdItem, field), timezone.utc).isoformat()
+            else:
+                assert response.json[field] == getattr(createdItem, field)
+
+def itemNotCreated(model, *, loginAs):
+    items = model.query.all()
+    if model._sa_class_manager.class_ == User:
+        createdUser = User.query.filter(User.id != loginAs.id).first()
+        assert createdUser is None
+    else:
+        assert len(items) == 0
+
+def itemNotModified(model, oldItem, *, loginAs):
+    item = model.query.get(oldItem.id)
+    assert item == oldItem
+
+def __assertResponseError(response, code, message, model, loginAs, created=True, keys=None, messageAttrs=None, patch=False, oldItem=None):
+    if keys is None:
+        keys = {'status', 'message'}
+    assert response.status_code == code
+    assert response.content_type == 'application/json'
+    assert isinstance(response.json, dict)
+    assert set(response.json.keys()) >= keys
+    assert response.json['message'] == message
+    if 'messages' in response.json:
+        for messageAttr, message in messageAttrs:
+            assert response.json['messages'][messageAttr] == message
+    if patch:
+        itemNotModified(model, oldItem, loginAs=loginAs)
+    elif created:
+        itemNotCreated(model, loginAs=loginAs)
+
+def assert401(response, model, *, created=True, loginAs):
+    __assertResponseError(response, 401, "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.", model, loginAs, created=created)
+
+def assert403(response, model, *, created=True, loginAs=None, internal=False):
+    if internal:
+        __assertResponseError(response, 403, "You don't have the permission to access the requested resource.", model, loginAs, created=created)
+    else:
+        __assertResponseError(response, 403, f"You don't have the permission to create {model._displayNamePlural} for other users.", model, loginAs, created=created)
+
+def assert409(response, model, message, *, messageAttrs=None, oldItem=None, patch=False, loginAs=None):
+    __assertResponseError(response, 409, message, model, loginAs, messageAttrs=messageAttrs, patch=patch, oldItem=oldItem)
+
+def assert422(response, model, messageAttrs, *, oldItem=None, patch=False, loginAs=None):
+    __assertResponseError(response, 422, 'The request was well-formed but was unable to be followed due to semantic errors.', model, loginAs, keys={'status', 'message', 'messages'}, messageAttrs=messageAttrs, patch=patch, oldItem=oldItem)

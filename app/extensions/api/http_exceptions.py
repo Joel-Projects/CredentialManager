@@ -14,8 +14,7 @@ def abort(code, message=None, **kwargs):
     response, namely, ``status`` and ``message`` info.
     '''
     if message is None:
+        message = HTTPStatus(code).description
         if code in API_DEFAULT_HTTP_CODE_MESSAGES:
             message = API_DEFAULT_HTTP_CODE_MESSAGES[code]
-        else:
-            message = HTTPStatus(code).description
     restplus_abort(code=code, status=code, message=message, **kwargs)

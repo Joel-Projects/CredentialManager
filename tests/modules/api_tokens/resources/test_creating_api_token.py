@@ -1,165 +1,69 @@
+from datetime import datetime, timezone
+
 import pytest
+
 from app.modules.api_tokens.models import ApiToken
+from app.modules.api_tokens.schemas import DetailedApiTokenSchema
+from tests.utils import assertSuccess, assert403, assert403, assert422, assert401
 
-def assertSuccess(response, tokenOwner):
-    assert response.status_code == 200
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'id', 'name', 'token', 'owner_id'}
-    assert isinstance(response.json['id'], int)
-    assert isinstance(response.json['name'], str)
-    assert isinstance(response.json['token'], str)
-    assert isinstance(response.json['owner_id'], int)
-    from app.modules.api_tokens.models import ApiToken
-    createdApiToken = ApiToken.query.filter_by(id=response.json['id']).first()
-    assert createdApiToken is not None
-    assert response.json['id'] == createdApiToken.id
-    assert response.json['name'] == createdApiToken.name
-    assert response.json['token'] == createdApiToken.token
-    assert response.json['owner_id'] == createdApiToken.owner_id
-    assert response.json['owner_id'] == tokenOwner.id
 
-def test_creating_api_token_for_admin_user_by_admin_user(flask_app_client, admin_user, admin_user2):
-    tokenOwner = admin_user
-    with flask_app_client.login(admin_user2):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
+users = [
+    pytest.lazy_fixture('adminUserInstance'),
+    pytest.lazy_fixture('internalUserInstance'),
+    pytest.lazy_fixture('regularUserInstance')
+]
+labels = [
+    'as_admin_user',
+    'as_internal_user',
+    'as_regular_user'
+]
+path = '/api/v1/api_tokens/'
 
-    assertSuccess(response, tokenOwner)
+@pytest.mark.parametrize('loginAs', users, ids=labels)
+@pytest.mark.parametrize('owner', [pytest.lazy_fixture('admin_user'), pytest.lazy_fixture('internal_user'), pytest.lazy_fixture('regular_user')], ids=['for_admin_user', 'for_internal_user', 'for_regular_user'])
+def test_creating_api(flask_app_client, loginAs, owner):
+    response = flask_app_client.post(path, data={'name': 'testToken', 'owner_id': owner.id})
 
-def test_creating_api_token_for_admin_user_by_deactivated_admin_user(flask_app_client, admin_user, deactivated_admin_user):
-    tokenOwner = admin_user
-    with flask_app_client.login(deactivated_admin_user):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
+    if owner.is_internal:
+        if loginAs.is_internal:
+            assertSuccess(response, owner, ApiToken, DetailedApiTokenSchema)
+        else:
+            assert403(response, ApiToken, internal=True)
+    elif loginAs.is_admin or loginAs.is_internal:
+        assertSuccess(response, owner, ApiToken, DetailedApiTokenSchema)
+    else:
+        assert403(response, ApiToken)
 
-    assert response.status_code == 401
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-    dbApiToken = ApiToken.query.first()
-    assert dbApiToken is None
+def test_creating_api_token_by_deactivated_user(flask_app_client, regular_user_deactivated):
+    with flask_app_client.login(regular_user_deactivated):
+        response = flask_app_client.post(path, data={'name': 'testToken'})
+    model = ApiToken
+    assert401(response, model, loginAs=regular_user_deactivated)
 
-def test_creating_api_token_for_admin_user_by_internal_user(flask_app_client, admin_user, internal_user):
-    tokenOwner = admin_user
-    with flask_app_client.login(internal_user):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
+def test_creating_api_token_for_self(flask_app_client, regularUserInstance):
+    response = flask_app_client.post(path, data={'name': 'testToken'})
+    assertSuccess(response, regularUserInstance, ApiToken, DetailedApiTokenSchema)
 
-    assertSuccess(response, tokenOwner)
+def test_creating_api_token_for_self_with_id(flask_app_client, regularUserInstance):
+    response = flask_app_client.post(path, data={'name': 'testToken', 'owner_id': regularUserInstance.id})
+    assertSuccess(response, regularUserInstance, ApiToken, DetailedApiTokenSchema)
 
-def test_creating_api_token_for_admin_user_by_regular_user(flask_app_client, admin_user, regular_user):
-    tokenOwner = admin_user
-    with flask_app_client.login(regular_user):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
+@pytest.mark.parametrize('length', range(16, 72, 8))
+def test_creating_api_token_with_different_length(flask_app_client, regularUserInstance, length):
+    response = flask_app_client.post(path, data={'name': 'testToken', 'length': length})
+    assertSuccess(response, regularUserInstance, ApiToken, DetailedApiTokenSchema)
 
-    assert response.status_code == 403
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "You don't have the permission to create API Tokens for other users."
+@pytest.mark.parametrize('loginAs', users, ids=labels)
+def test_creating_api_token_with_bad_name(flask_app_client, loginAs):
+    response = flask_app_client.post(path, data={'name': 'to'})
 
-def test_creating_api_token_for_admin_user_by_self(flask_app_client, admin_user):
-    tokenOwner = admin_user
-    with flask_app_client.login(admin_user):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
+    assert422(response, ApiToken, [('name', ['Name must be greater than 3 characters long.'])])
 
-    assertSuccess(response, tokenOwner)
+@pytest.mark.parametrize('length', [8, 256])
+def test_creating_api_token_with_bad_length(flask_app_client, regularUserInstance, length):
+    response = flask_app_client.post(path, data={'name': 'token', 'length': length})
 
-def test_creating_api_token_for_internal_user_by_admin_user(flask_app_client, internal_user, admin_user):
-    tokenOwner = internal_user
-    with flask_app_client.login(admin_user):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
-
-    assert response.status_code == 403
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "You don't have the permission to access the requested resource."
-
-def test_creating_api_token_for_internal_user_by_deactivated_admin_user(flask_app_client, internal_user, deactivated_admin_user):
-    tokenOwner = internal_user
-    with flask_app_client.login(deactivated_admin_user):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
-
-    assert response.status_code == 401
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-    dbApiToken = ApiToken.query.first()
-    assert dbApiToken is None
-
-def test_creating_api_token_for_internal_user_by_internal_user(flask_app_client, internal_user, internal_user2):
-    tokenOwner = internal_user
-    with flask_app_client.login(internal_user2):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
-
-    assertSuccess(response, tokenOwner)
-
-def test_creating_api_token_for_internal_user_by_regular_user(flask_app_client, internal_user, regular_user):
-    tokenOwner = internal_user
-    with flask_app_client.login(regular_user):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
-
-    assert response.status_code == 403
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "You don't have the permission to access the requested resource."
-
-def test_creating_api_token_for_internal_user_by_self(flask_app_client, internal_user):
-    tokenOwner = internal_user
-    with flask_app_client.login(internal_user):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
-
-    assertSuccess(response, tokenOwner)
-
-def test_creating_api_token_for_regular_user_by_admin_user(flask_app_client, regular_user, admin_user):
-    tokenOwner = regular_user
-    with flask_app_client.login(admin_user):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': tokenOwner.id})
-
-    assertSuccess(response, tokenOwner)
-
-def test_creating_api_token_for_regular_user_by_regular_user(flask_app_client, regular_user, regular_user2):
-    with flask_app_client.login(regular_user):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': regular_user2.id})
-
-    assert response.status_code == 403
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "You don't have the permission to create API Tokens for other users."
-
-def test_creating_api_token_for_regular_user_by_self(flask_app_client, regular_user):
-    tokenOwner = regular_user
-    with flask_app_client.login(regular_user):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken'})
-
-    assertSuccess(response, tokenOwner)
-
-def test_creating_api_token_for_regular_user_by_self_with_id(flask_app_client, regular_user):
-    tokenOwner = regular_user
-    with flask_app_client.login(regular_user):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': regular_user.id})
-
-    assertSuccess(response, tokenOwner)
-
-def test_creating_api_token_for_non_existent_user(flask_app_client, admin_user):
-    with flask_app_client.login(admin_user):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'testToken', 'owner_id': 4})
-
-    assert response.status_code == 422
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message', 'messages'}
-    assert response.json['message'] == 'The request was well-formed but was unable to be followed due to semantic errors.'
-
-def test_creating_api_token_for_bad_name(flask_app_client, admin_user):
-    with flask_app_client.login(admin_user):
-        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'to'})
-
-    assert response.status_code == 422
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message', 'messages'}
-    assert response.json['message'] == 'The request was well-formed but was unable to be followed due to semantic errors.'
+    if length < 16:
+        assert422(response, ApiToken, [('length', ['Length must be greater than 16.'])])
+    elif length > 128:
+        assert422(response, ApiToken, [('length', ['Length must be less than 128.'])])
