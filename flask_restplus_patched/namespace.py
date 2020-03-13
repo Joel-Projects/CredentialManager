@@ -65,37 +65,6 @@ class Namespace(OriginalNamespace):
 
         return decorator
 
-    def resolveFromArgs(self, object_arg_name, resolver):
-        '''
-        A helper decorator to resolve object instance from arguments (e.g. identity).
-
-        Example:
-        >>> @namespace.route('/<int:user_id>')
-        ... class MyResource(Resource):
-        ...    @namespace.resolve_object(
-        ...        object_arg_name='user',
-        ...        resolver=lambda kwargs: User.query.get_or_404(kwargs.pop('user_id'))
-        ...    )
-        ...    def get(self, user):
-        ...        # user is a User instance here
-        '''
-
-        def decorator(func_or_class):
-            if isinstance(func_or_class, type):
-                # Handle Resource classes decoration
-
-                func_or_class._apply_decorator_to_methods(decorator)
-                return func_or_class
-
-            @wraps(func_or_class)
-            def wrapper(*args, **kwargs):
-                kwargs[object_arg_name] = resolver(kwargs)
-                return func_or_class(*args, **kwargs)
-
-            return wrapper
-
-        return decorator
-
     def model(self, name=None, model=None, mask=None, **kwargs):
         '''
         Model registration decorator.
@@ -250,9 +219,6 @@ class Namespace(OriginalNamespace):
 
         def wrapper(cls):
             if 'OPTIONS' in cls.methods:
-                # cls.options = self.hide(self.preflight_options_handler(
-                #     self.response(code=HTTPStatus.NO_CONTENT)(cls.options)
-                # ))
                 cls.options = self.preflight_options_handler(
                     self.response(code=HTTPStatus.NO_CONTENT)(cls.options)
                 )

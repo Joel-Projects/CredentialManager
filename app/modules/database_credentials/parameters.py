@@ -1,18 +1,18 @@
 from flask_marshmallow import base_fields
 from marshmallow import ValidationError, validates
 
-from app.extensions.api.parameters import PaginationParameters, validateOwner
+from app.extensions.api.parameters import PaginationParameters, ValidateOwner
 from flask_restplus_patched import PatchJSONParameters, PostFormParameters
 from . import schemas
 from .models import DatabaseCredential
 
 
-class ListDatabaseCredentialsParameters(PaginationParameters, validateOwner):
+class ListDatabaseCredentialsParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()
 
     invalidOwnerMessage = 'You can only query your own {}.'
 
-class CreateDatabaseCredentialParameters(PostFormParameters, schemas.BaseDatabaseCredentialSchema, validateOwner):
+class CreateDatabaseCredentialParameters(PostFormParameters, schemas.BaseDatabaseCredentialSchema, ValidateOwner):
     app_name = base_fields.String(required=True, description='Name of the Database Credential')
     database_flavor = base_fields.String(default='postgres', required=True, description='Type of database, defaults to `postgres`')
     database = base_fields.String(default='postgres', description='Working database to use, defaults to `postgres`')

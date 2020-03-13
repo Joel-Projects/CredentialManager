@@ -1,18 +1,18 @@
 from flask_marshmallow import base_fields
 
-from app.extensions.api.parameters import PaginationParameters, validateOwner
+from app.extensions.api.parameters import PaginationParameters, ValidateOwner
 from flask_restplus_patched import PatchJSONParameters, PostFormParameters
 from . import schemas
 from .models import UserVerification
 
 
-class ListUserVerificationsParameters(PaginationParameters, validateOwner):
+class ListUserVerificationsParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()
     redditor = base_fields.String()
 
     invalidOwnerMessage = 'You can only query your own {}.'
 
-class CreateUserVerificationParameters(PostFormParameters, schemas.BaseUserVerificationSchema, validateOwner):
+class CreateUserVerificationParameters(PostFormParameters, schemas.BaseUserVerificationSchema, ValidateOwner):
     reddit_app_id = base_fields.Integer(required=True, description='Reddit app the User Verification is for')
     discord_id = base_fields.String(required=True, description='Discord member ID to associate Redditor with')
     redditor = base_fields.String(description='Redditor the User Verification is for')

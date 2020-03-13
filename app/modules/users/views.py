@@ -105,45 +105,44 @@ def editUser(user):
     form = EditUserForm(obj=user)
     newUsername = None
     newDefaultSettings = user.default_settings
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            itemsToUpdate = []
-            unflattenedForm = unflatten(dict([(a.replace('[Setting]', '.setting').replace('[Default Value]', '.value'), b) for a, b in dict(request.form).items() if a.startswith('root')]))
-            defaultSettings = {}
-            if 'root' in unflattenedForm:
-                defaultSettings = {item['setting']: item['value'] for item in unflattenedForm['root']}
-            if user.default_settings != defaultSettings:
-                itemsToUpdate.append({'op': 'replace', 'path': f'/default_settings', 'value': defaultSettings})
-                newDefaultSettings = defaultSettings
-            else:
-                newDefaultSettings = user.default_settings
-            for item in PatchUserDetailsParameters.getPatchFields():
-                if getattr(form, item, None) is not None:
-                    if not isinstance(getattr(form, item), BooleanField):
-                        if getattr(form, item).data:
-                            if getattr(user, item) != getattr(form, item).data:
-                                if item == 'username':
-                                    newUsername = getattr(form, item).data
-                                if item == 'password':
-                                    if not form.updatePassword.data:
-                                        continue
-                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                    else:
+    if request.method == 'POST' and form.validate_on_submit():
+        itemsToUpdate = []
+        unflattenedForm = unflatten(dict([(a.replace('[Setting]', '.setting').replace('[Default Value]', '.value'), b) for a, b in dict(request.form).items() if a.startswith('root')]))
+        defaultSettings = {}
+        if 'root' in unflattenedForm:
+            defaultSettings = {item['setting']: item['value'] for item in unflattenedForm['root']}
+        if user.default_settings != defaultSettings:
+            itemsToUpdate.append({'op': 'replace', 'path': f'/default_settings', 'value': defaultSettings})
+            newDefaultSettings = defaultSettings
+        else:
+            newDefaultSettings = user.default_settings
+        for item in PatchUserDetailsParameters.getPatchFields():
+            if getattr(form, item, None) is not None:
+                if not isinstance(getattr(form, item), BooleanField):
+                    if getattr(form, item).data:
                         if getattr(user, item) != getattr(form, item).data:
+                            if item == 'username':
+                                newUsername = getattr(form, item).data
+                            if item == 'password':
+                                if not form.updatePassword.data:
+                                    continue
                             itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-            if itemsToUpdate:
-                for item in itemsToUpdate:
-                    PatchUserDetailsParameters().validate_patch_structure(item)
-                try:
-                    with api.commit_or_abort(db.session, default_error_message='Failed to update User details.'):
-                        PatchUserDetailsParameters.perform_patch(itemsToUpdate, user)
-                        db.session.merge(user)
-                        flash(f'User {user.username!r} saved successfully!', 'success')
-                except Exception as error:
-                    log.exception(error)
-                    flash(f'Failed to update User {user.username!r}', 'error')
-            if newUsername:
-                return redirect(f'{newUsername}')
+                else:
+                    if getattr(user, item) != getattr(form, item).data:
+                        itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+        if itemsToUpdate:
+            for item in itemsToUpdate:
+                PatchUserDetailsParameters().validate_patch_structure(item)
+            try:
+                with api.commit_or_abort(db.session, default_error_message='Failed to update User details.'):
+                    PatchUserDetailsParameters.perform_patch(itemsToUpdate, user)
+                    db.session.merge(user)
+                    flash(f'User {user.username!r} saved successfully!', 'success')
+            except Exception as error:
+                log.exception(error)
+                flash(f'Failed to update User {user.username!r}', 'error')
+        if newUsername:
+            return redirect(f'{newUsername}')
     for key, value in kwargs.items():
         if isinstance(value, ModelForm):
             if 'owner' in value:
@@ -194,48 +193,3 @@ def itemsPerUser(user, item):
         f'{item}Form': form,
     }
     return render_template(f'{item}.html', user=user, **kwargs)
-
-# @login_required
-# @usersBlueprint.route('/u/<User:user>/<item>/<int:item_id>', methods=['GET', 'POST'])
-# @verifyEditable('user')
-# def editItemsPerUser(user, item, item_id):
-#     validItems = {
-#         'api_tokens': [PatchApiTokenDetailsParameters, ApiToken, ApiTokenForm, ['length']],
-#         'bots': [None, None, None, []], 'reddit_apps': [None, None, None, []],
-#         'sentry_tokens': [PatchSentryTokenDetailsParameters, SentryToken, SentryTokenForm, []],
-#         'database_credentials': [None, None, None, []]
-#     }
-#     item = item.lower()
-#     if not item in validItems:
-#         abort(404)
-#     itemPatchParameters = validItems[item][0]
-#     Model = validItems[item][1]
-#     model = Model.query.filter(Model.id==item_id).first()
-#     if not model:
-#         abort(404)
-#     form = validItems[item][2](obj=model)
-#     if request.method == 'POST':
-#         if form.validate_on_submit():
-#             itemsToUpdate = []
-#             for field in itemPatchParameters.fields:
-#                 if getattr(form, field, None) is not None:
-#                     if not isinstance(getattr(form, field), BooleanField):
-#                         if getattr(form, field).data:
-#                             if getattr(model, field) != getattr(form, field).data:
-#                                 itemsToUpdate.append({'op': 'replace', 'path': f'/{field}', 'value': getattr(form, field).data})
-#                     else:
-#                         if getattr(model, field) != getattr(form, field).data:
-#                             itemsToUpdate.append({'op': 'replace', 'path': f'/{field}', 'value': getattr(form, field).data})
-#             if itemsToUpdate:
-#                 response = requests.patch(f'{request.host_url}api/v1/api_tokens/{model.id}', json=itemsToUpdate, headers={'Cookie': request.headers['Cookie'], 'Content-Type': 'application/json'})
-#                 if response.status_code == 200:
-#                     flash(f'API Token {model.name!r} saved successfully!', 'success')
-#                 else:
-#                     flash(f'Failed to update API Token {model.name!r}', 'error')
-#         else:
-#             return jsonify(status='error', errors=form.errors)
-#     kwargs = {
-#         'form': form,
-#         item[:-1]: model
-#     }
-#     return render_template(f'edit_{item[:-1]}.html', user=user, **kwargs)

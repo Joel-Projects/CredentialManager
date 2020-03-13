@@ -1,13 +1,13 @@
 from flask_marshmallow import base_fields
 from marshmallow import ValidationError, validates
 
-from app.extensions.api.parameters import PaginationParameters, validateOwner
+from app.extensions.api.parameters import PaginationParameters, ValidateOwner
 from flask_restplus_patched import Parameters, PatchJSONParameters, PostFormParameters
 from . import schemas
 from .models import Bot
 
 
-class ListBotsParameters(PaginationParameters, validateOwner):
+class ListBotsParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()
 
     invalidOwnerMessage = 'You can only query your own {}.'
@@ -16,7 +16,7 @@ class GetBotByName(Parameters):
     app_name = base_fields.String(required=True, description='Name of the Bot')
     owner_id = base_fields.Integer(description='Owner of the bot. Requires Admin to get for other users.')
 
-class CreateBotParameters(PostFormParameters, schemas.BaseBotSchema, validateOwner):
+class CreateBotParameters(PostFormParameters, schemas.BaseBotSchema, ValidateOwner):
     app_name = base_fields.String(required=True, description='Name of the Bot')
     reddit_id = base_fields.Integer(description='Reddit App the bot will use')
     sentry_id = base_fields.Integer(description='Sentry Token the bot will use')

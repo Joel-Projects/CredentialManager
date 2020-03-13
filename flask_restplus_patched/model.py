@@ -18,7 +18,6 @@ class Schema(SchemaMixin, flask_marshmallow.Schema):
 if flask_marshmallow.has_sqla:
     class ModelSchema(SchemaMixin, flask_marshmallow.sqla.ModelSchema):
         dateformat = '%m/%d/%Y %I:%M:%S %p %Z'
-        pass
 
 class DefaultHTTPErrorSchema(Schema):
     status = flask_marshmallow.base_fields.Integer()

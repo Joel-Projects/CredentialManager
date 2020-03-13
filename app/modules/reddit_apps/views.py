@@ -48,27 +48,26 @@ def reddit_apps(page, perPage):
 @verifyEditable('reddit_app')
 def editRedditApp(reddit_app):
     form = RedditAppForm(obj=reddit_app)
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            itemsToUpdate = []
-            for item in PatchRedditAppDetailsParameters.fields:
-                if getattr(form, item, None) is not None:
-                    if not isinstance(getattr(form, item), BooleanField):
-                        if getattr(form, item).data:
-                            if getattr(reddit_app, item) != getattr(form, item).data:
-                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                    else:
+    if request.method == 'POST' and form.validate_on_submit():
+        itemsToUpdate = []
+        for item in PatchRedditAppDetailsParameters.fields:
+            if getattr(form, item, None) is not None:
+                if not isinstance(getattr(form, item), BooleanField):
+                    if getattr(form, item).data:
                         if getattr(reddit_app, item) != getattr(form, item).data:
                             itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-            if itemsToUpdate:
-                for item in itemsToUpdate:
-                    PatchRedditAppDetailsParameters().validate_patch_structure(item)
-                try:
-                    with api.commit_or_abort(db.session, default_error_message='Failed to update Reddit App details.'):
-                        PatchRedditAppDetailsParameters.perform_patch(itemsToUpdate, reddit_app)
-                        db.session.merge(reddit_app)
-                        flash(f'Reddit App {reddit_app.app_name!r} saved successfully!', 'success')
-                except Exception as error:
-                    log.exception(error)
-                    flash(f'Failed to update Reddit App {reddit_app.app_name!r}', 'error')
+                else:
+                    if getattr(reddit_app, item) != getattr(form, item).data:
+                        itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+        if itemsToUpdate:
+            for item in itemsToUpdate:
+                PatchRedditAppDetailsParameters().validate_patch_structure(item)
+            try:
+                with api.commit_or_abort(db.session, default_error_message='Failed to update Reddit App details.'):
+                    PatchRedditAppDetailsParameters.perform_patch(itemsToUpdate, reddit_app)
+                    db.session.merge(reddit_app)
+                    flash(f'Reddit App {reddit_app.app_name!r} saved successfully!', 'success')
+            except Exception as error:
+                log.exception(error)
+                flash(f'Failed to update Reddit App {reddit_app.app_name!r}', 'error')
     return render_template('edit_reddit_app.html', reddit_app=reddit_app, form=form)

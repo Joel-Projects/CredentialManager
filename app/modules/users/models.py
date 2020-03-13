@@ -112,9 +112,8 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
 
     def getDefault(self, setting):
         default = self.default_settings.get(setting, '')
-        if not default:
-            if setting == 'redirect_uri':
-                default = 'https://credmgr.jesassn.org/oauth2/reddit_callback'
+        if not default and setting == 'redirect_uri':
+            default = 'https://credmgr.jesassn.org/oauth2/reddit_callback'
         return default
 
     @classmethod

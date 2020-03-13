@@ -56,10 +56,6 @@ class UserByID(Resource):
     Manipulations with a specific user.
     '''
 
-    # @api.login_required()
-    # def options(self, *args, **kwargs):
-    #     return super(UserByID, self).options(*args, **kwargs)
-
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['user']})
     @api.response(schemas.DetailedUserSchema())
     def get(self, user):

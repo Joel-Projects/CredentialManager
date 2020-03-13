@@ -1,18 +1,18 @@
 from flask_marshmallow import base_fields
 from marshmallow import ValidationError, validates
 
-from app.extensions.api.parameters import PaginationParameters, validateOwner
+from app.extensions.api.parameters import PaginationParameters, ValidateOwner
 from flask_restplus_patched import PatchJSONParameters, PostFormParameters
 from . import schemas
 from .models import SentryToken
 
 
-class ListSentryTokensParameters(PaginationParameters, validateOwner):
+class ListSentryTokensParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()
 
     invalidOwnerMessage = 'You can only query your own {}.'
 
-class CreateSentryTokenParameters(PostFormParameters, schemas.BaseSentryTokenSchema, validateOwner):
+class CreateSentryTokenParameters(PostFormParameters, schemas.BaseSentryTokenSchema, ValidateOwner):
     app_name = base_fields.String(required=True, description='Name of the Sentry Token')
     dsn = base_fields.String(required=True, description='DSN of the Sentry Token')
     owner_id = base_fields.Integer(description='Owner of the token. Requires Admin to create for other users.')

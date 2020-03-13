@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 
 services = BotServices('personalBot')
 sql = services.postgres()
-# perfsPageFile = sys.argv[1]
 with open('/Users/jkpayne/Desktop/Bots/apps', 'r') as f:
     prefsPage = f.read()
 

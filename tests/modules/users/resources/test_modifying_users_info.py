@@ -4,16 +4,7 @@ import json
 def test_modifying_user_info_by_owner(flask_app_client, regular_user, db):
     saved_default_settings = regular_user.default_settings
     with flask_app_client.login(regular_user):
-        response = flask_app_client.patch(f'/api/v1/users/{regular_user.id:d}',
-                                          content_type='application/json',
-                                          data=json.dumps([
-                                              {
-                                                  'op': 'replace',
-                                                  'path': '/default_settings',
-                                                  'value': {'database_flavor': 'postgres', 'database_host': 'localhost'},
-                                              }
-                                          ])
-                                          )
+        response = flask_app_client.patch(f'/api/v1/users/{regular_user.id:d}', content_type='application/json', data=json.dumps([{'op': 'replace', 'path': '/default_settings', 'value': {'database_flavor': 'postgres', 'database_host': 'localhost'}, }]))
 
     assert response.status_code == 200
     assert response.content_type == 'application/json'

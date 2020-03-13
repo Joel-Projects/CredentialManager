@@ -48,27 +48,26 @@ def database_credentials(page, perPage):
 @verifyEditable('database_credential')
 def editDatabaseCredential(database_credential):
     form = DatabaseCredentialForm(obj=database_credential)
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            itemsToUpdate = []
-            for item in PatchDatabaseCredentialDetailsParameters.fields:
-                if getattr(form, item, None) is not None:
-                    if not isinstance(getattr(form, item), BooleanField):
-                        if getattr(form, item).data:
-                            if getattr(database_credential, item) != getattr(form, item).data:
-                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                    else:
+    if request.method == 'POST' and form.validate_on_submit():
+        itemsToUpdate = []
+        for item in PatchDatabaseCredentialDetailsParameters.fields:
+            if getattr(form, item, None) is not None:
+                if not isinstance(getattr(form, item), BooleanField):
+                    if getattr(form, item).data:
                         if getattr(database_credential, item) != getattr(form, item).data:
                             itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-            if itemsToUpdate:
-                for item in itemsToUpdate:
-                    PatchDatabaseCredentialDetailsParameters().validate_patch_structure(item)
-                try:
-                    with api.commit_or_abort(db.session, default_error_message='Failed to update Database Credentials details.'):
-                        PatchDatabaseCredentialDetailsParameters.perform_patch(itemsToUpdate, database_credential)
-                        db.session.merge(database_credential)
-                        flash(f'Database Credentials {database_credential.app_name!r} saved successfully!', 'success')
-                except Exception as error:
-                    log.exception(error)
-                    flash(f'Failed to update Database Credentials {database_credential.app_name!r}', 'error')
+                else:
+                    if getattr(database_credential, item) != getattr(form, item).data:
+                        itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+        if itemsToUpdate:
+            for item in itemsToUpdate:
+                PatchDatabaseCredentialDetailsParameters().validate_patch_structure(item)
+            try:
+                with api.commit_or_abort(db.session, default_error_message='Failed to update Database Credentials details.'):
+                    PatchDatabaseCredentialDetailsParameters.perform_patch(itemsToUpdate, database_credential)
+                    db.session.merge(database_credential)
+                    flash(f'Database Credentials {database_credential.app_name!r} saved successfully!', 'success')
+            except Exception as error:
+                log.exception(error)
+                flash(f'Failed to update Database Credentials {database_credential.app_name!r}', 'error')
     return render_template('edit_database_credential.html', database_credential=database_credential, form=form)

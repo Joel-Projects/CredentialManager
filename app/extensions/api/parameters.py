@@ -26,7 +26,7 @@ class PaginationParameters(Parameters):
 def validateOwnerExists(user_id: int) -> User:
     return User.query.get(user_id)
 
-class validateOwner(Parameters):
+class ValidateOwner(Parameters):
     owner_id_attr = 'owner_id'
 
     invalidOwnerMessage = "You don't have the permission to create {} for other users."

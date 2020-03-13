@@ -31,7 +31,7 @@ class Parameters(Schema):
         avoid a new instance creation because it is undesirable behavior for
         parameters (they can be used not only for saving new instances).
         '''
-        return
+        pass
 
 class PostFormParameters(Parameters):
 

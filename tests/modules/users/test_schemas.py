@@ -6,9 +6,9 @@ def test_BaseUserSchema_dump_empty_input():
     assert dumped_result.errors == {}
     assert dumped_result.data == {}
 
-def test_BaseUserSchema_dump_user_instance(user_instance):
-    user_instance.password = 'password'
-    dumped_result = schemas.BaseUserSchema().dump(user_instance)
+def test_BaseUserSchema_dump_userInstance(userInstance):
+    userInstance.password = 'password'
+    dumped_result = schemas.BaseUserSchema().dump(userInstance)
     assert dumped_result.errors == {}
     assert 'password' not in dumped_result.data
     assert set(dumped_result.data.keys()) == {
@@ -16,9 +16,9 @@ def test_BaseUserSchema_dump_user_instance(user_instance):
         'username'
     }
 
-def test_DetailedUserSchema_dump_user_instance(user_instance):
-    user_instance.password = 'password'
-    dumped_result = schemas.DetailedUserSchema().dump(user_instance)
+def test_DetailedUserSchema_dump_userInstance(userInstance):
+    userInstance.password = 'password'
+    dumped_result = schemas.DetailedUserSchema().dump(userInstance)
     assert dumped_result.errors == {}
     assert 'password' not in dumped_result.data
     assert set(dumped_result.data.keys()) == {

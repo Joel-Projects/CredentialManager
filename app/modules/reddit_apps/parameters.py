@@ -1,18 +1,18 @@
 from flask_marshmallow import base_fields
 from marshmallow import ValidationError, validates
 
-from app.extensions.api.parameters import PaginationParameters, validateOwner
+from app.extensions.api.parameters import PaginationParameters, ValidateOwner
 from flask_restplus_patched import PatchJSONParameters, PostFormParameters
 from . import schemas
 from .models import RedditApp
 
 
-class ListRedditAppsParameters(PaginationParameters, validateOwner):
+class ListRedditAppsParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()
 
     invalidOwnerMessage = 'You can only query your own {}.'
 
-class CreateRedditAppParameters(PostFormParameters, schemas.BaseRedditAppSchema, validateOwner):
+class CreateRedditAppParameters(PostFormParameters, schemas.BaseRedditAppSchema, ValidateOwner):
     reddit_app = base_fields.String(required=True, description='Name of the Reddit App')
     short_name = base_fields.String(description='Short name of the Reddit App')
     app_description = base_fields.String(description='Description of the Reddit App')

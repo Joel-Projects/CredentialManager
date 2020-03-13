@@ -1,13 +1,13 @@
 from flask_marshmallow import base_fields
 from marshmallow import ValidationError, validates
 
-from app.extensions.api.parameters import PaginationParameters, validateOwner
+from app.extensions.api.parameters import PaginationParameters, ValidateOwner
 from flask_restplus_patched import PatchJSONParameters, PostFormParameters
 from . import schemas
 from .models import ApiToken
 
 
-class ListApiTokensParameters(PaginationParameters, validateOwner):
+class ListApiTokensParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()
 
     class Meta:
@@ -15,7 +15,7 @@ class ListApiTokensParameters(PaginationParameters, validateOwner):
 
     invalidOwnerMessage = 'You can only query your own {}.'
 
-class CreateApiTokenParameters(PostFormParameters, schemas.BaseApiTokenSchema, validateOwner):
+class CreateApiTokenParameters(PostFormParameters, schemas.BaseApiTokenSchema, ValidateOwner):
     name = base_fields.String(required=True, description='Name of the API token')
     owner_id = base_fields.Integer(description='Owner of the token. Requires Admin to create for other users.')
 

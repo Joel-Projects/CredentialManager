@@ -1,3 +1,6 @@
+import pytest
+from app.modules.api_tokens.models import ApiToken
+
 def assertSuccess(response, tokenOwner):
     assert response.status_code == 200
     assert response.content_type == 'application/json'
@@ -33,9 +36,6 @@ def test_creating_api_token_for_admin_user_by_deactivated_admin_user(flask_app_c
     assert isinstance(response.json, dict)
     assert set(response.json.keys()) >= {'status', 'message'}
     assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-
-    from app.modules.api_tokens.models import ApiToken
-
     dbApiToken = ApiToken.query.first()
     assert dbApiToken is None
 
@@ -85,9 +85,6 @@ def test_creating_api_token_for_internal_user_by_deactivated_admin_user(flask_ap
     assert isinstance(response.json, dict)
     assert set(response.json.keys()) >= {'status', 'message'}
     assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-
-    from app.modules.api_tokens.models import ApiToken
-
     dbApiToken = ApiToken.query.first()
     assert dbApiToken is None
 
@@ -157,12 +154,12 @@ def test_creating_api_token_for_non_existent_user(flask_app_client, admin_user):
     assert set(response.json.keys()) >= {'status', 'message', 'messages'}
     assert response.json['message'] == 'The request was well-formed but was unable to be followed due to semantic errors.'
 
-    def test_creating_api_token_for_bad_name(flask_app_client, admin_user):
-        with flask_app_client.login(admin_user):
-            response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'to'})
+def test_creating_api_token_for_bad_name(flask_app_client, admin_user):
+    with flask_app_client.login(admin_user):
+        response = flask_app_client.post('/api/v1/api_tokens/', data={'name': 'to'})
 
-        assert response.status_code == 422
-        assert response.content_type == 'application/json'
-        assert isinstance(response.json, dict)
-        assert set(response.json.keys()) >= {'status', 'message', 'messages'}
-        assert response.json['message'] == 'The request was well-formed but was unable to be followed due to semantic errors.'
+    assert response.status_code == 422
+    assert response.content_type == 'application/json'
+    assert isinstance(response.json, dict)
+    assert set(response.json.keys()) >= {'status', 'message', 'messages'}
+    assert response.json['message'] == 'The request was well-formed but was unable to be followed due to semantic errors.'

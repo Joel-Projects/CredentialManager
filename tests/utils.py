@@ -1,8 +1,3 @@
-'''
-Testing utils
--------------
-'''
-
 from contextlib import contextmanager
 from datetime import datetime
 import json, flask
@@ -10,9 +5,7 @@ import json, flask
 from flask import Response
 from flask.testing import FlaskClient
 from werkzeug.utils import cached_property
-from flask_login import login_user, current_user, logout_user
 from base64 import b64encode
-from flask_wtf.csrf import generate_csrf
 
 
 class RequestShim(object):
@@ -44,9 +37,6 @@ class AutoAuthFlaskClient(FlaskClient):
 
     @contextmanager
     def login(self, user):
-        # @self.application.login_manager.request_loader
-        # def load_user_from_request(request):
-        #     return user
 
         with self.application.test_request_context():
             if user:
@@ -57,6 +47,9 @@ class AutoAuthFlaskClient(FlaskClient):
             self._user = None
 
     def open(self, *args, **kwargs):
+        from flask_login import current_user
+        if current_user and current_user.is_authenticated:
+            self._user = current_user
         if self._user is not None:
 
             extra_headers = {'Authorization': f'Basic {b64encode(f"{self._user.username}:password".encode()).decode("ascii")}'}
@@ -77,7 +70,7 @@ class JSONResponse(Response):
     def json(self):
         return json.loads(self.get_data(as_text=True))
 
-def generate_user_instance(user_id=None, username='username', password=None, default_settings=None, created=None, updated=None, is_active=True, is_regular_user=True, is_admin=False, is_internal=False):
+def generateUserInstance(user_id=None, username='username', password=None, default_settings=None, created=None, updated=None, is_active=True, is_regular_user=True, is_admin=False, is_internal=False):
     '''
     Returns:
         user_instance (User) - an not committed to DB instance of a User model.

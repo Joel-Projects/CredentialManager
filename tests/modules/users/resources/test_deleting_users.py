@@ -1,462 +1,81 @@
-import json
+import pytest
+from app.modules.users.models import User
 
 
-def test_delete_admin_user_by_admin_user(flask_app_client, admin_user, admin_user2):
-    userToDelete = admin_user2
-    with flask_app_client.login(admin_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
+def assertPass(response, userToDelete):
     assert response.status_code == 204
     assert response.content_type == 'text/html; charset=utf-8'
     assert response.content_length is None
-
-    from app.modules.users.models import User
-
     initalUser = User.query.get(userToDelete.id)
     assert initalUser is None
 
-def test_delete_admin_user_by_deactivated_admin_user(flask_app_client, admin_user, deactivated_admin_user2):
-    userToDelete = admin_user
-    with flask_app_client.login(deactivated_admin_user2):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 401
+def assertCorrectResponseFormat(response):
     assert response.content_type == 'application/json'
     assert isinstance(response.json, dict)
     assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
 
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_admin_user_by_deactivated_regular_user(flask_app_client, admin_user, deactivated_regular_user):
-    userToDelete = admin_user
-    with flask_app_client.login(deactivated_regular_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
+def assert401(response, userToDelete):
     assert response.status_code == 401
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
+    assertCorrectResponseFormat(response)
     assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-
-    from app.modules.users.models import User
-
     initalUser = User.query.get(userToDelete.id)
     assert initalUser is not None
 
-def test_delete_admin_user_by_internal_user(flask_app_client, admin_user, internal_user):
-    userToDelete = admin_user
-    with flask_app_client.login(internal_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 204
-    assert response.content_type == 'text/html; charset=utf-8'
-    assert response.content_length is None
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is None
-
-def test_delete_admin_user_by_regular_user(flask_app_client, admin_user, regular_user):
-    userToDelete = admin_user
-    with flask_app_client.login(regular_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
+def assert403(response, userToDelete):
     assert response.status_code == 403
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
+    assertCorrectResponseFormat(response)
     assert response.json['message'] == "You don't have the permission to access the requested resource."
-
-    from app.modules.users.models import User
-
     initalUser = User.query.get(userToDelete.id)
     assert initalUser is not None
 
-def test_delete_admin_user_by_self(flask_app_client, admin_user):
-    userToDelete = admin_user
-    with flask_app_client.login(admin_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
+def assert409(response, userToDelete):
     assert response.status_code == 409
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
+    assertCorrectResponseFormat(response)
     assert response.json['message'] == "You can't delete yourself."
-
-    from app.modules.users.models import User
-
     initalUser = User.query.get(userToDelete.id)
     assert initalUser is not None
 
-def test_delete_deactivated_admin_user_by_admin_user(flask_app_client, deactivated_admin_user, admin_user):
-    userToDelete = deactivated_admin_user
-    with flask_app_client.login(admin_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 204
-    assert response.content_type == 'text/html; charset=utf-8'
-    assert response.content_length is None
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is None
-
-def test_delete_deactivated_admin_user_by_deactivated_admin_user(flask_app_client, deactivated_admin_user, deactivated_admin_user2):
-    userToDelete = deactivated_admin_user
-    with flask_app_client.login(deactivated_admin_user2):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 401
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_deactivated_admin_user_by_deactivated_regular_user(flask_app_client, deactivated_admin_user, deactivated_regular_user):
-    userToDelete = deactivated_admin_user
-    with flask_app_client.login(deactivated_regular_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 401
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_deactivated_admin_user_by_internal_user(flask_app_client, deactivated_admin_user, internal_user):
-    userToDelete = deactivated_admin_user
-    with flask_app_client.login(internal_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 204
-    assert response.content_type == 'text/html; charset=utf-8'
-    assert response.content_length is None
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is None
-
-def test_delete_deactivated_admin_user_by_regular_user(flask_app_client, deactivated_admin_user, regular_user):
-    userToDelete = deactivated_admin_user
-    with flask_app_client.login(regular_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 403
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "You don't have the permission to access the requested resource."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_deactivated_admin_user_by_self(flask_app_client, deactivated_admin_user):
-    userToDelete = deactivated_admin_user
-    with flask_app_client.login(deactivated_admin_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 401
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_deactivated_regular_user_by_admin_user(flask_app_client, deactivated_regular_user, admin_user):
-    userToDelete = deactivated_regular_user
-    with flask_app_client.login(admin_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 204
-    assert response.content_type == 'text/html; charset=utf-8'
-    assert response.content_length is None
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is None
-
-def test_delete_deactivated_regular_user_by_deactivated_admin_user(flask_app_client, deactivated_regular_user, deactivated_admin_user):
-    userToDelete = deactivated_regular_user
-    with flask_app_client.login(deactivated_admin_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 401
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_deactivated_regular_user_by_deactivated_regular_user(flask_app_client, deactivated_regular_user, deactivated_regular_user2):
-    userToDelete = deactivated_regular_user
-    with flask_app_client.login(deactivated_regular_user2):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 401
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_deactivated_regular_user_by_internal_user(flask_app_client, deactivated_regular_user, internal_user):
-    userToDelete = deactivated_regular_user
-    with flask_app_client.login(internal_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 204
-    assert response.content_type == 'text/html; charset=utf-8'
-    assert response.content_length is None
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is None
-
-def test_delete_deactivated_regular_user_by_regular_user(flask_app_client, deactivated_regular_user, regular_user):
-    userToDelete = deactivated_regular_user
-    with flask_app_client.login(regular_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 403
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "You don't have the permission to access the requested resource."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_deactivated_regular_user_by_self(flask_app_client, deactivated_regular_user):
-    userToDelete = deactivated_regular_user
-    with flask_app_client.login(deactivated_regular_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 401
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_internal_user_by_admin_user(flask_app_client, admin_user, internal_user):
-    userToDelete = internal_user
-    with flask_app_client.login(admin_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 403
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "You don't have the permission to access the requested resource."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_internal_user_by_deactivated_admin_user(flask_app_client, internal_user, deactivated_admin_user):
-    userToDelete = internal_user
-    with flask_app_client.login(deactivated_admin_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 401
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_internal_user_by_deactivated_regular_user(flask_app_client, internal_user, deactivated_regular_user):
-    userToDelete = internal_user
-    with flask_app_client.login(deactivated_regular_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 401
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_internal_user_by_internal_user(flask_app_client, internal_user, internal_user2):
-    userToDelete = internal_user
-    with flask_app_client.login(internal_user2):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 204
-    assert response.content_type == 'text/html; charset=utf-8'
-    assert response.content_length is None
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is None
-
-def test_delete_internal_user_by_regular_user(flask_app_client, regular_user, internal_user):
-    userToDelete = internal_user
-    with flask_app_client.login(regular_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 403
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "You don't have the permission to access the requested resource."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_internal_user_by_self(flask_app_client, internal_user):
-    userToDelete = internal_user
-    with flask_app_client.login(internal_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 409
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "You can't delete yourself."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_regular_user_by_admin_user(flask_app_client, admin_user, regular_user):
-    userToDelete = regular_user
-    with flask_app_client.login(admin_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 204
-    assert response.content_type == 'text/html; charset=utf-8'
-    assert response.content_length is None
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is None
-
-def test_delete_regular_user_by_deactivated_admin_user(flask_app_client, regular_user, deactivated_admin_user):
-    userToDelete = regular_user
-    with flask_app_client.login(deactivated_admin_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 401
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_regular_user_by_deactivated_regular_user(flask_app_client, regular_user, deactivated_regular_user):
-    userToDelete = regular_user
-    with flask_app_client.login(deactivated_regular_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 401
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_regular_user_by_internal_user(flask_app_client, internal_user, regular_user):
-    userToDelete = regular_user
-    with flask_app_client.login(internal_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 204
-    assert response.content_type == 'text/html; charset=utf-8'
-    assert response.content_length is None
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is None
-
-def test_delete_regular_user_by_regular_user(flask_app_client, regular_user, regular_user2):
-    userToDelete = regular_user2
-    with flask_app_client.login(regular_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 403
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "You don't have the permission to access the requested resource."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
-
-def test_delete_regular_user_by_self(flask_app_client, regular_user):
-    userToDelete = regular_user
-    with flask_app_client.login(regular_user):
-        response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
-
-    assert response.status_code == 403
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "You don't have the permission to access the requested resource."
-
-    from app.modules.users.models import User
-
-    initalUser = User.query.get(userToDelete.id)
-    assert initalUser is not None
+users = [
+    pytest.lazy_fixture('adminUserInstance'),
+    pytest.lazy_fixture('adminUserInstance2'),
+    pytest.lazy_fixture('internalUserInstance'),
+    pytest.lazy_fixture('internalUserInstance2'),
+    pytest.lazy_fixture('regularUserInstance'),
+    pytest.lazy_fixture('regularUserInstance2')
+]
+labels = [
+    'as_admin_user',
+    'as_admin_user_2',
+    'as_internal_user',
+    'as_internal_user_2',
+    'as_regular_user',
+    'as_regular_user_2'
+]
+
+@pytest.mark.parametrize('loginAs', users, ids=labels)
+@pytest.mark.parametrize('userToDelete', [pytest.lazy_fixture('internalUserInstance'), pytest.lazy_fixture('adminUserInstance'), pytest.lazy_fixture('regularUserInstance')], ids=['as_admin_user', 'as_internal_user', 'as_regular_user'])
+def test_deleting_user(flask_app_client, loginAs: User, userToDelete: User):
+    response = flask_app_client.delete(f'/api/v1/users/{userToDelete.id}')
+
+    if loginAs == userToDelete:
+        if loginAs.is_admin or loginAs.is_internal:
+            assert409(response, userToDelete)
+        else:
+            assert403(response, userToDelete)
+    elif userToDelete.is_internal:
+        if loginAs.is_internal:
+            assertPass(response, userToDelete)
+        else:
+            assert403(response, userToDelete)
+    elif loginAs.is_admin or loginAs.is_internal:
+        assertPass(response, userToDelete)
+    else:
+        assert403(response, userToDelete)
+
+
+@pytest.mark.parametrize('loginAs', [pytest.lazy_fixture('adminUserInstanceDeactivated'), pytest.lazy_fixture('internalUserInstanceDeactivated'), pytest.lazy_fixture('regularUserInstanceDeactivated')], ids=['as_deactivated_admin_user', 'as_deactivated_internal_user', 'as_deactivated_regular_user'])
+@pytest.mark.parametrize('userToDelete', [pytest.lazy_fixture('internalUserInstance'), pytest.lazy_fixture('adminUserInstance'), pytest.lazy_fixture('regularUserInstance')], ids=['as_admin_user', 'as_internal_user', 'as_regular_user'])
+def test_deleting_user_deactivated(flask_app_client, loginAs: User, userToDelete: User):
+    with flask_app_client.login(loginAs):
+        response = flask_app_client.delete(f'/api/v1/users/2')
+    assert401(response, userToDelete)

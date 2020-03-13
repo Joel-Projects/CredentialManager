@@ -49,27 +49,26 @@ def api_tokens(page=1, perPage=10):
 @verifyEditable('api_token')
 def editApiToken(api_token):
     form = EditApiTokenForm(obj=api_token)
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            itemsToUpdate = []
-            for item in PatchApiTokenDetailsParameters.fields:
-                if getattr(form, item, None) is not None:
-                    if not isinstance(getattr(form, item), BooleanField):
-                        if getattr(form, item).data:
-                            if getattr(api_token, item) != getattr(form, item).data:
-                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                    else:
+    if request.method == 'POST' and form.validate_on_submit():
+        itemsToUpdate = []
+        for item in PatchApiTokenDetailsParameters.fields:
+            if getattr(form, item, None) is not None:
+                if not isinstance(getattr(form, item), BooleanField):
+                    if getattr(form, item).data:
                         if getattr(api_token, item) != getattr(form, item).data:
                             itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-            if itemsToUpdate:
-                for item in itemsToUpdate:
-                    PatchApiTokenDetailsParameters().validate_patch_structure(item)
-                try:
-                    with api.commit_or_abort(db.session, default_error_message='Failed to update API Token details.'):
-                        PatchApiTokenDetailsParameters.perform_patch(itemsToUpdate, api_token)
-                        db.session.merge(api_token)
-                        flash(f'API Token {api_token.name!r} saved successfully!', 'success')
-                except Exception as error:
-                    log.exception(error)
-                    flash(f'Failed to update API Token {api_token.name!r}', 'error')
+                else:
+                    if getattr(api_token, item) != getattr(form, item).data:
+                        itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+        if itemsToUpdate:
+            for item in itemsToUpdate:
+                PatchApiTokenDetailsParameters().validate_patch_structure(item)
+            try:
+                with api.commit_or_abort(db.session, default_error_message='Failed to update API Token details.'):
+                    PatchApiTokenDetailsParameters.perform_patch(itemsToUpdate, api_token)
+                    db.session.merge(api_token)
+                    flash(f'API Token {api_token.name!r} saved successfully!', 'success')
+            except Exception as error:
+                log.exception(error)
+                flash(f'Failed to update API Token {api_token.name!r}', 'error')
     return render_template('edit_api_token.html', api_token=api_token, form=form)

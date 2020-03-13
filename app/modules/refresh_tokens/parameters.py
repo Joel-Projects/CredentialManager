@@ -1,12 +1,12 @@
 from flask_marshmallow import base_fields
 
-from app.extensions.api.parameters import PaginationParameters, validateOwner
+from app.extensions.api.parameters import PaginationParameters, ValidateOwner
 from flask_restplus_patched import Parameters, PatchJSONParameters, PostFormParameters
 from . import schemas
 from .models import RefreshToken
 
 
-class ListRefreshTokensParameters(PaginationParameters, validateOwner):
+class ListRefreshTokensParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()
     redditor = base_fields.String()
 
@@ -16,7 +16,7 @@ class GetRefreshTokenByRedditor(Parameters):
     reddit_app_id = base_fields.Integer(required=True, description='Reddit app the Refresh Token is for')
     redditor = base_fields.String(required=True, description='Redditor the Refresh Token is for')
 
-class CreateRefreshTokenParameters(PostFormParameters, schemas.BaseRefreshTokenSchema, validateOwner):
+class CreateRefreshTokenParameters(PostFormParameters, schemas.BaseRefreshTokenSchema, ValidateOwner):
     reddit_app_id = base_fields.Integer(required=True, description='Reddit app the Refresh Token is for')
     redditor = base_fields.String(required=True, description='Redditor the Refresh Token is for')
     refresh_token = base_fields.String(required=True, description='The actual Refresh Token')
