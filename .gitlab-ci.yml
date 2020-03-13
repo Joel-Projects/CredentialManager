@@ -42,6 +42,7 @@ test:pytest3.8:
     script:
         - pip install -r requirements.txt -r tests/requirements.txt
         - pytest --cov-report=term --cov=app --cov=tests tests
+    coverage: '/^TOTAL.*\s+(\d+\%)$/'
 
 test:pytest3.7:
     image: python:3.7
@@ -58,6 +59,7 @@ test:pytest3.7:
     script:
         - pip install -r requirements.txt -r tests/requirements.txt
         - pytest --cov-report=term --cov=app --cov=tests tests
+    coverage: '/^TOTAL.*\s+(\d+\%)$/'
 
 test:pytest3.6:
     image: python:3.6
@@ -74,6 +76,7 @@ test:pytest3.6:
     script:
         - pip install -r requirements.txt  -r tests/requirements.txt
         - pytest --cov-report=term --cov=app --cov=tests tests
+    coverage: '/^TOTAL.*\s+(\d+\%)$/'
 
 test:sonarqube:
     image:

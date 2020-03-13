@@ -48,66 +48,6 @@ class Namespace(BaseNamespace):
             identity_arg_names = (identity_arg_names,)
         return self.resolve_object(object_arg_name, resolver=lambda kwargs: model.query.get_or_404([kwargs.pop(identity_arg_name) for identity_arg_name in identity_arg_names]))
 
-    def resolveItemTypeToModel(self, object_arg_name, identity_arg_names=None):
-        '''
-        A helper decorator to resolve DB record instance by id.
-
-        Arguments:
-            model (type) - a Flask-SQLAlchemy model class with
-                ``query.get_or_404`` method
-            object_arg_name (str) - argument name for a resolved object
-            identity_arg_names (tuple) - a list of argument names holding an
-                object identity, by default it will be auto-generated as
-                ``%(object_arg_name)s_id``.
-
-        >>> @namespace.resolveObjectToModel(User, 'user')
-        ... def get_user_by_id(user):
-        ...     return user
-        >>> get_user_by_id(user_id=3)
-        <User(id=3, ...)>
-
-        >>> @namespace.resolveObjectToModel(MyModel, 'my_model', ('user_id', 'model_name'))
-        ... def get_object_by_two_primary_keys(my_model):
-        ...     return my_model
-        >>> get_object_by_two_primary_keys(user_id=3, model_name='test')
-        <MyModel(user_id=3, name='test', ...)>
-        '''
-        if identity_arg_names is None:
-            identity_arg_names = (f'{object_arg_name}_id',)
-        elif not isinstance(identity_arg_names, (list, tuple)):
-            identity_arg_names = (identity_arg_names,)
-        return self.resolve_object(object_arg_name, resolver=lambda kwargs: model.query.get_or_404([kwargs.pop(identity_arg_name) for identity_arg_name in identity_arg_names]))
-
-    def resolveObjectToModelFromArgs(self, model, object_arg_name, identity_arg_names=None):
-        '''
-        A helper decorator to resolve DB record instance by id.
-
-        Arguments:
-            model (type) - a Flask-SQLAlchemy model class with
-                ``query.get_or_404`` method
-            object_arg_name (str) - argument name for a resolved object
-            identity_arg_names (tuple) - a list of argument names holding an
-                object identity, by default it will be auto-generated as
-                ``%(object_arg_name)s_id``.
-
-        >>> @namespace.resolveObjectToModel(User, 'user')
-        ... def get_user_by_id(user):
-        ...     return user
-        >>> get_user_by_id(user_id=3)
-        <User(id=3, ...)>
-
-        >>> @namespace.resolveObjectToModel(MyModel, 'my_model', ('user_id', 'model_name'))
-        ... def get_object_by_two_primary_keys(my_model):
-        ...     return my_model
-        >>> get_object_by_two_primary_keys(user_id=3, model_name='test')
-        <MyModel(user_id=3, name='test', ...)>
-        '''
-        if identity_arg_names is None:
-            identity_arg_names = (f'{object_arg_name}_id',)
-        elif not isinstance(identity_arg_names, (list, tuple)):
-            identity_arg_names = (identity_arg_names,)
-        return self.resolveFromArgs(object_arg_name, resolver=lambda kwargs: model.query.get_or_404([kwargs.pop(identity_arg_name) for identity_arg_name in identity_arg_names]))
-
     def model(self, name=None, model=None, **kwargs):
 
         '''
