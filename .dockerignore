@@ -1,6 +1,5 @@
 .dockerignore
 Dockerfile
-Procfile
 
 example.db
 
