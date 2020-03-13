@@ -1,2 +1,34 @@
--r tasks/requirements.txt
--r app/requirements.txt
+Flask
+flask-restplus>=0.11.0,<0.13
+Flask-Table
+Flask-CORS
+
+SQLAlchemy
+SQLAlchemy-Utils
+Flask-SQLAlchemy
+Alembic
+werkzeug>=0.15,<0.16
+
+marshmallow>=2.13.5,<3
+flask-marshmallow>=0.7,<0.8
+marshmallow-sqlalchemy>=0.12,<0.13
+webargs>=1.4.0,<2
+apispec>=0.20.0,<0.39
+
+WTForms-Alchemy
+Flask-WTF
+flask_bootstrap4
+flask_debugtoolbar
+Flask-Moment
+gunicorn[gevent]
+jinja2
+datadog
+datadog_logger
+praw
+sentry-sdk[flask]
+passlib[bcrypt]
+Flask-Login
+permission
+psycopg2-binary
+unflatten
+colorlog
