@@ -41,8 +41,9 @@ def flask_app_client(request, flask_app):
     flask_app.response_class = utils.JSONResponse
     context = flask_app.app_context()
     context.push()
-    request.cls.app = flask_app
-    request.cls.client = flask_app.test_client()
+    if request.cls:
+        request.cls.app = flask_app
+        request.cls.client = flask_app.test_client()
     yield flask_app.test_client()
     context.pop()
 
@@ -69,7 +70,8 @@ def patch_user_password_scheme():
 @pytest.yield_fixture()
 def regular_user(request, temp_db_instance_helper, patch_user_password_scheme):
     for item in temp_db_instance_helper(utils.generateUserInstance(username='regular_user')):
-        request.cls.dbUser = item
+        if request.cls:
+            request.cls.dbUser = item
         yield item
 
 @pytest.yield_fixture()
@@ -85,7 +87,8 @@ def regular_user2(temp_db_instance_helper, patch_user_password_scheme):
 @pytest.yield_fixture()
 def admin_user(request, temp_db_instance_helper, patch_user_password_scheme):
     for item in temp_db_instance_helper(utils.generateUserInstance(username='admin_user', is_admin=True)):
-        request.cls.dbUser = item
+        if request.cls:
+            request.cls.dbUser = item
         yield item
 
 @pytest.yield_fixture()
@@ -101,7 +104,8 @@ def admin_user2(temp_db_instance_helper, patch_user_password_scheme):
 @pytest.yield_fixture()
 def internal_user(request, temp_db_instance_helper, patch_user_password_scheme):
     for item in temp_db_instance_helper(utils.generateUserInstance(username='internal_user', is_regular_user=False, is_admin=False, is_internal=True)):
-        request.cls.dbUser = item
+        if request.cls:
+            request.cls.dbUser = item
         yield item
 
 @pytest.yield_fixture()
