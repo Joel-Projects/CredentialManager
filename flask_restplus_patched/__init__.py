@@ -3,10 +3,8 @@ from .api import Api
 from .model import Schema, DefaultHTTPErrorSchema
 
 
-try:
-    from .model import ModelSchema
-except ImportError:
-    pass
+
+from .model import ModelSchema
 from .namespace import Namespace
 from .parameters import Parameters, PostFormParameters, PatchJSONParameters
 from .swagger import Swagger

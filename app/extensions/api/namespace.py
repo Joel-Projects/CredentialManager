@@ -30,16 +30,16 @@ class Namespace(BaseNamespace):
                 object identity, by default it will be auto-generated as
                 ``%(object_arg_name)s_id``.
 
-        >>> @namespace.resolveObjectToModel(User, 'user')
-        ... def get_user_by_id(user):
-        ...     return user
-        >>> get_user_by_id(user_id=3)
+        @namespace.resolveObjectToModel(User, 'user')
+        def get_user_by_id(user):
+            return user
+        get_user_by_id(user_id=3)
         <User(id=3, ...)>
 
-        >>> @namespace.resolveObjectToModel(MyModel, 'my_model', ('user_id', 'model_name'))
-        ... def get_object_by_two_primary_keys(my_model):
-        ...     return my_model
-        >>> get_object_by_two_primary_keys(user_id=3, model_name='test')
+        @namespace.resolveObjectToModel(MyModel, 'my_model', ('user_id', 'model_name'))
+        def get_object_by_two_primary_keys(my_model):
+            return my_model
+        get_object_by_two_primary_keys(user_id=3, model_name='test')
         <MyModel(user_id=3, name='test', ...)>
         '''
         if identity_arg_names is None:

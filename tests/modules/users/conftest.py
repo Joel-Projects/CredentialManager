@@ -6,7 +6,7 @@ from tests import utils
 
 
 @pytest.fixture()
-def userInstance(patch_user_password_scheme, temp_db_instance_helper):
+def userInstance(request, patch_user_password_scheme, temp_db_instance_helper):
     for _userInstance in temp_db_instance_helper(utils.generateUserInstance(username='username', password='password')):
         user_id = _userInstance.id
         _userInstance.get_id = lambda: user_id
@@ -20,31 +20,35 @@ def userInstanceDeactivated(patch_user_password_scheme, temp_db_instance_helper)
         return _userInstance
 
 @pytest.yield_fixture()
-def regularUserInstance(flask_app, userInstance):
+def regularUserInstance(request, flask_app, userInstance):
     with flask_app.test_request_context('/'):
         login_user(userInstance)
+        request.cls.user = userInstance
         yield current_user
         logout_user()
 
 @pytest.yield_fixture()
-def adminUserInstance(flask_app, userInstance):
+def adminUserInstance(request, flask_app, userInstance):
     with flask_app.test_request_context('/'):
         login_user(userInstance)
         current_user.is_admin = True
+        request.cls.user = userInstance
         yield current_user
         logout_user()
 
 @pytest.yield_fixture()
-def internalUserInstance(flask_app, userInstance):
+def internalUserInstance(request, flask_app, userInstance):
     with flask_app.test_request_context('/'):
         login_user(userInstance)
         current_user.is_internal = True
+        request.cls.user = userInstance
         yield current_user
         logout_user()
 
 @pytest.yield_fixture()
-def anonymousUserInstance(flask_app):
+def anonymousUserInstance(request, flask_app):
     with flask_app.test_request_context('/'):
+        request.cls.user = userInstance
         yield current_user
 
 @pytest.yield_fixture()

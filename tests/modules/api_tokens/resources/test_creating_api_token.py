@@ -65,5 +65,5 @@ def test_creating_api_token_with_bad_length(flask_app_client, regularUserInstanc
 
     if length < 16:
         assert422(response, ApiToken, messageAttrs=[('length', ['Length must be greater than 16.'])])
-    elif length > 128:
+    if length > 128:
         assert422(response, ApiToken, messageAttrs=[('length', ['Length must be less than 128.'])])

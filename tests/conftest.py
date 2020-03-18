@@ -36,11 +36,13 @@ def temp_db_instance_helper(db):
     return temp_db_instance_manager
 
 @pytest.fixture()
-def flask_app_client(flask_app):
+def flask_app_client(request, flask_app):
     flask_app.test_client_class = utils.AutoAuthFlaskClient
     flask_app.response_class = utils.JSONResponse
     context = flask_app.app_context()
     context.push()
+    request.cls.app = flask_app
+    request.cls.client = flask_app.test_client()
     yield flask_app.test_client()
     context.pop()
 
@@ -65,46 +67,49 @@ def patch_user_password_scheme():
     password_field_context._config._init_default_schemes()
 
 @pytest.yield_fixture()
-def regular_user(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='regular_user')):
-        yield _
+def regular_user(request, temp_db_instance_helper, patch_user_password_scheme):
+    for item in temp_db_instance_helper(utils.generateUserInstance(username='regular_user')):
+        request.cls.dbUser = item
+        yield item
 
 @pytest.yield_fixture()
 def regular_user_deactivated(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='regular_user', is_active=False)):
-        yield _
+    for item in temp_db_instance_helper(utils.generateUserInstance(username='regular_user', is_active=False)):
+        yield item
 
 @pytest.yield_fixture()
 def regular_user2(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='regular_user2')):
-        yield _
+    for item in temp_db_instance_helper(utils.generateUserInstance(username='regular_user2')):
+        yield item
 
 @pytest.yield_fixture()
-def admin_user(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='admin_user', is_admin=True)):
-        yield _
+def admin_user(request, temp_db_instance_helper, patch_user_password_scheme):
+    for item in temp_db_instance_helper(utils.generateUserInstance(username='admin_user', is_admin=True)):
+        request.cls.dbUser = item
+        yield item
 
 @pytest.yield_fixture()
 def admin_user_deactivated(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='admin_user', is_admin=True, is_active=False)):
-        yield _
+    for item in temp_db_instance_helper(utils.generateUserInstance(username='admin_user', is_admin=True, is_active=False)):
+        yield item
 
 @pytest.yield_fixture()
 def admin_user2(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='admin_user2', is_admin=True)):
-        yield _
+    for item in temp_db_instance_helper(utils.generateUserInstance(username='admin_user2', is_admin=True)):
+        yield item
 
 @pytest.yield_fixture()
-def internal_user(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='internal_user', is_regular_user=False, is_admin=False, is_internal=True)):
-        yield _
+def internal_user(request, temp_db_instance_helper, patch_user_password_scheme):
+    for item in temp_db_instance_helper(utils.generateUserInstance(username='internal_user', is_regular_user=False, is_admin=False, is_internal=True)):
+        request.cls.dbUser = item
+        yield item
 
 @pytest.yield_fixture()
 def internal_user_deactivated(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='internal_user', is_regular_user=False, is_admin=False, is_internal=True, is_active=False)):
-        yield _
+    for item in temp_db_instance_helper(utils.generateUserInstance(username='internal_user', is_regular_user=False, is_admin=False, is_internal=True, is_active=False)):
+        yield item
 
 @pytest.yield_fixture()
 def internal_user2(temp_db_instance_helper, patch_user_password_scheme):
-    for _ in temp_db_instance_helper(utils.generateUserInstance(username='internal_user2', is_regular_user=False, is_admin=False, is_active=True, is_internal=True)):
-        yield _
+    for item in temp_db_instance_helper(utils.generateUserInstance(username='internal_user2', is_regular_user=False, is_admin=False, is_active=True, is_internal=True)):
+        yield item

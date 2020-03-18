@@ -17,14 +17,7 @@ class Api(OriginalApi):
     def __schema__(self):
         # The only purpose of this method is to pass custom Swagger class
         if not self._schema:
-            try:
-                self._schema = Swagger(self).as_dict()
-            except Exception:
-                # Log the source exception for debugging purpose
-                # and return an error message
-                msg = 'Unable to render schema'
-                log.exception(msg)  # This will provide a full traceback
-                return {'error': msg}
+            self._schema = Swagger(self).as_dict()
         return self._schema
 
     def init_app(self, app, **kwargs):

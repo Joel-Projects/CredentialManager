@@ -22,9 +22,7 @@ path = '/api/v1/api_tokens/'
 def test_getting_api_token_with_id(flask_app_client, loginAs, tokenToGet):
     response = flask_app_client.get(f'/api/v1/api_tokens/{tokenToGet.id}')
 
-    if loginAs == tokenToGet:
-        assertSuccess(response, tokenToGet.owner, ApiToken, DetailedApiTokenSchema)
-    elif tokenToGet.owner.is_internal:
+    if tokenToGet.owner.is_internal:
         if loginAs.is_internal:
             assertSuccess(response, tokenToGet.owner, ApiToken, DetailedApiTokenSchema)
         elif loginAs.is_admin:

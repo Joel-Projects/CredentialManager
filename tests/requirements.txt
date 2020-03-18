@@ -5,3 +5,5 @@ coverage
 mock
 swagger_spec_validator
 pytest-lazy-fixture
+flask-testing
+parameterized

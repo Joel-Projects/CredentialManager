@@ -68,26 +68,28 @@ def init_app(app):
                     db.session.add(rootUser)
     try:
         with db.get_engine(app=app).connect() as sql:
-            sql.execute('''
-    create or replace function credential_store.gen_state() returns trigger
-        language plpgsql
-    as $$
-    BEGIN
-        IF tg_op = 'INSERT' OR tg_op = 'UPDATE' THEN
-            NEW.state = encode(public.digest(NEW.client_id, 'sha256'), 'hex');
-            RETURN NEW;
-        END IF;
-    END;
-    $$;
-    
-    alter function credential_store.gen_state() owner to credential_manager;
-    drop trigger if exists refresh_token_state_hashing_trigger on credential_store.reddit_apps;
-    create trigger refresh_token_state_hashing_trigger
-        before insert or update
-        of client_id
-        on credential_store.reddit_apps
-        for each row
-        execute procedure credential_store.gen_state();
-        ''')
+            if not app.testing:
+                additionalQuery = 'alter function credential_store.gen_state() owner to credential_manager;'
+                sql.execute(f'''
+        create or replace function credential_store.gen_state() returns trigger
+            language plpgsql
+        as $$
+        BEGIN
+            IF tg_op = 'INSERT' OR tg_op = 'UPDATE' THEN
+                NEW.state = encode(public.digest(NEW.client_id, 'sha256'), 'hex');
+                RETURN NEW;
+            END IF;
+        END;
+        $$;
+        
+        {additionalQuery}
+        drop trigger if exists refresh_token_state_hashing_trigger on credential_store.reddit_apps;
+        create trigger refresh_token_state_hashing_trigger
+            before insert or update
+            of client_id
+            on credential_store.reddit_apps
+            for each row
+            execute procedure credential_store.gen_state();
+            ''')
     except Exception as error:
         print(error)

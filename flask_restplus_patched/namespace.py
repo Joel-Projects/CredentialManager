@@ -2,16 +2,12 @@ from functools import wraps
 
 import flask
 import flask_marshmallow
-import warnings
-import six
 from flask_restplus import Namespace as OriginalNamespace
 from flask_restplus.utils import merge, unpack
 from flask_restplus._http import HTTPStatus
 from webargs.flaskparser import parser as webargs_parser
-from flask.views import http_method_funcs
-from werkzeug import cached_property, exceptions as http_exceptions
+from werkzeug import exceptions as http_exceptions
 
-from . import Swagger
 from .model import Model, DefaultHTTPErrorSchema
 
 
@@ -22,16 +18,6 @@ class Namespace(OriginalNamespace):
         if doc is False:
             cls.__apidoc__ = False
             return
-        ##unshortcut_params_description(doc)
-        ##handle_deprecations(doc)
-        ##for key in 'get', 'post', 'put', 'delete', 'options', 'head', 'patch':
-        ##    if key in doc:
-        ##        if doc[key] is False:
-        ##            continue
-        ##        unshortcut_params_description(doc[key])
-        ##        handle_deprecations(doc[key])
-        ##        if 'expect' in doc[key] and not isinstance(doc[key]['expect'], (list, tuple)):
-        ##            doc[key]['expect'] = [doc[key]['expect']]
         cls.__apidoc__ = merge(getattr(cls, '__apidoc__', {}), doc)
 
     def resolve_object(self, object_arg_name, resolver):
@@ -70,8 +56,7 @@ class Namespace(OriginalNamespace):
         Model registration decorator.
         '''
         if isinstance(model, (flask_marshmallow.Schema, flask_marshmallow.base_fields.FieldABC)):
-            if not name:
-                name = model.__class__.__name__
+            name = name or model.__class__.__name__
             api_model = Model(name, model, mask=mask)
             api_model.__apidoc__ = kwargs
             return self.add_model(name, api_model)

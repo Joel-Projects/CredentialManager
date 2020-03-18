@@ -50,9 +50,7 @@ tokensToDelete = [
 def test_deleting_user(flask_app_client, loginAs, tokenToDelete):
     response = flask_app_client.delete(f'/api/v1/api_tokens/{tokenToDelete.id}')
 
-    if loginAs == tokenToDelete.owner:
-            assertPass(response, tokenToDelete)
-    elif tokenToDelete.owner.is_internal:
+    if tokenToDelete.owner.is_internal:
         if loginAs.is_internal:
             assertPass(response, tokenToDelete)
         else:
