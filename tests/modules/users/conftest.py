@@ -23,7 +23,8 @@ def userInstanceDeactivated(patch_user_password_scheme, temp_db_instance_helper)
 def regularUserInstance(request, flask_app, userInstance):
     with flask_app.test_request_context('/'):
         login_user(userInstance)
-        request.cls.user = userInstance
+        if request.cls:
+            request.cls.user = userInstance
         yield current_user
         logout_user()
 
@@ -32,7 +33,8 @@ def adminUserInstance(request, flask_app, userInstance):
     with flask_app.test_request_context('/'):
         login_user(userInstance)
         current_user.is_admin = True
-        request.cls.user = userInstance
+        if request.cls:
+            request.cls.user = userInstance
         yield current_user
         logout_user()
 
@@ -41,14 +43,16 @@ def internalUserInstance(request, flask_app, userInstance):
     with flask_app.test_request_context('/'):
         login_user(userInstance)
         current_user.is_internal = True
-        request.cls.user = userInstance
+        if request.cls:
+            request.cls.user = userInstance
         yield current_user
         logout_user()
 
 @pytest.yield_fixture()
 def anonymousUserInstance(request, flask_app):
     with flask_app.test_request_context('/'):
-        request.cls.user = userInstance
+        if request.cls:
+            request.cls.user = userInstance
         yield current_user
 
 @pytest.yield_fixture()
