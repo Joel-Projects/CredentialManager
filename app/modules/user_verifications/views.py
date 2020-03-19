@@ -21,14 +21,17 @@ userVerificationsBlueprint = Blueprint('user_verifications', __name__, template_
 @login_required
 @paginateArgs(UserVerification)
 def user_verifications(page, perPage):
+    code = 200
     form = UserVerificationForm()
     if request.method == 'POST':
+        code = 201
         if form.validate_on_submit():
             data = form.data
             userVerification = UserVerification(**data)
             db.session.add(userVerification)
         else:
-            return jsonify(status='error', errors=form.errors)
+            code = 422
+            return jsonify(status='error', errors=form.errors), code
     if current_user:
         if current_user.is_admin and not current_user.is_internal:
             paginator = UserVerification.query.filter(*(UserVerification.owner_id != i.id for i in User.query.filter(User.internal == True).all())).paginate(page, perPage, error_out=False)
@@ -40,13 +43,14 @@ def user_verifications(page, perPage):
         paginator = current_user.user_verifications.paginate(page, perPage, error_out=False)
     table = UserVerificationTable(paginator.items, current_user=current_user)
     form = UserVerificationForm()
-    return render_template('user_verifications.html', user_verificationsTable=table, user_verificationsForm=form, user_verification_paginator=paginator, route='user_verifications.user_verifications', perPage=perPage)
+    return render_template('user_verifications.html', user_verificationsTable=table, user_verificationsForm=form, user_verification_paginator=paginator, route='user_verifications.user_verifications', perPage=perPage), code
 
 @userVerificationsBlueprint.route('/user_verifications/<UserVerification:user_verification>/', methods=['GET', 'POST'])
 @login_required
 @verifyEditable('user_verification')
 def editUserVerification(user_verification):
     form = UserVerificationForm(obj=user_verification)
+    code = 200
     if request.method == 'POST' and form.validate_on_submit():
         itemsToUpdate = []
         for item in PatchUserVerificationDetailsParameters.fields:
@@ -65,8 +69,10 @@ def editUserVerification(user_verification):
                 with api.commit_or_abort(db.session, default_error_message='Failed to update User Verification details.'):
                     PatchUserVerificationDetailsParameters.perform_patch(itemsToUpdate, user_verification)
                     db.session.merge(user_verification)
+                    code = 202
                     flash(f'User Verification for Discord Member {user_verification.discord_id} saved successfully!', 'success')
             except Exception as error:
                 log.exception(error)
+                code = 400
                 flash(f'Failed to update User Verification for Discord Member {user_verification.discord_id}', 'error')
-    return render_template('edit_user_verification.html', user_verification=user_verification, form=form)
+    return render_template('edit_user_verification.html', user_verification=user_verification, form=form), code

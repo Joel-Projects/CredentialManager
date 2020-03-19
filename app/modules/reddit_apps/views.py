@@ -22,14 +22,17 @@ redditAppsBlueprint = Blueprint('reddit_apps', __name__, template_folder='./temp
 @login_required
 @paginateArgs(RedditApp)
 def reddit_apps(page, perPage):
+    code = 200
     form = RedditAppForm()
     if request.method == 'POST':
         if form.validate_on_submit():
+            code = 201
             data = form.data
             redditApp = RedditApp(**data)
             db.session.add(redditApp)
         else:
-            return jsonify(status='error', errors=form.errors)
+            code = 422
+            return jsonify(status='error', errors=form.errors), code
     if current_user:
         if current_user.is_admin and not current_user.is_internal:
             paginator = RedditApp.query.filter(*(RedditApp.owner_id != i.id for i in User.query.filter(User.internal == True).all())).paginate(page, perPage, error_out=False)
@@ -41,13 +44,14 @@ def reddit_apps(page, perPage):
         paginator = current_user.reddit_apps.paginate(page, perPage, error_out=False)
     table = RedditAppTable(paginator.items, current_user=current_user)
     form = RedditAppForm()
-    return render_template('reddit_apps.html', reddit_appsTable=table, reddit_appsForm=form, paginator=paginator, route='reddit_apps.reddit_apps', perPage=perPage)
+    return render_template('reddit_apps.html', reddit_appsTable=table, reddit_appsForm=form, paginator=paginator, route='reddit_apps.reddit_apps', perPage=perPage), code
 
 @redditAppsBlueprint.route('/reddit_apps/<RedditApp:reddit_app>/', methods=['GET', 'POST'])
 @login_required
 @verifyEditable('reddit_app')
 def editRedditApp(reddit_app):
     form = RedditAppForm(obj=reddit_app)
+    code = 200
     if request.method == 'POST' and form.validate_on_submit():
         itemsToUpdate = []
         for item in PatchRedditAppDetailsParameters.fields:
@@ -66,8 +70,10 @@ def editRedditApp(reddit_app):
                 with api.commit_or_abort(db.session, default_error_message='Failed to update Reddit App details.'):
                     PatchRedditAppDetailsParameters.perform_patch(itemsToUpdate, reddit_app)
                     db.session.merge(reddit_app)
+                    code = 202
                     flash(f'Reddit App {reddit_app.app_name!r} saved successfully!', 'success')
             except Exception as error:
                 log.exception(error)
+                code = 400
                 flash(f'Failed to update Reddit App {reddit_app.app_name!r}', 'error')
-    return render_template('edit_reddit_app.html', reddit_app=reddit_app, form=form)
+    return render_template('edit_reddit_app.html', reddit_app=reddit_app, form=form), code

@@ -23,13 +23,16 @@ botsBlueprint = Blueprint('bots', __name__, template_folder='./templates', stati
 @paginateArgs(Bot)
 def bots(page, perPage):
     form = BotForm()
+    code = 200
     if request.method == 'POST':
         if form.validate_on_submit():
+            code = 201
             data = form.data
             bot = Bot(**data)
             db.session.add(bot)
         else:
-            return jsonify(status='error', errors=form.errors)
+            code = 422
+            return jsonify(status='error', errors=form.errors), code
     if current_user.is_admin and not current_user.is_internal:
         paginator = Bot.query.filter(*(Bot.owner_id != i.id for i in User.query.filter(User.internal == True).all())).paginate(page, perPage, error_out=False)
     elif current_user.is_internal:
@@ -38,13 +41,14 @@ def bots(page, perPage):
         paginator = current_user.bots.paginate(page, perPage, error_out=False)
     table = BotTable(paginator.items, current_user=current_user)
     form = BotForm()
-    return render_template('bots.html', botsTable=table, botsForm=form, paginator=paginator, route='bots.bots', perPage=perPage)
+    return render_template('bots.html', botsTable=table, botsForm=form, paginator=paginator, route='bots.bots', perPage=perPage), code
 
 @botsBlueprint.route('/bots/<Bot:bot>/', methods=['GET', 'POST'])
 @login_required
 @verifyEditable('bot')
 def editBot(bot):
     form = BotForm(obj=bot)
+    code = 200
     if request.method == 'POST' and form.validate_on_submit():
         itemsToUpdate = []
         for item in PatchBotDetailsParameters.fields:
@@ -63,8 +67,10 @@ def editBot(bot):
                 with api.commit_or_abort(db.session, default_error_message='Failed to update Bot details.'):
                     PatchBotDetailsParameters.perform_patch(itemsToUpdate, bot)
                     db.session.merge(bot)
+                    code = 202
                     flash(f'Bot {bot.app_name!r} saved successfully!', 'success')
             except Exception as error:
                 log.exception(error)
+                code = 400
                 flash(f'Failed to update Bot {bot.app_name!r}', 'error')
-    return render_template('edit_bot.html', bot=bot, form=form)
+    return render_template('edit_bot.html', bot=bot, form=form), code

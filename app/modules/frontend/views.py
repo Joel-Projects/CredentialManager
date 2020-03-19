@@ -19,8 +19,3 @@ def root():
 @login_required
 def dash():
     return render_template('dash.html')
-
-@main.route('/profile')
-@login_required
-def profile():
-    return render_template('edit_user.html', user=current_user)

@@ -22,14 +22,17 @@ sentryTokensBlueprint = Blueprint('sentry_tokens', __name__, template_folder='./
 @login_required
 @paginateArgs(SentryToken)
 def sentry_tokens(page, perPage):
+    code = 200
     form = SentryTokenForm()
     if request.method == 'POST':
         if form.validate_on_submit():
+            code = 201
             data = form.data
             sentryToken = SentryToken(**data)
             db.session.add(sentryToken)
         else:
-            return jsonify(status='error', errors=form.errors)
+            code = 422
+            return jsonify(status='error', errors=form.errors), code
     paginator = current_user.sentry_tokens.paginate(page, perPage, error_out=False)
     if current_user:
         if current_user.is_admin and not current_user.is_internal:
@@ -38,13 +41,14 @@ def sentry_tokens(page, perPage):
             paginator = SentryToken.query.paginate(page, perPage, error_out=False)
     table = SentryTokenTable(paginator.items, current_user=current_user)
     form = SentryTokenForm()
-    return render_template('sentry_tokens.html', sentry_tokensTable=table, sentry_tokensForm=form, paginator=paginator, route='sentry_tokens.sentry_tokens', perPage=perPage)
+    return render_template('sentry_tokens.html', sentry_tokensTable=table, sentry_tokensForm=form, paginator=paginator, route='sentry_tokens.sentry_tokens', perPage=perPage), code
 
 @sentryTokensBlueprint.route('/sentry_tokens/<SentryToken:sentry_token>/', methods=['GET', 'POST'])
 @login_required
 @verifyEditable('sentry_token')
 def editSentryToken(sentry_token):
     form = SentryTokenForm(obj=sentry_token)
+    code = 200
     if request.method == 'POST' and form.validate_on_submit():
         itemsToUpdate = []
         for item in PatchSentryTokenDetailsParameters.fields:
@@ -63,8 +67,10 @@ def editSentryToken(sentry_token):
                 with api.commit_or_abort(db.session, default_error_message='Failed to update Sentry Token details.'):
                     PatchSentryTokenDetailsParameters.perform_patch(itemsToUpdate, sentry_token)
                     db.session.merge(sentry_token)
+                    code = 202
                     flash(f'Sentry Token {sentry_token.app_name!r} saved successfully!', 'success')
             except Exception as error:
                 log.exception(error)
+                code = 400
                 flash(f'Failed to update Sentry Token {sentry_token.app_name!r}', 'error')
-    return render_template('edit_sentry_token.html', sentry_token=sentry_token, form=form)
+    return render_template('edit_sentry_token.html', sentry_token=sentry_token, form=form), code
