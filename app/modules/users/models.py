@@ -1,4 +1,4 @@
-import enum
+import enum, json
 from datetime import datetime
 
 from flask_login import UserMixin
@@ -58,7 +58,7 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
     username = db.Column(db.String(length=80), unique=True, nullable=False, info={'label': 'Username'})
     password = db.Column(column_types.PasswordType(max_length=128, schemes=('bcrypt',)), nullable=False, info={'label': 'Password'})
     defaultSettings = {'database_flavor': 'postgres', 'database_host': 'localhost'}
-    default_settings = db.Column(db.JSON, default=defaultSettings, info={'label': 'Default Settings'})
+    default_settings = db.Column(db.JSON, server_default=json.dumps(defaultSettings), default=defaultSettings, info={'label': 'Default Settings'})
     reddit_username = db.Column(db.String, info={'label': 'Reddit Username'})
     created_by = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='SET NULL', onupdate='CASCADE'))
     createdBy = db.relationship('User', remote_side=id, foreign_keys=[created_by])
@@ -134,4 +134,3 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
         if user:
             apiToken.last_used = datetime.now()
             return user
-        return None

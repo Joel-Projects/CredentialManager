@@ -35,7 +35,9 @@ def login():
             flash('Login failed.')
     user = User.query.first()
     if not user:
-        user = User(username='root', admin=True, password='password', created_by=None)
+        user = User(username='internal', password='password')
+        user.is_admin = True
+        user.created_by = user
         db.session.add(user)
         db.session.commit()
         log.info(f"Created user: '{user.username}' successfully!")

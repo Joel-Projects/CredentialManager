@@ -81,7 +81,8 @@
                                         "type": "object",
                                         "title": "Setting",
                                         "properties": {
-                                            "Setting": {
+                                            "key": {
+                                                "title": "Default Setting",
                                                 "type": "string",
                                                 "enum": [
                                                     "database_flavor",
@@ -89,14 +90,14 @@
                                                     "ssh_host",
                                                     "ssh_user",
                                                     "user_agent"
-                                                ]
+                                                ],
                                             },
-                                            "Default Value": {
+                                            "value": {
+                                                "title": "Value",
                                                 "type": "string"
                                             }
                                         }
                                     },
-                                    "default": [{}]
                                 }
                             });
                         </script>
@@ -134,7 +135,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <button type="submit" name="submit" class="btn btn-primary" id="userCreate" onclick="createItem(this, 'createUserForm', '/users')">Create</button>
+                            <button type="submit" name="submit" class="btn btn-primary" id="userCreate" onclick="createItem(this, 'createUserForm', '/users', editor)">Create</button>
 
                         </div>
                     </form>

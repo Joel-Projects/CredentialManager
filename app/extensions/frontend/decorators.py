@@ -34,7 +34,7 @@ def verifyEditable(kwargName):
         def wrapper(*args, **kwargs):
             currentObject = kwargs[kwargName]
             if current_user and (current_user.is_admin or current_user.is_internal or currentObject.check_owner(current_user)):
-                if isinstance(currentObject, User):
+                if currentObject._sa_class_manager.class_ == User:
                     if currentObject.is_internal and not current_user.is_internal:
                         abort(403)
                 elif current_user.is_internal != currentObject.owner.is_internal:

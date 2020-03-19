@@ -15,11 +15,6 @@ data = [
     },
     {
         'op': 'replace',
-        'path': '/is_regular_user',
-        'value': False,
-    },
-    {
-        'op': 'replace',
         'path': '/is_admin',
         'value': True,
     },
@@ -34,7 +29,7 @@ def assertSuccess(db, regularUserInstance, response, saved_default_settings):
     assert 'password' not in response.json.keys()
     user1_instance = User.query.get(response.json['id'])
     assert user1_instance.username == regularUserInstance.username
-    assert user1_instance.default_settings == {'database_flavor': 'postgres', 'database_host': 'localhost'}
+    assert user1_instance.defaultSettings == {'database_flavor': 'postgres', 'database_host': 'localhost'}
     user1_instance.default_settings = saved_default_settings
     user1_instance.is_active = True
     user1_instance.is_regular_user = True
@@ -55,6 +50,7 @@ def test_modifying_user_info_by_admin(flask_app_client, adminUserInstance, regul
     assertSuccess(db, regular_user, response, saved_default_settings)
 
 def test_modifying_user_info_admin_fields_by_not_admin(flask_app_client, regularUserInstance, db):
+    data.append({'op': 'replace','path': '/is_regular_user','value': False,})
     response = flask_app_client.patch(f'/api/v1/users/{regularUserInstance.id}', content_type='application/json', data=json.dumps(data))
 
     assert response.status_code == 403

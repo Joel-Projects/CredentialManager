@@ -46,10 +46,12 @@ class PatchUserDetailsParameters(PatchJSONParameters):
 
     @staticmethod
     def getPatchFields():
+        fields = (User.password.key, User.default_settings.key, User.username.key, User.updated_by.key, User.reddit_username.key)
+        if current_user.is_admin or current_user.is_internal:
+            fields += (User.is_active.fget.__name__, User.is_admin.fget.__name__,)
         if current_user.is_internal:
-            return User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, User.default_settings.key, User.username.key, User.updated_by.key
-        else:
-            return User.password.key, User.is_active.fget.__name__, User.is_admin.fget.__name__, User.default_settings.key, User.username.key, User.updated_by.key, User.reddit_username.key
+            fields += (User.is_regular_user.fget.__name__, User.is_internal.fget.__name__,)
+        return fields
 
     @classmethod
     def replace(cls, obj, field, value, state):
@@ -59,12 +61,12 @@ class PatchUserDetailsParameters(PatchJSONParameters):
         Changing `is_active`, `is_regular_user`, or `is_admin` property requires current user to be Admin.
         '''
 
-        if field in {User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_admin.fget.__name__}:
-            with permissions.AdminRolePermission():
-                if current_user == obj:
-                    abort(code=HTTPStatus.NOT_ACCEPTABLE, message="You can't disable your own account.")
-                pass
-        if field == User.is_internal.fget.__name__:
-            with permissions.InternalRolePermission():
-                pass
+        if current_user == obj:
+            if field == User.is_active.fget.__name__:
+                abort(code=HTTPStatus.NOT_ACCEPTABLE, message="You can't disable your own account.")
+        if field in {User.is_active.fget.__name__, User.is_admin.fget.__name__}:
+            permissions.AdminRolePermission().__enter__()
+
+        if field in {User.is_internal.fget.__name__, User.is_regular_user.fget.__name__}:
+            permissions.InternalRolePermission().__enter__()
         return super(PatchUserDetailsParameters, cls).replace(obj, field, value, state)

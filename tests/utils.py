@@ -1,8 +1,7 @@
+import json
 from contextlib import contextmanager
 from datetime import datetime, timezone
-import json, flask
-
-from flask import Response
+from flask import Response, template_rendered
 from flask.testing import FlaskClient
 from werkzeug.utils import cached_property
 from base64 import b64encode
@@ -64,22 +63,11 @@ def generateUserInstance(user_id=None, username='username', password=None, defau
     '''
 
     if default_settings is None:
-        default_settings = {'database_flavor': 'postgres', 'database_host': 'localhost'}
+        default_settings = {}
     from app.modules.users.models import User
     if password is None:
         password = f'{username}_password'
-    user_instance = User(
-        id=user_id,
-        username=username,
-        password=password,
-        default_settings=default_settings,
-        created=created or datetime.now(),
-        updated=updated or datetime.now(),
-        is_active=is_active,
-        is_regular_user=is_regular_user,
-        is_admin=is_admin,
-        is_internal=is_internal
-    )
+    user_instance = User(id=user_id, username=username, password=password, default_settings=default_settings, created=created or datetime.now(), updated=updated or datetime.now(), is_active=is_active, is_regular_user=is_regular_user, is_admin=is_admin, is_internal=is_internal)
     user_instance.password_secret = password
     return user_instance
 
@@ -168,3 +156,21 @@ def assert409(response, model, message, loginAs, **kwargs):
 
 def assert422(response, model, messageAttrs, *, loginAs=None, **kwargs):
     __assertResponseError(response, 422, 'The request was well-formed but was unable to be followed due to semantic errors.', model=model, loginAs=loginAs, keys={'status', 'message', 'messages'}, messageAttrs=messageAttrs, **kwargs)
+
+@contextmanager
+def captured_templates(app):
+    recorded = []
+
+    def record(sender, template, context, **extra):
+        recorded.append((template, context))
+
+    template_rendered.connect(record, app)
+    try:
+        yield recorded
+    finally:
+        template_rendered.disconnect(record, app)
+
+def assertRenderedTemplate(templates, templateName):
+    assert len(templates) == 1
+    template, context = templates[0]
+    assert template.name == templateName

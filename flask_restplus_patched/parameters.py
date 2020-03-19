@@ -168,7 +168,7 @@ class PatchJSONParameters(Parameters):
             processing_status (bool): True
         '''
         if not hasattr(obj, field):
-            raise ValidationError("Field '%s' does not exist, so it cannot be patched" % field)
+            raise ValidationError(f"Field '{field}' does not exist, so it cannot be patched")
         setattr(obj, field, value)
         return True
 

@@ -12,13 +12,11 @@ def loadUserFromRequest(request):
     user = None
     try:
         apiKey = request.headers.get('X-API-KEY', None)
-        # auth = request.headers.get('authorization', None)
         if apiKey:
             user = User.findWithApiKey(apiKey)
         if not user:
-            username = request.authorization['username']
-            password = request.authorization['password']
-            # username, password = base64.b64decode(auth.replace('Basic ', '', 1)).decode().split(':')
+            username = getattr(request.authorization, 'username', None)
+            password = getattr(request.authorization, 'password', None)
             if username and password:
                 user = User.findWithPassword(username, password)
                 if user and not user.is_active:

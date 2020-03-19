@@ -62,6 +62,7 @@ def test_User_static_roles_setting(
 def test_User_check_owner(userInstance):
     assert userInstance.check_owner(userInstance)
     assert not userInstance.check_owner(models.User())
+    assert isinstance(userInstance.__repr__(), str)
 
 def test_User_findWithPassword(patch_user_password_scheme, db):
     def create_user(username, password):
@@ -86,3 +87,4 @@ def test_User_findWithPassword(patch_user_password_scheme, db):
     with db.session.begin():
         db.session.delete(user1)
         db.session.delete(user2)
+

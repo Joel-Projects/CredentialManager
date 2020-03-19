@@ -72,3 +72,14 @@ def test_getting_user_me_info(flask_app_client, regular_user):
     assert isinstance(response.json, dict)
     assert set(response.json.keys()) >= {'id', 'username'}
     assert 'password' not in response.json.keys()
+
+def test_getting_user_apps(flask_app_client, regularUserInstance):
+    response = flask_app_client.get(f'/api/v1/users/{regularUserInstance.id}/apps')
+
+    assert response.status_code == 200
+    assert response.content_type == 'application/json'
+    assert isinstance(response.json, dict)
+    assert set(response.json.keys()) >= {'id', 'username', 'reddit_apps', 'sentry_tokens', 'database_credentials'}
+    assert isinstance(response.json['reddit_apps'], list)
+    assert isinstance(response.json['sentry_tokens'], list)
+    assert isinstance(response.json['database_credentials'], list)
