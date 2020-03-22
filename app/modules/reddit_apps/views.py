@@ -60,14 +60,8 @@ def editRedditApp(reddit_app):
         if form.validate_on_submit():
             itemsToUpdate = []
             for item in PatchRedditAppDetailsParameters.fields:
-                if getattr(form, item, None) is not None:
-                    if not isinstance(getattr(form, item), BooleanField):
-                        if getattr(form, item).data:
-                            if getattr(reddit_app, item) != getattr(form, item).data:
-                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                    else:
-                        if getattr(reddit_app, item) != getattr(form, item).data:
-                            itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+                if getattr(form, item, None) is not None and getattr(reddit_app, item) != getattr(form, item).data:
+                    itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
             if itemsToUpdate:
                 for item in itemsToUpdate:
                     PatchRedditAppDetailsParameters().validate_patch_structure(item)

@@ -57,14 +57,8 @@ def editBots(bot):
         if form.validate_on_submit():
             itemsToUpdate = []
             for item in PatchBotDetailsParameters.fields:
-                if getattr(form, item, None) is not None:
-                    if not isinstance(getattr(form, item), BooleanField):
-                        if getattr(form, item).data:
-                            if getattr(bot, item) != getattr(form, item).data:
-                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                    else:
-                        if getattr(bot, item) != getattr(form, item).data:
-                            itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+                if getattr(form, item, None) is not None and getattr(bot, item) != getattr(form, item).data:
+                    itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
             if itemsToUpdate:
                 for item in itemsToUpdate:
                     PatchBotDetailsParameters().validate_patch_structure(item)

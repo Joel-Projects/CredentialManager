@@ -122,19 +122,12 @@ def editUser(user):
             else:
                 newDefaultSettings = user.default_settings
             for item in PatchUserDetailsParameters.fields:
-                if getattr(form, item, None) is not None:
-                    if not isinstance(getattr(form, item), BooleanField):
-                        if getattr(form, item).data:
-                            if getattr(user, item) != getattr(form, item).data:
-                                if item == 'username':
-                                    newUsername = getattr(form, item).data
-                                if item == 'password':
-                                    if not form.updatePassword.data:
-                                        continue
-                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                    else:
-                        if getattr(user, item) != getattr(form, item).data:
-                            itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+                if getattr(form, item, None) is not None and getattr(user, item) != getattr(form, item).data:
+                    if item == 'username':
+                        newUsername = getattr(form, item).data
+                    if item == 'password' and not form.updatePassword.data:
+                        continue
+                    itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
             if itemsToUpdate:
                 for item in itemsToUpdate:
                     PatchUserDetailsParameters().validate_patch_structure(item)

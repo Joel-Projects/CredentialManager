@@ -42,7 +42,7 @@ class ApiTokens(Resource):
             else:
                 if owner_id == current_user.id:
                     apiKeys = apiKeys.filter(ApiToken.owner == current_user)
-                else:
+                else: # pragma: no cover
                     http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' API Tokens.")
         else:
             if not current_user.is_admin:
@@ -64,7 +64,7 @@ class ApiTokens(Resource):
             owner_id = args.owner_id
             if current_user.is_admin or current_user.is_internal:
                 owner = User.query.get(owner_id)
-            else:
+            else: # pragma: no cover
                 if owner_id != current_user.id:
                     http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create API Tokens for other users.")
         with api.commit_or_abort(db.session, default_error_message='Failed to create a new API Token.'):

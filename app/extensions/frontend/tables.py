@@ -48,7 +48,7 @@ class CopyableField(BaseCol):
 </div>
 '''
 
-class ToolTipColumn(BaseCol):
+class ToolTipColumn(BaseCol): # pragma: no cover
 
     def __init__(self, name, tooltip=None, **kwargs):
         super(ToolTipColumn, self).__init__(name, **kwargs)
@@ -64,7 +64,7 @@ class ToolTipColumn(BaseCol):
         else:
             return content
 
-class CreatedBy(BaseCol):
+class CreatedBy(BaseCol): # pragma: no cover
 
     def __init__(self, name, tooltip, **kwargs):
         super(CreatedBy, self).__init__(name, **kwargs)

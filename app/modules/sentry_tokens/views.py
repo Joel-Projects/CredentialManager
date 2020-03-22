@@ -57,14 +57,8 @@ def editSentryToken(sentry_token):
         if form.validate_on_submit():
             itemsToUpdate = []
             for item in PatchSentryTokenDetailsParameters.fields:
-                if getattr(form, item, None) is not None:
-                    if not isinstance(getattr(form, item), BooleanField):
-                        if getattr(form, item).data:
-                            if getattr(sentry_token, item) != getattr(form, item).data:
-                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                    else:
-                        if getattr(sentry_token, item) != getattr(form, item).data:
-                            itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+                if getattr(form, item, None) is not None and getattr(sentry_token, item) != getattr(form, item).data:
+                    itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
             if itemsToUpdate:
                 for item in itemsToUpdate:
                     PatchSentryTokenDetailsParameters().validate_patch_structure(item)

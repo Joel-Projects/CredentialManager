@@ -60,14 +60,8 @@ def editDatabaseCredential(database_credential):
         if form.validate_on_submit():
             itemsToUpdate = []
             for item in PatchDatabaseCredentialDetailsParameters.fields:
-                if getattr(form, item, None) is not None:
-                    if not isinstance(getattr(form, item), BooleanField):
-                        if getattr(form, item).data:
-                            if getattr(database_credential, item) != getattr(form, item).data:
-                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                    else:
-                        if getattr(database_credential, item) != getattr(form, item).data:
-                            itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+                if getattr(form, item, None) is not None and getattr(database_credential, item) != getattr(form, item).data:
+                    itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
             if itemsToUpdate:
                 for item in itemsToUpdate:
                     PatchDatabaseCredentialDetailsParameters().validate_patch_structure(item)

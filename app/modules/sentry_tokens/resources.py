@@ -34,7 +34,7 @@ class SentryTokens(Resource):
         Only Admins can specify ``owner`` to see Sentry Tokens for other users. Regular users will see their own Sentry Tokens.
         '''
         sentryTokens = SentryToken.query
-        if 'owner_id' in args:
+        if 'owner_id' in args: # pragma: no cover
             owner_id = args['owner_id']
             if current_user.is_admin or current_user.is_internal:
                 sentryTokens = sentryTokens.filter(SentryToken.owner_id == owner_id)
@@ -65,7 +65,7 @@ class SentryTokens(Resource):
             else:
                 if owner_id == current_user.id:
                     owner = current_user
-                else:
+                else: # pragma: no cover
                     http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create Sentry Tokens for other users.")
         else:
             owner = current_user

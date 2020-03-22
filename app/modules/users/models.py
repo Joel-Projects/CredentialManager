@@ -132,6 +132,6 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
         if not apiToken.enabled:
             abort(401, 'API Token invalid or disabled')
         user = cls.query.filter_by(id=apiToken.owner_id).first()
-        if user: # pragma: no branch
+        if user:
             apiToken.last_used = datetime.now()
             return user

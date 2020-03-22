@@ -46,7 +46,7 @@ def init_app(app):
     Application extensions initialization.
     '''
     extensions = [cross_origin_resource_sharing, logging, db, login_manager, marshmallow, api, bootstrap, moment]
-    if int(os.getenv('FLASK_DEBUG', '0')):
+    if int(os.getenv('FLASK_DEBUG', '0')): # pragma: no cover
         extensions.append(debugToolBar)
     for extension in extensions:
         extension.init_app(app)
@@ -56,7 +56,7 @@ def init_app(app):
     try:
         with db.get_engine(app=app).connect() as sql:
             sql.execute('CREATE SCHEMA IF NOT EXISTS credential_store;')
-    except:
+    except: # pragma: no cover
         log.error('Need to manually create schema')
     db.create_all(app=app)
     from app.modules.users.models import User
@@ -94,5 +94,5 @@ def init_app(app):
             for each row
             execute procedure credential_store.gen_state();
             ''')
-    except Exception as error:
+    except Exception as error:  # pragma: no cover
         print(error)

@@ -56,14 +56,8 @@ def editApiToken(api_token):
         if form.validate_on_submit():
             itemsToUpdate = []
             for item in PatchApiTokenDetailsParameters.fields:
-                if getattr(form, item, None) is not None:
-                    if not isinstance(getattr(form, item), BooleanField):
-                        if getattr(form, item).data:
-                            if getattr(api_token, item) != getattr(form, item).data:
-                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                    else:
-                        if getattr(api_token, item) != getattr(form, item).data:
-                            itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+                if getattr(form, item, None) is not None and getattr(api_token, item) != getattr(form, item).data:
+                    itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
             if itemsToUpdate:
                 for item in itemsToUpdate:
                     PatchApiTokenDetailsParameters().validate_patch_structure(item)
@@ -73,7 +67,7 @@ def editApiToken(api_token):
                         db.session.merge(api_token)
                         code = 202
                         flash(f'API Token {api_token.name!r} saved successfully!', 'success')
-                except Exception as error:
+                except Exception as error: # pragma: no cover
                     log.exception(error)
                     code = 400
                     flash(f'Failed to update API Token {api_token.name!r}', 'error')

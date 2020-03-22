@@ -13,7 +13,7 @@ def abort(code, message=None, **kwargs):
     Custom abort function used to provide extra information in the error
     response, namely, ``status`` and ``message`` info.
     '''
-    if message is None:
+    if message is None:  # pragma: no cover
         message = HTTPStatus(code).description
         if code in API_DEFAULT_HTTP_CODE_MESSAGES:
             message = API_DEFAULT_HTTP_CODE_MESSAGES[code]
