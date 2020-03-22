@@ -25,12 +25,14 @@ def api_tokens(page=1, perPage=10):
     code = 200
     if request.method == 'POST':
         if form.validate_on_submit():
+            if not current_user.is_admin and not current_user.is_internal:
+                if current_user != form.data['owner']:
+                    code = 403
+                    return jsonify(status='error', message="You can't create API Tokens for other users"), code
             code = 201
             data = form.data
-            length = int(data['length'])
-            del data['length']
+            data['token'] = ApiToken.generate_token(data['length'])
             apiToken = ApiToken(**data)
-            apiToken.generate_token(length)
             db.session.add(apiToken)
         else:
             code = 422
@@ -50,28 +52,31 @@ def api_tokens(page=1, perPage=10):
 def editApiToken(api_token):
     form = EditApiTokenForm(obj=api_token)
     code = 200
-    if request.method == 'POST' and form.validate_on_submit():
-        itemsToUpdate = []
-        for item in PatchApiTokenDetailsParameters.fields:
-            if getattr(form, item, None) is not None:
-                if not isinstance(getattr(form, item), BooleanField):
-                    if getattr(form, item).data:
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            itemsToUpdate = []
+            for item in PatchApiTokenDetailsParameters.fields:
+                if getattr(form, item, None) is not None:
+                    if not isinstance(getattr(form, item), BooleanField):
+                        if getattr(form, item).data:
+                            if getattr(api_token, item) != getattr(form, item).data:
+                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+                    else:
                         if getattr(api_token, item) != getattr(form, item).data:
                             itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                else:
-                    if getattr(api_token, item) != getattr(form, item).data:
-                        itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-        if itemsToUpdate:
-            for item in itemsToUpdate:
-                PatchApiTokenDetailsParameters().validate_patch_structure(item)
-            try:
-                with api.commit_or_abort(db.session, default_error_message='Failed to update API Token details.'):
-                    PatchApiTokenDetailsParameters.perform_patch(itemsToUpdate, api_token)
-                    db.session.merge(api_token)
-                    code = 202
-                    flash(f'API Token {api_token.name!r} saved successfully!', 'success')
-            except Exception as error:
-                log.exception(error)
-                code = 400
-                flash(f'Failed to update API Token {api_token.name!r}', 'error')
+            if itemsToUpdate:
+                for item in itemsToUpdate:
+                    PatchApiTokenDetailsParameters().validate_patch_structure(item)
+                try:
+                    with api.commit_or_abort(db.session, default_error_message='Failed to update API Token details.'):
+                        PatchApiTokenDetailsParameters.perform_patch(itemsToUpdate, api_token)
+                        db.session.merge(api_token)
+                        code = 202
+                        flash(f'API Token {api_token.name!r} saved successfully!', 'success')
+                except Exception as error:
+                    log.exception(error)
+                    code = 400
+                    flash(f'Failed to update API Token {api_token.name!r}', 'error')
+        else:
+            code = 422
     return render_template('edit_api_token.html', api_token=api_token, form=form), code

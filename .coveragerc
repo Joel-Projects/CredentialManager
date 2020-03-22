@@ -1,0 +1,5 @@
+[run]
+omit =
+    /flask_restplus_patched/*
+    release.py
+branch = True

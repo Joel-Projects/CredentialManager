@@ -26,6 +26,10 @@ def bots(page, perPage):
     code = 200
     if request.method == 'POST':
         if form.validate_on_submit():
+            if not current_user.is_admin and not current_user.is_internal:
+                if current_user != form.data['owner']:
+                    code = 403
+                    return jsonify(status='error', message="You can't create Bots for other users"), code
             code = 201
             data = form.data
             bot = Bot(**data)
@@ -46,31 +50,34 @@ def bots(page, perPage):
 @botsBlueprint.route('/bots/<Bot:bot>/', methods=['GET', 'POST'])
 @login_required
 @verifyEditable('bot')
-def editBot(bot):
+def editBots(bot):
     form = BotForm(obj=bot)
     code = 200
-    if request.method == 'POST' and form.validate_on_submit():
-        itemsToUpdate = []
-        for item in PatchBotDetailsParameters.fields:
-            if getattr(form, item, None) is not None:
-                if not isinstance(getattr(form, item), BooleanField):
-                    if getattr(form, item).data:
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            itemsToUpdate = []
+            for item in PatchBotDetailsParameters.fields:
+                if getattr(form, item, None) is not None:
+                    if not isinstance(getattr(form, item), BooleanField):
+                        if getattr(form, item).data:
+                            if getattr(bot, item) != getattr(form, item).data:
+                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+                    else:
                         if getattr(bot, item) != getattr(form, item).data:
                             itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                else:
-                    if getattr(bot, item) != getattr(form, item).data:
-                        itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-        if itemsToUpdate:
-            for item in itemsToUpdate:
-                PatchBotDetailsParameters().validate_patch_structure(item)
-            try:
-                with api.commit_or_abort(db.session, default_error_message='Failed to update Bot details.'):
-                    PatchBotDetailsParameters.perform_patch(itemsToUpdate, bot)
-                    db.session.merge(bot)
-                    code = 202
-                    flash(f'Bot {bot.app_name!r} saved successfully!', 'success')
-            except Exception as error:
-                log.exception(error)
-                code = 400
-                flash(f'Failed to update Bot {bot.app_name!r}', 'error')
+            if itemsToUpdate:
+                for item in itemsToUpdate:
+                    PatchBotDetailsParameters().validate_patch_structure(item)
+                try:
+                    with api.commit_or_abort(db.session, default_error_message='Failed to update Bot details.'):
+                        PatchBotDetailsParameters.perform_patch(itemsToUpdate, bot)
+                        db.session.merge(bot)
+                        code = 202
+                        flash(f'Bot {bot.app_name!r} saved successfully!', 'success')
+                except Exception as error:
+                    log.exception(error)
+                    code = 400
+                    flash(f'Failed to update Bot {bot.app_name!r}', 'error')
+        else:
+            code = 422
     return render_template('edit_bot.html', bot=bot, form=form), code

@@ -8,40 +8,6 @@ from . import rules
 
 log = logging.getLogger(__name__)
 
-# class PermissionExtendedQuery(BaseQuery):
-#     '''
-#     Extends BaseQuery class from flask_sqlalchemy to add get_or_403 method
-#
-#     Example:
-#     >>> DataTransformation.query.get_or_403(id)
-#     '''
-#
-#     def __init__(self, permisssion, *args, **kwargs):
-#         super(PermissionExtendedQuery, self).__init__(*args, **kwargs)
-#         self.permisssion = permisssion
-#
-#     def get_or_403(self, ident):
-#         obj = self.get_or_404(ident)
-#         with self.permisssion(obj=obj):
-#             return obj
-#
-# class Permission(BasePermission):
-#     '''
-#     Declares classmethod to provide extended BaseQuery to model,
-#     which adds additional method get_or_403
-#     '''
-#
-#     @classmethod
-#     def get_query_class(cls):
-#         '''
-#         Returns extended BaseQuery class for flask_sqlalchemy model to provide get_or_403 method
-#
-#         Example:
-#         >>> DataTransformation(db.Model):
-#         ...     query_class = OwnerRolePermission.get_query_class()
-#         '''
-#         return lambda *args, **kwargs: PermissionExtendedQuery(cls, *args, **kwargs)
-
 class PasswordRequiredPermissionMixin(object):
     '''
     Helper rule mixin that ensure that user password is correct if

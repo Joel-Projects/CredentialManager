@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Credential Manager Manager - User Verifications{% endblock %}
 {% block breadCrumbs %}
-    {% if user %}
+    {% if request.full_path.startswith('/profile') %}
+        <li class="breadcrumb-item"><a href=/profile>Profile</a></li>
+    {% elif user %}
         <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
         <li class="breadcrumb-item"><a href=/u/{{ user.username }}>{{ user.username }}</a></li>
     {% endif %}

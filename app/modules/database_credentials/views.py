@@ -26,6 +26,10 @@ def database_credentials(page, perPage):
     code = 200
     if request.method == 'POST':
         if form.validate_on_submit():
+            if not current_user.is_admin and not current_user.is_internal:
+                if current_user != form.data['owner']:
+                    code = 403
+                    return jsonify(status='error', message="You can't create Database Credentials for other users"), code
             code = 201
             data = form.data
             databaseCredential = DatabaseCredential(**data)
@@ -52,28 +56,31 @@ def database_credentials(page, perPage):
 def editDatabaseCredential(database_credential):
     code = 200
     form = DatabaseCredentialForm(obj=database_credential)
-    if request.method == 'POST' and form.validate_on_submit():
-        itemsToUpdate = []
-        for item in PatchDatabaseCredentialDetailsParameters.fields:
-            if getattr(form, item, None) is not None:
-                if not isinstance(getattr(form, item), BooleanField):
-                    if getattr(form, item).data:
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            itemsToUpdate = []
+            for item in PatchDatabaseCredentialDetailsParameters.fields:
+                if getattr(form, item, None) is not None:
+                    if not isinstance(getattr(form, item), BooleanField):
+                        if getattr(form, item).data:
+                            if getattr(database_credential, item) != getattr(form, item).data:
+                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+                    else:
                         if getattr(database_credential, item) != getattr(form, item).data:
                             itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                else:
-                    if getattr(database_credential, item) != getattr(form, item).data:
-                        itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-        if itemsToUpdate:
-            for item in itemsToUpdate:
-                PatchDatabaseCredentialDetailsParameters().validate_patch_structure(item)
-            try:
-                with api.commit_or_abort(db.session, default_error_message='Failed to update Database Credentials details.'):
-                    PatchDatabaseCredentialDetailsParameters.perform_patch(itemsToUpdate, database_credential)
-                    db.session.merge(database_credential)
-                    code = 202
-                    flash(f'Database Credentials {database_credential.app_name!r} saved successfully!', 'success')
-            except Exception as error:
-                log.exception(error)
-                code = 400
-                flash(f'Failed to update Database Credentials {database_credential.app_name!r}', 'error')
+            if itemsToUpdate:
+                for item in itemsToUpdate:
+                    PatchDatabaseCredentialDetailsParameters().validate_patch_structure(item)
+                try:
+                    with api.commit_or_abort(db.session, default_error_message='Failed to update Database Credentials details.'):
+                        PatchDatabaseCredentialDetailsParameters.perform_patch(itemsToUpdate, database_credential)
+                        db.session.merge(database_credential)
+                        code = 202
+                        flash(f'Database Credentials {database_credential.app_name!r} saved successfully!', 'success')
+                except Exception as error:
+                    log.exception(error)
+                    code = 400
+                    flash(f'Failed to update Database Credentials {database_credential.app_name!r}', 'error')
+        else:
+            code = 422
     return render_template('edit_database_credential.html', database_credential=database_credential, form=form), code

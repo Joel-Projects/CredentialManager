@@ -5,6 +5,7 @@ from flask_login import UserMixin
 from sqlalchemy_utils import types as column_types
 
 from app.extensions import InfoAttrs, QueryProperty, StrName, Timestamp, db
+from app.extensions.api import abort
 from app.modules.api_tokens.models import ApiToken
 
 
@@ -128,9 +129,9 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
     @classmethod
     def findWithApiKey(cls, apiKey):
         apiToken = ApiToken.query.filter_by(token=apiKey).first()
-        if not apiToken:
-            return None
+        if not apiToken.enabled:
+            abort(401, 'API Token invalid or disabled')
         user = cls.query.filter_by(id=apiToken.owner_id).first()
-        if user:
+        if user: # pragma: no branch
             apiToken.last_used = datetime.now()
             return user

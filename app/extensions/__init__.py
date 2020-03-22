@@ -1,6 +1,8 @@
 import os
 from logging import getLogger
+
 from .logging import Logging
+
 
 logging = Logging()
 
@@ -37,6 +39,7 @@ from . import api
 
 foreignKeyKwargs = dict(ondelete='SET NULL', onupdate='CASCADE')
 log = getLogger(__name__)
+
 
 def init_app(app):
     '''

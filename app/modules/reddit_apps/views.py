@@ -26,6 +26,10 @@ def reddit_apps(page, perPage):
     form = RedditAppForm()
     if request.method == 'POST':
         if form.validate_on_submit():
+            if not current_user.is_admin and not current_user.is_internal:
+                if current_user != form.data['owner']:
+                    code = 403
+                    return jsonify(status='error', message="You can't create Reddit Apps for other users"), code
             code = 201
             data = form.data
             redditApp = RedditApp(**data)
@@ -52,28 +56,31 @@ def reddit_apps(page, perPage):
 def editRedditApp(reddit_app):
     form = RedditAppForm(obj=reddit_app)
     code = 200
-    if request.method == 'POST' and form.validate_on_submit():
-        itemsToUpdate = []
-        for item in PatchRedditAppDetailsParameters.fields:
-            if getattr(form, item, None) is not None:
-                if not isinstance(getattr(form, item), BooleanField):
-                    if getattr(form, item).data:
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            itemsToUpdate = []
+            for item in PatchRedditAppDetailsParameters.fields:
+                if getattr(form, item, None) is not None:
+                    if not isinstance(getattr(form, item), BooleanField):
+                        if getattr(form, item).data:
+                            if getattr(reddit_app, item) != getattr(form, item).data:
+                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+                    else:
                         if getattr(reddit_app, item) != getattr(form, item).data:
                             itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                else:
-                    if getattr(reddit_app, item) != getattr(form, item).data:
-                        itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-        if itemsToUpdate:
-            for item in itemsToUpdate:
-                PatchRedditAppDetailsParameters().validate_patch_structure(item)
-            try:
-                with api.commit_or_abort(db.session, default_error_message='Failed to update Reddit App details.'):
-                    PatchRedditAppDetailsParameters.perform_patch(itemsToUpdate, reddit_app)
-                    db.session.merge(reddit_app)
-                    code = 202
-                    flash(f'Reddit App {reddit_app.app_name!r} saved successfully!', 'success')
-            except Exception as error:
-                log.exception(error)
-                code = 400
-                flash(f'Failed to update Reddit App {reddit_app.app_name!r}', 'error')
+            if itemsToUpdate:
+                for item in itemsToUpdate:
+                    PatchRedditAppDetailsParameters().validate_patch_structure(item)
+                try:
+                    with api.commit_or_abort(db.session, default_error_message='Failed to update Reddit App details.'):
+                        PatchRedditAppDetailsParameters.perform_patch(itemsToUpdate, reddit_app)
+                        db.session.merge(reddit_app)
+                        code = 202
+                        flash(f'Reddit App {reddit_app.app_name!r} saved successfully!', 'success')
+                except Exception as error:
+                    log.exception(error)
+                    code = 400
+                    flash(f'Failed to update Reddit App {reddit_app.app_name!r}', 'error')
+        else:
+            code = 422
     return render_template('edit_reddit_app.html', reddit_app=reddit_app, form=form), code

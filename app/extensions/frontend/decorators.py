@@ -37,7 +37,7 @@ def verifyEditable(kwargName):
                 if currentObject._sa_class_manager.class_ == User:
                     if currentObject.is_internal and not current_user.is_internal:
                         abort(403)
-                elif current_user.is_internal != currentObject.owner.is_internal:
+                elif currentObject.owner.is_internal and current_user.is_internal != currentObject.owner.is_internal:
                     abort(403)
             else:
                 abort(403)

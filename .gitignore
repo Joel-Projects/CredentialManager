@@ -56,3 +56,4 @@ clients/*/swagger.json
 clients/*/dist
 /old again/
 /.scannerwork/
+/env.nosync/

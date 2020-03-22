@@ -24,14 +24,17 @@ def user_verifications(page, perPage):
     code = 200
     form = UserVerificationForm()
     if request.method == 'POST':
-        code = 201
         if form.validate_on_submit():
+            if not current_user.is_admin and not current_user.is_internal:
+                if current_user != form.data['owner']:
+                    code = 403
+                    return jsonify(status='error', message="You can't create User Verifications for other users"), code
+            code = 201
             data = form.data
             userVerification = UserVerification(**data)
             db.session.add(userVerification)
         else:
             code = 422
-            return jsonify(status='error', errors=form.errors), code
     if current_user:
         if current_user.is_admin and not current_user.is_internal:
             paginator = UserVerification.query.filter(*(UserVerification.owner_id != i.id for i in User.query.filter(User.internal == True).all())).paginate(page, perPage, error_out=False)
@@ -51,28 +54,31 @@ def user_verifications(page, perPage):
 def editUserVerification(user_verification):
     form = UserVerificationForm(obj=user_verification)
     code = 200
-    if request.method == 'POST' and form.validate_on_submit():
-        itemsToUpdate = []
-        for item in PatchUserVerificationDetailsParameters.fields:
-            if getattr(form, item, None) is not None:
-                if not isinstance(getattr(form, item), BooleanField):
-                    if getattr(form, item).data:
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            itemsToUpdate = []
+            for item in PatchUserVerificationDetailsParameters.fields:
+                if getattr(form, item, None) is not None:
+                    if not isinstance(getattr(form, item), BooleanField):
+                        if getattr(form, item).data:
+                            if getattr(user_verification, item) != getattr(form, item).data:
+                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+                    else:
                         if getattr(user_verification, item) != getattr(form, item).data:
                             itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                else:
-                    if getattr(user_verification, item) != getattr(form, item).data:
-                        itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-        if itemsToUpdate:
-            for item in itemsToUpdate:
-                PatchUserVerificationDetailsParameters().validate_patch_structure(item)
-            try:
-                with api.commit_or_abort(db.session, default_error_message='Failed to update User Verification details.'):
-                    PatchUserVerificationDetailsParameters.perform_patch(itemsToUpdate, user_verification)
-                    db.session.merge(user_verification)
-                    code = 202
-                    flash(f'User Verification for Discord Member {user_verification.discord_id} saved successfully!', 'success')
-            except Exception as error:
-                log.exception(error)
-                code = 400
-                flash(f'Failed to update User Verification for Discord Member {user_verification.discord_id}', 'error')
+            if itemsToUpdate:
+                for item in itemsToUpdate:
+                    PatchUserVerificationDetailsParameters().validate_patch_structure(item)
+                try:
+                    with api.commit_or_abort(db.session, default_error_message='Failed to update User Verification details.'):
+                        PatchUserVerificationDetailsParameters.perform_patch(itemsToUpdate, user_verification)
+                        db.session.merge(user_verification)
+                        code = 202
+                        flash(f'User Verification for Discord Member {user_verification.discord_id} saved successfully!', 'success')
+                except Exception as error:
+                    log.exception(error)
+                    code = 400
+                    flash(f'Failed to update User Verification for Discord Member {user_verification.discord_id}', 'error')
+        else:
+            code = 422
     return render_template('edit_user_verification.html', user_verification=user_verification, form=form), code

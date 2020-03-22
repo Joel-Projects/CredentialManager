@@ -26,6 +26,10 @@ def sentry_tokens(page, perPage):
     form = SentryTokenForm()
     if request.method == 'POST':
         if form.validate_on_submit():
+            if not current_user.is_admin and not current_user.is_internal:
+                if current_user != form.data['owner']:
+                    code = 403
+                    return jsonify(status='error', message="You can't create Sentry Tokens for other users"), code
             code = 201
             data = form.data
             sentryToken = SentryToken(**data)
@@ -49,28 +53,31 @@ def sentry_tokens(page, perPage):
 def editSentryToken(sentry_token):
     form = SentryTokenForm(obj=sentry_token)
     code = 200
-    if request.method == 'POST' and form.validate_on_submit():
-        itemsToUpdate = []
-        for item in PatchSentryTokenDetailsParameters.fields:
-            if getattr(form, item, None) is not None:
-                if not isinstance(getattr(form, item), BooleanField):
-                    if getattr(form, item).data:
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            itemsToUpdate = []
+            for item in PatchSentryTokenDetailsParameters.fields:
+                if getattr(form, item, None) is not None:
+                    if not isinstance(getattr(form, item), BooleanField):
+                        if getattr(form, item).data:
+                            if getattr(sentry_token, item) != getattr(form, item).data:
+                                itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+                    else:
                         if getattr(sentry_token, item) != getattr(form, item).data:
                             itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-                else:
-                    if getattr(sentry_token, item) != getattr(form, item).data:
-                        itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
-        if itemsToUpdate:
-            for item in itemsToUpdate:
-                PatchSentryTokenDetailsParameters().validate_patch_structure(item)
-            try:
-                with api.commit_or_abort(db.session, default_error_message='Failed to update Sentry Token details.'):
-                    PatchSentryTokenDetailsParameters.perform_patch(itemsToUpdate, sentry_token)
-                    db.session.merge(sentry_token)
-                    code = 202
-                    flash(f'Sentry Token {sentry_token.app_name!r} saved successfully!', 'success')
-            except Exception as error:
-                log.exception(error)
-                code = 400
-                flash(f'Failed to update Sentry Token {sentry_token.app_name!r}', 'error')
+            if itemsToUpdate:
+                for item in itemsToUpdate:
+                    PatchSentryTokenDetailsParameters().validate_patch_structure(item)
+                try:
+                    with api.commit_or_abort(db.session, default_error_message='Failed to update Sentry Token details.'):
+                        PatchSentryTokenDetailsParameters.perform_patch(itemsToUpdate, sentry_token)
+                        db.session.merge(sentry_token)
+                        code = 202
+                        flash(f'Sentry Token {sentry_token.app_name!r} saved successfully!', 'success')
+                except Exception as error: # pragma: no cover
+                    log.exception(error)
+                    code = 400
+                    flash(f'Failed to update Sentry Token {sentry_token.app_name!r}', 'error')
+        else:
+            code = 422
     return render_template('edit_sentry_token.html', sentry_token=sentry_token, form=form), code

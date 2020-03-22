@@ -121,7 +121,7 @@ def editUser(user):
                 newDefaultSettings = defaultSettings
             else:
                 newDefaultSettings = user.default_settings
-            for item in PatchUserDetailsParameters.getPatchFields():
+            for item in PatchUserDetailsParameters.fields:
                 if getattr(form, item, None) is not None:
                     if not isinstance(getattr(form, item), BooleanField):
                         if getattr(form, item).data:
@@ -167,16 +167,17 @@ def editUser(user):
 
 # noinspection PyUnresolvedReferences
 @usersBlueprint.route('/u/<User:user>/<item>/', methods=['GET', 'POST'])
+@usersBlueprint.route('/profile/<item>/', methods=['GET', 'POST'], defaults={'user': current_user})
 @login_required
 def itemsPerUser(user, item):
     validItems = {
-        'bots': [BotTable, BotForm, Bot, []],
-        'reddit_apps': [RedditAppTable, RedditAppForm, RedditApp, []],
-        'sentry_tokens': [SentryTokenTable, SentryTokenForm, SentryToken, []],
-        'database_credentials': [DatabaseCredentialTable, DatabaseCredentialForm, DatabaseCredential, []],
-        'api_tokens': [ApiTokenTable, ApiTokenForm, ApiToken, ['length']],
-        'refresh_tokens': [RefreshTokenTable, GenerateRefreshTokenForm, RefreshToken, []],
-        'user_verifications': [UserVerificationTable, UserVerificationForm, UserVerification, []]
+        'bots': [BotTable, BotForm, Bot],
+        'reddit_apps': [RedditAppTable, RedditAppForm, RedditApp],
+        'sentry_tokens': [SentryTokenTable, SentryTokenForm, SentryToken],
+        'database_credentials': [DatabaseCredentialTable, DatabaseCredentialForm, DatabaseCredential],
+        'api_tokens': [ApiTokenTable, ApiTokenForm, ApiToken],
+        'refresh_tokens': [RefreshTokenTable, GenerateRefreshTokenForm, RefreshToken],
+        'user_verifications': [UserVerificationTable, UserVerificationForm, UserVerification]
     }
     item = item.lower()
     if not item in validItems:
@@ -191,16 +192,15 @@ def itemsPerUser(user, item):
             data = form.data
             if item == 'api_tokens':
                 length = int(data['length'])
-            for delAttr in validItems[item][3]:
-                del data[delAttr]
             model = Model(owner_id=data['owner'].id, **data)
             if item == 'api_tokens':
-                model.generate_token(length)
+                model.token = model.generate_token(length)
             db.session.add(model)
             items = getattr(user, item).all()
             table = validItems[item][0](items, current_user=current_user)
+            code = 201
         else:
-            code = 202
+            code = 422
             return jsonify(status='error', errors=form.errors), code
     kwargs = {
         f'{item}Table': table,

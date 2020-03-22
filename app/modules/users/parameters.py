@@ -27,9 +27,7 @@ class CreateUserParameters(PostFormParameters, schemas.BaseUserSchema):
     @validates('is_internal')
     def validateInternal(self, data):
         if data:
-            with permissions.InternalRolePermission():
-                # Access granted
-                pass
+            permissions.InternalRolePermission().__enter__()
 
     class Meta(schemas.BaseUserSchema.Meta):
         fields = schemas.BaseUserSchema.Meta.fields + ('password', 'default_settings', 'is_admin', 'is_active', 'is_regular_user', 'is_internal', 'reddit_username')
@@ -43,15 +41,6 @@ class PatchUserDetailsParameters(PatchJSONParameters):
     '''
     fields = (User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, User.default_settings.key, User.username.key, User.updated_by.key, User.reddit_username.key)
     PATH_CHOICES = tuple(f'/{field}' for field in fields)
-
-    @staticmethod
-    def getPatchFields():
-        fields = (User.password.key, User.default_settings.key, User.username.key, User.updated_by.key, User.reddit_username.key)
-        if current_user.is_admin or current_user.is_internal:
-            fields += (User.is_active.fget.__name__, User.is_admin.fget.__name__,)
-        if current_user.is_internal:
-            fields += (User.is_regular_user.fget.__name__, User.is_internal.fget.__name__,)
-        return fields
 
     @classmethod
     def replace(cls, obj, field, value, state):
