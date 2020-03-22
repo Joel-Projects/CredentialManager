@@ -41,7 +41,7 @@ def test_user_detail_edit(flask_app_client, loginAs, regular_user):
             modifiedUser = User.query.get(oldUser.id)
             assert modifiedUser == oldUser
 
-def test_user_detail_edit_without_update_password(flask_app_client, regularUserInstance):
+def test_user_detail_edit_without_update_password(flask_app_client, db, regularUserInstance):
     data = {
         'itemType': 'users',
         'itemId': regularUserInstance.id,
@@ -54,13 +54,14 @@ def test_user_detail_edit_without_update_password(flask_app_client, regularUserI
         'is_regular_user': 'y',
         'save': 'save'
     }
-    oldUser = regularUserInstance
+    regularUserInstance.reddit_username = ''
+    db.session.merge(regularUserInstance)
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post('/profile', content_type='application/x-www-form-urlencoded', data=data)
         assert200(response)
         assertRenderedTemplate(templates, 'edit_user.html')
-        modifiedUser = User.query.get(oldUser.id)
-        assert modifiedUser == oldUser
+        modifiedUser = User.query.get(regularUserInstance.id)
+        assert modifiedUser == regularUserInstance
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 def test_user_detail_edit_self(flask_app_client, loginAs):

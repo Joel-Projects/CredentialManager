@@ -44,7 +44,7 @@ def test_OwnerRoleRule_authenticated_user(regularUserInstance):
     assert permissions.rules.OwnerRoleRule(obj).check() is True
     obj.owner.is_internal = True
     assert permissions.rules.OwnerRoleRule(obj).check() is False
-    obj.check_owner = lambda user: False # pragma: no branch
+    obj.check_owner = lambda user: False
     assert permissions.rules.OwnerRoleRule(obj).check() is False
 
 def test_PartialPermissionDeniedRule():
@@ -125,7 +125,7 @@ def test_OwnerRolePermission_authenticated_user(regularUserInstance):
 def test_OwnerRolePermission_anonymous_user_with_password(anonymousUserInstance):
     obj = Mock()
     obj.owner.is_internal = False
-    obj.check_owner = lambda user: False # pragma: no branch
+    obj.check_owner = lambda user: False
     with pytest.raises(HTTPException):
         permissions.OwnerRolePermission(obj=obj, password_required=True, password='any_password').__enter__()
 
