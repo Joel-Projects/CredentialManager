@@ -1,6 +1,5 @@
-from mock import Mock
 import pytest
-
+from mock import Mock
 from werkzeug.exceptions import HTTPException
 
 from app.modules.users import permissions

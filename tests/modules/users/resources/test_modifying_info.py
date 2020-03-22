@@ -1,4 +1,5 @@
 import json
+
 from app.modules.users.models import User
 
 
@@ -55,7 +56,7 @@ def test_modifying_user_info_by_admin(flask_app_client, adminUserInstance, regul
     assertSuccess(db, regular_user, response, saved_default_settings)
 
 def test_modifying_user_info_admin_fields_by_not_admin(flask_app_client, regularUserInstance, db):
-    data.append({'op': 'replace','path': '/is_regular_user','value': False,})
+    data.append({'op': 'replace', 'path': '/is_regular_user', 'value': False, })
     response = flask_app_client.patch(f'/api/v1/users/{regularUserInstance.id}', content_type='application/json', data=json.dumps(data))
 
     assert response.status_code == 406

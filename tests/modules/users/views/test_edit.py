@@ -6,6 +6,7 @@ from tests.responseStatuses import assert200, assert202, assert400, assert403
 from tests.utils import assertMessageFlashed, assertRenderedTemplate, captured_templates
 from . import assert202Profile
 
+
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 def test_user_detail_edit(flask_app_client, loginAs, regular_user):
     data = {

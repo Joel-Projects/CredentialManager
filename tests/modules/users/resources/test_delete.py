@@ -4,6 +4,7 @@ from app.modules.users.models import User
 from tests.params import labels, users
 from tests.utils import assert401, assert403, assert409, assertSuccess
 
+
 usersToDelete = [
     pytest.lazy_fixture('admin_user'),
     pytest.lazy_fixture('internal_user'),

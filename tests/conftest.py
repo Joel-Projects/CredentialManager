@@ -1,9 +1,9 @@
 import pytest
+from flask_login import current_user, login_user, logout_user
 
 from app import create_app
 from app.modules.users import models
 from tests import utils
-from flask_login import current_user, login_user, logout_user
 
 
 @pytest.fixture()

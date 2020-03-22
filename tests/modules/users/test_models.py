@@ -87,4 +87,3 @@ def test_User_findWithPassword(patch_user_password_scheme, db):
     with db.session.begin():
         db.session.delete(user1)
         db.session.delete(user2)
-

@@ -1,10 +1,11 @@
 import json
+from base64 import b64encode
 from contextlib import contextmanager
 from datetime import datetime, timezone
-from flask import Response, template_rendered
+
+from flask import Response, message_flashed, template_rendered
 from flask.testing import FlaskClient
 from werkzeug.utils import cached_property
-from base64 import b64encode
 
 from app.modules.users.models import User
 

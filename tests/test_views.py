@@ -1,7 +1,6 @@
-import pytest, json
-from app.modules.users.models import User
+import pytest
 
-from tests.utils import captured_templates, assertRenderedTemplate
+from tests.utils import assertRenderedTemplate, captured_templates
 
 
 users = [
@@ -17,7 +16,7 @@ labels = [
 def test_root(flask_app_client, loginAs, regular_user):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.get('/', follow_redirects=True)
-        if loginAs.is_authenticated :
+        if loginAs.is_authenticated:
             assert response.status_code == 200
             assert response.mimetype == 'text/html'
             assertRenderedTemplate(templates, 'dash.html')

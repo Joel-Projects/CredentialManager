@@ -6,3 +6,6 @@ def test_api_token_check_owner(admin_user, regular_user, regularUserApiToken):
     assert regular_user_api_token.check_owner(regular_user)
     assert not regular_user_api_token.check_owner(None)
     assert not regular_user_api_token.check_owner(admin_user)
+
+def test_api_token_length(regularUserApiToken: ApiToken):
+    regularUserApiToken.generate_token()

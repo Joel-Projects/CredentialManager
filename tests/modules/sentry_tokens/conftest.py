@@ -1,30 +1,19 @@
 import pytest
 
-#
-# @pytest.yield_fixture()
-# def team_for_regular_user(db, regular_user, readonly_user):
-#     from app.modules.teams.models import Team, TeamMember
-#
-#     team = Team(title="Regular User's team")
-#     regular_user_team_member = TeamMember(team=team, user=regular_user, is_leader=True)
-#     readonly_user_team_member = TeamMember(team=team, user=readonly_user)
-#     with db.session.begin():
-#         db.session.add(team)
-#         db.session.add(regular_user_team_member)
-#         db.session.add(readonly_user_team_member)
-#
-#     yield team
-#
-#     # Cleanup
-#     TeamMember.query.filter(TeamMember.team == team).delete()
-#     Team.query.filter(Team.id == team.id).delete()
-#
-#
-# @pytest.yield_fixture()
-# def team_for_nobody(temp_db_instance_helper):
-#     '''
-#     Create a team that not belongs to regural user
-#     '''
-#     from app.modules.teams.models import Team
-#     for _ in temp_db_instance_helper(Team(title="Admin User's team")):
-#         yield _
+from app.modules.sentry_tokens.models import SentryToken
+
+
+@pytest.fixture()
+def regularUserSentryToken(temp_db_instance_helper, regular_user):
+    for _ in temp_db_instance_helper(SentryToken(app_name='regular_user_token', dsn='https://12345@sentry.jesassn.org/1', owner=regular_user)):
+        yield _
+
+@pytest.fixture()
+def adminUserSentryToken(temp_db_instance_helper, admin_user):
+    for _ in temp_db_instance_helper(SentryToken(app_name='admin_user_token', dsn='https://12345@sentry.jesassn.org/1', owner=admin_user)):
+        yield _
+
+@pytest.fixture()
+def internalUserSentryToken(temp_db_instance_helper, internal_user):
+    for _ in temp_db_instance_helper(SentryToken(app_name='internal_user_token', dsn='https://12345@sentry.jesassn.org/1', owner=internal_user)):
+        yield _
