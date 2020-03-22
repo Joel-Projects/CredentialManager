@@ -152,18 +152,40 @@ def assert422(response, model, messageAttrs, *, loginAs=None, **kwargs):
 
 @contextmanager
 def captured_templates(app):
-    recorded = []
+    recorded = {}
 
-    def record(sender, template, context, **extra):
-        recorded.append((template, context))
+    def recordTemplate(sender, template, context, **extra):
+        if not 'templates' in recorded:
+            recorded['templates'] = []
+        recorded['templates'].append((template, context))
 
-    template_rendered.connect(record, app)
+    def recordFlash(sender, message, category, **extra):
+        if not 'flashes' in recorded:
+            recorded['flashes'] = []
+        recorded['flashes'].append((message, category))
+
+    template_rendered.connect(recordTemplate, app)
+    message_flashed.connect(recordFlash, app)
     try:
         yield recorded
     finally:
-        template_rendered.disconnect(record, app)
+        template_rendered.disconnect(recordTemplate, app)
+        message_flashed.disconnect(recordFlash, app)
 
-def assertRenderedTemplate(templates, templateName):
+def assertRenderedTemplate(items, templateName):
+    templates = items['templates']
     assert len(templates) == 1
     template, context = templates[0]
     assert template.name == templateName
+
+def assertMessageFlashed(items, message, category):
+    flashes = items['flashes']
+    assert len(flashes) == 1
+    flashedMessage, flashedCategory = flashes[0]
+    assert flashedMessage == message
+    assert flashedCategory == category
+
+def changeOwner(db, loginAs, item):
+    item.owner = loginAs
+    db.session.merge(item)
+    return item

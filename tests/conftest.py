@@ -44,7 +44,7 @@ def flask_app_client(flask_app):
     yield flask_app.test_client()
     context.pop()
 
-@pytest.yield_fixture()
+@pytest.yield_fixture(scope='session')
 def patch_user_password_scheme():
     '''
     By default, the application uses ``bcrypt`` to store passwords securely.
@@ -64,49 +64,19 @@ def patch_user_password_scheme():
     password_field_context._config._init_records()
     password_field_context._config._init_default_schemes()
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def regular_user(temp_db_instance_helper, patch_user_password_scheme):
     for item in temp_db_instance_helper(utils.generateUserInstance(username='regular_user')):
         yield item
 
-@pytest.yield_fixture()
-def regular_user_deactivated(temp_db_instance_helper, patch_user_password_scheme):
-    for item in temp_db_instance_helper(utils.generateUserInstance(username='regular_user', is_active=False)):
-        yield item
-
-@pytest.yield_fixture()
-def regular_user2(temp_db_instance_helper, patch_user_password_scheme):
-    for item in temp_db_instance_helper(utils.generateUserInstance(username='regular_user2')):
-        yield item
-
-@pytest.yield_fixture()
+@pytest.fixture()
 def admin_user(temp_db_instance_helper, patch_user_password_scheme):
     for item in temp_db_instance_helper(utils.generateUserInstance(username='admin_user', is_admin=True)):
         yield item
 
-@pytest.yield_fixture()
-def admin_user_deactivated(temp_db_instance_helper, patch_user_password_scheme):
-    for item in temp_db_instance_helper(utils.generateUserInstance(username='admin_user', is_admin=True, is_active=False)):
-        yield item
-
-@pytest.yield_fixture()
-def admin_user2(temp_db_instance_helper, patch_user_password_scheme):
-    for item in temp_db_instance_helper(utils.generateUserInstance(username='admin_user2', is_admin=True)):
-        yield item
-
-@pytest.yield_fixture()
+@pytest.fixture()
 def internal_user(temp_db_instance_helper, patch_user_password_scheme):
     for item in temp_db_instance_helper(utils.generateUserInstance(username='internal_user', is_regular_user=False, is_admin=False, is_internal=True)):
-        yield item
-
-@pytest.yield_fixture()
-def internal_user_deactivated(temp_db_instance_helper, patch_user_password_scheme):
-    for item in temp_db_instance_helper(utils.generateUserInstance(username='internal_user', is_regular_user=False, is_admin=False, is_internal=True, is_active=False)):
-        yield item
-
-@pytest.yield_fixture()
-def internal_user2(temp_db_instance_helper, patch_user_password_scheme):
-    for item in temp_db_instance_helper(utils.generateUserInstance(username='internal_user2', is_regular_user=False, is_admin=False, is_active=True, is_internal=True)):
         yield item
 
 @pytest.fixture()
@@ -116,14 +86,14 @@ def userInstance(patch_user_password_scheme, temp_db_instance_helper):
         _userInstance.get_id = lambda: user_id
         return _userInstance
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def regularUserInstance(flask_app, userInstance):
     with flask_app.test_request_context('/'):
         login_user(userInstance)
         yield current_user
         logout_user()
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def adminUserInstance(flask_app, userInstance):
     with flask_app.test_request_context('/'):
         login_user(userInstance)
@@ -131,7 +101,7 @@ def adminUserInstance(flask_app, userInstance):
         yield current_user
         logout_user()
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def internalUserInstance(flask_app, userInstance):
     with flask_app.test_request_context('/'):
         login_user(userInstance)
@@ -139,44 +109,7 @@ def internalUserInstance(flask_app, userInstance):
         yield current_user
         logout_user()
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def anonymousUserInstance(flask_app):
     with flask_app.test_request_context('/'):
         yield current_user
-
-@pytest.yield_fixture()
-def regularUserInstance2(flask_app, userInstance):
-    with flask_app.test_request_context('/'):
-        login_user(userInstance)
-        yield current_user
-        logout_user()
-
-@pytest.yield_fixture()
-def adminUserInstance2(flask_app, userInstance):
-    with flask_app.test_request_context('/'):
-        login_user(userInstance)
-        current_user.is_admin = True
-        yield current_user
-        logout_user()
-
-@pytest.yield_fixture()
-def internalUserInstance2(flask_app, userInstance):
-    with flask_app.test_request_context('/'):
-        login_user(userInstance)
-        current_user.is_internal = True
-        yield current_user
-        logout_user()
-
-@pytest.yield_fixture()
-def regularUserInstanceDeactivated(userInstanceDeactivated):
-    yield userInstanceDeactivated
-
-@pytest.yield_fixture()
-def adminUserInstanceDeactivated(userInstanceDeactivated):
-    userInstanceDeactivated.is_admin = True
-    yield userInstanceDeactivated
-
-@pytest.yield_fixture()
-def internalUserInstanceDeactivated(userInstanceDeactivated):
-    userInstanceDeactivated.is_internal = True
-    yield userInstanceDeactivated
