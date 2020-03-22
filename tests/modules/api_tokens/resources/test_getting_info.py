@@ -5,16 +5,6 @@ from app.modules.api_tokens.schemas import DetailedApiTokenSchema
 from tests.utils import assertSuccess, assert401, assert403
 
 
-users = [
-    pytest.lazy_fixture('adminUserInstance'),
-    pytest.lazy_fixture('internalUserInstance'),
-    pytest.lazy_fixture('regularUserInstance')
-]
-labels = [
-    'login_as_admin_user',
-    'login_as_internal_user',
-    'login_as_regular_user'
-]
 path = '/api/v1/api_tokens/'
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
@@ -34,14 +24,20 @@ def test_getting_api_token_with_id(flask_app_client, loginAs, tokenToGet):
     else:
         assert403(response, ApiToken, internal=True)
 
-def test_getting_api_token_deactivated_user(flask_app_client, regular_user_deactivated):
-    with flask_app_client.login(regular_user_deactivated):
-        response = flask_app_client.get(path)
-    assert401(response, ApiToken, loginAs=regular_user_deactivated)
-
 def test_getting_list_of_api_tokens(flask_app_client, regularUserInstance, regularUserApiToken):
     regularUserApiToken.owner = regularUserInstance
     response = flask_app_client.get(path)
+
+    assert response.status_code == 200
+    assert response.content_type == 'application/json'
+    assert isinstance(response.json, list)
+    assert set(response.json[0].keys()) >= {'id', 'name'}
+    assert response.json[0]['id'] == regularUserApiToken.id
+    assert response.json[0]['name'] == regularUserApiToken.name
+
+def test_getting_list_of_api_tokens_owner_id(flask_app_client, regularUserInstance, regularUserApiToken):
+    regularUserApiToken.owner = regularUserInstance
+    response = flask_app_client.get(path, query_string={'owner_id': regularUserInstance.id})
 
     assert response.status_code == 200
     assert response.content_type == 'application/json'

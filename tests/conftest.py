@@ -6,7 +6,7 @@ from tests import utils
 from flask_login import current_user, login_user, logout_user
 
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def flask_app():
     app = create_app(flask_config_name='testing')
     from app.extensions import db
@@ -16,7 +16,7 @@ def flask_app():
         yield app
         db.drop_all()
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def db(flask_app):
     from app.extensions import db as db_instance
     yield db_instance
@@ -112,13 +112,6 @@ def internal_user2(temp_db_instance_helper, patch_user_password_scheme):
 @pytest.fixture()
 def userInstance(patch_user_password_scheme, temp_db_instance_helper):
     for _userInstance in temp_db_instance_helper(utils.generateUserInstance(username='username', password='password')):
-        user_id = _userInstance.id
-        _userInstance.get_id = lambda: user_id
-        return _userInstance
-
-@pytest.fixture()
-def userInstanceDeactivated(patch_user_password_scheme, temp_db_instance_helper):
-    for _userInstance in temp_db_instance_helper(utils.generateUserInstance(username='usernameDeactivated', password='password', is_active=False)):
         user_id = _userInstance.id
         _userInstance.get_id = lambda: user_id
         return _userInstance

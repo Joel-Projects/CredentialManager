@@ -36,13 +36,6 @@ class AutoAuthFlaskClient(FlaskClient):
             self._user = current_user
         if self._user is not None:
             headers = {'Authorization': f'Basic {b64encode(f"{self._user.username}:password".encode()).decode("ascii")}'}
-            for key, value in kwargs.get('headers', {}):
-                headers[key] = value
-            # if kwargs.get('headers'):
-            #     if not 'Authorization' in kwargs.get('headers') and not 'X-API-KEY' in kwargs.get('headers'):
-            #         kwargs['headers'] += extra_headers
-            # else:
-            #     kwargs['headers'] = extra_headers
             kwargs['headers'] = headers
 
         return super(AutoAuthFlaskClient, self).open(*args, **kwargs)
