@@ -74,7 +74,7 @@ def init_app(app):
             if not app.testing:
                 additionalQuery = 'alter function credential_store.gen_state() owner to credential_manager;'
             else:
-                additionalQuery = ''
+                additionalQuery = 'CREATE EXTENSION IF NOT EXISTS pgcrypto'
             sql.execute(f'''
         create or replace function credential_store.gen_state() returns trigger
             language plpgsql
