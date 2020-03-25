@@ -1,42 +1,11 @@
 import json
-from datetime import datetime, timezone
-
 import pytest
 
 from app.modules.api_tokens.models import ApiToken
 from app.modules.api_tokens.schemas import DetailedApiTokenSchema
 from tests.params import labels, users
-from tests.utils import assert409, assert422
+from tests.utils import assert403, assert409, assert422, assertSuccess
 
-
-def assertSuccess(owner, response):
-    assert response.status_code == 200
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    for field in DetailedApiTokenSchema.Meta.fields:
-        if response.json[field]:
-            if getattr(ApiToken, field).type.python_type == datetime:
-                assert isinstance(response.json[field], str)
-            else:
-                assert isinstance(response.json[field], getattr(ApiToken, field).type.python_type)
-    createdApiToken = ApiToken.query.filter_by(id=response.json['id']).first()
-    assert createdApiToken is not None
-    assert response.json['owner_id'] == owner.id
-    for field in DetailedApiTokenSchema.Meta.fields:
-        if response.json[field]:
-            if isinstance(getattr(createdApiToken, field), datetime):
-                assert response.json[field] == datetime.astimezone(getattr(createdApiToken, field), timezone.utc).isoformat()
-            else:
-                assert response.json[field] == getattr(createdApiToken, field)
-
-def assertFail(token, response):
-    assert response.status_code == 403
-    assert response.content_type == 'application/json'
-    assert isinstance(response.json, dict)
-    assert set(response.json.keys()) >= {'status', 'message'}
-    assert response.json['message'] == "You don't have the permission to access the requested resource."
-    createdToken = ApiToken.query.filter(ApiToken.id != token.id).first()
-    assert createdToken is None
 
 data = [
     {
@@ -64,19 +33,19 @@ def test_modifying_api_token(flask_app_client, token, loginAs):
 
     if token.owner.is_internal:
         if loginAs.is_internal:
-            assertSuccess(token.owner, response)
+            assertSuccess(response, token.owner, ApiToken, DetailedApiTokenSchema)
         else:
-            assertFail(token, response)
+            assert403(response, ApiToken, action='patch', internal=True, oldItem=token)
     elif loginAs.is_admin or loginAs.is_internal:
-        assertSuccess(token.owner, response)
+        assertSuccess(response, token.owner, ApiToken, DetailedApiTokenSchema)
     else:
-        assertFail(token, response)
+        assert403(response, ApiToken, action='patch', internal=True, oldItem=token)
 
 def test_modifying_api_token_by_self(flask_app_client, regularUserInstance, regularUserApiToken):
     regularUserApiToken.owner = regularUserInstance
     response = flask_app_client.patch(f'/api/v1/api_tokens/{regularUserApiToken.id}', content_type='application/json', data=json.dumps(data))
 
-    assertSuccess(regularUserInstance, response)
+    assertSuccess(response, regularUserInstance, ApiToken, DetailedApiTokenSchema)
 
 def test_modifying_api_token_info_with_invalid_format_must_fail(flask_app_client, regularUserInstance, regularUserApiToken):
     regularUserApiToken.owner = regularUserInstance

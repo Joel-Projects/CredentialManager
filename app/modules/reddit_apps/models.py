@@ -39,7 +39,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
     short_name = db.Column(db.String, info={'label': 'Short Name', 'description': 'Short name of the Reddit App'})
     app_description = db.Column(db.Text, info={'label': 'Description', 'description': 'Description of the Reddit App'})
     client_id = db.Column(db.String, nullable=False, info={'label': 'Client ID', 'description': 'Client ID of the Reddit App'})
-    client_secret = db.Column(db.String, nullable=False, info={'label': 'Client Secret', 'description': 'Client secret of the Reddit App'})
+    client_secret = db.Column(db.String, info={'label': 'Client Secret', 'description': 'Client secret of the Reddit App'})
     user_agent = db.Column(db.Text, nullable=False, info={'label': 'User Agent', 'description': 'User agent used for requests to Reddit\'s API'})
     app_type = db.Column(ChoiceType(redditAppTypes), nullable=False, info={'label': 'App Type', 'description': 'Type of the app. One of `web`, `installed`, or `script`'})
     redirect_uri = db.Column(URLType, default='https://credmgr.jesassn.org/oauth2/reddit_callback', nullable=False, info={'label': 'Redirect URI', 'description': 'Redirect URI for Oauth2 flow. Defaults to `https://credmgr.jesassn.org/oauth2/reddit_callback`. Changing this will disable fetching of users\' refresh tokens!'})
@@ -63,27 +63,28 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         from app.modules.bots.models import Bot
         return Bot.query.filter_by(reddit_app=self).count()
 
-    def genAuthUrl(self, scopes, duration, user_verification):
+    def genAuthUrl(self, scopes, duration, user_verification=None):
         reddit = self.redditInstance
         state = self.state
         if user_verification:
             state = base64.urlsafe_b64encode(f'{state}:{user_verification.discord_id}'.encode())
         return reddit.auth.url(scopes, state, duration)
 
-    def getAppFromState(self, state):
+    @classmethod
+    def getAppFromState(cls, state):
         result: RedditApp
         discord_id = None
         try:
             if state:
-                result = self.query.filter_by(state=state).first()
+                result = cls.query.filter_by(state=state).first()
                 if result:
                     return result, discord_id
                 else:
                     decoded = base64.urlsafe_b64decode(state).decode()
                     state, discord_id = decoded.split(':')
                     discord_id = int(discord_id)
-                    result = self.query.filter_by(state=state).first()
-        except Exception as error:
+                    result = cls.query.filter_by(state=state).first()
+        except Exception as error: # pragma: no cover
             log.exception(error)
         return result, discord_id
 
@@ -94,8 +95,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
             tokens = [i for i in self.refresh_tokens if i.redditor == redditor and not i.revoked and i.owner == current_user]
         if tokens:
             return tokens[0]
-        else:
-            http_exceptions.abort(HTTPStatus.NOT_FOUND, 'Refresh token for specified Redditor was not found.')
+        return None
 
     @property
     def redditInstance(self) -> praw.Reddit.__class__:

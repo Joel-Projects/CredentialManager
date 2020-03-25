@@ -3,7 +3,7 @@ import logging
 from flask_login import current_user
 from flask_restplus._http import HTTPStatus
 
-from app.extensions.api import Namespace, http_exceptions
+from app.extensions.api import Namespace, abort, http_exceptions
 from flask_restplus_patched import Resource
 from . import parameters, schemas
 from .models import RedditApp, db
@@ -73,15 +73,15 @@ class RedditApps(Resource):
             owner = current_user
         with api.commit_or_abort(db.session, default_error_message='Failed to create a new Reddit App.'):
             data = {
-                'app_name', args.app_name,
-                'short_name', args.short_name,
-                'app_description', args.app_description,
-                'client_id', args.client_id,
-                'client_secret', args.client_secret,
-                'user_agent', args.user_agent,
-                'app_type', args.app_type,
-                'redirect_uri', args.redirect_uri,
-                'enabled', args.enabled
+                'app_name': args.app_name,
+                'short_name': args.short_name,
+                'app_description': args.app_description,
+                'client_id': args.client_id,
+                'client_secret': args.client_secret,
+                'user_agent': args.user_agent,
+                'app_type': args.app_type,
+                'redirect_uri': args.redirect_uri,
+                'enabled': args.enabled
             }
             newRedditApp = RedditApp(owner=owner, **data)
             db.session.add(newRedditApp)
@@ -118,8 +118,11 @@ class RedditAppByID(Resource):
 
         Only Admins can see Refresh Tokens for other users' Reddit Apps. Regular users will see their own Reddit Apps' Refresh Tokens.
         '''
-        print()
-        return reddit_app.getRefreshToken(args['redditor'])
+        refreshToken = reddit_app.getRefreshToken(args['redditor'])
+        if refreshToken:
+            return refreshToken
+        else:
+            abort(404)
 
     @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['reddit_app']})
@@ -134,8 +137,8 @@ class RedditAppByID(Resource):
         try:
             with api.commit_or_abort(db.session, default_error_message='Failed to delete Reddit App.'):
                 db.session.delete(reddit_app)
-        except Exception as error:
-            print(error)
+        except Exception as error: # pragma: no cover
+            log.exception(error)
         return None
 
     @api.login_required()

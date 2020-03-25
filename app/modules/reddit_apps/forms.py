@@ -14,7 +14,7 @@ class RedditAppForm(ModelForm):
         fields = [['app_name', 'short_name'], 'app_description', ['client_id', 'client_secret'], 'user_agent', 'app_type', 'redirect_uri', 'enabled']
 
     if current_user:
-        userAgentDefault = current_user.getDefault('user_agent')
+        userAgentDefault = current_user.getDefault('user_agent') # pragma: no cover
     else:
         userAgentDefault = ''
 

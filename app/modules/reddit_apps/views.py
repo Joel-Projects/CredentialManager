@@ -2,7 +2,6 @@ import logging
 
 from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
-from wtforms import BooleanField
 
 from .parameters import PatchRedditAppDetailsParameters
 from .resources import api
@@ -37,13 +36,10 @@ def reddit_apps(page, perPage):
         else:
             code = 422
             return jsonify(status='error', errors=form.errors), code
-    if current_user:
-        if current_user.is_admin and not current_user.is_internal:
-            paginator = RedditApp.query.filter(*(RedditApp.owner_id != i.id for i in User.query.filter(User.internal == True).all())).paginate(page, perPage, error_out=False)
-        elif current_user.is_internal:
-            paginator = RedditApp.query.paginate(page, perPage, error_out=False)
-        else:
-            paginator = current_user.reddit_apps.paginate(page, perPage, error_out=False)
+    if current_user.is_admin and not current_user.is_internal:
+        paginator = RedditApp.query.filter(*(RedditApp.owner_id != i.id for i in User.query.filter(User.internal == True).all())).paginate(page, perPage, error_out=False)
+    elif current_user.is_internal:
+        paginator = RedditApp.query.paginate(page, perPage, error_out=False)
     else:
         paginator = current_user.reddit_apps.paginate(page, perPage, error_out=False)
     table = RedditAppTable(paginator.items, current_user=current_user)
@@ -71,7 +67,7 @@ def editRedditApp(reddit_app):
                         db.session.merge(reddit_app)
                         code = 202
                         flash(f'Reddit App {reddit_app.app_name!r} saved successfully!', 'success')
-                except Exception as error:
+                except Exception as error: # pragma: no cover
                     log.exception(error)
                     code = 400
                     flash(f'Failed to update Reddit App {reddit_app.app_name!r}', 'error')

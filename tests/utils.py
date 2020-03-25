@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 
 from flask import Response, message_flashed, template_rendered
 from flask.testing import FlaskClient
+from sqlalchemy_utils import Choice
 from werkzeug.utils import cached_property
 
 from app.modules.users.models import User
@@ -99,6 +100,8 @@ def assertSuccess(response, owner, model, schema, deleteItemId=None):
             if response.json[field]:
                 if isinstance(getattr(createdItem, field), datetime):
                     assert response.json[field] == datetime.astimezone(getattr(createdItem, field), timezone.utc).isoformat()
+                elif isinstance(getattr(createdItem, field), Choice):
+                    assert response.json[field] == getattr(createdItem, field).value
                 else:
                     assert response.json[field] == getattr(createdItem, field)
 
@@ -186,7 +189,20 @@ def assertMessageFlashed(items, message, category):
     assert flashedMessage == message
     assert flashedCategory == category
 
-def changeOwner(db, loginAs, item):
-    item.owner = loginAs
+def changeOwner(db, newOwner, item):
+    item.owner = newOwner
     db.session.merge(item)
     return item
+
+def assertCreated(item, data):
+    assert item is not None
+    assert item.id == 1
+    for key, value in data.items():
+        assert getattr(item, key) == value
+
+def assertModified(data, model):
+    for key, value in data.items():
+        if key in dir(model):
+            if key == 'enabled':
+                value = 'y' == value
+            assert getattr(model, key) == value

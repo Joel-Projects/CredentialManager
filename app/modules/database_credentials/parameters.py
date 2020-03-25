@@ -42,7 +42,7 @@ class CreateDatabaseCredentialParameters(PostFormParameters, schemas.BaseDatabas
     @validates('app_type')
     def validateAppType(self, data):
         if not data.lower() in ['web', 'installed', 'script']:
-            raise ValidationError("App type is not valid. Valid types are: 'web', 'installed'. or 'script'`")
+            raise ValidationError("App type is not valid. Valid types are: 'web', 'installed'. or 'script'")
 
 class PatchDatabaseCredentialDetailsParameters(PatchJSONParameters):
     '''

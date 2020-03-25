@@ -73,7 +73,9 @@ def init_app(app):
         with db.get_engine(app=app).connect() as sql:
             if not app.testing:
                 additionalQuery = 'alter function credential_store.gen_state() owner to credential_manager;'
-                sql.execute(f'''
+            else:
+                additionalQuery = ''
+            sql.execute(f'''
         create or replace function credential_store.gen_state() returns trigger
             language plpgsql
         as $$
@@ -95,4 +97,4 @@ def init_app(app):
             execute procedure credential_store.gen_state();
             ''')
     except Exception as error:  # pragma: no cover
-        print(error)
+        log.exception(error)
