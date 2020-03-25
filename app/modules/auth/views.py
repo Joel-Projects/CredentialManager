@@ -1,6 +1,6 @@
 import logging
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, url_for
 from flask_login import login_user, logout_user
 
 
@@ -17,7 +17,6 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
-
         try:
             user = User.query.filter(User.username.ilike(request.form['username'])).first()
             if user and user.password == password and user.is_active:
@@ -28,20 +27,35 @@ def login():
             elif not user.is_active:
                 flash('Your account is disabled.', 'error')
                 return render_template('login.html', username=username, password=password), 403
-            else:
+            else: # pragma: no cover
                 return failLogin(password, username)
-        except Exception as error:
+        except Exception as error: # pragma: no cover
             log.exception(error)
             flash('Login failed.')
     user = User.query.first()
     if not user:
-        user = User(username='internal', password='password')
-        user.is_admin = True
-        user.created_by = user
-        db.session.add(user)
-        db.session.commit()
-        log.info(f"Created user: '{user.username}' successfully!")
+        return redirect(url_for('auth.initial_user'))
     return render_template('login.html'), 200
+
+@auth_blueprint.route('/create_initial_user', methods=['GET', 'POST'])
+def initial_user():
+    user = User.query.first()
+    if not user:
+        if request.method == 'POST':
+            username = request.form.get('username')
+            password = request.form.get('password')
+            user = User(username=username, password=password)
+            user.is_internal = True
+            user.is_active = True
+            user.is_regular_user = True
+            db.session.add(user)
+            newUser = User.query.first()
+            if newUser:
+                log.info(f"Created user: '{user.username}' successfully!")
+                login_user(newUser)
+            return redirect(url_for('main.dash'))
+        return render_template('create_initial_user.html'), 200
+    abort(404)
 
 def failLogin(password, username):
     flash('Please check your login details and try again.', 'error')

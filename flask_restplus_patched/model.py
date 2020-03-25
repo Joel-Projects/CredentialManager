@@ -40,6 +40,6 @@ class Model(OriginalModel):
         schema = self['__schema__']
         if isinstance(schema, flask_marshmallow.Schema):
             return fields2jsonschema(schema.fields)
-        elif isinstance(schema, flask_marshmallow.base_fields.FieldABC):
+        elif isinstance(schema, flask_marshmallow.base_fields.FieldABC): # pragma: no cover
             return field2property(schema)
         raise NotImplementedError()

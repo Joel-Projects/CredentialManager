@@ -22,4 +22,4 @@ def adminUserInstanceDeactivated(userInstanceDeactivated):
 @pytest.fixture()
 def internalUserInstanceDeactivated(userInstanceDeactivated):
     userInstanceDeactivated.is_internal = True
-    yield userInstanceDeactivated # pragma: no cover
+    yield userInstanceDeactivated

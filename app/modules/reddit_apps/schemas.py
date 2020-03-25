@@ -1,5 +1,4 @@
 from flask_restplus_patched import ModelSchema
-
 from .models import RedditApp
 
 
@@ -40,14 +39,4 @@ class AuthUrlSchema(BaseRedditAppSchema):
     '''
 
     class Meta(BaseRedditAppSchema.Meta):
-        fields = BaseRedditAppSchema.Meta.fields + (
-            RedditApp.short_name.key,
-            RedditApp.app_description.key,
-            RedditApp.user_agent.key,
-            RedditApp.app_type.key,
-            RedditApp.redirect_uri.key,
-            RedditApp.state.key,
-            RedditApp.enabled.key,
-            RedditApp.owner_id.key,
-            'auth_url'
-        )
+        fields = (RedditApp.id.key, RedditApp.app_name.key, RedditApp.client_id.key, 'auth_url')

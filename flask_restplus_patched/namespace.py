@@ -15,7 +15,7 @@ class Namespace(OriginalNamespace):
     WEBARGS_PARSER = webargs_parser
 
     def _handle_api_doc(self, cls, doc):
-        if doc is False:
+        if doc is False: # pragma: no cover
             cls.__apidoc__ = False
             return
         cls.__apidoc__ = merge(getattr(cls, '__apidoc__', {}), doc)
@@ -60,9 +60,9 @@ class Namespace(OriginalNamespace):
             api_model = Model(name, model, mask=mask)
             api_model.__apidoc__ = kwargs
             return self.add_model(name, api_model)
-        return super(Namespace, self).model(name=name, model=model, **kwargs)
+        return super(Namespace, self).model(name=name, model=model, **kwargs) # pragma: no cover
 
-    def _build_doc(self, cls, doc):
+    def _build_doc(self, cls, doc): # pragma: no cover
         if doc is False:
             return False
         # unshortcut_params_description(doc)
@@ -122,7 +122,7 @@ class Namespace(OriginalNamespace):
         if code is HTTPStatus.NO_CONTENT:
             assert model is None
         if model is None and code not in {HTTPStatus.ACCEPTED, HTTPStatus.NO_CONTENT}:
-            if code.value not in http_exceptions.default_exceptions:
+            if code.value not in http_exceptions.default_exceptions: # pragma: no cover
                 raise ValueError(f'`model` parameter is required for code {code:d}')
             model = self.model(name=f'HTTPError{code:d}', model=DefaultHTTPErrorSchema(http_code=code))
         if description is None:
@@ -140,7 +140,7 @@ class Namespace(OriginalNamespace):
                 extra_headers = None
 
                 if response is None:
-                    if model is not None:
+                    if model is not None: # pragma: no cover
                         raise ValueError(f'Response cannot not be None with HTTP status {code:d}')
                     return flask.Response(status=code)
                 elif isinstance(response, flask.Response) or model is None:
@@ -162,7 +162,7 @@ class Namespace(OriginalNamespace):
                 # produce a response later, so we don't need to apply a useless
                 # wrapper.
                 decorated_func_or_class = func_or_class
-            elif isinstance(func_or_class, type):
+            elif isinstance(func_or_class, type): # pragma: no cover
                 # Handle Resource classes decoration
 
                 func_or_class._apply_decorator_to_methods(response_serializer_decorator)

@@ -12,7 +12,7 @@ def paginateArgs(model):
         def wrapper(*args, **kwargs):
             page = request.args.get('page', 1, int)
             perPage = request.args.get('perPage', 10, int)
-            if perPage == 0:
+            if perPage == 0: # pragma: no cover
                 perPage = model.query.count()
             kwargs['page'] = page
             kwargs['perPage'] = perPage
@@ -35,7 +35,7 @@ def verifyEditable(kwargName):
             currentObject = kwargs[kwargName]
             if current_user and (current_user.is_admin or current_user.is_internal or currentObject.check_owner(current_user)):
                 if currentObject._sa_class_manager.class_ == User:
-                    if currentObject.is_internal and not current_user.is_internal:
+                    if currentObject.is_internal and not current_user.is_internal: # pragma: no cover
                         abort(403)
                 elif currentObject.owner.is_internal and current_user.is_internal != currentObject.owner.is_internal:
                     abort(403)

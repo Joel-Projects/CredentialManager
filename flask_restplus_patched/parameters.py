@@ -17,8 +17,8 @@ class Parameters(Schema):
         # This is an add-hoc implementation of the feature which didn't make
         # into Marshmallow upstream:
         # https://github.com/marshmallow-code/marshmallow/issues/344
-        for required_field_name in getattr(self.Meta, 'required', []):
-            self.fields[required_field_name].required = True
+        # for required_field_name in getattr(self.Meta, 'required', []):
+        #     self.fields[required_field_name].required = True
 
     def __contains__(self, field):
         return field in self.fields
@@ -31,7 +31,7 @@ class Parameters(Schema):
         avoid a new instance creation because it is undesirable behavior for
         parameters (they can be used not only for saving new instances).
         '''
-        pass
+        pass # pragma: no cover
 
 class PostFormParameters(Parameters):
 
@@ -58,10 +58,12 @@ class PatchJSONParameters(Parameters):
 
     # However, we use only those which make sense in RESTful API
     OPERATION_CHOICES = (
-        OP_TEST,
         OP_ADD,
         OP_REMOVE,
         OP_REPLACE,
+        OP_MOVE,
+        OP_COPY,
+        OP_TEST,
     )
     op = base_fields.String(required=True)
 
@@ -69,21 +71,25 @@ class PatchJSONParameters(Parameters):
 
     path = base_fields.String(required=True)
 
-    NO_VALUE_OPERATIONS = (OP_REMOVE,)
+    NO_VALUE_OPERATIONS = (OP_REMOVE, OP_COPY)
 
     value = base_fields.Raw(required=False)
 
+    fromPath = base_fields.String(required=False)
+
     def __init__(self, *args, **kwargs):
-        if 'many' in kwargs:
+
+        if 'many' in kwargs: # pragma: no cover
             assert kwargs['many'], "PATCH Parameters must be marked as 'many'"
         kwargs['many'] = True
         super(PatchJSONParameters, self).__init__(*args, **kwargs)
-        if not self.PATH_CHOICES:
+        if not self.PATH_CHOICES: # pragma: no cover
             raise ValueError(f'{self.__class__.__name__}.PATH_CHOICES has to be set')
         # Make a copy of `validators` as otherwise we will modify the behavior
         # of all `marshmallow.Schema`-based classes
         self.fields['op'].validators = self.fields['op'].validators + [validate.OneOf(self.OPERATION_CHOICES)]
         self.fields['path'].validators = self.fields['path'].validators + [validate.OneOf(self.PATH_CHOICES)]
+        self.fields['fromPath'].validators = self.fields['fromPath'].validators + [validate.OneOf(self.PATH_CHOICES)]
 
     @validates_schema
     def validate_patch_structure(self, data):
@@ -100,6 +106,9 @@ class PatchJSONParameters(Parameters):
         if data['op'] not in self.NO_VALUE_OPERATIONS and 'value' not in data:
             raise ValidationError('value is required')
 
+        if data['op'] == self.OP_COPY:
+            data['from'] = data['fromPath'][1:]
+
         if 'path' not in data:
             raise ValidationError('Path is required and must always begin with /')
         else:
@@ -114,7 +123,7 @@ class PatchJSONParameters(Parameters):
         if state is None:
             state = {}
         for operation in operations:
-            if not cls._process_patch_operation(operation, obj=obj, state=state):
+            if not cls._process_patch_operation(operation, obj=obj, state=state): # pragma: no cover
                 log.info(f'{obj.__class__.__name__} patching has been stopped because of unknown operation {operation}')
                 raise ValidationError(f'Failed to update {obj.__class__.__name__} details. Operation {operation} could not succeed.')
         return True
@@ -138,19 +147,19 @@ class PatchJSONParameters(Parameters):
         elif field_operaion == cls.OP_TEST:
             return cls.test(obj, operation['field_name'], operation['value'], state=state)
 
-        elif field_operaion == cls.OP_ADD:
+        elif field_operaion == cls.OP_ADD: # pragma: no cover
             return cls.add(obj, operation['field_name'], operation['value'], state=state)
 
-        elif field_operaion == cls.OP_MOVE:
+        elif field_operaion == cls.OP_MOVE: # pragma: no cover
             return cls.move(obj, operation['field_name'], operation['value'], state=state)
 
         elif field_operaion == cls.OP_COPY:
-            return cls.copy(obj, operation['field_name'], operation['value'], state=state)
+            return cls.copy(obj, operation['from'], operation['field_name'], state=state)
 
-        elif field_operaion == cls.OP_REMOVE:
+        elif field_operaion == cls.OP_REMOVE: # pragma: no cover
             return cls.remove(obj, operation['field_name'], state=state)
 
-        return False
+        return False # pragma: no cover
 
     @classmethod
     def replace(cls, obj, field, value, state):
@@ -168,7 +177,7 @@ class PatchJSONParameters(Parameters):
             processing_status (bool): True
         '''
         if not hasattr(obj, field):
-            raise ValidationError(f"Field '{field}' does not exist, so it cannot be patched")
+            raise ValidationError(f"Field '{field}' does not exist, so it cannot be patched")  # pragma: no cover
         setattr(obj, field, value)
         return True
 
@@ -191,16 +200,21 @@ class PatchJSONParameters(Parameters):
 
     @classmethod
     def add(cls, obj, field, value, state):
-        raise NotImplementedError()
+        raise NotImplementedError() # pragma: no cover
 
     @classmethod
     def remove(cls, obj, field, state):
-        raise NotImplementedError()
+        raise NotImplementedError() # pragma: no cover
 
     @classmethod
     def move(cls, obj, field, value, state):
-        raise NotImplementedError()
+        raise NotImplementedError() # pragma: no cover
 
     @classmethod
-    def copy(cls, obj, field, value, state):
-        raise NotImplementedError()
+    def copy(cls, obj, fromPath, path, state):
+        if path.startswith('/'):
+            path = path[1:]  # pragma: no cover
+        if not hasattr(obj, fromPath) or not hasattr(obj, path):
+            raise ValidationError(f"Field '{fromPath}' does not exist, so it cannot be patched")  # pragma: no cover
+        setattr(obj, path, getattr(obj, fromPath))
+        return True

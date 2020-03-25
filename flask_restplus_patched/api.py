@@ -29,7 +29,7 @@ class Api(OriginalApi):
         super(Api, self).init_app(app, **kwargs)
         app.errorhandler(HTTPStatus.UNPROCESSABLE_ENTITY.value)(handle_validation_error)
 
-    def namespace(self, *args, **kwargs):
+    def namespace(self, *args, **kwargs): # pragma: no cover
         # The only purpose of this method is to pass a custom Namespace class
         kwargs['ordered'] = kwargs.get('ordered', self.ordered)
         _namespace = Namespace(*args, **kwargs)
@@ -37,7 +37,7 @@ class Api(OriginalApi):
         return _namespace
 
 # Return validation errors as JSON
-def handle_validation_error(err):
+def handle_validation_error(err): # pragma: no cover
     exc = err.data['exc']
     return jsonify({
         'status': HTTPStatus.UNPROCESSABLE_ENTITY.value,

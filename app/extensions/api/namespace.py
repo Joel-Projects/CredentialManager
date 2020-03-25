@@ -44,7 +44,7 @@ class Namespace(BaseNamespace):
         '''
         if identity_arg_names is None:
             identity_arg_names = (f'{object_arg_name}_id',)
-        elif not isinstance(identity_arg_names, (list, tuple)):
+        elif not isinstance(identity_arg_names, (list, tuple)): # pragma: no cover
             identity_arg_names = (identity_arg_names,)
         return self.resolve_object(object_arg_name, resolver=lambda kwargs: model.query.get_or_404([kwargs.pop(identity_arg_name) for identity_arg_name in identity_arg_names]))
 
@@ -121,7 +121,7 @@ class Namespace(BaseNamespace):
             # Avoid circilar dependency
             from app.modules.users import permissions
 
-            if getattr(permission, '_partial', False):
+            if getattr(permission, '_partial', False): # pragma: no cover
                 # We don't apply partial permissions, we only use them for
                 # documentation purposes.
                 protected_func = func
@@ -181,7 +181,7 @@ class Namespace(BaseNamespace):
             from app.extensions.api.parameters import PaginationParameters
             parameters = PaginationParameters()
 
-        if not all(mandatory in parameters.declared_fields for mandatory in ('limit', 'offset')):
+        if not all(mandatory in parameters.declared_fields for mandatory in ('limit', 'offset')): # pragma: no cover
             raise AttributeError('`limit` and `offset` fields must be in Parameter passed to `paginate()`')
 
         def decorator(func):
@@ -201,7 +201,7 @@ class Namespace(BaseNamespace):
         try:
             with session.begin():
                 yield
-        except ValueError as exception:
+        except ValueError as exception: # pragma: no cover
             log.info(f'Database transaction was rolled back due to: {exception!r}')
             http_exceptions.abort(code=HTTPStatus.CONFLICT, message=str(exception), **kwargs)
         except sqlalchemy.exc.IntegrityError as exception:
