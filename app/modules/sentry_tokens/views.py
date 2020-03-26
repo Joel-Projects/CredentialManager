@@ -35,8 +35,7 @@ def sentry_tokens(page, perPage):
             sentryToken = SentryToken(**data)
             db.session.add(sentryToken)
         else:
-            code = 422
-            return jsonify(status='error', errors=form.errors), code
+            return jsonify(status='error', errors=form.errors)
     paginator = current_user.sentry_tokens.paginate(page, perPage, error_out=False)
     if current_user:
         if current_user.is_admin and not current_user.is_internal:

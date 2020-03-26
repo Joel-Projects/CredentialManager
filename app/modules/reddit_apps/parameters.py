@@ -20,8 +20,8 @@ class CreateRedditAppParameters(PostFormParameters, schemas.DetailedRedditAppSch
     client_secret = base_fields.String(description='Client secret of the Reddit App')
     user_agent = base_fields.String(required=True, description='User agent used for requests to Reddit\'s API')
     app_type = base_fields.String(required=True, description='Type of the app. One of `web`, `installed`, or `script`')
-    redirect_uri = base_fields.String(required=True, description='Redirect URI for Oauth2 flow. Defaults to user set redirect uri', default='https://credmgr.jesassn.org/oauth2/reddit_callback')
-    enabled = base_fields.String(default=True, description='Allows the app to be used')
+    redirect_uri = base_fields.Url(required=True, description='Redirect URI for Oauth2 flow. Defaults to user set redirect uri', default='https://credmgr.jesassn.org/oauth2/reddit_callback')
+    enabled = base_fields.Boolean(default=True, description='Allows the app to be used')
     owner_id = base_fields.Integer(description='Owner of the app. Requires Admin to create for other users.')
 
     @validates('app_name')

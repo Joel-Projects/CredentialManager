@@ -26,6 +26,7 @@ def test_create_user_bad_params(flask_app_client, adminUserInstance):
     with captured_templates(flask_app_client.application) as templates:
         data = {'is_admin': True, 'is_internal': False, 'is_regular_user': False, 'is_active': True, 'username': 'test', 'password': '', 'reddit_username': 'test', 'default_settings': json.dumps([{'key': 'database_flavor', 'value': 'test'}])}
         response = flask_app_client.post('/users', content_type='application/x-www-form-urlencoded', data=data)
-        assert422(response)
+        assert response.status_code == 200
+        assert response.mimetype == 'application/json'
         user = User.query.filter_by(username='test').first()
         assert user is None

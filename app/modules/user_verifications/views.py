@@ -1,8 +1,7 @@
-import logging
+import logging, json
 
 from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
-from wtforms import BooleanField
 
 from .forms import UserVerificationForm
 from .models import UserVerification
@@ -31,17 +30,17 @@ def user_verifications(page, perPage):
                     return jsonify(status='error', message="You can't create User Verifications for other users"), code
             code = 201
             data = form.data
+            if 'extra_data' in form.data and form.data['extra_data']:
+                data['extra_data'] = json.loads(form.data['extra_data'])
+
             userVerification = UserVerification(**data)
             db.session.add(userVerification)
         else:
-            code = 422
-    if current_user:
-        if current_user.is_admin and not current_user.is_internal:
-            paginator = UserVerification.query.filter(*(UserVerification.owner_id != i.id for i in User.query.filter(User.internal == True).all())).paginate(page, perPage, error_out=False)
-        elif current_user.is_internal:
-            paginator = UserVerification.query.paginate(page, perPage, error_out=False)
-        else:
-            paginator = current_user.user_verifications.paginate(page, perPage, error_out=False)
+            return jsonify(status='error', errors=form.errors), code
+    if current_user.is_admin and not current_user.is_internal:
+        paginator = UserVerification.query.filter(*(UserVerification.owner_id != i.id for i in User.query.filter(User.internal == True).all())).paginate(page, perPage, error_out=False)
+    elif current_user.is_internal:
+        paginator = UserVerification.query.paginate(page, perPage, error_out=False)
     else:
         paginator = current_user.user_verifications.paginate(page, perPage, error_out=False)
     table = UserVerificationTable(paginator.items, current_user=current_user)
@@ -69,7 +68,7 @@ def editUserVerification(user_verification):
                         db.session.merge(user_verification)
                         code = 202
                         flash(f'User Verification for Discord Member {user_verification.discord_id} saved successfully!', 'success')
-                except Exception as error:
+                except Exception as error: # pragma: no cover
                     log.exception(error)
                     code = 400
                     flash(f'Failed to update User Verification for Discord Member {user_verification.discord_id}', 'error')

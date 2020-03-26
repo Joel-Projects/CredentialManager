@@ -70,7 +70,8 @@ def test_create_api_token_bad_params(flask_app_client, regularUserInstance):
     with captured_templates(flask_app_client.application) as templates:
         data = {'name': 'ap', 'length': 500}
         response = flask_app_client.post('/api_tokens', content_type='application/x-www-form-urlencoded', data=data)
-        assert422(response)
+        assert response.status_code == 200
+        assert response.mimetype == 'application/json'
         apiToken = ApiToken.query.filter_by(name='api_token').first()
         assert apiToken is None
         assert response.json['errors']['length'][0] == 'Not a valid choice'

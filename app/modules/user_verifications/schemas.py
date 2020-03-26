@@ -9,12 +9,16 @@ class BaseUserVerificationSchema(ModelSchema):
     '''
 
     class Meta:
+        ordered = True
         model = UserVerification
         fields = (
             UserVerification.id.key,
             UserVerification.reddit_app_id.key,
             UserVerification.discord_id.key,
             UserVerification.redditor.key
+        )
+        dump_only = (
+            UserVerification.id.key,
         )
 
 class DetailedUserVerificationSchema(BaseUserVerificationSchema):

@@ -29,10 +29,6 @@ def temp_db_instance_helper(db):
 
         yield instance
 
-        mapper = instance.__class__.__mapper__
-        assert len(mapper.primary_key) >= 1
-        instance.__class__.query.filter_by(id=instance.id).delete()
-
     return temp_db_instance_manager
 
 @pytest.fixture()

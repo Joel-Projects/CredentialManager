@@ -8,12 +8,16 @@ class BaseRedditAppSchema(ModelSchema):
     '''
 
     class Meta:
+        ordered = True
         model = RedditApp
         fields = (
             RedditApp.id.key,
             RedditApp.app_name.key,
             RedditApp.client_id.key,
             RedditApp.client_secret.key
+        )
+        dump_only = (
+            RedditApp.id.key,
         )
 
 class DetailedRedditAppSchema(BaseRedditAppSchema):
@@ -31,6 +35,23 @@ class DetailedRedditAppSchema(BaseRedditAppSchema):
             RedditApp.state.key,
             RedditApp.enabled.key,
             RedditApp.owner_id.key
+        )
+
+class RedditAppBotSchema(BaseRedditAppSchema):
+    '''
+    Reddit App Bot schema exposes all useful fields for Bots.
+    '''
+
+    class Meta:
+        ordered = True
+        model = RedditApp
+        fields = (
+            RedditApp.id.key,
+            RedditApp.app_name.key,
+            RedditApp.client_id.key,
+            RedditApp.client_secret.key,
+            RedditApp.user_agent.key,
+            RedditApp.redirect_uri.key
         )
 
 class AuthUrlSchema(BaseRedditAppSchema):

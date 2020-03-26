@@ -25,7 +25,7 @@ class UserVerification(db.Model, InfoAttrs):
 
     __table_args__ = {'schema': 'credential_store'}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    reddit_app_id = db.Column(db.ForeignKey('credential_store.reddit_apps.id', **foreignKeyKwargs), nullable=False, info={'label': 'Reddit App', 'description': 'Reddit App the user will be verifying with'})
+    reddit_app_id = db.Column(db.ForeignKey('credential_store.reddit_apps.id', **foreignKeyKwargs), info={'label': 'Reddit App', 'description': 'Reddit App the user will be verifying with'})
     reddit_app = db.relationship('RedditApp', primaryjoin='UserVerification.reddit_app_id == RedditApp.id', backref=__tablename__)
     owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'), info={'label': 'Owner', 'description': 'Owner of the verification.'})
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
@@ -41,7 +41,7 @@ class UserVerification(db.Model, InfoAttrs):
             return user.is_internal
         return self.owner == user
 
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         redditor = ''
         if self.redditor:
             redditor = f' - {self.redditor}'

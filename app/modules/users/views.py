@@ -60,7 +60,7 @@ def users(page, perPage):
             db.session.add(user)
             code = 201
         else:
-            code = 422
+            # code = 422
             return jsonify(status='error', errors=form.errors), code
     if current_user.is_internal:
         paginator = query.paginate(page, perPage, error_out=False)

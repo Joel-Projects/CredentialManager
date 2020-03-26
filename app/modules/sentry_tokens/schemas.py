@@ -9,12 +9,16 @@ class BaseSentryTokenSchema(ModelSchema):
     '''
 
     class Meta:
+        ordered = True
         model = SentryToken
         fields = (
             SentryToken.id.key,
             SentryToken.app_name.key,
             SentryToken.dsn.key,
             SentryToken.enabled.key
+        )
+        dump_only = (
+            SentryToken.id.key,
         )
 
 class DetailedSentryTokenSchema(BaseSentryTokenSchema):
@@ -25,5 +29,19 @@ class DetailedSentryTokenSchema(BaseSentryTokenSchema):
     class Meta(BaseSentryTokenSchema.Meta):
         fields = BaseSentryTokenSchema.Meta.fields + (
             SentryToken.owner_id.key,
-            SentryToken.created.key,
+            SentryToken.created.key
+        )
+
+class SentryTokenBotSchema(BaseSentryTokenSchema):
+    '''
+    Sentry Token Bot schema exposes all useful fields for Bots.
+    '''
+
+    class Meta:
+        ordered = True
+        model = SentryToken
+        fields = (
+            SentryToken.id.key,
+            SentryToken.app_name.key,
+            SentryToken.dsn.key
         )

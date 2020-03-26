@@ -9,8 +9,6 @@ from marshmallow import validate, validates_schema, ValidationError
 log = logging.getLogger(__name__)
 
 class Parameters(Schema):
-    class Meta:
-        ordered = True
 
     def __init__(self, **kwargs):
         super(Parameters, self).__init__(strict=True, **kwargs)

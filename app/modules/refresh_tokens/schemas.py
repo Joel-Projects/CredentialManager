@@ -9,12 +9,16 @@ class BaseRefreshTokenSchema(ModelSchema):
     '''
 
     class Meta:
+        ordered = True
         model = RefreshToken
         fields = (
             RefreshToken.id.key,
             RefreshToken.reddit_app.key,
             RefreshToken.redditor.key,
             RefreshToken.refresh_token.key
+        )
+        dump_only = (
+            RefreshToken.id.key,
         )
 
 class DetailedRefreshTokenSchema(BaseRefreshTokenSchema):

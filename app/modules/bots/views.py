@@ -35,7 +35,6 @@ def bots(page, perPage):
             bot = Bot(**data)
             db.session.add(bot)
         else:
-            code = 422
             return jsonify(status='error', errors=form.errors), code
     if current_user.is_admin and not current_user.is_internal:
         paginator = Bot.query.filter(*(Bot.owner_id != i.id for i in User.query.filter(User.internal == True).all())).paginate(page, perPage, error_out=False)

@@ -35,7 +35,6 @@ def database_credentials(page, perPage):
             databaseCredential = DatabaseCredential(**data)
             db.session.add(databaseCredential)
         else:
-            code = 422
             return jsonify(status='error', errors=form.errors), code
     if current_user:
         if current_user.is_admin and not current_user.is_internal:

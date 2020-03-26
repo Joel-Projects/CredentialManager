@@ -34,7 +34,6 @@ def reddit_apps(page, perPage):
             redditApp = RedditApp(**data)
             db.session.add(redditApp)
         else:
-            code = 422
             return jsonify(status='error', errors=form.errors), code
     if current_user.is_admin and not current_user.is_internal:
         paginator = RedditApp.query.filter(*(RedditApp.owner_id != i.id for i in User.query.filter(User.internal == True).all())).paginate(page, perPage, error_out=False)

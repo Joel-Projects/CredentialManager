@@ -50,7 +50,8 @@ def test_create_sentry_token_bad_params(flask_app_client, regularUserInstance):
     with captured_templates(flask_app_client.application) as templates:
         data['dsn'] = 'invalid_url'
         response = flask_app_client.post('/sentry_tokens', content_type='application/x-www-form-urlencoded', data=data)
-        assert422(response)
+        assert response.status_code == 200
+        assert response.mimetype == 'application/json'
         sentryToken = SentryToken.query.filter_by(app_name='sentry_token').first()
         assert sentryToken is None
 

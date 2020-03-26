@@ -9,10 +9,14 @@ class BaseApiTokenSchema(ModelSchema):
     '''
 
     class Meta:
+        ordered = True
         model = ApiToken
         fields = (
             ApiToken.id.key,
             ApiToken.name.key
+        )
+        dump_only = (
+            ApiToken.id.key,
         )
 
 class DetailedApiTokenSchema(BaseApiTokenSchema):

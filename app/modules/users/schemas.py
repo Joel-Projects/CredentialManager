@@ -13,6 +13,7 @@ class BaseUserSchema(ModelSchema):
     '''
 
     class Meta:
+        ordered = True
         model = User
         fields = (
             User.id.key,

@@ -71,7 +71,7 @@ class UserVerifications(Resource):
         else:
             owner = current_user
         with api.commit_or_abort(db.session, default_error_message="Failed to create a new User Verification."):
-            newUserVerification = UserVerification(owner=owner, dsn=args.dsn, name=args.name)
+            newUserVerification = UserVerification(owner=owner, discord_id=args.discord_id, reddit_app_id=args.reddit_app_id, extra_data=args.extra_data, redditor=args.redditor)
             db.session.add(newUserVerification)
         return newUserVerification
 

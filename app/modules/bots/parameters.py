@@ -16,14 +16,14 @@ class GetBotByName(Parameters):
     app_name = base_fields.String(required=True, description='Name of the Bot')
     owner_id = base_fields.Integer(description='Owner of the bot. Requires Admin to get for other users.')
 
-class CreateBotParameters(PostFormParameters, schemas.BaseBotSchema, ValidateOwner):
+class CreateBotParameters(PostFormParameters, schemas.DetailedBotSchema, ValidateOwner):
     app_name = base_fields.String(required=True, description='Name of the Bot')
     reddit_id = base_fields.Integer(description='Reddit App the bot will use')
     sentry_id = base_fields.Integer(description='Sentry Token the bot will use')
     database_id = base_fields.Integer(description='Database Credentials the bot will use')
     owner_id = base_fields.Integer(description='Owner of the bot. Requires Admin to create for other users.')
 
-    class Meta(schemas.BaseBotSchema.Meta):
+    class Meta(schemas.DetailedBotSchema.Meta):
         fields = schemas.BaseBotSchema.Meta.fields + ('owner_id',)
 
     @validates('name')
