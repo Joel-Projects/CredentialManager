@@ -91,7 +91,7 @@ def assertSuccess(response, owner, model, schema, deleteItemId=None):
                 else:
                     if getattr(model, field).type.python_type == datetime:
                         assert isinstance(response.json[field], str)
-                    elif getattr(model, field).type.python_type == dict and isinstance(model, UserVerification.__class__):
+                    elif getattr(model, field).type.python_type == dict and model.__tablename__ == 'user_verifications':
                         assert isinstance(response.json[field], str)
                     else:
                         assert isinstance(response.json[field], getattr(model, field).type.python_type)
