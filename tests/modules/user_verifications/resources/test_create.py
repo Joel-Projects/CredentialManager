@@ -3,7 +3,7 @@ import pytest
 from app.modules.user_verifications.models import UserVerification
 from app.modules.user_verifications.schemas import DetailedUserVerificationSchema
 from tests.params import labels, users
-from tests.utils import assert403, assert422, assertSuccess
+from tests.utils import __assertResponseError, assert403, assert422, assertSuccess
 
 
 path = '/api/v1/user_verifications/'
@@ -21,19 +21,20 @@ def test_creating_user_verification(flask_app_client, loginAs, regular_user, reg
         assert403(response, UserVerification, action='create')
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
-def test_creating_user_verification_with_extra_data(flask_app_client, loginAs, regular_user, regularUserRedditApp):
-    regularUserRedditApp.owner = loginAs
-    response = flask_app_client.post(path, data={'owner_id': regular_user.id, 'reddit_app_id': regularUserRedditApp.id, 'extra_data': '{"key": "value"}', **data})
+def test_creating_user_verification_with_extra_data(flask_app_client, loginAs, regularUserRedditApp):
+    response = flask_app_client.post(path, data={'reddit_app_id': regularUserRedditApp.id, 'extra_data': '{"key": "value"}', **data})
 
     if loginAs.is_admin or loginAs.is_internal:
-        assertSuccess(response, regular_user, UserVerification, DetailedUserVerificationSchema)
+        assertSuccess(response, loginAs, UserVerification, DetailedUserVerificationSchema)
     else:
-        assert403(response, UserVerification, action='create')
+        __assertResponseError(response, 403, 'You don\'t have the permission to create User Verifications with other users\' Reddit Apps.', model=UserVerification, action='create')
 
 def test_creating_user_verification_for_self(flask_app_client, regularUserInstance, regularUserRedditApp):
+    regularUserRedditApp.owner = regularUserInstance
     response = flask_app_client.post(path, data={'reddit_app_id': regularUserRedditApp.id, **data})
     assertSuccess(response, regularUserInstance, UserVerification, DetailedUserVerificationSchema)
 
 def test_creating_user_verification_for_self_with_owner(flask_app_client, regularUserInstance, regularUserRedditApp):
+    regularUserRedditApp.owner = regularUserInstance
     response = flask_app_client.post(path, data={'owner_id': regularUserInstance.id, 'reddit_app_id': regularUserRedditApp.id, **data})
     assertSuccess(response, regularUserInstance, UserVerification, DetailedUserVerificationSchema)

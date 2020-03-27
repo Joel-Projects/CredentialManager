@@ -5,10 +5,13 @@ from wtforms import ValidationError
 from wtforms.fields import TextAreaField
 from app.extensions import ModelForm
 from .models import UserVerification
+from ..reddit_apps.models import RedditApp
 from ...extensions.frontend.forms import AppSelectField, TextArea, owners
 
 
 def reddit_apps(owner):
+    if owner.is_admin or owner.is_internal:
+        return RedditApp.query
     return owner.reddit_apps
 
 class ExtraDataValidation(object):
@@ -27,7 +30,16 @@ class ExtraDataValidation(object):
             except json.decoder.JSONDecodeError:
                 raise ValidationError(self.message)
 
+class RedditAppValidation(object):
+    def __init__(self, message=None):
+        if not message:
+            message = "'You don't have the permission to create User Verifications with other users' Reddit Apps."
+        self.message = message
 
+    def __call__(self, form, field):
+        if field.data:
+            if not current_user.is_admin and not current_user.is_internal and not field.data.owner == current_user:
+                raise ValidationError(self.message)
 
 class UserVerificationForm(ModelForm):
     class Meta:
@@ -35,6 +47,6 @@ class UserVerificationForm(ModelForm):
         only = ['discord_id', 'redditor', 'extra_data', 'enabled']
         fields = ['reddit_app', 'discord_id', 'redditor', 'extra_data']
 
-    reddit_app = AppSelectField(query_factory=reddit_apps, queryKwargs={'owner': current_user}, allow_blank=True)
+    reddit_app = AppSelectField(query_factory=reddit_apps, queryKwargs={'owner': current_user}, validators=[RedditAppValidation()], allow_blank=True)
     owner = AppSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user, description=UserVerification.owner_id.info['description'])
     extra_data = TextAreaField(validators=[ExtraDataValidation()])
