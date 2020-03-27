@@ -26,10 +26,10 @@ class CreateUserVerificationParameters(PostFormParameters, schemas.DetailedUserV
     def validateJSON(self, data):
         try:
             data = json.loads(data)
-            if not data:
+            if not data: # pragma: no cover
                 raise ValidationError('Empty JSON payload.')
 
-        except json.decoder.JSONDecodeError:
+        except json.decoder.JSONDecodeError: # pragma: no cover
             raise ValidationError('Unable to accept JSON payload.')
 
 class GetUserVerificationByDiscordId(PostFormParameters):

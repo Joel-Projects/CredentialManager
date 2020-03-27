@@ -26,7 +26,7 @@ def user_verifications(page, perPage):
         if form.validate_on_submit():
             if not current_user.is_admin and not current_user.is_internal and current_user.id != form.data['owner'].id:
                 code = 403
-                return jsonify(status='error', message="You can't create User Verifications for other users"), code
+                return jsonify(status='error', message="You can't create User Verifications for other users"), code # pragma: no cover
             code = 201
             data = form.data
             if 'extra_data' in form.data and form.data['extra_data']:

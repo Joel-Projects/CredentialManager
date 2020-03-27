@@ -67,7 +67,7 @@ class UserVerifications(Resource):
             else:
                 if owner_id == current_user.id:
                     owner = current_user
-                else:
+                else: # pragma: no cover
                     http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create User Verifications for other users.")
         else:
             owner = current_user
