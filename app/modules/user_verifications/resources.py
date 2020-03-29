@@ -8,6 +8,7 @@ from flask_restplus_patched import Resource
 from . import parameters, schemas
 from .models import UserVerification, db
 from ..reddit_apps.models import RedditApp
+from .. import getViewableItems
 from ..users import permissions
 from ..users.models import User
 
@@ -34,19 +35,7 @@ class UserVerifications(Resource):
 
         Only Admins can specify ``owner`` to see User Verifications for other users. Regular users will see their own User Verifications.
         '''
-        userVerifications = UserVerification.query
-        if 'owner_id' in args:
-            owner_id = args['owner_id']
-            if current_user.is_admin or current_user.is_internal:
-                userVerifications = userVerifications.filter(UserVerification.owner_id == owner_id)
-            else:
-                if owner_id == current_user.id:
-                    userVerifications = userVerifications.filter(UserVerification.owner == current_user)
-                else:
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' User Verifications.")
-        else:
-            if not current_user.is_admin:
-                userVerifications = userVerifications.filter(UserVerification.owner == current_user)
+        userVerifications = getViewableItems(args, UserVerification)
         return userVerifications.offset(args['offset']).limit(args['limit'])
 
     @api.parameters(parameters.CreateUserVerificationParameters())
@@ -59,16 +48,8 @@ class UserVerifications(Resource):
 
         User Verifications for verifying a redditor with a Discord member ID
         '''
-        owner = reddit_app = None
         if getattr(args, 'owner_id', None):
-            owner_id = args.owner_id
-            if current_user.is_admin or current_user.is_internal:
-                owner = User.query.get(owner_id)
-            else:
-                if owner_id == current_user.id:
-                    owner = current_user
-                else: # pragma: no cover
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create User Verifications for other users.")
+            owner = User.query.get(args.owner_id)
         else:
             owner = current_user
         if getattr(args, 'reddit_app_id', None):

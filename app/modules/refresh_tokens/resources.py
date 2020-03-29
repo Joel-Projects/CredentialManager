@@ -7,6 +7,7 @@ from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
 from . import parameters, schemas
 from .models import RefreshToken, db
+from .. import getViewableItems
 from ..reddit_apps.models import RedditApp
 from ..users import permissions
 
@@ -32,19 +33,7 @@ class RefreshTokens(Resource):
 
         Only Admins can specify ``owner`` to see Refresh Tokens for other users' Reddit Apps. Regular users will see their own Reddit Apps' Refresh Tokens.
         '''
-        refreshTokens = RefreshToken.query
-        if 'owner_id' in args:
-            owner_id = args['owner_id']
-            if current_user.is_admin or current_user.is_internal:
-                refreshTokens = refreshTokens.filter(RefreshToken.owner_id == owner_id)
-            else:
-                if owner_id == current_user.id:
-                    refreshTokens = refreshTokens.filter(RefreshToken.owner == current_user)
-                else:
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Refresh Tokens.")
-        else:
-            if not current_user.is_admin:
-                refreshTokens = refreshTokens.filter(RefreshToken.owner == current_user)
+        refreshTokens = getViewableItems(args, RefreshToken)
         return refreshTokens.offset(args['offset']).limit(args['limit'])
 
 @api.route('/<int:refresh_token_id>')

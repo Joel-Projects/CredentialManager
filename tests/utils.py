@@ -8,7 +8,7 @@ from flask.testing import FlaskClient
 from sqlalchemy_utils import Choice
 from werkzeug.utils import cached_property
 
-from app.modules.user_verifications.models import UserVerification
+
 from app.modules.users.models import User
 
 
@@ -90,8 +90,6 @@ def assertSuccess(response, owner, model, schema, deleteItemId=None):
                     assert isinstance(response.json[field], bool)
                 else:
                     if getattr(model, field).type.python_type == datetime:
-                        assert isinstance(response.json[field], str)
-                    elif getattr(model, field).type.python_type == dict and model.__tablename__ == 'user_verifications':
                         assert isinstance(response.json[field], str)
                     else:
                         assert isinstance(response.json[field], getattr(model, field).type.python_type)
@@ -208,6 +206,7 @@ def assertModified(data, model):
         if key in dir(model):
             if key == 'enabled':
                 value = 'y' == value
+            from app.modules.user_verifications.models import UserVerification
             if isinstance(model, UserVerification) and key == 'reddit_app':
                 key = 'reddit_app_id'
                 value = int(value)

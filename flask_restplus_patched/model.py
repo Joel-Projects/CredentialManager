@@ -1,8 +1,7 @@
-from apispec.ext.marshmallow.swagger import fields2jsonschema, field2property
 import flask_marshmallow
-from werkzeug import cached_property
-
+from apispec.ext.marshmallow.swagger import field2property, fields2jsonschema
 from flask_restplus.model import Model as OriginalModel
+from werkzeug import cached_property
 
 
 class SchemaMixin(object):
@@ -14,7 +13,6 @@ class SchemaMixin(object):
 
 class Schema(SchemaMixin, flask_marshmallow.Schema):
     pass
-
 
 class ModelSchema(SchemaMixin, flask_marshmallow.sqla.ModelSchema):
     dateformat = '%m/%d/%Y %I:%M:%S %p %Z'
@@ -40,6 +38,6 @@ class Model(OriginalModel):
         schema = self['__schema__']
         if isinstance(schema, flask_marshmallow.Schema):
             return fields2jsonschema(schema.fields)
-        elif isinstance(schema, flask_marshmallow.base_fields.FieldABC): # pragma: no cover
-            return field2property(schema)
-        raise NotImplementedError()
+        elif isinstance(schema, flask_marshmallow.base_fields.FieldABC):  # pragma: no cover
+            return field2property(schema)  # pragma: no cover
+        raise NotImplementedError()  # pragma: no cover

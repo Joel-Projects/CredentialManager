@@ -13,7 +13,6 @@ class BaseUserVerificationSchema(ModelSchema):
         model = UserVerification
         fields = (
             UserVerification.id.key,
-            UserVerification.reddit_app_id.key,
             UserVerification.discord_id.key,
             UserVerification.redditor.key
         )
@@ -28,6 +27,7 @@ class DetailedUserVerificationSchema(BaseUserVerificationSchema):
 
     class Meta(BaseUserVerificationSchema.Meta):
         fields = BaseUserVerificationSchema.Meta.fields + (
+            UserVerification.reddit_app_id.key,
             UserVerification.extra_data.key,
             UserVerification.owner_id.key
         )

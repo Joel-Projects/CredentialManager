@@ -10,6 +10,9 @@ class ListRefreshTokensParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()
     redditor = base_fields.String()
 
+    class Meta:
+        model = RefreshToken
+
     invalidOwnerMessage = 'You can only query your own {}.'
 
 class GetRefreshTokenByRedditor(Parameters):

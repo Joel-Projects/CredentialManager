@@ -39,11 +39,6 @@ class CreateDatabaseCredentialParameters(PostFormParameters, schemas.BaseDatabas
         if len(data) < 3:
             raise ValidationError('Name must be greater than 3 characters long.')
 
-    @validates('app_type')
-    def validateAppType(self, data):
-        if not data.lower() in ['web', 'installed', 'script']:
-            raise ValidationError("App type is not valid. Valid types are: 'web', 'installed'. or 'script'")
-
 class PatchDatabaseCredentialDetailsParameters(PatchJSONParameters):
     '''
     Database Credential details updating parameters following PATCH JSON RFC.

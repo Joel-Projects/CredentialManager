@@ -8,6 +8,7 @@ from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
 from . import parameters, schemas
 from .models import ApiToken, db
+from .. import getViewableItems
 from ..users import permissions
 from ..users.models import User
 
@@ -61,12 +62,7 @@ class ApiTokens(Resource):
         '''
         owner = current_user
         if args.owner_id:
-            owner_id = args.owner_id
-            if current_user.is_admin or current_user.is_internal:
-                owner = User.query.get(owner_id)
-            else: # pragma: no cover
-                if owner_id != current_user.id:
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create API Tokens for other users.")
+            owner = User.query.get(args.owner_id)
         with api.commit_or_abort(db.session, default_error_message='Failed to create a new API Token.'):
             newApiToken = ApiToken(name=args.name, token=ApiToken.generate_token(args.length), length=args.length, owner=owner)
             db.session.add(newApiToken)

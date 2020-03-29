@@ -5,11 +5,8 @@ from app.extensions.frontend.tables import BaseTable, BoolIconColumn, CopyableFi
 
 class ApiTokenTable(BaseTable):
 
-    def __init__(self, items, current_user=None, user=None):
-        if user: # pragma: no cover
-            self.add_column('Name', LinkCol('Name', 'users.editItemsPerUser', 'name', url_kwargs={'user': user, 'item': '__tablename__', 'item_id': 'id'}))
-        else:
-            self.add_column('Name', Col('Name', 'name'))
+    def __init__(self, items, current_user=None):
+        self.add_column('Name', Col('Name', 'name'))
         self.add_column('Token', CopyableField('Token', 'token'))
         self.add_column('Enabled', BoolIconColumn('Enabled', 'enabled'))
         self.add_column('Last Used', DatetimeColumn('Last Used', attr='last_used'))

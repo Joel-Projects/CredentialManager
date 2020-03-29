@@ -12,6 +12,7 @@ from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
 from . import parameters, schemas
 from .models import DatabaseCredential, db
+from .. import getViewableItems
 from ..users import permissions
 from ..users.models import User
 
@@ -38,19 +39,7 @@ class DatabaseCredentials(Resource):
 
         Only Admins can specify ``owner`` to see Database Credentials for other users. Regular users will see their own Database Credentials.
         '''
-        databaseCredentials = DatabaseCredential.query
-        if 'owner_id' in args:
-            owner_id = args['owner_id']
-            if current_user.is_admin or current_user.is_internal:
-                databaseCredentials = databaseCredentials.filter(DatabaseCredential.owner_id == owner_id)
-            else:
-                if owner_id == current_user.id:
-                    databaseCredentials = databaseCredentials.filter(DatabaseCredential.owner == current_user)
-                else:
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Database Credentials.")
-        else:
-            if not current_user.is_admin:
-                databaseCredentials = databaseCredentials.filter(DatabaseCredential.owner == current_user)
+        databaseCredentials = getViewableItems(args, DatabaseCredential)
         return databaseCredentials.offset(args['offset']).limit(args['limit'])
 
     @api.parameters(parameters.CreateDatabaseCredentialParameters())
@@ -64,20 +53,12 @@ class DatabaseCredentials(Resource):
         Database Credentials are used for logging and error reporting in applications
         '''
         if getattr(args, 'owner_id', None):
-            owner_id = args.owner_id
-            if current_user.is_admin or current_user.is_internal:
-                owner = User.query.get(owner_id)
-            else:
-                if owner_id == current_user.id:
-                    owner = current_user
-                else:
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create Database Credentials for other users.")
+            args.owner = User.query.get(args.owner_id)
         else:
-            owner = current_user
+            args.owner = current_user
         with api.commit_or_abort(db.session, default_error_message='Failed to create a new Database Credential.'):
-            newDatabaseCredential = DatabaseCredential(owner=owner, dsn=args.dsn, name=args.name)
-            db.session.add(newDatabaseCredential)
-        return newDatabaseCredential
+            db.session.add(args)
+        return args
 
 @api.route('/<int:database_credential_id>')
 @api.login_required()

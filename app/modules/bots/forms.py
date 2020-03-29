@@ -1,8 +1,11 @@
 from flask_login import current_user
+from wtforms import StringField
+from wtforms.validators import InputRequired, Length
+from wtforms_alchemy import Unique
 
 from app.extensions import ModelForm
 from .models import Bot
-from ...extensions.frontend.forms import AppSelectField, owners
+from ...extensions.frontend.forms import ModelSelectField, owners
 
 
 def reddit_apps(owner):
@@ -19,7 +22,8 @@ class BotForm(ModelForm):
         model = Bot
         only = ['app_name', 'enabled']
 
-    owner = AppSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user)
-    reddit_app = AppSelectField(query_factory=reddit_apps, queryKwargs={'owner': current_user}, allow_blank=True)
-    sentry_token = AppSelectField(query_factory=sentry_tokens, queryKwargs={'owner': current_user}, allow_blank=True)
-    database_credential = AppSelectField(query_factory=database_credentials, queryKwargs={'owner': current_user}, allow_blank=True)
+    app_name = StringField('Name', validators=[InputRequired(), Unique([Bot.owner, Bot.app_name]), Length(3)])
+    owner = ModelSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user)
+    reddit_app = ModelSelectField(query_factory=reddit_apps, queryKwargs={'owner': current_user}, allow_blank=True)
+    sentry_token = ModelSelectField(query_factory=sentry_tokens, queryKwargs={'owner': current_user}, allow_blank=True)
+    database_credential = ModelSelectField(query_factory=database_credentials, queryKwargs={'owner': current_user}, allow_blank=True)

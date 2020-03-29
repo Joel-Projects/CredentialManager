@@ -2,7 +2,6 @@ import logging
 
 from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
-from wtforms import BooleanField
 
 from .parameters import PatchDatabaseCredentialDetailsParameters
 from .resources import api
@@ -43,7 +42,7 @@ def database_credentials(page, perPage):
             paginator = DatabaseCredential.query.paginate(page, perPage, error_out=False)
         else:
             paginator = current_user.database_credentials.paginate(page, perPage, error_out=False)
-    else:
+    else:  # pragma: no cover
         paginator = current_user.database_credentials.paginate(page, perPage, error_out=False)
     table = DatabaseCredentialTable(paginator.items, current_user=current_user)
     form = DatabaseCredentialForm()
@@ -70,7 +69,7 @@ def editDatabaseCredential(database_credential):
                         db.session.merge(database_credential)
                         code = 202
                         flash(f'Database Credentials {database_credential.app_name!r} saved successfully!', 'success')
-                except Exception as error:
+                except Exception as error: # pragma: no cover
                     log.exception(error)
                     code = 400
                     flash(f'Failed to update Database Credentials {database_credential.app_name!r}', 'error')

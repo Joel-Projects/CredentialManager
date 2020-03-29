@@ -7,6 +7,7 @@ from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
 from . import parameters, schemas
 from .models import SentryToken, db
+from .. import getViewableItems
 from ..users import permissions
 from ..users.models import User
 
@@ -33,19 +34,7 @@ class SentryTokens(Resource):
 
         Only Admins can specify ``owner`` to see Sentry Tokens for other users. Regular users will see their own Sentry Tokens.
         '''
-        sentryTokens = SentryToken.query
-        if 'owner_id' in args: # pragma: no cover
-            owner_id = args['owner_id']
-            if current_user.is_admin or current_user.is_internal:
-                sentryTokens = sentryTokens.filter(SentryToken.owner_id == owner_id)
-            else:
-                if owner_id == current_user.id:
-                    sentryTokens = sentryTokens.filter(SentryToken.owner == current_user)
-                else:
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Sentry Tokens.")
-        else:
-            if not current_user.is_admin:
-                sentryTokens = sentryTokens.filter(SentryToken.owner == current_user)
+        sentryTokens = getViewableItems(args, SentryToken)
         return sentryTokens.offset(args['offset']).limit(args['limit'])
 
     @api.parameters(parameters.CreateSentryTokenParameters())

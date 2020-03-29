@@ -10,11 +10,17 @@ from .models import Bot
 class ListBotsParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()
 
+    class Meta:
+        model = Bot
+
     invalidOwnerMessage = 'You can only query your own {}.'
 
-class GetBotByName(Parameters):
+class GetBotByName(PostFormParameters, ValidateOwner):
     app_name = base_fields.String(required=True, description='Name of the Bot')
     owner_id = base_fields.Integer(description='Owner of the bot. Requires Admin to get for other users.')
+
+    class Meta:
+        model = Bot
 
 class CreateBotParameters(PostFormParameters, schemas.DetailedBotSchema, ValidateOwner):
     app_name = base_fields.String(required=True, description='Name of the Bot')

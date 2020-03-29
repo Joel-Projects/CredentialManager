@@ -20,6 +20,10 @@ def assert403(response, templates):
     assert response.mimetype == 'text/html'
     assertRenderedTemplate(templates, 'errors/403.html')
 
+def assert403Create(response):
+    assert response.status_code == 403
+    assert response.mimetype == 'application/json'
+
 def assert404(response, templates):
     assert response.status_code == 404
     assert response.mimetype == 'text/html'

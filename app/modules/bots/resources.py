@@ -7,6 +7,7 @@ from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
 from . import parameters, schemas
 from .models import Bot, db
+from .. import getViewableItems
 from ..users import permissions
 from ..users.models import User
 
@@ -32,19 +33,7 @@ class Bots(Resource):
 
         Only Admins can specify ``owner`` to see Bots for other users. Regular users will see their own Bots.
         '''
-        bots = Bot.query
-        if 'owner_id' in args:
-            owner_id = args['owner_id']
-            if current_user.is_admin or current_user.is_internal:
-                bots = bots.filter(Bot.owner_id == owner_id)
-            else:
-                if owner_id == current_user.id:
-                    bots = bots.filter(Bot.owner == current_user)
-                else:
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Bots.")
-        else:
-            if not current_user.is_admin:
-                bots = bots.filter(Bot.owner == current_user)
+        bots = getViewableItems(args, Bot)
         return bots.offset(args['offset']).limit(args['limit'])
 
     @api.parameters(parameters.CreateBotParameters())
@@ -57,19 +46,11 @@ class Bots(Resource):
 
         Bots are used for grouping apps into a single request
         '''
-        if getattr(args, 'owner_id', None):
-            owner_id = args.owner_id
-            if current_user.is_admin or current_user.is_internal:
-                owner = User.query.get(owner_id)
-            else:
-                if owner_id == current_user.id:
-                    owner = current_user
-                else:
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create Bots for other users.")
-        else:
-            owner = current_user
+        owner = current_user
+        if args.owner_id:
+            owner = User.query.get(args.owner_id)
         with api.commit_or_abort(db.session, default_error_message='Failed to create a new Bot.'):
-            newBot = Bot(owner=owner, dsn=args.dsn, name=args.name)
+            newBot = Bot(owner=owner, reddit_app=args.reddit_app, sentry_token=args.sentry_token, database_credential=args.database_credential, app_name=args.app_name)
             db.session.add(newBot)
         return newBot
 
@@ -120,32 +101,20 @@ class BotByID(Resource):
 @api.route('/by_name')
 @api.login_required()
 @api.response(code=HTTPStatus.NOT_FOUND, description='Bot not found.')
-class GetBotByRedditor(Resource):
+class GetBotByName(Resource):
     '''
     Get Refresh Token by name
     '''
 
-    @api.parameters(parameters.GetBotByName(), locations=('query',))
+    @api.parameters(parameters.GetBotByName())
     @api.response(schemas.DetailedBotSchema())
-    def get(self, args):
+    def post(self, args):
         '''
         Get Refresh Token by reddit app and redditor.
 
         Only Admins can specify ``owner_id`` to get other users' Bot details.
         If ``owner_id`` is not specified, only your Bots will be queried.
         '''
-        bots = Bot.query
         app_name = args['app_name']
-        if 'owner_id' in args:
-            owner_id = args['owner_id']
-            if current_user.is_admin or current_user.is_internal:
-                bots = bots.filter_by(owner_id=owner_id, app_name=app_name)
-            else:
-                if owner_id == current_user.id:
-                    bots = bots.filter_by(owner=current_user, app_name=app_name)
-                else:
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Bots.")
-        else:
-            if not current_user.is_admin:
-                bots = bots.filter_by(owner=current_user, app_name=app_name)
+        bots = getViewableItems(args, Bot).filter(Bot.app_name==app_name)
         return bots.first_or_404(f'Bot {app_name!r} does not exist for the specified user.')

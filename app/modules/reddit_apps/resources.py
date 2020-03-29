@@ -7,6 +7,7 @@ from app.extensions.api import Namespace, abort, http_exceptions
 from flask_restplus_patched import Resource
 from . import parameters, schemas
 from .models import RedditApp, db
+from .. import getViewableItems
 from ..refresh_tokens.schemas import DetailedRefreshTokenSchema
 from ..user_verifications.models import UserVerification
 from ..users import permissions

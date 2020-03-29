@@ -60,7 +60,7 @@ class HiddenFieldWithToggle(BooleanField):
         }});
         </script>''')
 
-class AppSelectField(QuerySelectField):
+class ModelSelectField(QuerySelectField):
 
     def __init__(self, *, queryKwargs={}, **kwargs):
         self.queryKwargs = queryKwargs
