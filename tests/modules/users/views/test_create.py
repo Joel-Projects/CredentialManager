@@ -3,9 +3,8 @@ import pytest
 
 from app.modules.users.models import User
 from tests.params import labels, users
-from tests.responseStatuses import assert201, assert403, assert422
+from tests.responseStatuses import assert201, assert403
 from tests.utils import assertRenderedTemplate, captured_templates
-
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 def test_create_user(flask_app_client, loginAs):

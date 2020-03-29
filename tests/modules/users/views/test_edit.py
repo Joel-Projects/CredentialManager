@@ -4,8 +4,12 @@ from app.modules.users.models import User
 from tests.params import labels, users
 from tests.responseStatuses import assert200, assert202, assert400, assert403
 from tests.utils import assertMessageFlashed, assertRenderedTemplate, captured_templates
-from . import assert202Profile
 
+
+def assert202Profile(response):
+    assert response.status_code == 202
+    assert response.mimetype == 'text/html'
+    assert response.location == 'http://localhost/profile'
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 def test_user_detail_edit(flask_app_client, loginAs, regular_user):
