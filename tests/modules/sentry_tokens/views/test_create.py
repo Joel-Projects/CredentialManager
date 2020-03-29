@@ -2,9 +2,8 @@ import pytest
 
 from app.modules.sentry_tokens.models import SentryToken
 from tests.params import labels, users
-from tests.responseStatuses import assert201, assert422
+from tests.responseStatuses import assert201, assert422, assert403Create
 from tests.utils import assertCreated, assertRenderedTemplate, captured_templates
-from . import assert403Create
 
 data = {
     'app_name': 'sentry_token',
@@ -31,7 +30,7 @@ def test_create_sentry_token_profile(flask_app_client, loginAs):
         assert sentryToken.id == 1
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
-def test_create_otherUserSentryToken(flask_app_client, loginAs, regular_user):
+def test_create_sentry_token_other_user(flask_app_client, loginAs, regular_user):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post('/sentry_tokens', content_type='application/x-www-form-urlencoded', data={'owner': regular_user.id, **data})
         if loginAs.is_admin or loginAs.is_internal:
@@ -42,23 +41,21 @@ def test_create_otherUserSentryToken(flask_app_client, loginAs, regular_user):
             assert sentryToken.id == 1
             assert sentryToken.owner == regular_user
         else:
-            assert403Create(response, templates)
+            assert403Create(response)
             sentryToken = SentryToken.query.filter_by(app_name='sentry_token').first()
             assert sentryToken is None
 
 def test_create_sentry_token_bad_params(flask_app_client, regularUserInstance):
-    with captured_templates(flask_app_client.application) as templates:
-        data['dsn'] = 'invalid_url'
-        response = flask_app_client.post('/sentry_tokens', content_type='application/x-www-form-urlencoded', data=data)
-        assert response.status_code == 200
-        assert response.mimetype == 'application/json'
-        sentryToken = SentryToken.query.filter_by(app_name='sentry_token').first()
-        assert sentryToken is None
+    data['dsn'] = 'invalid_url'
+    response = flask_app_client.post('/sentry_tokens', content_type='application/x-www-form-urlencoded', data=data)
+    assert response.status_code == 200
+    assert response.mimetype == 'application/json'
+    sentryToken = SentryToken.query.filter_by(app_name='sentry_token').first()
+    assert sentryToken is None
 
 def test_create_sentry_token_bad_params_profile(flask_app_client, regularUserInstance):
-    with captured_templates(flask_app_client.application) as templates:
-        data['dsn'] = 'invalid_url'
-        response = flask_app_client.post('/profile/sentry_tokens', content_type='application/x-www-form-urlencoded', data=data)
-        assert422(response)
-        sentryToken = SentryToken.query.filter_by(app_name='sentry_token').first()
-        assert sentryToken is None
+    data['dsn'] = 'invalid_url'
+    response = flask_app_client.post('/profile/sentry_tokens', content_type='application/x-www-form-urlencoded', data=data)
+    assert422(response)
+    sentryToken = SentryToken.query.filter_by(app_name='sentry_token').first()
+    assert sentryToken is None

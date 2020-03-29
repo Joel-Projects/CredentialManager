@@ -10,6 +10,9 @@ from .models import SentryToken
 class ListSentryTokensParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()
 
+    class Meta:
+        model = SentryToken
+
     invalidOwnerMessage = 'You can only query your own {}.'
 
 class CreateSentryTokenParameters(PostFormParameters, schemas.BaseSentryTokenSchema, ValidateOwner):

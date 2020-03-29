@@ -7,7 +7,7 @@ from wtforms_alchemy import InputRequired, Length, Unique
 
 from app.extensions import ModelForm
 from .models import SentryToken
-from ...extensions.frontend.forms import AppSelectField, owners
+from ...extensions.frontend.forms import ModelSelectField, owners
 
 
 class SentryHostnameValidation(HostnameValidation):
@@ -27,4 +27,4 @@ class SentryTokenForm(ModelForm):
 
     app_name = StringField('Name', validators=[InputRequired(), Unique([SentryToken.owner, SentryToken.app_name]), Length(3)])
     dsn = StringField('DSN', validators=[InputRequired(), SentryTokenValidator(message='Invalid Sentry Token')])
-    owner = AppSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user)
+    owner = ModelSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user)
