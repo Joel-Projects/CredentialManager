@@ -10,6 +10,9 @@ from .models import RedditApp
 class ListRedditAppsParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()
 
+    class Meta:
+        model = RedditApp
+
     invalidOwnerMessage = 'You can only query your own {}.'
 
 class CreateRedditAppParameters(PostFormParameters, schemas.DetailedRedditAppSchema, ValidateOwner):

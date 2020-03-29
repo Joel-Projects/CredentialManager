@@ -25,10 +25,9 @@ def reddit_apps(page, perPage):
     form = RedditAppForm()
     if request.method == 'POST':
         if form.validate_on_submit():
-            if not current_user.is_admin and not current_user.is_internal:
-                if current_user != form.data['owner']:
-                    code = 403
-                    return jsonify(status='error', message="You can't create Reddit Apps for other users"), code
+            if not current_user.is_admin and not current_user.is_internal and current_user != form.data['owner']:
+                code = 403
+                return jsonify(status='error', message="You can't create Reddit Apps for other users"), code
             code = 201
             data = form.data
             redditApp = RedditApp(**data)

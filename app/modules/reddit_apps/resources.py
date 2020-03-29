@@ -2,6 +2,7 @@ import logging
 
 from flask_login import current_user
 from flask_restplus._http import HTTPStatus
+from sqlalchemy import not_
 
 from app.extensions.api import Namespace, abort, http_exceptions
 from flask_restplus_patched import Resource
@@ -36,19 +37,7 @@ class RedditApps(Resource):
 
         Only Admins can specify ``owner`` to see Reddit Apps for other users. Regular users will see their own Reddit Apps.
         '''
-        redditApps = RedditApp.query
-        if 'owner_id' in args:
-            owner_id = args['owner_id']
-            if current_user.is_admin or current_user.is_internal:
-                redditApps = redditApps.filter(RedditApp.owner_id == owner_id)
-            else:
-                if owner_id == current_user.id:
-                    redditApps = redditApps.filter(RedditApp.owner == current_user)
-                else:
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Reddit Apps.")
-        else:
-            if not current_user.is_admin:
-                redditApps = redditApps.filter(RedditApp.owner == current_user)
+        redditApps = getViewableItems(args, RedditApp)
         return redditApps.offset(args['offset']).limit(args['limit'])
 
     @api.parameters(parameters.CreateRedditAppParameters())

@@ -4,7 +4,7 @@ from wtforms_alchemy import InputRequired, URL, Unique
 
 from app.extensions import ModelForm
 from .models import RedditApp
-from ...extensions.frontend.forms import AppSelectField, TextAreaFieldWithDefault, owners
+from ...extensions.frontend.forms import ModelSelectField, TextAreaFieldWithDefault, owners
 
 
 class RedditAppForm(ModelForm):
@@ -21,4 +21,4 @@ class RedditAppForm(ModelForm):
     client_id = StringField('Client ID', validators=[InputRequired(), Unique([RedditApp.client_id, RedditApp.owner])], description=RedditApp.client_id.info['description'])
     user_agent = TextAreaFieldWithDefault('User Agent', validators=[InputRequired()], default=userAgentDefault, description=RedditApp.user_agent.info['description'])
     redirect_uri = StringField('Redirect URI', validators=[URL(False)], default='https://credmgr.jesassn.org/oauth2/reddit_callback', description=RedditApp.redirect_uri.info['description'])
-    owner = AppSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user, description=RedditApp.owner_id.info['description'])
+    owner = ModelSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user, description=RedditApp.owner_id.info['description'])

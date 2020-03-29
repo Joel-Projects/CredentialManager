@@ -2,9 +2,8 @@ import pytest
 
 from app.modules.reddit_apps.models import RedditApp
 from tests.params import labels, users
-from tests.responseStatuses import assert201, assert422
+from tests.responseStatuses import assert201, assert422, assert403Create
 from tests.utils import assertCreated, assertRenderedTemplate, captured_templates
-from . import assert403Create
 
 data = {
     'app_name': 'reddit_app',
@@ -33,7 +32,7 @@ def test_create_reddit_app_profile(flask_app_client, loginAs):
         assertCreated(redditApp, data)
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
-def test_create_other_user_reddit_app(flask_app_client, loginAs, regular_user):
+def test_create_reddit_app_other_user(flask_app_client, loginAs, regular_user):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post('/reddit_apps', content_type='application/x-www-form-urlencoded', data={'owner': regular_user.id, **data})
         if loginAs.is_admin or loginAs.is_internal:
@@ -43,7 +42,7 @@ def test_create_other_user_reddit_app(flask_app_client, loginAs, regular_user):
             assertCreated(redditApp, data)
             assert redditApp.owner == regular_user
         else:
-            assert403Create(response, templates)
+            assert403Create(response)
             redditApp = RedditApp.query.filter_by(app_name='reddit_app').first()
             assert redditApp is None
 
