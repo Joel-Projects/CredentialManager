@@ -10,6 +10,9 @@ from .models import DatabaseCredential
 class ListDatabaseCredentialsParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()
 
+    class Meta:
+        model = DatabaseCredential
+
     invalidOwnerMessage = 'You can only query your own {}.'
 
 class CreateDatabaseCredentialParameters(PostFormParameters, schemas.BaseDatabaseCredentialSchema, ValidateOwner):

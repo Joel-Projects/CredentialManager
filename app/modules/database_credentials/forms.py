@@ -5,7 +5,7 @@ from wtforms_alchemy import InputRequired, Unique
 
 from app.extensions import ModelForm
 from .models import DatabaseCredential
-from ...extensions.frontend.forms import AppSelectField, HiddenFieldWithToggle, owners
+from ...extensions.frontend.forms import ModelSelectField, HiddenFieldWithToggle, owners
 
 
 class DatabaseCredentialForm(ModelForm):
@@ -28,4 +28,4 @@ class DatabaseCredentialForm(ModelForm):
     use_ssh = HiddenFieldWithToggle('Use SSH?', default=False, render_kw={'value': ''})
     use_ssh_key = HiddenFieldWithToggle('Use SSH key?', default=False, render_kw={'value': ''})
 
-    owner = AppSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user, description=DatabaseCredential.owner_id.info['description'])
+    owner = ModelSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user, description=DatabaseCredential.owner_id.info['description'])
