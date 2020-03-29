@@ -1,7 +1,7 @@
 from flask_login import current_user
 from wtforms.fields import StringField
-from wtforms.validators import Optional
-from wtforms_alchemy import InputRequired
+from wtforms.validators import Length, Optional
+from wtforms_alchemy import InputRequired, Unique
 
 from app.extensions import ModelForm
 from .models import DatabaseCredential
