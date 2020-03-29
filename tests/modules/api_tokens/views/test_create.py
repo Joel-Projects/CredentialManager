@@ -4,9 +4,8 @@ import pytest
 
 from app.modules.api_tokens.models import ApiToken
 from tests.params import labels, users
-from tests.responseStatuses import assert201, assert401, assert422
+from tests.responseStatuses import assert201, assert401, assert422, assert403Create
 from tests.utils import assertRenderedTemplate, captured_templates
-from . import assert403Create
 
 
 def assertCreated(length):
@@ -53,7 +52,7 @@ def test_create_api_token_enabled(flask_app_client, flask_app, loginAs, enabled)
             assert401(response)
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
-def test_create_other_user_api_token(flask_app_client, loginAs, regular_user):
+def test_create_api_token_other_user(flask_app_client, loginAs, regular_user):
     with captured_templates(flask_app_client.application) as templates:
         data = {'name': 'api_token', 'owner': regular_user.id}
         response = flask_app_client.post('/api_tokens', content_type='application/x-www-form-urlencoded', data=data)
@@ -62,7 +61,7 @@ def test_create_other_user_api_token(flask_app_client, loginAs, regular_user):
             assertRenderedTemplate(templates, 'api_tokens.html')
             assertCreated(32)
         else:
-            assert403Create(response, templates)
+            assert403Create(response)
             apiToken = ApiToken.query.filter_by(name='api_token').first()
             assert apiToken is None
 

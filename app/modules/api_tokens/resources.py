@@ -35,20 +35,8 @@ class ApiTokens(Resource):
 
         Only Admins can specify ``owner`` to see API Tokens for other users. Regular users will see their own API Tokens.
         '''
-        apiKeys = ApiToken.query
-        if 'owner_id' in args:
-            owner_id = args['owner_id']
-            if current_user.is_admin or current_user.is_internal:
-                apiKeys = apiKeys.filter(ApiToken.owner_id == owner_id)
-            else:
-                if owner_id == current_user.id:
-                    apiKeys = apiKeys.filter(ApiToken.owner == current_user)
-                else: # pragma: no cover
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' API Tokens.")
-        else:
-            if not current_user.is_admin:
-                apiKeys = apiKeys.filter(ApiToken.owner == current_user)
-        return apiKeys.offset(args['offset']).limit(args['limit'])
+        apiTokens = getViewableItems(args, ApiToken)
+        return apiTokens.offset(args['offset']).limit(args['limit'])
 
     @api.parameters(parameters.CreateApiTokenParameters())
     @api.response(schemas.DetailedApiTokenSchema())

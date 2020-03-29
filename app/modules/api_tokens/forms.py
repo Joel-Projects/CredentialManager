@@ -5,7 +5,7 @@ from wtforms_alchemy import InputRequired, Length, Unique
 
 from app.extensions import ModelForm
 from .models import ApiToken
-from ...extensions.frontend.forms import AppSelectField, owners
+from ...extensions.frontend.forms import ModelSelectField, owners
 
 
 class ApiTokenForm(ModelForm):
@@ -15,7 +15,7 @@ class ApiTokenForm(ModelForm):
 
     name = StringField('Name', validators=[InputRequired(), Unique([ApiToken.owner, ApiToken.name]), Length(3)])
     length = SelectField('Legnth', choices=[(i, str(i)) for i in itertools.chain(range(16, 56, 8), [64])], default='32', validators=None, description='How long you want the API token to be', coerce=int)
-    owner = AppSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user)
+    owner = ModelSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user)
 
 class EditApiTokenForm(ModelForm):
     class Meta:
@@ -23,4 +23,4 @@ class EditApiTokenForm(ModelForm):
         only = ['token', 'enabled']
 
     name = StringField('Name', validators=[InputRequired(), Unique([ApiToken.owner, ApiToken.name]), Length(3)])
-    owner = AppSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user)
+    owner = ModelSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user)
