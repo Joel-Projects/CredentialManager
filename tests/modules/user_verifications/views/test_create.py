@@ -2,7 +2,7 @@ import pytest
 
 from app.modules.user_verifications.models import UserVerification
 from tests.params import labels, users
-from tests.responseStatuses import assert201, assert422
+from tests.responseStatuses import assert201, assert403Create, assert422
 from tests.utils import assertCreated, assertRenderedTemplate, captured_templates
 
 
@@ -11,9 +11,9 @@ data = {
 }
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
-def test_create_user_verification(flask_app_client, loginAs, regularUserRedditApp):
+def test_create_user_verification(flask_app_client, loginAs, redditApp):
     with captured_templates(flask_app_client.application) as templates:
-        regularUserRedditApp.owner = loginAs
+        redditApp.owner = loginAs
         response = flask_app_client.post('/user_verifications', content_type='application/x-www-form-urlencoded', data=data)
         assert201(response)
         assertRenderedTemplate(templates, 'user_verifications.html')
@@ -21,7 +21,7 @@ def test_create_user_verification(flask_app_client, loginAs, regularUserRedditAp
         assertCreated(userVerification, data)
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
-def test_create_user_verification_with_extra_data(flask_app_client, loginAs, regularUserRedditApp):
+def test_create_user_verification_with_extra_data(flask_app_client, loginAs, redditApp):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post('/user_verifications', content_type='application/x-www-form-urlencoded', data={'extra_data': '{"key": "value"}', **data})
         assert201(response)
@@ -31,7 +31,7 @@ def test_create_user_verification_with_extra_data(flask_app_client, loginAs, reg
         assert userVerification.extra_data == {'key': 'value'}
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
-def test_create_user_verification_profile(flask_app_client, loginAs, regularUserRedditApp):
+def test_create_user_verification_profile(flask_app_client, loginAs, redditApp):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(f'/profile/user_verifications', content_type='application/x-www-form-urlencoded', data=data)
         assert201(response)
@@ -40,9 +40,11 @@ def test_create_user_verification_profile(flask_app_client, loginAs, regularUser
         assertCreated(userVerification, data)
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
-def test_create_other_user_user_verification(flask_app_client, loginAs, regular_user, regularUserRedditApp):
+def test_create_user_verification_other_user(flask_app_client, loginAs, regular_user, redditApp):
     with captured_templates(flask_app_client.application) as templates:
-        response = flask_app_client.post('/user_verifications', content_type='application/x-www-form-urlencoded', data={'owner': str(regular_user.id), 'reddit_app': str(regularUserRedditApp.id), **data})
+        if not (loginAs.is_admin and loginAs.is_internal):
+            redditApp.owner = loginAs
+        response = flask_app_client.post('/user_verifications', content_type='application/x-www-form-urlencoded', data={'owner': str(regular_user.id), 'reddit_app': str(redditApp.id), **data})
         if loginAs.is_admin or loginAs.is_internal:
             assert201(response)
             assertRenderedTemplate(templates, 'user_verifications.html')
@@ -50,8 +52,7 @@ def test_create_other_user_user_verification(flask_app_client, loginAs, regular_
             assertCreated(userVerification, data)
             assert userVerification.owner == regular_user
         else:
-            assert response.status_code == 200
-            assert response.mimetype == 'application/json'
+            assert403Create(response)
             userVerification = UserVerification.query.filter_by(discord_id=123456789012345678).first()
             assert userVerification is None
 

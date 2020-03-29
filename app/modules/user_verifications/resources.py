@@ -110,14 +110,13 @@ class UserVerificationByID(Resource):
 @api.route('/get_redditor')
 @api.login_required()
 @api.response(code=HTTPStatus.NOT_FOUND, description='Member not found.')
-class GetUserVerificationByRedditor(Resource):
+class GetUserVerificationByDiscordID(Resource):
     '''
     Manipulations with a specific User Verification.
     '''
 
     @api.parameters(parameters.GetUserVerificationByDiscordId())
     @api.response(schemas.DetailedUserVerificationSchema())
-    @api.response(code=HTTPStatus.FORBIDDEN, description="You don't have the permission to access other users' Refresh Tokens.")
     def post(self, args):
         '''
         Get User Verification by Discord Member ID.

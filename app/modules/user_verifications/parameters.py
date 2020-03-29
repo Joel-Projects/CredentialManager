@@ -26,7 +26,9 @@ class JSON(base_fields.Field):
 
 class ListUserVerificationsParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()
-    redditor = base_fields.String()
+
+    class Meta:
+        model = UserVerification
 
     invalidOwnerMessage = 'You can only query your own {}.'
 

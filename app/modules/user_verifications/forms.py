@@ -6,7 +6,7 @@ from wtforms.fields import TextAreaField
 from app.extensions import ModelForm
 from .models import UserVerification
 from ..reddit_apps.models import RedditApp
-from ...extensions.frontend.forms import AppSelectField, TextArea, owners
+from ...extensions.frontend.forms import ModelSelectField, owners
 
 
 def reddit_apps(owner):
@@ -47,6 +47,6 @@ class UserVerificationForm(ModelForm):
         only = ['discord_id', 'redditor', 'extra_data', 'enabled']
         fields = ['reddit_app', 'discord_id', 'redditor', 'extra_data']
 
-    reddit_app = AppSelectField(query_factory=reddit_apps, queryKwargs={'owner': current_user}, validators=[RedditAppValidation()], allow_blank=True)
-    owner = AppSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user, description=UserVerification.owner_id.info['description'])
+    reddit_app = ModelSelectField(query_factory=reddit_apps, queryKwargs={'owner': current_user}, validators=[RedditAppValidation()], allow_blank=True)
+    owner = ModelSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user, description=UserVerification.owner_id.info['description'])
     extra_data = TextAreaField(validators=[ExtraDataValidation()])

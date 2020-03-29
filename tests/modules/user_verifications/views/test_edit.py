@@ -12,18 +12,54 @@ userVerifications = [
     pytest.lazy_fixture('regularUserUserVerification')
 ]
 userVerificationLabels = [
-    'admin_user_user_verification',
-    'internal_user_user_verification',
-    'regular_user_user_verification'
+    'admin_user_user_verification+reddit_app',
+    'internal_user_user_verification+reddit_app',
+    'regular_user_user_verification+reddit_app'
 ]
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
-def test_user_verification_detail_edit_for_other_user(flask_app_client, loginAs, regularUserUserVerification, regularUserRedditApp):
-    regularUserRedditApp.owner = loginAs
+@pytest.mark.parametrize('userVerification', userVerifications, ids=userVerificationLabels)
+def test_user_verification_detail_edit_for_other_user(flask_app_client, loginAs, userVerification, redditApp):
+    redditApp.owner = loginAs
+    data = {
+        'itemType': 'user_verifications',
+        'itemId': f'{userVerification.id}',
+        'reddit_app': f'{redditApp.id}',
+        'enabled': 'y',
+        'discord_id': 123456789012345679,
+        'redditor': 'redditor'
+    }
+    with captured_templates(flask_app_client.application) as templates:
+        response = flask_app_client.post(f'/user_verifications/{userVerification.id}', content_type='application/x-www-form-urlencoded', data=data)
+        if loginAs.is_internal:
+            assert202(response)
+            assertRenderedTemplate(templates, 'edit_user_verification.html')
+            assertMessageFlashed(templates, 'User Verification for Discord Member 123456789012345679 saved successfully!', 'success')
+            modifiedUserVerification = UserVerification.query.filter_by(id=userVerification.id).first()
+            assertModified(data, modifiedUserVerification)
+        elif loginAs.is_admin:
+            if redditApp.owner.is_internal or userVerification.owner.is_internal:
+                assert403(response, templates)
+                modifiedUserVerification = UserVerification.query.filter_by(id=userVerification.id).first()
+                assert modifiedUserVerification == userVerification
+            else:
+                assert202(response)
+                assertRenderedTemplate(templates, 'edit_user_verification.html')
+                assertMessageFlashed(templates, 'User Verification for Discord Member 123456789012345679 saved successfully!', 'success')
+                modifiedUserVerification = UserVerification.query.filter_by(id=userVerification.id).first()
+                assertModified(data, modifiedUserVerification)
+        else:
+            assert403(response, templates)
+            modifiedUserVerification = UserVerification.query.filter_by(id=userVerification.id).first()
+            assert modifiedUserVerification == userVerification
+
+@pytest.mark.parametrize('loginAs', users, ids=labels)
+def test_user_verification_detail_edit(flask_app_client, loginAs, regularUserUserVerification, redditApp):
+    redditApp.owner = loginAs
     data = {
         'itemType': 'user_verifications',
         'itemId': f'{regularUserUserVerification.id}',
-        'reddit_app': f'{regularUserRedditApp.id}',
+        'reddit_app': f'{redditApp.id}',
         'enabled': 'y',
         'discord_id': 123456789012345679,
         'redditor': 'redditor'
@@ -36,30 +72,6 @@ def test_user_verification_detail_edit_for_other_user(flask_app_client, loginAs,
             assertMessageFlashed(templates, 'User Verification for Discord Member 123456789012345679 saved successfully!', 'success')
             modifiedUserVerification = UserVerification.query.filter_by(id=regularUserUserVerification.id).first()
             assertModified(data, modifiedUserVerification)
-        else:
-            assert403(response, templates)
-            modifiedUserVerification = UserVerification.query.filter_by(id=regularUserUserVerification.id).first()
-            assert modifiedUserVerification == regularUserUserVerification
-
-@pytest.mark.parametrize('loginAs', users, ids=labels)
-def test_user_verification_detail_edit(flask_app_client, loginAs, regularUserUserVerification, regularUserRedditApp):
-    regularUserRedditApp.owner = loginAs
-    data = {
-        'itemType': 'user_verifications',
-        'itemId': f'{regularUserUserVerification.id}',
-        'reddit_app': f'{regularUserRedditApp.id}',
-        'enabled': 'y',
-        'discord_id': 123456789012345679,
-        'redditor': 'redditor'
-    }
-    with captured_templates(flask_app_client.application) as templates:
-        response = flask_app_client.post(f'/user_verifications/{regularUserUserVerification.id}', content_type='application/x-www-form-urlencoded', data=data)
-        if loginAs.is_admin or loginAs.is_internal:
-            assert202(response)
-            assertRenderedTemplate(templates, 'edit_user_verification.html')
-            assertMessageFlashed(templates, 'User Verification for Discord Member 123456789012345679 saved successfully!', 'success')
-            modifiedUserVerification = UserVerification.query.filter_by(id=regularUserUserVerification.id).first()
-            assertModified(data, modifiedUserVerification)
 
         else:
             assert403(response, templates)
@@ -67,12 +79,12 @@ def test_user_verification_detail_edit(flask_app_client, loginAs, regularUserUse
             assert modifiedUserVerification == regularUserUserVerification
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
-def test_user_verification_detail_edit_self(flask_app_client, db, loginAs, regularUserUserVerification, regularUserRedditApp):
-    regularUserRedditApp.owner = loginAs
+def test_user_verification_detail_edit_self(flask_app_client, db, loginAs, regularUserUserVerification, redditApp):
+    redditApp.owner = loginAs
     data = {
         'itemType': 'user_verifications',
         'itemId': f'{regularUserUserVerification.id}',
-        'reddit_app': f'{regularUserRedditApp.id}',
+        'reddit_app': f'{redditApp.id}',
         'enabled': 'y',
         'discord_id': 123456789012345679,
         'redditor': 'redditor'
