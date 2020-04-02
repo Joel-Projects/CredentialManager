@@ -50,9 +50,8 @@ class Bots(Resource):
         if args.owner_id:
             owner = User.query.get(args.owner_id)
         with api.commit_or_abort(db.session, default_error_message='Failed to create a new Bot.'):
-            newBot = Bot(owner=owner, reddit_app=args.reddit_app, sentry_token=args.sentry_token, database_credential=args.database_credential, app_name=args.app_name)
-            db.session.add(newBot)
-        return newBot
+            db.session.add(args)
+        return args
 
 @api.route('/<int:bot_id>')
 @api.login_required()

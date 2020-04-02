@@ -22,7 +22,7 @@ data = [
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 def test_modifying_database_credential(flask_app_client, regularUserDatabaseCredential, loginAs):
-    response = flask_app_client.patch(f'/api/v1/database_credentials/{regularUserDatabaseCredential.id:d}', content_type='application/json', data=json.dumps(data))
+    response = flask_app_client.patch(f'/api/v1/database_credentials/{regularUserDatabaseCredential.id}', content_type='application/json', data=json.dumps(data))
 
     if loginAs.is_admin or loginAs.is_internal:
         assertSuccess(response, regularUserDatabaseCredential.owner, DatabaseCredential, DetailedDatabaseCredentialSchema)

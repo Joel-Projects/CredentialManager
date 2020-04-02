@@ -2,6 +2,8 @@ import operator
 
 import sqlalchemy
 from datetime import datetime
+
+from flask_login import current_user
 from sqlalchemy import Column, DateTime
 from flask_sqlalchemy import SQLAlchemy as BaseSQLAlchemy, _QueryProperty
 

@@ -52,10 +52,9 @@ class DatabaseCredentials(Resource):
 
         Database Credentials are used for logging and error reporting in applications
         '''
-        if getattr(args, 'owner_id', None):
+        args.owner = current_user
+        if args.owner_id:
             args.owner = User.query.get(args.owner_id)
-        else:
-            args.owner = current_user
         with api.commit_or_abort(db.session, default_error_message='Failed to create a new Database Credential.'):
             db.session.add(args)
         return args

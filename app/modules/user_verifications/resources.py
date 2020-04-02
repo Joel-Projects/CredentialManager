@@ -48,19 +48,12 @@ class UserVerifications(Resource):
 
         User Verifications for verifying a redditor with a Discord member ID
         '''
-        if getattr(args, 'owner_id', None):
-            owner = User.query.get(args.owner_id)
-        else:
-            owner = current_user
-        if getattr(args, 'reddit_app_id', None):
-            reddit_app_id = args.reddit_app_id
-            reddit_app = RedditApp.query.get(reddit_app_id)
-            if not current_user.is_admin and not current_user.is_internal and not reddit_app.owner == current_user:
-                http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create User Verifications with other users' Reddit Apps.")
+        args.owner = current_user
+        if args.owner_id:
+            args.owner = User.query.get(args.owner_id)
         with api.commit_or_abort(db.session, default_error_message="Failed to create a new User Verification."):
-            newUserVerification = UserVerification(owner=owner, discord_id=args.discord_id, reddit_app=reddit_app, extra_data=args.extra_data, redditor=args.redditor)
-            db.session.add(newUserVerification)
-        return newUserVerification
+            db.session.add(args)
+        return args
 
 @api.route('/<int:user_verification_id>')
 @api.login_required()

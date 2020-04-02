@@ -1,6 +1,8 @@
 import json
 
+from flask_login import current_user
 from flask_marshmallow import base_fields
+from marshmallow import ValidationError, validates
 
 from app.extensions.api.parameters import PaginationParameters, ValidateOwner
 from flask_restplus_patched import PatchJSONParameters, PostFormParameters
@@ -38,6 +40,13 @@ class CreateUserVerificationParameters(PostFormParameters, schemas.DetailedUserV
     redditor = base_fields.String(description='Redditor the User Verification is for')
     extra_data = JSON(description='Extra JSON data to include with verification', default={})
     owner_id = base_fields.Integer(description='Owner of the verification. Requires Admin to create for other users.')
+
+    @validates('reddit_app_id')
+    def validateRedditApp(self, data):
+        from app.modules.reddit_apps.models import RedditApp
+        reddit_app = RedditApp.query.get(data)
+        if not current_user.is_admin and not current_user.is_internal and not reddit_app.owner == current_user:
+            raise ValidationError("You don't have the permission to create User Verifications with other users' Reddit Apps.")
 
 class GetUserVerificationByDiscordId(PostFormParameters):
     discord_id = base_fields.String(required=True, description='Discord member ID to associate Redditor with')

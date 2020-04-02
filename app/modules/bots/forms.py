@@ -5,8 +5,8 @@ from wtforms_alchemy import Unique
 
 from app.extensions import ModelForm
 from .models import Bot
+from ..reddit_apps.models import RedditApp
 from ...extensions.frontend.forms import ModelSelectField, owners
-
 
 def reddit_apps(owner):
     return owner.reddit_apps

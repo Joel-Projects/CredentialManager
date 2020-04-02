@@ -32,7 +32,7 @@ class CreateBotParameters(PostFormParameters, schemas.DetailedBotSchema, Validat
     class Meta(schemas.DetailedBotSchema.Meta):
         fields = schemas.BaseBotSchema.Meta.fields + ('owner_id',)
 
-    @validates('name')
+    @validates('app_name')
     def validateName(self, data):
         if len(data) < 3:
             raise ValidationError('Name must be greater than 3 characters long.')

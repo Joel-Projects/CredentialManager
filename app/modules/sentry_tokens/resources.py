@@ -47,21 +47,12 @@ class SentryTokens(Resource):
 
         Sentry Tokens are used for logging and error reporting in applications
         '''
-        if getattr(args, 'owner_id', None):
-            owner_id = args.owner_id
-            if current_user.is_admin or current_user.is_internal:
-                owner = User.query.get(owner_id)
-            else:
-                if owner_id == current_user.id:
-                    owner = current_user
-                else: # pragma: no cover
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create Sentry Tokens for other users.")
-        else:
-            owner = current_user
+        args.owner = current_user
+        if args.owner_id:
+            args.owner = User.query.get(args.owner_id)
         with api.commit_or_abort(db.session, default_error_message='Failed to create a new Sentry Token.'):
-            newSentryToken = SentryToken(owner=owner, dsn=args.dsn, app_name=args.app_name)
-            db.session.add(newSentryToken)
-        return newSentryToken
+            db.session.add(args)
+        return args
 
 @api.route('/<int:sentry_token_id>')
 @api.login_required()

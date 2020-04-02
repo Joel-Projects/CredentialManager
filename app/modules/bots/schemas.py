@@ -33,7 +33,6 @@ class DetailedBotSchema(BaseBotSchema):
     database_credential = base_fields.Nested(DatabaseCredentialBotSchema)
 
     class Meta(BaseBotSchema.Meta):
-        ordered = True
         fields = BaseBotSchema.Meta.fields + (
             Bot.owner_id.key,
             Bot.created.key,

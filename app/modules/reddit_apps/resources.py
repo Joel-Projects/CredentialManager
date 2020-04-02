@@ -50,32 +50,12 @@ class RedditApps(Resource):
 
         Reddit Apps are used for interacting with reddit
         '''
-        if getattr(args, 'owner_id', None):
-            owner_id = args.owner_id
-            if current_user.is_admin or current_user.is_internal:
-                owner = User.query.get(owner_id)
-            else:
-                if owner_id == current_user.id:
-                    owner = current_user
-                else:
-                    http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to create Reddit Apps for other users.")
-        else:
-            owner = current_user
+        args.owner = current_user
+        if args.owner_id:
+            args.owner = User.query.get(args.owner_id)
         with api.commit_or_abort(db.session, default_error_message='Failed to create a new Reddit App.'):
-            data = {
-                'app_name': args.app_name,
-                'short_name': args.short_name,
-                'app_description': args.app_description,
-                'client_id': args.client_id,
-                'client_secret': args.client_secret,
-                'user_agent': args.user_agent,
-                'app_type': args.app_type,
-                'redirect_uri': args.redirect_uri,
-                'enabled': args.enabled
-            }
-            newRedditApp = RedditApp(owner=owner, **data)
-            db.session.add(newRedditApp)
-        return newRedditApp
+            db.session.add(args)
+        return args
 
 @api.route('/<int:reddit_app_id>')
 @api.response(code=HTTPStatus.NOT_FOUND, description='Reddit App not found.')

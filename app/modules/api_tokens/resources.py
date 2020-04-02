@@ -48,13 +48,13 @@ class ApiTokens(Resource):
 
         API token can be used instead of username/password. Include the API token in the ``X-API-KEY`` header
         '''
-        owner = current_user
+        args.token = ApiToken.generate_token(args.length)
+        args.owner = current_user
         if args.owner_id:
-            owner = User.query.get(args.owner_id)
+            args.owner = User.query.get(args.owner_id)
         with api.commit_or_abort(db.session, default_error_message='Failed to create a new API Token.'):
-            newApiToken = ApiToken(name=args.name, token=ApiToken.generate_token(args.length), length=args.length, owner=owner)
-            db.session.add(newApiToken)
-        return newApiToken
+            db.session.add(args)
+        return args
 
 @api.route('/<int:api_token_id>')
 @api.login_required()
