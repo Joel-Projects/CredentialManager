@@ -13,6 +13,7 @@ log = logging.getLogger(__name__)
 api = Namespace('users', description='User Management')
 
 @api.route('/')
+@api.login_required()
 class Users(Resource):
     '''
     Manipulations with users.
@@ -37,15 +38,31 @@ class Users(Resource):
     @api.response(schemas.DetailedUserSchema())
     @api.response(code=HTTPStatus.FORBIDDEN)
     @api.response(code=HTTPStatus.CONFLICT)
-    @api.doc(id='create_user')
-    def post(self, data):
+    def post(self, args):
         '''
         Create a new user.
         '''
+        args.created_by = current_user.id
+        args.updated_by = current_user.id
+        fields = [
+            'username',
+            'password',
+            'default_settings',
+            'reddit_username'
+        ]
+        perms = [
+            'is_admin',
+            'is_active',
+            'is_regular_user',
+            'is_internal',
+        ]
+        user = User(**{k: v for k, v in args.items() if k in fields})
+        for perm in perms:
+            if perm in args:
+                setattr(user, perm, args[perm])
         with api.commit_or_abort(db.session, default_error_message='Failed to create a new user.'):
-            new_user = User(created_by=current_user.id, updated_by=current_user.id, **data)
-            db.session.add(new_user)
-        return new_user
+            db.session.add(user)
+        return user
 
 @api.route('/<int:user_id>')
 @api.login_required()

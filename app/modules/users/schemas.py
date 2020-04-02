@@ -37,7 +37,7 @@ class DetailedUserSchema(BaseUserSchema):
             User.is_admin.fget.__name__,
             User.default_settings.key,
             User.created.key,
-            User.updated.key,
+            User.updated.key
         )
 
 class UserItemsSchema(BaseUserSchema):

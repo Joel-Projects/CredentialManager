@@ -27,10 +27,15 @@ class CreateBotParameters(PostFormParameters, schemas.DetailedBotSchema, Validat
     reddit_id = base_fields.Integer(description='Reddit App the bot will use')
     sentry_id = base_fields.Integer(description='Sentry Token the bot will use')
     database_id = base_fields.Integer(description='Database Credentials the bot will use')
-    owner_id = base_fields.Integer(description='Owner of the bot. Requires Admin to create for other users.')
 
     class Meta(schemas.DetailedBotSchema.Meta):
-        fields = schemas.BaseBotSchema.Meta.fields + ('owner_id',)
+        fields =  (
+            'app_name',
+            'reddit_id',
+            'sentry_id',
+            'database_id',
+            'owner_id',
+        )
 
     @validates('app_name')
     def validateName(self, data):

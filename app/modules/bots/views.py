@@ -67,7 +67,7 @@ def editBots(bot):
                         db.session.merge(bot)
                         code = 202
                         flash(f'Bot {bot.app_name!r} saved successfully!', 'success')
-                except Exception as error:
+                except Exception as error: # pragma: no cover
                     log.exception(error)
                     code = 400
                     flash(f'Failed to update Bot {bot.app_name!r}', 'error')

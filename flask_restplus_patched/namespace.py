@@ -123,8 +123,8 @@ class Namespace(OriginalNamespace):
             assert model is None
         if model is None and code not in {HTTPStatus.ACCEPTED, HTTPStatus.NO_CONTENT}:
             if code.value not in http_exceptions.default_exceptions: # pragma: no cover
-                raise ValueError(f'`model` parameter is required for code {code:d}')
-            model = self.model(name=f'HTTPError{code:d}', model=DefaultHTTPErrorSchema(http_code=code))
+                raise ValueError(f'`model` parameter is required for code {code}')
+            model = self.model(name=f'HTTPError{code}', model=DefaultHTTPErrorSchema(http_code=code))
         if description is None:
             description = code.description
 
@@ -141,7 +141,7 @@ class Namespace(OriginalNamespace):
 
                 if response is None:
                     if model is not None: # pragma: no cover
-                        raise ValueError(f'Response cannot not be None with HTTP status {code:d}')
+                        raise ValueError(f'Response cannot not be None with HTTP status {code}')
                     return flask.Response(status=code)
                 elif isinstance(response, flask.Response) or model is None:
                     return response

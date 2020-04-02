@@ -2,15 +2,16 @@ from flask_marshmallow import base_fields
 
 from flask_restplus_patched import ModelSchema
 from .models import Bot
+from ..database_credentials.schemas import DatabaseCredentialBotSchema
 from ..reddit_apps.schemas import RedditAppBotSchema
 from ..sentry_tokens.schemas import SentryTokenBotSchema
-from ..database_credentials.schemas import DatabaseCredentialBotSchema
 
 
 class BaseBotSchema(ModelSchema):
     '''
     Base Bot schema exposes only the most general fields.
     '''
+    owner_id = base_fields.Integer(description='Owner of the bot. Requires Admin to create for other users.')
 
     class Meta:
         ordered = True
@@ -35,7 +36,6 @@ class DetailedBotSchema(BaseBotSchema):
     class Meta(BaseBotSchema.Meta):
         fields = BaseBotSchema.Meta.fields + (
             Bot.owner_id.key,
-            Bot.created.key,
             Bot.reddit_app.key,
             Bot.sentry_token.key,
             Bot.database_credential.key

@@ -46,9 +46,9 @@ class Bots(Resource):
 
         Bots are used for grouping apps into a single request
         '''
-        owner = current_user
+        args.owner = current_user
         if args.owner_id:
-            owner = User.query.get(args.owner_id)
+            args.owner = User.query.get(args.owner_id)
         with api.commit_or_abort(db.session, default_error_message='Failed to create a new Bot.'):
             db.session.add(args)
         return args

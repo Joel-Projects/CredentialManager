@@ -147,7 +147,7 @@ class DropdownActionColumn(ModifiedCol):
                 color = '00BC8C'
                 text = 'Enable'
             toggleStr = f'''<a class="dropdown-item" id="{item.__tablename__}_{item.id}_toggle" style="color: #{color}" onclick="toggleItem('{item.__tablename__}', {item.id}, '{getattr(item, item._nameAttr)}', '{item._nameAttr}', '{item._enabledAttr}')">{text}</a>'''
-        else:
+        else: # pragma: no cover
             toggleStr = ''
 
         return f'''<div aria-label="Button group with nested dropdown" class="btn-group" role="group">
