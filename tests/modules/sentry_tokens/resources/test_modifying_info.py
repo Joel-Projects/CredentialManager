@@ -22,7 +22,7 @@ data = [
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 def test_modifying_sentry_token(flask_app_client, regularUserSentryToken, loginAs):
-    response = flask_app_client.patch(f'/api/v1/sentry_tokens/{regularUserSentryToken.id:d}', content_type='application/json', data=json.dumps(data))
+    response = flask_app_client.patch(f'/api/v1/sentry_tokens/{regularUserSentryToken.id}', content_type='application/json', data=json.dumps(data))
 
     if loginAs.is_admin or loginAs.is_internal:
         assertSuccess(response, regularUserSentryToken.owner, SentryToken, DetailedSentryTokenSchema)
