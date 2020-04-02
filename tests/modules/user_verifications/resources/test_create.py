@@ -3,7 +3,7 @@ import pytest
 from app.modules.user_verifications.models import UserVerification
 from app.modules.user_verifications.schemas import DetailedUserVerificationSchema
 from tests.params import labels, users
-from tests.utils import __assertResponseError, assert403, assertSuccess
+from tests.utils import assert403, assert422, assertSuccess
 
 
 path = '/api/v1/user_verifications/'
@@ -27,7 +27,7 @@ def test_creating_user_verification_with_extra_data(flask_app_client, loginAs, r
     if loginAs.is_admin or loginAs.is_internal:
         assertSuccess(response, loginAs, UserVerification, DetailedUserVerificationSchema)
     else:
-        __assertResponseError(response, 403, 'You don\'t have the permission to create User Verifications with other users\' Reddit Apps.', model=UserVerification, action='create')
+        assert422(response, UserVerification, messageAttrs=[('reddit_app_id', ['You don\'t have the permission to create User Verifications with other users\' Reddit Apps.'])])
 
 def test_creating_user_verification_for_self(flask_app_client, regularUserInstance, redditApp):
     redditApp.owner = regularUserInstance

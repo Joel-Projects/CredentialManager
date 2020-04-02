@@ -1,7 +1,4 @@
-import pytest
-
 from app.modules.user_verifications.models import UserVerification
-from tests.params import labels, users
 
 
 def test_user_verification_check_owner(regular_user, admin_user, regularUserUserVerification):

@@ -23,7 +23,7 @@ data = [
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 def test_modifying_user_verification(flask_app_client, regularUserUserVerification, loginAs):
-    response = flask_app_client.patch(f'/api/v1/user_verifications/{regularUserUserVerification.id:d}', content_type='application/json', data=json.dumps(data))
+    response = flask_app_client.patch(f'/api/v1/user_verifications/{regularUserUserVerification.id}', content_type='application/json', data=json.dumps(data))
 
     if loginAs.is_admin or loginAs.is_internal:
         assertSuccess(response, regularUserUserVerification.owner, UserVerification, DetailedUserVerificationSchema)
@@ -37,13 +37,12 @@ def test_modifying_user_verification_by_self(flask_app_client, regularUserInstan
 
 def test_modifying_user_verification_info_with_invalid_format_must_fail(flask_app_client, regularUserInstance, regularUserUserVerification):
     regularUserUserVerification.owner = regularUserInstance
-    response = flask_app_client.patch(f'/api/v1/user_verifications/{regularUserInstance.id}', content_type='application/json', data=json.dumps([{'op': 'test', 'path': '/redditor', 'value': '', }, {'op': 'replace', 'path': '/enabled', }, ]))
+    response = flask_app_client.patch(f'/api/v1/user_verifications/{regularUserUserVerification.id}', content_type='application/json', data=json.dumps([{'op': 'test', 'path': '/redditor', 'value': '', }, {'op': 'replace', 'path': '/enabled', }, ]))
 
     assert422(response, UserVerification, [('1', {'_schema': ['value is required']})], oldItem=regularUserUserVerification, action='patch')
 
 def test_modifying_user_verification_info_with_conflict_data_must_fail(flask_app_client, regularUserInstance, regularUserUserVerification, adminUserUserVerification):
     regularUserUserVerification.owner = regularUserInstance
-    adminUserUserVerification.client_id = 'client_idOld'
     adminUserUserVerification.owner = regularUserInstance
     response = flask_app_client.patch(f'/api/v1/user_verifications/{regularUserUserVerification.id}', content_type='application/json', data=json.dumps([{'op': 'replace', 'path': '/discord_id', 'value': adminUserUserVerification.discord_id}]))
 
