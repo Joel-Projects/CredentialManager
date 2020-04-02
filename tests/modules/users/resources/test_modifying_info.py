@@ -45,7 +45,7 @@ def assertSuccess(db, regularUserInstance, response, saved_default_settings):
 
 def test_modifying_user_info_by_owner(flask_app_client, regularUserInstance, db):
     saved_default_settings = regularUserInstance.default_settings
-    response = flask_app_client.patch(f'/api/v1/users/{regularUserInstance.id:d}', content_type='application/json', data=json.dumps([{'op': 'replace', 'path': '/default_settings', 'value': {'database_flavor': 'postgres', 'database_host': 'localhost'}, }]))
+    response = flask_app_client.patch(f'/api/v1/users/{regularUserInstance.id}', content_type='application/json', data=json.dumps([{'op': 'replace', 'path': '/default_settings', 'value': {'database_flavor': 'postgres', 'database_host': 'localhost'}, }]))
 
     assertSuccess(db, regularUserInstance, response, saved_default_settings)
 

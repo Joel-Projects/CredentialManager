@@ -15,8 +15,6 @@ def test_creating_user(flask_app_client, is_internal, is_admin, is_regular_user,
     if is_internal:
         if loginAs.is_internal:
             assertSuccess(response, None, User, DetailedUserSchema)
-        elif loginAs.is_admin:
-            assert403(response, User, loginAs=loginAs, internal=True)
         else:
             assert403(response, User, loginAs=loginAs, internal=True)
     elif loginAs.is_admin or loginAs.is_internal:

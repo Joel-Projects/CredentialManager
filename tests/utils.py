@@ -5,9 +5,10 @@ from datetime import datetime, timezone
 
 from flask import Response, message_flashed, template_rendered
 from flask.testing import FlaskClient
+from flask_sqlalchemy import Model
 from sqlalchemy_utils import Choice
 from werkzeug.utils import cached_property
-
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 from app.modules.users.models import User
 
@@ -88,7 +89,7 @@ def assertSuccess(response, owner, model, schema, deleteItemId=None):
             if response.json[field]:
                 if isinstance(getattr(model, field), property):
                     assert isinstance(response.json[field], bool)
-                else:
+                elif not isinstance(getattr(model, field), InstrumentedAttribute): # pragma: no cover
                     if getattr(model, field).type.python_type == datetime:
                         assert isinstance(response.json[field], str)
                     else:
@@ -103,6 +104,9 @@ def assertSuccess(response, owner, model, schema, deleteItemId=None):
                     assert response.json[field] == datetime.astimezone(getattr(createdItem, field), timezone.utc).isoformat()
                 elif isinstance(getattr(createdItem, field), Choice):
                     assert response.json[field] == getattr(createdItem, field).value
+                elif issubclass(type(getattr(createdItem, field)), Model):
+                    for key, value in response.json[field].items():
+                        assert getattr(getattr(createdItem, field), key) == value
                 else:
                     assert response.json[field] == getattr(createdItem, field)
 
@@ -199,15 +203,17 @@ def assertCreated(item, data):
     assert item is not None
     assert item.id == 1
     for key, value in data.items():
-        assert getattr(item, key) == value
+        if issubclass(type(getattr(item, key)), Model):
+            assert str(getattr(item, key).id) == value
+        else:
+            assert getattr(item, key) == value
 
 def assertModified(data, model):
     for key, value in data.items():
         if key in dir(model):
             if key == 'enabled':
                 value = 'y' == value
-            from app.modules.user_verifications.models import UserVerification
-            if isinstance(model, UserVerification) and key == 'reddit_app':
-                key = 'reddit_app_id'
-                value = int(value)
-            assert getattr(model, key) == value
+            if issubclass(type(getattr(model, key)), Model):
+                assert str(getattr(model, key).id) == value
+            else:
+                assert getattr(model, key) == value
