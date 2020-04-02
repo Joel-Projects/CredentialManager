@@ -23,7 +23,7 @@ data = [
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 def test_modifying_reddit_app(flask_app_client, regularUserRedditApp, loginAs):
-    response = flask_app_client.patch(f'/api/v1/reddit_apps/{regularUserRedditApp.id:d}', content_type='application/json', data=json.dumps(data))
+    response = flask_app_client.patch(f'/api/v1/reddit_apps/{regularUserRedditApp.id}', content_type='application/json', data=json.dumps(data))
 
     if loginAs.is_admin or loginAs.is_internal:
         assertSuccess(response, regularUserRedditApp.owner, RedditApp, DetailedRedditAppSchema)
