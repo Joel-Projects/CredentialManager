@@ -29,7 +29,7 @@ tokens = [
 @pytest.mark.parametrize('token', tokens, ids=['modify_regular_user_token', 'modify_admin_user_token', 'modify_regular_user_token'])
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 def test_modifying_api_token(flask_app_client, token, loginAs):
-    response = flask_app_client.patch(f'/api/v1/api_tokens/{token.id:d}', content_type='application/json', data=json.dumps(data))
+    response = flask_app_client.patch(f'/api/v1/api_tokens/{token.id}', content_type='application/json', data=json.dumps(data))
 
     if token.owner.is_internal:
         if loginAs.is_internal:
