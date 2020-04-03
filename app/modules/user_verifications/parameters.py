@@ -36,7 +36,7 @@ class ListUserVerificationsParameters(PaginationParameters, ValidateOwner):
 
 class CreateUserVerificationParameters(PostFormParameters, schemas.DetailedUserVerificationSchema, ValidateOwner):
     reddit_app_id = base_fields.Integer(required=True, description='Reddit app the User Verification is for')
-    discord_id = base_fields.Integer(required=True, description='Discord member ID to associate Redditor with')
+    user_id = base_fields.String(required=True, description='User ID to associate Redditor with')
     redditor = base_fields.String(description='Redditor the User Verification is for')
     extra_data = JSON(description='Extra JSON data to include with verification', default={})
     owner_id = base_fields.Integer(description='Owner of the verification. Requires Admin to create for other users.')
@@ -48,13 +48,16 @@ class CreateUserVerificationParameters(PostFormParameters, schemas.DetailedUserV
         if not current_user.is_admin and not current_user.is_internal and not reddit_app.owner == current_user:
             raise ValidationError("You don't have the permission to create User Verifications with other users' Reddit Apps.")
 
-class GetUserVerificationByDiscordId(PostFormParameters):
-    discord_id = base_fields.String(required=True, description='Discord member ID to associate Redditor with')
+class GetUserVerificationByUserId(PostFormParameters):
+    user_id = base_fields.String(required=True, description='User ID to associate Redditor with')
     reddit_app_id = base_fields.Integer(description='Optionally specify a Reddit app the User Verification belongs to')
+
+class GetUserVerificationByOTC(PostFormParameters):
+    otc = base_fields.String(required=True, description='OTC Code to finish auth')
 
 class PatchUserVerificationDetailsParameters(PatchJSONParameters):
     '''
     User Verification details updating parameters following PATCH JSON RFC.
     '''
-    fields = (UserVerification.reddit_app_id.key, UserVerification.discord_id.key, UserVerification.redditor.key, UserVerification.extra_data.key, UserVerification.enabled.key)
+    fields = (UserVerification.reddit_app_id.key, UserVerification.user_id.key, UserVerification.redditor.key, UserVerification.extra_data.key, UserVerification.enabled.key)
     PATH_CHOICES = tuple(f'/{field}' for field in fields)

@@ -46,7 +46,7 @@ class UserVerifications(Resource):
         '''
         Create a new User Verification.
 
-        User Verifications for verifying a redditor with a Discord member ID
+        User Verifications for verifying a redditor with a User ID
         '''
         args.owner = current_user
         if args.owner_id:
@@ -103,22 +103,22 @@ class UserVerificationByID(Resource):
 @api.route('/get_redditor')
 @api.login_required()
 @api.response(code=HTTPStatus.NOT_FOUND, description='Member not found.')
-class GetUserVerificationByDiscordID(Resource):
+class GetUserVerificationByUserID(Resource):
     '''
     Manipulations with a specific User Verification.
     '''
 
-    @api.parameters(parameters.GetUserVerificationByDiscordId())
+    @api.parameters(parameters.GetUserVerificationByUserId())
     @api.response(schemas.DetailedUserVerificationSchema())
     def post(self, args):
         '''
-        Get User Verification by Discord Member ID.
+        Get User Verification by User ID.
         Optionally filter by Reddit App ID
 
         Only Admins can see Refresh Tokens for other users' Reddit Apps. Regular users will see their own Reddit Apps' Refresh Tokens.
         '''
         if 'reddit_app_id' in args:
             redditApp = RedditApp.query.get_or_404(args['reddit_app_id'], 'Reddit App not found')
-            return UserVerification.query.filter(UserVerification.discord_id == args['discord_id'], UserVerification.reddit_app == redditApp).first_or_404()
+            return UserVerification.query.filter(UserVerification.user_id == args['user_id'], UserVerification.reddit_app == redditApp).first_or_404()
         else:
-            return UserVerification.query.filter(UserVerification.discord_id == args['discord_id']).first_or_404()
+            return UserVerification.query.filter(UserVerification.user_id == args['user_id']).first_or_404()

@@ -24,14 +24,11 @@ refreshTokensBlueprint = Blueprint('refresh_tokens', __name__, template_folder='
 @login_required
 @paginateArgs(RefreshToken)
 def refresh_tokens(page, perPage):
-    showOld = request.args.get('showOld', 'False') == 'True'
-    if current_user:
-        if current_user.is_admin and not current_user.is_internal:
-            paginator = RefreshToken.query.filter(*(RefreshToken.owner_id != i.id for i in User.query.filter(User.internal == True).all()), or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld)).paginate(page, perPage, error_out=False)
-        elif current_user.is_internal:
-            paginator = RefreshToken.query.filter(or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld)).paginate(page, perPage, error_out=False)
-        else:
-            paginator = current_user.refresh_tokens.filter(or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld)).paginate(page, perPage, error_out=False)
+    showOld = request.args.get('showOld', 'false').lower() == 'true'
+    if current_user.is_admin and not current_user.is_internal:
+        paginator = RefreshToken.query.filter(*(RefreshToken.owner_id != i.id for i in User.query.filter(User.internal == True).all()), or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld)).paginate(page, perPage, error_out=False)
+    elif current_user.is_internal:
+        paginator = RefreshToken.query.filter(or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld)).paginate(page, perPage, error_out=False)
     else:
         paginator = current_user.refresh_tokens.filter(or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld)).paginate(page, perPage, error_out=False)
     table = RefreshTokenTable(paginator.items, current_user=current_user, showOld=showOld)
@@ -55,8 +52,7 @@ def reddit_callback():
         now = datetime.now(timezone.utc)
         now.replace(tzinfo=timezone.utc)
         refreshToken = None
-        redditApp: RedditApp
-        redditApp, discord_id = RedditApp().getAppFromState(state)
+        redditApp, user_id = RedditApp().getAppFromState(state)
         if redditApp:
             reddit = redditApp.redditInstance
             token = reddit.auth.authorize(code)
@@ -64,19 +60,20 @@ def reddit_callback():
             if token:
                 scopes = reddit.auth.scopes()
                 existing = RefreshToken.query.filter(RefreshToken.reddit_app == redditApp, RefreshToken.redditor == redditor, RefreshToken.revoked == False).first()
-                if existing:
+                if existing: # pragma: no cover
                     existing.revoke()
                 refreshToken = RefreshToken(reddit_app=redditApp, redditor=redditor, refresh_token=token, scopes=list(scopes), issued_at=now, owner=redditApp.owner)
-                db.session.add(refreshToken)
-            if discord_id:
-                userVerification = UserVerification.query.filter_by(discord_id=discord_id).first()
+                with db.session.begin():
+                    db.session.add(refreshToken)
+            if user_id:
+                userVerification = UserVerification.query.filter_by(user_id=user_id).first()
                 if userVerification and userVerification.reddit_app == redditApp:
                     userVerification.redditor = redditor
                     userVerification.verified_at = now
-                if 'sioux_bot' in userVerification.extra_data:
+                if userVerification.extra_data and 'sioux_bot' in userVerification.extra_data: # pragma: no cover
                     webhook = os.getenv('SIOUX_BOT_WEBHOOK')
                     if webhook:
-                        requests.post(webhook, data={'content': f'.done {discord_id}'})
+                        requests.post(webhook, data={'content': f'.done {user_id}'})
             if refreshToken:
                 appName = refreshToken.reddit_app.app_name
                 header = f'Reddit Authorization Complete'
@@ -84,6 +81,6 @@ def reddit_callback():
                 appName = redditApp.app_name
                 header = f'Reddit Verification Complete'
             return render_template('oauth_result.html', success=True, header=header, user=redditor, message=f', your Reddit account has been {("verified", "authenticated")[bool(refreshToken)]} with {appName!r} successfully!')
-    except Exception as error:
+    except Exception as error: # pragma: no cover
         log.error(error)
-        return render_template('oauth_result.html', error=True)
+    return render_template('oauth_result.html', error=True)

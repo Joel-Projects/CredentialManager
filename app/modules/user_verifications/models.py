@@ -13,7 +13,7 @@ class UserVerification(db.Model, InfoAttrs):
 
     __tablename__ = 'user_verifications'
     _displayNamePlural = 'User Verifications'
-    _nameAttr = 'discord_id'
+    _nameAttr = 'user_id'
     _enabledAttr = 'enabled'
 
     _infoAttrs = {
@@ -29,7 +29,7 @@ class UserVerification(db.Model, InfoAttrs):
     reddit_app = db.relationship('RedditApp', primaryjoin='UserVerification.reddit_app_id == RedditApp.id', backref=__tablename__)
     owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'), info={'label': 'Owner', 'description': 'Owner of the verification.'})
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
-    discord_id = db.Column(db.BigInteger, nullable=False, unique=True, info={'label': "User's Dicord member ID", 'description': 'Links reddit username to Discord member ID'})
+    user_id = db.Column(db.String, nullable=False, unique=True, info={'label': "User's unique ID", 'description': 'Links reddit username to and unique ID'})
     extra_data = db.Column(db.JSON, info={'label': 'Extra Data', 'description': 'Extra JSON data linked to the verification'})
     redditor = db.Column(db.String, info={'label': 'Reddit Username', 'description': "The user's Reddit username"})
     verified_at = db.Column(db.DateTime(True))
@@ -45,4 +45,5 @@ class UserVerification(db.Model, InfoAttrs):
         redditor = ''
         if self.redditor:
             redditor = f' - {self.redditor}'
-        return f'{self.discord_id}{redditor}'
+        return f'{self.user_id}{redditor}'
+

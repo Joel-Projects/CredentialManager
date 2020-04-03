@@ -7,7 +7,7 @@ class RefreshTokenTable(BaseTable):
         self.add_column('Redditor', BaseCol('Redditor', 'redditor', td_html_attrs={'style': 'text-align:left'}))
         self.add_column('Reddit App', BaseCol('Reddit App', 'reddit_app'))
         self.add_column('Issued At', DatetimeColumn('Issued', attr='issued_at'))
-        if showOld:
+        if showOld: # pragma: no cover
             self.add_column('Current', BoolIconColumn('Current', 'valid'))
 
         if current_user.is_admin or current_user.is_internal:

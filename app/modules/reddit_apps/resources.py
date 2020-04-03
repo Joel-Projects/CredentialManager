@@ -144,8 +144,8 @@ class GenerateAuthUrl(Resource):
         '''
         user_verification_id = args.pop('user_verification_id', None)
         user_verification = UserVerification.query.get(user_verification_id)
-        if not user_verification and len(str(user_verification_id)) == 18:
-            user_verification = UserVerification.query.filter(UserVerification.discord_id == user_verification_id)
+        if not user_verification and user_verification_id:
+            user_verification = UserVerification.query.filter_by(user_id=user_verification_id).first()
         auth_url = reddit_app.genAuthUrl(args['scopes'], args['duration'], user_verification)
         setattr(reddit_app, 'auth_url', auth_url)
         return reddit_app

@@ -44,8 +44,8 @@ class RedditAppValidation(object):
 class UserVerificationForm(ModelForm):
     class Meta:
         model = UserVerification
-        only = ['discord_id', 'redditor', 'extra_data', 'enabled']
-        fields = ['reddit_app', 'discord_id', 'redditor', 'extra_data']
+        only = ['user_id', 'redditor', 'extra_data', 'enabled']
+        fields = ['reddit_app', 'user_id', 'redditor', 'extra_data']
 
     reddit_app = ModelSelectField(query_factory=reddit_apps, queryKwargs={'owner': current_user}, validators=[RedditAppValidation()], allow_blank=True)
     owner = ModelSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user, description=UserVerification.owner_id.info['description'])

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% import 'macros.html' as macros %}
-{% block title %}Credential Manager - Edit User Verification{% if user_verification.redditor %} - {{ user_verification.redditor }}{% else %} - {{ user_verification.discord_id }}{% endif %}{% endblock %}
+{% block title %}Credential Manager - Edit User Verification{% if user_verification.redditor %} - {{ user_verification.redditor }}{% else %} - {{ user_verification.user_id }}{% endif %}{% endblock %}
 {% block breadCrumbs %}
     <!--suppress HtmlUnknownTarget -->
     {% if user and (current_user.is_admin or current_user.is_internal or user_verification.check_owner(current_user)) %}
@@ -10,7 +10,7 @@
     {% else %}
         <li class="breadcrumb-item"><a href="/user_verifications/">User Verifications</a></li>
     {% endif %}
-    <li class="breadcrumb-item"><a href="/user_verifications/{{ user_verification.id }}">{{ user_verification.discord_id }}{% if user_verification.redditor %} - {{ user_verification.redditor }}{% endif %}</a></li>
+    <li class="breadcrumb-item"><a href="/user_verifications/{{ user_verification.id }}">{{ user_verification.user_id }}{% if user_verification.redditor %} - {{ user_verification.redditor }}{% endif %}</a></li>
 {% endblock %}
 {% block activeItem %}active item{% endblock %}
 {% block content %}
@@ -44,7 +44,7 @@
                         {{ form.owner.label }}
                         {{ form.owner(class_="custom-select", default=user_verification.owner, readonly=True) }}
                     </div>
-                    {% for fieldName in ['discord_id', 'redditor', 'extra_data'] %}
+                    {% for fieldName in ['user_id', 'redditor', 'extra_data'] %}
                         {{ macros.textField(form, fieldName) }}
                     {% endfor %}
                     <div class="form-group">
@@ -58,7 +58,7 @@
                         <button class="btn btn-primary" type="submit" name="save" onclick="saveItem(this)" id="save" value="save">Save</button>
                     </div>
                 </form>
-                <button class="btn btn-danger" id="delete" data-target="#confirmationModal" onclick="showDeleteModal('{{ user_verification.discord_id }}', 'user_verifications', {{ user_verification.id }})" data-toggle="modal">Delete</button>
+                <button class="btn btn-danger" id="delete" data-target="#confirmationModal" onclick="showDeleteModal('{{ user_verification.user_id }}', 'user_verifications', {{ user_verification.id }})" data-toggle="modal">Delete</button>
             </div>
         </div>
     </div>

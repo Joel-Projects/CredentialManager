@@ -13,7 +13,7 @@ class BaseRefreshTokenSchema(ModelSchema):
         model = RefreshToken
         fields = (
             RefreshToken.id.key,
-            RefreshToken.reddit_app.key,
+            RefreshToken.reddit_app_id.key,
             RefreshToken.redditor.key,
             RefreshToken.refresh_token.key
         )

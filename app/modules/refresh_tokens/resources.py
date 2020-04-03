@@ -31,7 +31,7 @@ class RefreshTokens(Resource):
         Returns a list of Refresh Tokens starting from ``offset`` limited by
         ``limit`` parameter.
 
-        Only Admins can specify ``owner`` to see Refresh Tokens for other users' Reddit Apps. Regular users will see their own Reddit Apps' Refresh Tokens.
+        Only Admins can specify ``owner_id`` to see Refresh Tokens for other users' Reddit Apps. Regular users will see their own Reddit Apps' Refresh Tokens.
         '''
         refreshTokens = getViewableItems(args, RefreshToken)
         return refreshTokens.offset(args['offset']).limit(args['limit'])
@@ -85,9 +85,9 @@ class GetRefreshTokenByRedditor(Resource):
     Get Refresh Token by Redditor
     '''
 
-    @api.parameters(parameters.GetRefreshTokenByRedditor(), locations=('query',))
+    @api.parameters(parameters.GetRefreshTokenByRedditor())
     @api.response(schemas.DetailedRefreshTokenSchema())
-    def get(self, args):
+    def post(self, args):
         '''
         Get Refresh Token by reddit app and redditor.
 
@@ -95,11 +95,14 @@ class GetRefreshTokenByRedditor(Resource):
         '''
         redditApp = RedditApp.query.get_or_404(args['reddit_app_id'])
         refreshTokens = RefreshToken.query
-        if current_user.is_admin or current_user.is_internal:
-            refreshToken = refreshTokens.filter_by(redditor=args['redditor'], reddit_app_id=redditApp.id, revoked=False)
-        else:
-            if redditApp.owner_id == current_user.id:
-                refreshToken = refreshTokens.filter_by(redditor=args['redditor'], reddit_app_id=redditApp.id, revoked=False)
-            else:
-                http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Refresh Tokens.")
+        refreshToken = refreshTokens.filter_by(redditor=args['redditor'], reddit_app_id=redditApp.id, revoked=False)
+        # if current_user.is_internal:
+        # elif current_user.is_admin:
+        #     if redditApp.owner.is_internal:
+        #         http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Refresh Tokens.")
+        # else:
+        #     if redditApp.owner_id == current_user.id:
+        #         refreshToken = refreshTokens.filter_by(redditor=args['redditor'], reddit_app_id=redditApp.id, revoked=False)
+        #     else:
+        #         http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Refresh Tokens.")
         return refreshToken.first_or_404(f'Redditor {args["redditor"]!r} does not exist.')

@@ -50,8 +50,6 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
     uniqueConstrant = db.UniqueConstraint(client_id, owner_id)
 
     def check_owner(self, user):
-        if self.owner.is_internal:
-            return user.is_internal
         return self.owner == user
 
     @property
@@ -67,26 +65,24 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         reddit = self.redditInstance
         state = self.state
         if user_verification:
-            state = base64.urlsafe_b64encode(f'{state}:{user_verification.discord_id}'.encode())
+            state = base64.urlsafe_b64encode(f'{state}:{user_verification.user_id}'.encode())
         return reddit.auth.url(scopes, state, duration)
 
     @classmethod
     def getAppFromState(cls, state):
-        result: RedditApp
-        discord_id = None
+        user_id = None
         try:
             if state:
                 result = cls.query.filter_by(state=state).first()
                 if result:
-                    return result, discord_id
+                    return result, user_id
                 else:
                     decoded = base64.urlsafe_b64decode(state).decode()
-                    state, discord_id = decoded.split(':')
-                    discord_id = int(discord_id)
+                    state, user_id = decoded.split(':')
                     result = cls.query.filter_by(state=state).first()
         except Exception as error: # pragma: no cover
             log.exception(error)
-        return result, discord_id
+        return result, user_id
 
     def getRefreshToken(self, redditor):
         if current_user.is_admin or current_user.is_internal:

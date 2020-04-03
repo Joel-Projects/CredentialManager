@@ -13,7 +13,7 @@ class BaseUserVerificationSchema(ModelSchema):
         model = UserVerification
         fields = (
             UserVerification.id.key,
-            UserVerification.discord_id.key,
+            UserVerification.user_id.key,
             UserVerification.redditor.key
         )
         dump_only = (

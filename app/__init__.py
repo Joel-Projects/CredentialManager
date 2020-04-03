@@ -2,6 +2,8 @@ import os
 import sys
 
 from flask import Flask
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 
 CONFIG_NAME_MAPPER = {
     'development': 'config.DevelopmentConfig',
@@ -34,6 +36,7 @@ def create_app(flask_config_name=None, **kwargs):
             sys.exit(1)
         raise
 
+    app.wsgi_app = ProxyFix(app.wsgi_app)
     app.url_map.strict_slashes = False
     app.jinja_env.cache = {}
     app.jinja_env.trim_blocks = True

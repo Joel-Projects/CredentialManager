@@ -30,10 +30,10 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
     try:
         response = requests.get('https://www.reddit.com/api/v1/scopes.json', headers={'User-Agent': 'python:flask scope checker by u/Lil_SpazJoekp'})
         scopeJSON = response.json()
-    except Exception as error:
+    except Exception as error: # pragma: no cover
         log.exception(error)
     if not scopeJSON:
-        with open('scopes.json', 'r') as f:
+        with open('scopes.json', 'r') as f: # pragma: no cover
             scopeJSON = json.load(f)
 
     __table_args__ = {'schema': 'credential_store'}
@@ -53,8 +53,6 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
     uniqueConstrant = db.Index('only_one_active_token', reddit_app_id, redditor, revoked, unique=True, postgresql_where=(~revoked))
 
     def check_owner(self, user):
-        if self.owner.is_internal:
-            return user.is_internal
         return self.owner == user
 
     def revoke(self):

@@ -66,11 +66,11 @@ def editUserVerification(user_verification):
                         PatchUserVerificationDetailsParameters.perform_patch(itemsToUpdate, user_verification)
                         db.session.merge(user_verification)
                         code = 202
-                        flash(f'User Verification for Discord Member {user_verification.discord_id} saved successfully!', 'success')
+                        flash(f'User Verification for User ID {user_verification.user_id} saved successfully!', 'success')
                 except Exception as error: # pragma: no cover
                     log.exception(error)
                     code = 400
-                    flash(f'Failed to update User Verification for Discord Member {user_verification.discord_id}', 'error')
+                    flash(f'Failed to update User Verification for User ID {user_verification.user_id}', 'error')
         else:
             code = 422
     return render_template('edit_user_verification.html', user_verification=user_verification, form=form), code
