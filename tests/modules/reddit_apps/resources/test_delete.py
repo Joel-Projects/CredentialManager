@@ -5,7 +5,7 @@ from tests.params import labels, users
 from tests.utils import assert403, assertSuccess
 
 
-tokensToDelete = [
+redditAppsToDelete = [
     pytest.lazy_fixture('adminUserRedditApp'),
     pytest.lazy_fixture('internalUserRedditApp'),
     pytest.lazy_fixture('regularUserRedditApp')

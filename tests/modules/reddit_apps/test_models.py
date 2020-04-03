@@ -23,16 +23,16 @@ def test_reddit_app_genAuthUrl(regular_user, admin_user, regularUserRedditApp, r
 
 def test_reddit_app_getAppFromState(regular_user, admin_user, regularUserRedditApp, regularUserRefreshToken):
     redditApp = RedditApp.query.first()
-    app, discord_id = RedditApp.getAppFromState('65904271c7f48ee638a684f55f76a92a1c7ecc7a0c56e5c0a1b83e2510efcb4d')
-    assert redditApp, None == (app, discord_id)
+    app, user_id = RedditApp.getAppFromState('65904271c7f48ee638a684f55f76a92a1c7ecc7a0c56e5c0a1b83e2510efcb4d')
+    assert redditApp, None == (app, user_id)
 
-def test_reddit_app_getAppFromState_with_discord_id(regular_user, admin_user, regularUserRedditApp, regularUserRefreshToken):
+def test_reddit_app_getAppFromState_with_user_id(regular_user, admin_user, regularUserRedditApp, regularUserRefreshToken):
     redditApp = RedditApp.query.first()
     import base64
     state = base64.urlsafe_b64encode(f'{redditApp.state}:123456789012345678'.encode()).decode()
-    discord_id = 123456789012345678
-    app, discord = RedditApp.getAppFromState(state)
-    assert (redditApp, discord_id) == (app, discord)
+    user_id = 123456789012345678
+    app, user_id = RedditApp.getAppFromState(state)
+    assert (redditApp, user_id) == (app, user_id)
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 def test_reddit_app_getRefreshToken(loginAs, regularUserRedditApp, regularUserRefreshToken):

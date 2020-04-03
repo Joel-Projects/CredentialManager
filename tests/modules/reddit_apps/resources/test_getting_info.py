@@ -76,8 +76,8 @@ def test_getting_refresh_token_from_redditor(flask_app_client, loginAs, regularU
 
     assert response.status_code == 200
     assert response.content_type == contentType
-    assert set(response.json.keys()) >= {'id', 'reddit_app', 'redditor', 'refresh_token'}
-    assert response.json['reddit_app'] == regularUserRedditApp.id
+    assert set(response.json.keys()) >= {'id', 'reddit_app_id', 'redditor', 'refresh_token'}
+    assert response.json['reddit_app_id'] == regularUserRedditApp.id
     assert response.json['redditor'] == regularUserRefreshToken.redditor
     assert response.json['refresh_token'] == regularUserRefreshToken.refresh_token
 
