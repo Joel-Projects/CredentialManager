@@ -5,7 +5,7 @@ from tests.params import labels, users
 from tests.utils import assert403, assertSuccess
 
 
-tokensToDelete = [
+botsToDelete = [
     pytest.lazy_fixture('adminUserBot'),
     pytest.lazy_fixture('internalUserBot'),
     pytest.lazy_fixture('regularUserBot')
