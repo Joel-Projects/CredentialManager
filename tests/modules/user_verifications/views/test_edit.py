@@ -26,7 +26,7 @@ def test_user_verification_detail_edit_for_other_user(flask_app_client, loginAs,
         'itemId': f'{userVerification.id}',
         'reddit_app': f'{redditApp.id}',
         'enabled': 'y',
-        'discord_id': 123456789012345679,
+        'user_id': '123456789012345679',
         'redditor': 'redditor'
     }
     with captured_templates(flask_app_client.application) as templates:
@@ -34,7 +34,7 @@ def test_user_verification_detail_edit_for_other_user(flask_app_client, loginAs,
         if loginAs.is_internal:
             assert202(response)
             assertRenderedTemplate(templates, 'edit_user_verification.html')
-            assertMessageFlashed(templates, 'User Verification for Discord Member 123456789012345679 saved successfully!', 'success')
+            assertMessageFlashed(templates, 'User Verification for User ID 123456789012345679 saved successfully!', 'success')
             modifiedUserVerification = UserVerification.query.filter_by(id=userVerification.id).first()
             assertModified(data, modifiedUserVerification)
         elif loginAs.is_admin:
@@ -45,7 +45,7 @@ def test_user_verification_detail_edit_for_other_user(flask_app_client, loginAs,
             else:
                 assert202(response)
                 assertRenderedTemplate(templates, 'edit_user_verification.html')
-                assertMessageFlashed(templates, 'User Verification for Discord Member 123456789012345679 saved successfully!', 'success')
+                assertMessageFlashed(templates, 'User Verification for User ID 123456789012345679 saved successfully!', 'success')
                 modifiedUserVerification = UserVerification.query.filter_by(id=userVerification.id).first()
                 assertModified(data, modifiedUserVerification)
         else:
@@ -61,7 +61,7 @@ def test_user_verification_detail_edit(flask_app_client, loginAs, regularUserUse
         'itemId': f'{regularUserUserVerification.id}',
         'reddit_app': f'{redditApp.id}',
         'enabled': 'y',
-        'discord_id': 123456789012345679,
+        'user_id': '123456789012345679',
         'redditor': 'redditor'
     }
     with captured_templates(flask_app_client.application) as templates:
@@ -69,7 +69,7 @@ def test_user_verification_detail_edit(flask_app_client, loginAs, regularUserUse
         if loginAs.is_admin or loginAs.is_internal:
             assert202(response)
             assertRenderedTemplate(templates, 'edit_user_verification.html')
-            assertMessageFlashed(templates, 'User Verification for Discord Member 123456789012345679 saved successfully!', 'success')
+            assertMessageFlashed(templates, 'User Verification for User ID 123456789012345679 saved successfully!', 'success')
             modifiedUserVerification = UserVerification.query.filter_by(id=regularUserUserVerification.id).first()
             assertModified(data, modifiedUserVerification)
 
@@ -86,7 +86,7 @@ def test_user_verification_detail_edit_self(flask_app_client, db, loginAs, regul
         'itemId': f'{regularUserUserVerification.id}',
         'reddit_app': f'{redditApp.id}',
         'enabled': 'y',
-        'discord_id': 123456789012345679,
+        'user_id': '123456789012345679',
         'redditor': 'redditor'
     }
     regularUserUserVerification = changeOwner(db, loginAs, regularUserUserVerification)
@@ -94,13 +94,13 @@ def test_user_verification_detail_edit_self(flask_app_client, db, loginAs, regul
         response = flask_app_client.post(f'/user_verifications/{regularUserUserVerification.id}', data=data)
         assert202(response)
         assertRenderedTemplate(templates, 'edit_user_verification.html')
-        assertMessageFlashed(templates, 'User Verification for Discord Member 123456789012345679 saved successfully!', 'success')
+        assertMessageFlashed(templates, 'User Verification for User ID 123456789012345679 saved successfully!', 'success')
         modifiedUserVerification = UserVerification.query.filter_by(id=regularUserUserVerification.id).first()
         assertModified(data, modifiedUserVerification)
 
-def test_user_verification_detail_conflicting_discord_id(flask_app_client, db, regularUserInstance, regularUserUserVerification, adminUserUserVerification):
+def test_user_verification_detail_conflicting_user_id(flask_app_client, db, regularUserInstance, regularUserUserVerification, adminUserUserVerification):
     original = changeOwner(db, regularUserInstance, adminUserUserVerification)
-    original.discord_id = 123456789012345679
+    original.user_id = '123456789012345679'
     db.session.merge(original)
     toBeModified = changeOwner(db, regularUserInstance, regularUserUserVerification)
     db.session.merge(toBeModified)
@@ -108,7 +108,7 @@ def test_user_verification_detail_conflicting_discord_id(flask_app_client, db, r
         'itemType': 'user_verifications',
         'itemId': f'{regularUserUserVerification.id}',
         'enabled': 'y',
-        'discord_id': 123456789012345679,
+        'user_id': '123456789012345679',
         'redditor': 'redditor'
     }
     with captured_templates(flask_app_client.application) as templates:
@@ -116,6 +116,6 @@ def test_user_verification_detail_conflicting_discord_id(flask_app_client, db, r
         assert response.status_code == 422
         assert response.mimetype == 'text/html'
         assertRenderedTemplate(templates, 'edit_user_verification.html')
-        assert templates['templates'][0][1]['form'].errors['discord_id'][0] == 'Already exists.'
+        assert templates['templates'][0][1]['form'].errors['user_id'][0] == 'Already exists.'
         modifiedUserVerification = UserVerification.query.filter_by(id=toBeModified.id).first()
-        assert modifiedUserVerification.discord_id == toBeModified.discord_id
+        assert modifiedUserVerification.user_id == toBeModified.user_id

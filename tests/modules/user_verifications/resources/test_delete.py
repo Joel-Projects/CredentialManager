@@ -5,7 +5,7 @@ from tests.params import labels, users
 from tests.utils import assert403, assertSuccess
 
 
-tokensToDelete = [
+UserVerificationsToDelete = [
     pytest.lazy_fixture('adminUserUserVerification'),
     pytest.lazy_fixture('internalUserUserVerification'),
     pytest.lazy_fixture('regularUserUserVerification')

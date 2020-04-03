@@ -44,6 +44,6 @@ def test_modifying_user_verification_info_with_invalid_format_must_fail(flask_ap
 def test_modifying_user_verification_info_with_conflict_data_must_fail(flask_app_client, regularUserInstance, regularUserUserVerification, adminUserUserVerification):
     regularUserUserVerification.owner = regularUserInstance
     adminUserUserVerification.owner = regularUserInstance
-    response = flask_app_client.patch(f'/api/v1/user_verifications/{regularUserUserVerification.id}', content_type='application/json', data=json.dumps([{'op': 'replace', 'path': '/discord_id', 'value': adminUserUserVerification.discord_id}]))
+    response = flask_app_client.patch(f'/api/v1/user_verifications/{regularUserUserVerification.id}', content_type='application/json', data=json.dumps([{'op': 'replace', 'path': '/user_id', 'value': adminUserUserVerification.user_id}]))
 
     assert409(response, UserVerification, 'Failed to update User Verification details.', loginAs=regularUserInstance, messageAttrs=[('1', {'_schema': ['value is required']})], oldItem=regularUserUserVerification, action='patch')

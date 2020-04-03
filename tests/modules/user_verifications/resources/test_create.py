@@ -8,7 +8,7 @@ from tests.utils import assert403, assert422, assertSuccess
 
 path = '/api/v1/user_verifications/'
 data = {
-    'discord_id': 123456789012345678
+    'user_id': 123456789012345678
 }
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
