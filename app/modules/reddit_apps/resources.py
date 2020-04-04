@@ -142,10 +142,13 @@ class GenerateAuthUrl(Resource):
         '''
         Generate a reddit auth url
         '''
+        user_verification = None
         user_verification_id = args.pop('user_verification_id', None)
-        user_verification = UserVerification.query.get(user_verification_id)
-        if not user_verification and user_verification_id:
-            user_verification = UserVerification.query.filter_by(user_id=user_verification_id).first()
+        user_verification_user_id = args.pop('user_verification_user_id', None)
+        if user_verification_id:
+            user_verification = UserVerification.query.get_or_404(user_verification_id)
+        if not user_verification and user_verification_user_id:
+            user_verification = UserVerification.query.filter_by(user_id=user_verification_user_id).first_or_404()
         auth_url = reddit_app.genAuthUrl(args['scopes'], args['duration'], user_verification)
         setattr(reddit_app, 'auth_url', auth_url)
         return reddit_app

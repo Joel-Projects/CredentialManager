@@ -2,6 +2,7 @@ import pytest
 
 from app.modules.reddit_apps.models import RedditApp
 from app.modules.refresh_tokens.models import RefreshToken
+from app.modules.user_verifications.models import UserVerification
 
 
 test_data = {
@@ -38,4 +39,9 @@ refreshTokenData = {
 @pytest.fixture()
 def regularUserRefreshToken(regularUserRedditApp, temp_db_instance_helper, regular_user):
     for _ in temp_db_instance_helper(RefreshToken(reddit_app=regularUserRedditApp, owner=regular_user, **refreshTokenData)):
+        yield _
+
+@pytest.fixture()
+def regularUserUserVerification(temp_db_instance_helper, regular_user, regularUserRedditApp):
+    for _ in temp_db_instance_helper(UserVerification(reddit_app=regularUserRedditApp, owner=regular_user, user_id='123456789012345678')):
         yield _

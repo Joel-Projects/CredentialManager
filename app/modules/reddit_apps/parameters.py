@@ -55,12 +55,10 @@ class PatchRedditAppDetailsParameters(PatchJSONParameters):
     PATH_CHOICES = tuple(f'/{field}' for field in fields)
 
 class GenerateAuthUrlParameters(PostFormParameters):
-    user_verification_id = base_fields.Integer()
-    scopes = base_fields.List(base_fields.String(required=True), required=True)
-    duration = base_fields.String(required=True)
-    state = base_fields.String()
-
-    invalidOwnerMessage = 'You can only query your own {}.'
+    user_verification_id = base_fields.Integer(description='Specify a User Verification ID to assoiate with auth url by User Verification ID')
+    user_verification_user_id = base_fields.String(description='Specify a User Verification User ID to assoiate with auth url by User ID')
+    scopes = base_fields.List(base_fields.String(required=True), required=True, description='List of scopes needed for app')
+    duration = base_fields.String(default='permanent', description='Duration authorization is good for. Options are: `permanent` and `temporary`. Defaults to `permanent`.')
 
 class GetRefreshTokenByRedditor(PostFormParameters):
     redditor = base_fields.String(required=True, description='Redditor the Refresh Token is for')
