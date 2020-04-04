@@ -31,6 +31,7 @@ test:pytest3.8:
     image: python:3.8
     stage: test
     allow_failure: true
+    coverage: '/^TOTAL.*\s+(\d+\%)$/'
     services:
         - postgres:latest
     variables:
@@ -41,12 +42,13 @@ test:pytest3.8:
         DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
     script:
         - pip install -r app/requirements.txt -r tests/requirements.txt
-        - pytest --cov-report=term --cov=app --cov=tests tests
+        - pytest --cov-report=html --cov=app --cov=tests tests
 
 test:pytest3.7:
     image: python:3.7
     stage: test
     allow_failure: true
+    coverage: '/^TOTAL.*\s+(\d+\%)$/'
     services:
         - postgres:latest
     variables:
@@ -57,12 +59,13 @@ test:pytest3.7:
         DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
     script:
         - pip install -r app/requirements.txt -r tests/requirements.txt
-        - pytest --cov-report=term --cov=app --cov=tests tests
+        - pytest --cov-report=html --cov=app --cov=tests tests
 
 test:pytest3.6:
     image: python:3.6
     stage: test
     allow_failure: true
+    coverage: '/^TOTAL.*\s+(\d+\%)$/'
     services:
         - postgres:latest
     variables:
@@ -73,8 +76,7 @@ test:pytest3.6:
         DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
     script:
         - pip install -r app/requirements.txt -r tests/requirements.txt
-        - pytest --cov-report=term --cov=app --cov=tests tests
-    coverage: '/^TOTAL.*\s+(\d+\%)$/'
+        - pytest --cov-report=html --cov=app --cov=tests tests
 
 test:sonarqube:
     image:
