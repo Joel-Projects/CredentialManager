@@ -35,6 +35,17 @@ function saveItem(button) {
     $(`#${button.id}`).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>Saving...');
 };
 
+function triggerLoading(button, message) {
+    $(`#${button.id}`).disabled = true;
+    $(`#${button.id}`).html(`<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>${message}...`);
+};
+
+function doneLoading(button, buttonText) {
+    $(`#${button.id}`).prop('disabled', false);
+    $(`#${button.id}`).prop('class', 'btn btn-primary');
+    $(`#${button.id}`).html(buttonText);
+};
+
 function saveUser(button) {
     $(`#${button.id}`).disabled = true;
     $(`#${button.id}`).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>Saving...');
@@ -145,6 +156,7 @@ function toggleItem(itemType, id, name, nameAttr, enabledAttr) {
 
 function createItem(button, form, resource, additonal = false, editor) {
     event.preventDefault();
+    triggerLoading(button, 'Creating')
     var data = {};
     $(`#${form} *`).filter(':input').each(function () {
         if (this.type == 'checkbox') {
@@ -162,6 +174,7 @@ function createItem(button, form, resource, additonal = false, editor) {
         url: resource
     })
         .done(function notify(data) {
+            doneLoading(button, 'Create')
             if (data.status == 'error') {
                 for (item in data.errors) {
                     var errors = data['errors'][item];
@@ -174,9 +187,12 @@ function createItem(button, form, resource, additonal = false, editor) {
                 if (additonal) {
                     $(`#${form}`)[0].reset()
                 } else {
+                    // window.location.reload()
+                    var modal = $(`#${form}`)[0].parentElement.parentElement.parentElement.parentElement
                     if (window.location.hash) {
                         window.location.reload()
                     } else {
+                        // $(`#${modal.id}`).modal('hide');
                         window.location.href = window.location.href
                     }
                 }
