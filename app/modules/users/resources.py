@@ -150,13 +150,14 @@ class GetUserByName(Resource):
     Get User by name
     '''
 
+    @api.permission_required(permissions.AdminRolePermission())
     @api.parameters(parameters.GetUserByName())
     @api.response(schemas.DetailedUserSchema())
     def post(self, args):
         '''
         Get User by username.
-
-        Only Admins can specify ``owner_id`` to get other users' Bot details.
-        If ``owner_id`` is not specified, only your Bots will be queried.
         '''
-        return User.query.filter_by(username=args['username']).first_or_404(f'User {args["username"]!r} does not exist.')
+        user = User.query.filter_by(username=args['username']).first_or_404(f'User {args["username"]!r} does not exist.')
+        if user.is_internal:
+            permissions.InternalRolePermission().__enter__()
+        return user

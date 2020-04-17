@@ -4,7 +4,7 @@ from app.modules.users import schemas
 def test_BaseUserSchema_dump_empty_input():
     dumped_result = schemas.BaseUserSchema().dump({})
     assert dumped_result.errors == {}
-    assert dumped_result.data == {}
+    assert dumped_result.data == {'resource_type': 'User'}
 
 def test_BaseUserSchema_dump_userInstance(userInstance):
     userInstance.password = 'password'
@@ -13,7 +13,8 @@ def test_BaseUserSchema_dump_userInstance(userInstance):
     assert 'password' not in dumped_result.data
     assert set(dumped_result.data.keys()) == {
         'id',
-        'username'
+        'username',
+        'resource_type'
     }
 
 def test_DetailedUserSchema_dump_userInstance(userInstance):
@@ -30,4 +31,5 @@ def test_DetailedUserSchema_dump_userInstance(userInstance):
         'is_active',
         'is_regular_user',
         'is_admin',
+        'resource_type'
     }

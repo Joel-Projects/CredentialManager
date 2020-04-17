@@ -86,7 +86,7 @@ def assertSuccess(response, owner, model, schema, deleteItemId=None):
         assert response.status_code == 200
         assert set(response.json.keys()) >= set(schema.Meta.fields)
         for field in schema.Meta.fields:
-            if response.json[field]:
+            if response.json[field] and not field == 'resource_type':
                 if isinstance(getattr(model, field), property):
                     assert isinstance(response.json[field], bool)
                 elif not isinstance(getattr(model, field), InstrumentedAttribute): # pragma: no cover
@@ -99,16 +99,21 @@ def assertSuccess(response, owner, model, schema, deleteItemId=None):
         if 'owner_id' in response.json:
             assert response.json['owner_id'] == owner.id
         for field in schema.Meta.fields:
-            if response.json[field]:
+            if not field == 'resource_type' and response.json[field]:
                 if isinstance(getattr(createdItem, field), datetime):
                     assert response.json[field] == datetime.astimezone(getattr(createdItem, field), timezone.utc).isoformat()
                 elif isinstance(getattr(createdItem, field), Choice):
                     assert response.json[field] == getattr(createdItem, field).value
                 elif issubclass(type(getattr(createdItem, field)), Model):
                     for key, value in response.json[field].items():
-                        assert getattr(getattr(createdItem, field), key) == value
+                        if key != 'resource_type':
+                            if isinstance(getattr(getattr(createdItem, field), key), Choice):
+                                assert getattr(getattr(createdItem, field), key).value == value
+                            else:
+                                assert getattr(getattr(createdItem, field), key) == value
                 else:
-                    assert response.json[field] == getattr(createdItem, field)
+                    if field != 'resource_type':
+                        assert response.json[field] == getattr(createdItem, field)
 
 def itemNotCreated(model, *, loginAs):
     items = model.query.all()

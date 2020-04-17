@@ -15,25 +15,25 @@ class ListApiTokensParameters(PaginationParameters, ValidateOwner):
 
     invalidOwnerMessage = 'You can only query your own {}.'
 
-class CreateApiTokenParameters(PostFormParameters, schemas.BaseApiTokenSchema, ValidateOwner):
-    name = base_fields.String(required=True, description='Name of the API token')
-    owner_id = base_fields.Integer(description='Owner of the token. Requires Admin to create for other users.')
-    length = base_fields.Integer(description='Length of the token. Must be between 16 and 128, `16<=length<=128`. Defaults to `32`', default=32)
-
-    class Meta(schemas.BaseApiTokenSchema.Meta):
-        fields = schemas.BaseApiTokenSchema.Meta.fields + ('owner_id', 'length')
-
-    @validates('name')
-    def validateName(self, data):
-        if len(data) < 3:
-            raise ValidationError('Name must be greater than 3 characters long.')
-
-    @validates('length')
-    def validateLength(self, data):
-        if 16 > data:
-            raise ValidationError('Length must be greater than 16.')
-        elif 128 < data:
-            raise ValidationError('Length must be less than 128.')
+# #class CreateApiTokenParameters(PostFormParameters, schemas.BaseApiTokenSchema, ValidateOwner):
+# #    name = base_fields.String(required=True, description='Name of the API token')
+# #    owner_id = base_fields.Integer(description='Owner of the token. Requires Admin to create for other users.')
+# #    length = base_fields.Integer(description='Length of the token. Must be between 16 and 128, `16<=length<=128`. Defaults to `32`', default=32)
+# #
+# #    class Meta(schemas.BaseApiTokenSchema.Meta):
+# #        fields = schemas.BaseApiTokenSchema.Meta.fields + ('owner_id', 'length')
+# #
+# #    @validates('name')
+# #    def validateName(self, data):
+# #        if len(data) < 3:
+# #            raise ValidationError('Name must be greater than 3 characters long.')
+# #
+# #    @validates('length')
+# #    def validateLength(self, data):
+# #        if 16 > data:
+# #            raise ValidationError('Length must be greater than 16.')
+# #        elif 128 < data:
+# #            raise ValidationError('Length must be less than 128.')
 
 class PatchApiTokenDetailsParameters(PatchJSONParameters):
     fields = (ApiToken.name.key, ApiToken.enabled.key)

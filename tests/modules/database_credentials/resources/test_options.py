@@ -22,9 +22,9 @@ def test_database_credentials_options_authorized(path, expected_allowed_methods,
     assert response.status_code == 204
     assert set(response.headers['Allow'].split(', ')) == expected_allowed_methods
 
-@pytest.mark.parametrize('http_path,expected_allowed_methods', (('/api/v1/database_credentials/', {'GET', 'POST', 'OPTIONS'}),))
-def test_preflight_options_request(http_path, expected_allowed_methods, flask_app_client):
-    response = flask_app_client.open(method='OPTIONS', path=http_path, headers={'Access-Control-Request-Method': 'post'})
+@pytest.mark.parametrize('path,expected_allowed_methods', (('/api/v1/database_credentials/', {'GET', 'POST', 'OPTIONS'}),))
+def test_preflight_options_request(path, expected_allowed_methods, flask_app_client):
+    response = flask_app_client.open(method='OPTIONS', path=path, headers={'Access-Control-Request-Method': 'post'})
     assert response.status_code == 200
     assert set(
         response.headers['Access-Control-Allow-Methods'].split(', ')

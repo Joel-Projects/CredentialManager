@@ -35,7 +35,7 @@ class ValidateOwner(Parameters):
     def validateOwnerId(self, data):
         item = validateOwnerExists(data)
         if item:
-            if item.is_internal:
+            if item.is_internal: # pragma: no cover
                 permissions.InternalRolePermission().__enter__()
             if current_user.id != data and not (current_user.is_admin or current_user.is_internal):
                 raise http_exceptions.abort(HTTPStatus.FORBIDDEN, self.invalidOwnerMessage.format(self.Meta.model._displayNamePlural))
