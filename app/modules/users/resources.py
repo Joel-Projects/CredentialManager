@@ -79,7 +79,7 @@ class UserByID(Resource):
         '''
         Get user details by ID.
         '''
-        return user
+        return user # pragma: no cover
 
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['user']})
     @api.permission_required(permissions.WriteAccessPermission())
