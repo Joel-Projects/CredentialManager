@@ -1,0 +1,1 @@
+INSERT INTO credential_store.api_tokens (created, updated, id, name, token, enabled, owner_id, last_used) VALUES ('2020-02-10 23:49:55.562421', '2020-03-06 00:19:00.583150', 1, 'test2', 'Bxo2BwwMERsiwBiG387nWHZOGcwC260E', true, 3, null);

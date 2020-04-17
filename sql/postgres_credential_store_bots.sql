@@ -1,0 +1,1 @@
+INSERT INTO credential_store.bots (created, updated, id, app_name, reddit_id, sentry_id, database_id, enabled, owner_id) VALUES ('2020-02-27 04:50:40.300805', '2020-02-27 04:50:40.300828', 1, 'test', 1, 1, null, true, 3);

@@ -1,0 +1,4 @@
+INSERT INTO credential_store.sentry_tokens (created, updated, id, app_name, dsn, enabled, owner_id) VALUES ('2020-02-10 23:51:44.829027', '2020-02-26 22:50:40.387079', 1, 'test', 'test', false, 3);
+INSERT INTO credential_store.sentry_tokens (created, updated, id, app_name, dsn, enabled, owner_id) VALUES ('2020-03-03 14:43:10.025201', '2020-03-03 14:43:10.025336', 2, 'testt', 'https://9792632cb7e94f08a45c313a443f3154@sentry.jesassn.org/23', true, 3);
+INSERT INTO credential_store.sentry_tokens (created, updated, id, app_name, dsn, enabled, owner_id) VALUES ('2020-03-03 14:43:10.025201', '2020-03-03 14:47:01.987501', 4, 'pim_test2', 'https://78945612@sentry.jesassn.org/27', false, 16);
+INSERT INTO credential_store.sentry_tokens (created, updated, id, app_name, dsn, enabled, owner_id) VALUES ('2020-03-03 14:43:10.025201', '2020-03-03 15:02:13.741969', 3, 'pim_test', 'https://b11c7ce0ebe5459d9c99705a62142fa6@sentry.jesassn.org/27', true, 16);

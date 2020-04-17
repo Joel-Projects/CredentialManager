@@ -1,0 +1,3 @@
+https://marshmallow.readthedocs.io/en/stable/upgrading.html#datetime-leaves-timezone-information-untouched-during-serialization
+https://marshmallow.readthedocs.io/en/stable/upgrading.html#custom-fields
+https://marshmallow.readthedocs.io/en/stable/upgrading.html#upgrading-to-3-3 maybe
