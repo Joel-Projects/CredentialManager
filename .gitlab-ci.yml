@@ -12,15 +12,15 @@ variables:
     CONTAINER_BUILD_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
     CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
 
-build:
+build:build-latest:
     stage: build
     script:
         - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
         - docker build --pull -t $CONTAINER_BUILD_IMAGE .
         - docker push $CONTAINER_BUILD_IMAGE
 
-release:
-    stage: release
+build:tag:
+    stage: build
     script:
         - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
         - docker pull $CONTAINER_BUILD_IMAGE
@@ -32,9 +32,6 @@ test:pytest3.8:
     stage: test
     allow_failure: true
     coverage: '/^TOTAL.*\s+(\d+\%)$/'
-    artifacts:
-        paths:
-            - htmlcov/
     services:
         - postgres:latest
     variables:
@@ -45,16 +42,13 @@ test:pytest3.8:
         DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
     script:
         - pip install -r app/requirements.txt -r tests/requirements.txt
-        - pytest --cov-report=html --cov=app --cov=tests tests
+        - pytest --cov-report=term --cov=app tests
 
 test:pytest3.7:
     image: python:3.7
     stage: test
     allow_failure: true
     coverage: '/^TOTAL.*\s+(\d+\%)$/'
-    artifacts:
-        paths:
-            - htmlcov/
     services:
         - postgres:latest
     variables:
@@ -65,16 +59,13 @@ test:pytest3.7:
         DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
     script:
         - pip install -r app/requirements.txt -r tests/requirements.txt
-        - pytest --cov-report=html --cov=app --cov=tests tests
+        - pytest --cov-report=term --cov=app tests
 
 test:pytest3.6:
     image: python:3.6
     stage: test
     allow_failure: true
     coverage: '/^TOTAL.*\s+(\d+\%)$/'
-    artifacts:
-        paths:
-            - htmlcov/
     services:
         - postgres:latest
     variables:
@@ -85,7 +76,7 @@ test:pytest3.6:
         DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
     script:
         - pip install -r app/requirements.txt -r tests/requirements.txt
-        - pytest --cov-report=html --cov=app --cov=tests tests
+        - pytest --cov-report=term --cov=app tests
 
 test:sonarqube:
     image:
