@@ -105,14 +105,14 @@ class UserVerificationByID(Resource):
 @api.response(code=HTTPStatus.NOT_FOUND, description='Member not found.')
 class GetUserVerificationByUserID(Resource):
     '''
-    Manipulations with a specific User Verification.
+    Get redditor from UserVerification
     '''
 
     @api.parameters(parameters.GetUserVerificationByUserId())
     @api.response(schemas.DetailedUserVerificationSchema())
     def post(self, args):
         '''
-        Get User Verification by User ID.
+        Get  by User ID.
         Optionally filter by Reddit App ID
 
         Only Admins can see Refresh Tokens for other users' Reddit Apps. Regular users will see their own Reddit Apps' Refresh Tokens.

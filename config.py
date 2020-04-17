@@ -23,7 +23,7 @@ class BaseConfig(object):
     SWAGGER_UI_REQUEST_DURATION = True
 
     AUTHORIZATIONS = {
-        'apiKey': {'type': 'apiKey', 'in': 'header', 'name': 'X-API-KEY'},
+        'api_token': {'type': 'apiKey', 'in': 'header', 'name': 'X-API-TOKEN'},
         'basic': {'type': 'basic'}
     }
 

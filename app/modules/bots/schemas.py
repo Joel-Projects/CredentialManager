@@ -2,9 +2,9 @@ from flask_marshmallow import base_fields
 
 from flask_restplus_patched import ModelSchema
 from .models import Bot
-from ..database_credentials.schemas import DatabaseCredentialBotSchema
-from ..reddit_apps.schemas import RedditAppBotSchema
-from ..sentry_tokens.schemas import SentryTokenBotSchema
+from ..database_credentials.schemas import DetailedDatabaseCredentialSchema
+from ..reddit_apps.schemas import DetailedRedditAppSchema
+from ..sentry_tokens.schemas import DetailedSentryTokenSchema
 
 
 class BaseBotSchema(ModelSchema):
@@ -19,19 +19,24 @@ class BaseBotSchema(ModelSchema):
         fields = (
             Bot.id.key,
             Bot.app_name.key,
-            Bot.enabled.key
+            Bot.enabled.key,
+            'resource_type'
         )
         dump_only = (
             Bot.id.key,
+            'resource_type'
         )
+
+    _resourceType = Meta.model.__name__
+    resource_type = base_fields.String(default=_resourceType)
 
 class DetailedBotSchema(BaseBotSchema):
     '''
     Detailed Bot schema exposes all useful fields.
     '''
-    reddit_app = base_fields.Nested(RedditAppBotSchema)
-    sentry_token = base_fields.Nested(SentryTokenBotSchema)
-    database_credential = base_fields.Nested(DatabaseCredentialBotSchema)
+    reddit_app = base_fields.Nested(DetailedRedditAppSchema, exclude=('enabled', 'owner_id'))
+    sentry_token = base_fields.Nested(DetailedSentryTokenSchema, exclude=('enabled', 'owner_id'))
+    database_credential = base_fields.Nested(DetailedDatabaseCredentialSchema, exclude=('enabled', 'owner_id'))
 
     class Meta(BaseBotSchema.Meta):
         fields = BaseBotSchema.Meta.fields + (

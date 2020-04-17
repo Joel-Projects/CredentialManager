@@ -11,9 +11,9 @@ log = logging.getLogger(__name__)
 def loadUserFromRequest(request):
     user = None
     try:
-        apiKey = request.headers.get('X-API-KEY', None)
-        if apiKey:
-            user = User.findWithApiKey(apiKey)
+        api_token = request.headers.get('X-API-TOKEN', None)
+        if api_token:
+            user = User.findWithApiToken(api_token)
         if not user:
             username = getattr(request.authorization, 'username', None)
             password = getattr(request.authorization, 'password', None)

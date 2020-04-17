@@ -102,14 +102,14 @@ class BotByID(Resource):
 @api.response(code=HTTPStatus.NOT_FOUND, description='Bot not found.')
 class GetBotByName(Resource):
     '''
-    Get Refresh Token by name
+    Get Bot by name
     '''
 
     @api.parameters(parameters.GetBotByName())
     @api.response(schemas.DetailedBotSchema())
     def post(self, args):
         '''
-        Get Refresh Token by reddit app and redditor.
+        Get Bot by name.
 
         Only Admins can specify ``owner_id`` to get other users' Bot details.
         If ``owner_id`` is not specified, only your Bots will be queried.

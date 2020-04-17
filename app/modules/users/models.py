@@ -127,8 +127,8 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
         return None
 
     @classmethod
-    def findWithApiKey(cls, apiKey):
-        apiToken = ApiToken.query.filter_by(token=apiKey).first()
+    def findWithApiToken(cls, api_token):
+        apiToken = ApiToken.query.filter_by(token=api_token).first()
         if not apiToken.enabled:
             abort(401, 'API Token invalid or disabled')
         user = cls.query.filter_by(id=apiToken.owner_id).first()

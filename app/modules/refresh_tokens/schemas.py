@@ -1,4 +1,5 @@
 from flask_restplus_patched import ModelSchema
+from flask_marshmallow import base_fields
 
 from .models import RefreshToken
 
@@ -15,11 +16,16 @@ class BaseRefreshTokenSchema(ModelSchema):
             RefreshToken.id.key,
             RefreshToken.reddit_app_id.key,
             RefreshToken.redditor.key,
-            RefreshToken.refresh_token.key
+            RefreshToken.refresh_token.key,
+            'resource_type'
         )
         dump_only = (
             RefreshToken.id.key,
+            'resource_type'
         )
+
+    _resourceType = Meta.model.__name__
+    resource_type = base_fields.String(default=_resourceType)
 
 class DetailedRefreshTokenSchema(BaseRefreshTokenSchema):
     '''

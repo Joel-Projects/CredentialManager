@@ -11,7 +11,7 @@ api_v1 = Api(
     description='API for interacting with Credential Manager',
     default=None,
     doc='/docs/',
-    security=['apiKey', 'basic']
+    security=['api_token', 'basic']
 )
 
 def init_app(app, **kwargs):

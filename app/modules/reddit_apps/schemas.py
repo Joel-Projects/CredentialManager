@@ -1,3 +1,5 @@
+from flask_marshmallow import base_fields
+
 from flask_restplus_patched import ModelSchema
 from .models import RedditApp
 
@@ -14,11 +16,16 @@ class BaseRedditAppSchema(ModelSchema):
             RedditApp.id.key,
             RedditApp.app_name.key,
             RedditApp.client_id.key,
-            RedditApp.client_secret.key
+            RedditApp.client_secret.key,
+            'resource_type'
         )
         dump_only = (
             RedditApp.id.key,
+            'resource_type'
         )
+
+    _resourceType = Meta.model.__name__
+    resource_type = base_fields.String(default=_resourceType)
 
 class DetailedRedditAppSchema(BaseRedditAppSchema):
     '''
@@ -37,27 +44,16 @@ class DetailedRedditAppSchema(BaseRedditAppSchema):
             RedditApp.owner_id.key
         )
 
-class RedditAppBotSchema(BaseRedditAppSchema):
-    '''
-    Reddit App Bot schema exposes all useful fields for Bots.
-    '''
-
-    class Meta:
-        ordered = True
-        model = RedditApp
-        fields = (
-            RedditApp.id.key,
-            RedditApp.app_name.key,
-            RedditApp.client_id.key,
-            RedditApp.client_secret.key,
-            RedditApp.user_agent.key,
-            RedditApp.redirect_uri.key
-        )
-
 class AuthUrlSchema(BaseRedditAppSchema):
     '''
     Detailed Reddit App schema exposes all useful fields.
     '''
 
     class Meta(BaseRedditAppSchema.Meta):
-        fields = (RedditApp.id.key, RedditApp.app_name.key, RedditApp.client_id.key, 'auth_url')
+        fields = (
+            RedditApp.id.key,
+            RedditApp.app_name.key,
+            RedditApp.client_id.key,
+            'auth_url',
+            'resource_type'
+        )

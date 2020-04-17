@@ -43,7 +43,7 @@ def test_create_api_token_enabled(flask_app_client, flask_app, loginAs, enabled)
         assert201(response)
         apiToken = assertCreated(32)
         assert apiToken.enabled == bool(enabled)
-        response = flask_app.test_client().get('/api/v1/users/me', headers={'X-API-KEY': apiToken.token})
+        response = flask_app.test_client().get('/api/v1/users/me', headers={'X-API-TOKEN': apiToken.token})
         if enabled:
             assert response.status_code == 200
             assert response.mimetype == 'application/json'

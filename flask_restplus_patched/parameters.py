@@ -71,7 +71,7 @@ class PatchJSONParameters(Parameters):
 
     NO_VALUE_OPERATIONS = (OP_REMOVE, OP_COPY)
 
-    value = base_fields.Raw(required=False)
+    value = base_fields.Raw(required=False, allow_none=True)
 
     fromPath = base_fields.String(required=False)
 

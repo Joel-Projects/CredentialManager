@@ -1,4 +1,5 @@
 from flask_restplus_patched import ModelSchema
+from flask_marshmallow import base_fields
 
 from .models import SentryToken
 
@@ -15,11 +16,16 @@ class BaseSentryTokenSchema(ModelSchema):
             SentryToken.id.key,
             SentryToken.app_name.key,
             SentryToken.dsn.key,
-            SentryToken.enabled.key
+            SentryToken.enabled.key,
+            'resource_type'
         )
         dump_only = (
             SentryToken.id.key,
+            'resource_type'
         )
+
+    _resourceType = Meta.model.__name__
+    resource_type = base_fields.String(default=_resourceType)
 
 class DetailedSentryTokenSchema(BaseSentryTokenSchema):
     '''
@@ -29,19 +35,4 @@ class DetailedSentryTokenSchema(BaseSentryTokenSchema):
     class Meta(BaseSentryTokenSchema.Meta):
         fields = BaseSentryTokenSchema.Meta.fields + (
             SentryToken.owner_id.key,
-            SentryToken.created.key
-        )
-
-class SentryTokenBotSchema(BaseSentryTokenSchema):
-    '''
-    Sentry Token Bot schema exposes all useful fields for Bots.
-    '''
-
-    class Meta:
-        ordered = True
-        model = SentryToken
-        fields = (
-            SentryToken.id.key,
-            SentryToken.app_name.key,
-            SentryToken.dsn.key
         )

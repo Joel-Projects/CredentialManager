@@ -1,4 +1,5 @@
 from flask_restplus_patched import ModelSchema
+from flask_marshmallow import base_fields
 
 from .models import UserVerification
 
@@ -14,11 +15,16 @@ class BaseUserVerificationSchema(ModelSchema):
         fields = (
             UserVerification.id.key,
             UserVerification.user_id.key,
-            UserVerification.redditor.key
+            UserVerification.redditor.key,
+            'resource_type'
         )
         dump_only = (
             UserVerification.id.key,
+            'resource_type'
         )
+
+    _resourceType = Meta.model.__name__
+    resource_type = base_fields.String(default=_resourceType)
 
 class DetailedUserVerificationSchema(BaseUserVerificationSchema):
     '''
