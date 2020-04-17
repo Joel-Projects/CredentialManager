@@ -49,11 +49,8 @@ class CreateUserVerificationParameters(PostFormParameters, schemas.DetailedUserV
             raise ValidationError("You don't have the permission to create User Verifications with other users' Reddit Apps.")
 
 class GetUserVerificationByUserId(PostFormParameters):
-    user_id = base_fields.String(required=True, description='User ID to associate Redditor with')
+    user_id = base_fields.String(required=True, description='User ID associated with Redditor')
     reddit_app_id = base_fields.Integer(description='Optionally specify a Reddit app the User Verification belongs to')
-
-class GetUserVerificationByOTC(PostFormParameters):
-    otc = base_fields.String(required=True, description='OTC Code to finish auth')
 
 class PatchUserVerificationDetailsParameters(PatchJSONParameters):
     '''

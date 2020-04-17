@@ -23,7 +23,6 @@ class ApiTokens(Resource):
     Manipulations with API Tokens.
     '''
 
-    # @api.permission_required(permissions.AdminRolePermission())
     @api.response(schemas.BaseApiTokenSchema(many=True))
     @api.parameters(parameters.ListApiTokensParameters(), locations=('query',))
     def get(self, args):
@@ -37,24 +36,6 @@ class ApiTokens(Resource):
         '''
         apiTokens = getViewableItems(args, ApiToken)
         return apiTokens.offset(args['offset']).limit(args['limit'])
-
-    @api.parameters(parameters.CreateApiTokenParameters())
-    @api.response(schemas.DetailedApiTokenSchema())
-    @api.response(code=HTTPStatus.FORBIDDEN)
-    @api.response(code=HTTPStatus.CONFLICT)
-    def post(self, args):
-        '''
-        Create a new API Token.
-
-        API token can be used instead of username/password. Include the API token in the ``X-API-KEY`` header
-        '''
-        args.token = ApiToken.generate_token(args.length)
-        args.owner = current_user
-        if args.owner_id:
-            args.owner = User.query.get(args.owner_id)
-        with api.commit_or_abort(db.session, default_error_message='Failed to create a new API Token.'):
-            db.session.add(args)
-        return args
 
 @api.route('/<int:api_token_id>')
 @api.login_required()

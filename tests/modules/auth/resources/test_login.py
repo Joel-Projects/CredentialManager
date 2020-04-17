@@ -2,7 +2,7 @@ from base64 import b64encode
 
 
 def test_regular_user_can_login_with_token(flask_app_client, db, regular_user, regularUserApiToken):
-    headers = {'X-API-KEY': regularUserApiToken.token}
+    headers = {'X-API-TOKEN': regularUserApiToken.token}
     response = flask_app_client.get('/api/v1/users/me', headers=headers)
 
     assert response.status_code == 200
@@ -13,7 +13,7 @@ def test_regular_user_can_login_with_token(flask_app_client, db, regular_user, r
         assert ApiToken.query.filter(ApiToken.id == regularUserApiToken.id).delete()
 
 def test_regular_user_cant_login_with_invalid_token(flask_app_client):
-    headers = {'X-API-KEY': 'invalid_token'}
+    headers = {'X-API-TOKEN': 'invalid_token'}
     response = flask_app_client.get('/api/v1/users/me', headers=headers)
     assert response.status_code == 401
 

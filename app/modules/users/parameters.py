@@ -32,6 +32,12 @@ class CreateUserParameters(PostFormParameters, schemas.BaseUserSchema):
     class Meta(schemas.BaseUserSchema.Meta):
         fields = schemas.BaseUserSchema.Meta.fields + ('password', 'default_settings', 'is_admin', 'is_active', 'is_regular_user', 'is_internal', 'reddit_username')
 
+class GetUserByName(PostFormParameters):
+    username = base_fields.String(required=True, description='Name of the User')
+
+    class Meta:
+        model = User
+
 class DeleteUserParameters(PostFormParameters, schemas.BaseUserSchema):
     user_id = base_fields.Integer(required=True)
 

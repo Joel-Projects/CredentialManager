@@ -70,10 +70,20 @@ def reddit_callback():
                 if userVerification and userVerification.reddit_app == redditApp:
                     userVerification.redditor = redditor
                     userVerification.verified_at = now
-                if userVerification.extra_data and 'sioux_bot' in userVerification.extra_data: # pragma: no cover
-                    webhook = os.getenv('SIOUX_BOT_WEBHOOK')
-                    if webhook:
-                        requests.post(webhook, data={'content': f'.done {user_id}'})
+                if userVerification.extra_data:
+                    if 'sioux_bot' in userVerification.extra_data: # pragma: no cover
+                        webhook = os.getenv('SIOUX_BOT_WEBHOOK')
+                        if webhook:
+                            requests.post(webhook, data={'content': f'.done {user_id}'})
+                    elif 'webhook' in userVerification.extra_data: # pragma: no cover
+                        if isinstance(userVerification.extra_data['webhook'], dict):
+                            if {'prefix', 'command', 'url'} == set(userVerification.extra_data['webhook']):
+                                prefix = userVerification.extra_data['webhook']['prefix']
+                                command = userVerification.extra_data['webhook']['command']
+                                webhook = userVerification.extra_data['webhook']['url']
+                                requests.post(webhook, data={'content': f'{prefix}{command} {user_id}'})
+                        elif isinstance(userVerification.extra_data['webhook'], str):
+                            requests.post(userVerification.extra_data['webhook'], data={'content': user_id})
             if refreshToken:
                 appName = refreshToken.reddit_app.app_name
                 header = f'Reddit Authorization Complete'

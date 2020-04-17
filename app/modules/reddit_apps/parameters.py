@@ -56,7 +56,7 @@ class PatchRedditAppDetailsParameters(PatchJSONParameters):
 
 class GenerateAuthUrlParameters(PostFormParameters):
     user_verification_id = base_fields.Integer(description='Specify a User Verification ID to assoiate with auth url by User Verification ID')
-    user_verification_user_id = base_fields.String(description='Specify a User Verification User ID to assoiate with auth url by User ID')
+    user_verification_user_id = base_fields.String(description='Specify a User Verification ID to assoiate with auth url by User ID')
     scopes = base_fields.List(base_fields.String(required=True), required=True, description='List of scopes needed for app')
     duration = base_fields.String(default='permanent', description='Duration authorization is good for. Options are: `permanent` and `temporary`. Defaults to `permanent`.')
 

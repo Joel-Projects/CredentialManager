@@ -1,5 +1,6 @@
-from flask_restplus_patched import ModelSchema
+from flask_marshmallow import base_fields
 
+from flask_restplus_patched import ModelSchema
 from .models import ApiToken
 
 
@@ -13,11 +14,16 @@ class BaseApiTokenSchema(ModelSchema):
         model = ApiToken
         fields = (
             ApiToken.id.key,
-            ApiToken.name.key
+            ApiToken.name.key,
+            'resource_type'
         )
         dump_only = (
             ApiToken.id.key,
+            'resource_type'
         )
+
+    _resourceType = Meta.model.__name__
+    resource_type = base_fields.String(default=_resourceType)
 
 class DetailedApiTokenSchema(BaseApiTokenSchema):
     '''

@@ -18,10 +18,15 @@ class BaseUserSchema(ModelSchema):
         fields = (
             User.id.key,
             User.username.key,
+            'resource_type'
         )
         dump_only = (
             User.id.key,
+            'resource_type'
         )
+
+    _resourceType = Meta.model.__name__
+    resource_type = base_fields.String(default=_resourceType)
 
 class DetailedUserSchema(BaseUserSchema):
     '''
@@ -37,7 +42,8 @@ class DetailedUserSchema(BaseUserSchema):
             User.is_admin.fget.__name__,
             User.default_settings.key,
             User.created.key,
-            User.updated.key
+            User.updated.key,
+            'resource_type'
         )
 
 class UserItemsSchema(BaseUserSchema):

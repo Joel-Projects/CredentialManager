@@ -65,7 +65,7 @@ class Namespace(BaseNamespace):
         #     return
         return super(Namespace, self).model(name=name, model=model, **kwargs)
 
-    def login_required(self, locations=('headers',), allowedAuthMethods=['apiKey', 'basic']):
+    def login_required(self, locations=('headers',), allowedAuthMethods=['api_token', 'basic']):
 
         def decorator(func_or_class):
 
@@ -81,7 +81,7 @@ class Namespace(BaseNamespace):
             else:
                 protected_func = self.permission_required(permissions.ActiveUserRolePermission())(func)
 
-            return self.doc(security=['apiKey', 'basic'])(self.response(code=HTTPStatus.UNAUTHORIZED.value, description='Authentication is required'))(protected_func)
+            return self.doc(security=['api_token', 'basic'])(self.response(code=HTTPStatus.UNAUTHORIZED.value, description='Authentication is required'))(protected_func)
 
         return decorator
 
@@ -206,4 +206,7 @@ class Namespace(BaseNamespace):
             http_exceptions.abort(code=HTTPStatus.CONFLICT, message=str(exception), **kwargs)
         except sqlalchemy.exc.IntegrityError as exception:
             log.info(f'Database transaction was rolled back due to: {exception!r}')
+            keys, values = tuple(map(lambda item: item.split(', '), exception.orig.args[0].splitlines()[1][14:-17].split(')=(')))
+            kwargs['error'] = 'already exists'
+            kwargs['items'] = {key: value for key, value in zip(keys, values)}
             http_exceptions.abort(code=HTTPStatus.CONFLICT, message=default_error_message, **kwargs)
