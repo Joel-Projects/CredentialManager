@@ -103,12 +103,12 @@ def assertSuccess(response, owner, model, schema, deleteItemId=None):
                 if isinstance(getattr(createdItem, field), datetime):
                     assert response.json[field] == datetime.astimezone(getattr(createdItem, field), timezone.utc).isoformat()
                 elif isinstance(getattr(createdItem, field), Choice):
-                    assert response.json[field] == getattr(createdItem, field).value
+                    assert response.json[field] == getattr(createdItem, field).code
                 elif issubclass(type(getattr(createdItem, field)), Model):
                     for key, value in response.json[field].items():
                         if key != 'resource_type':
                             if isinstance(getattr(getattr(createdItem, field), key), Choice):
-                                assert getattr(getattr(createdItem, field), key).value == value
+                                assert getattr(getattr(createdItem, field), key).code == value
                             else:
                                 assert getattr(getattr(createdItem, field), key) == value
                 else:

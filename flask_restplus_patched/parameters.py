@@ -113,21 +113,19 @@ class PatchJSONParameters(Parameters):
             data['field_name'] = data['path'][1:]
 
     @classmethod
-    def perform_patch(cls, operations, obj, state=None):
+    def perform_patch(cls, operations, obj):
         '''
         Performs all necessary operations by calling class methods with
         corresponding names.
         '''
-        if state is None:
-            state = {}
         for operation in operations:
-            if not cls._process_patch_operation(operation, obj=obj, state=state): # pragma: no cover
+            if not cls._process_patch_operation(operation, obj=obj): # pragma: no cover
                 log.info(f'{obj.__class__.__name__} patching has been stopped because of unknown operation {operation}')
                 raise ValidationError(f'Failed to update {obj.__class__.__name__} details. Operation {operation} could not succeed.')
         return True
 
     @classmethod
-    def _process_patch_operation(cls, operation, obj, state):
+    def _process_patch_operation(cls, operation, obj):
         '''
         Args:
             operation (dict): one patch operation in RFC 6902 format.
@@ -140,27 +138,27 @@ class PatchJSONParameters(Parameters):
         field_operaion = operation['op']
 
         if field_operaion == cls.OP_REPLACE:
-            return cls.replace(obj, operation['field_name'], operation['value'], state=state)
+            return cls.replace(obj, operation['field_name'], operation['value'])
 
         elif field_operaion == cls.OP_TEST:
-            return cls.test(obj, operation['field_name'], operation['value'], state=state)
+            return cls.test(obj, operation['field_name'], operation['value'])
 
         elif field_operaion == cls.OP_ADD: # pragma: no cover
-            return cls.add(obj, operation['field_name'], operation['value'], state=state)
+            return cls.add(obj, operation['field_name'], operation['value'])
 
         elif field_operaion == cls.OP_MOVE: # pragma: no cover
-            return cls.move(obj, operation['field_name'], operation['value'], state=state)
+            return cls.move(obj, operation['field_name'], operation['value'])
 
         elif field_operaion == cls.OP_COPY:
-            return cls.copy(obj, operation['from'], operation['field_name'], state=state)
+            return cls.copy(obj, operation['from'], operation['field_name'])
 
         elif field_operaion == cls.OP_REMOVE: # pragma: no cover
-            return cls.remove(obj, operation['field_name'], state=state)
+            return cls.remove(obj, operation['field_name'])
 
         return False # pragma: no cover
 
     @classmethod
-    def replace(cls, obj, field, value, state):
+    def replace(cls, obj, field, value):
         '''
         This is method for replace operation. It is separated to provide a
         possibility to easily override it in your Parameters.
@@ -180,7 +178,7 @@ class PatchJSONParameters(Parameters):
         return True
 
     @classmethod
-    def test(cls, obj, field, value, state):
+    def test(cls, obj, field, value):
         '''
         This is method for test operation. It is separated to provide a
         possibility to easily override it in your Parameters.
@@ -197,19 +195,19 @@ class PatchJSONParameters(Parameters):
         return getattr(obj, field) == value
 
     @classmethod
-    def add(cls, obj, field, value, state):
+    def add(cls, obj, field, value):
         raise NotImplementedError() # pragma: no cover
 
     @classmethod
-    def remove(cls, obj, field, state):
+    def remove(cls, obj, field):
         raise NotImplementedError() # pragma: no cover
 
     @classmethod
-    def move(cls, obj, field, value, state):
+    def move(cls, obj, field, value):
         raise NotImplementedError() # pragma: no cover
 
     @classmethod
-    def copy(cls, obj, fromPath, path, state):
+    def copy(cls, obj, fromPath, path):
         if path.startswith('/'):
             path = path[1:]  # pragma: no cover
         if not hasattr(obj, fromPath) or not hasattr(obj, path):

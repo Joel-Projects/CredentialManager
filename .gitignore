@@ -57,3 +57,5 @@ clients/*/dist
 /old again/
 /.scannerwork/
 /env.nosync/
+/sql/
+/sqlold/

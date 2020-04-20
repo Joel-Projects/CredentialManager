@@ -48,12 +48,16 @@ class UserVerifications(Resource):
 
         User Verifications for verifying a redditor with a User ID
         '''
-        args.owner = current_user
-        if args.owner_id:
-            args.owner = User.query.get(args.owner_id)
-        with api.commit_or_abort(db.session, default_error_message="Failed to create a new User Verification."):
-            db.session.add(args)
-        return args
+        existing = UserVerification.query.filter_by(user_id=args.user_id).first()
+        if existing:
+            return existing
+        else:
+            args.owner = current_user
+            if args.owner_id:
+                args.owner = User.query.get(args.owner_id)
+            with api.commit_or_abort(db.session, default_error_message="Failed to create a new User Verification."):
+                db.session.add(args)
+            return args
 
 @api.route('/<int:user_verification_id>')
 @api.login_required()

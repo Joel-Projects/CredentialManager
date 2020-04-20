@@ -26,6 +26,7 @@ def test_DetailedUserSchema_dump_userInstance(userInstance):
         'id',
         'username',
         'default_settings',
+        'reddit_username',
         'created',
         'updated',
         'is_active',

@@ -8,7 +8,7 @@ import logging
 from flask_login import current_user
 from flask_restplus._http import HTTPStatus
 
-from app.extensions.api import Namespace, http_exceptions
+from app.extensions.api import Namespace
 from flask_restplus_patched import Resource
 from . import parameters, schemas
 from .models import DatabaseCredential, db
@@ -27,15 +27,13 @@ class DatabaseCredentials(Resource):
     Manipulations with Database Credentials.
     '''
 
-    # @api.permission_required(permissions.AdminRolePermission())
     @api.response(schemas.BaseDatabaseCredentialSchema(many=True))
     @api.parameters(parameters.ListDatabaseCredentialsParameters(), locations=('query',))
     def get(self, args):
         '''
         List of Database Credentials.
 
-        Returns a list of Database Credentials starting from ``offset`` limited by
-        ``limit`` parameter.
+        Returns a list of Database Credentials starting from ``offset`` limited by ``limit`` parameter.
 
         Only Admins can specify ``owner`` to see Database Credentials for other users. Regular users will see their own Database Credentials.
         '''
@@ -50,7 +48,7 @@ class DatabaseCredentials(Resource):
         '''
         Create a new Database Credential.
 
-        Database Credentials are used for logging and error reporting in applications
+        Database Credentials are used for..ya know..databases
         '''
         args.owner = current_user
         if args.owner_id:
@@ -96,7 +94,7 @@ class DatabaseCredentialByID(Resource):
     @api.response(code=HTTPStatus.CONFLICT)
     def patch(self, args, database_credential):
         '''
-        Patch database_credential details by ID.
+        Patch Database Credential details by ID.
         '''
         with api.commit_or_abort(db.session, default_error_message='Failed to update Database Credential details.'):
             parameters.PatchDatabaseCredentialDetailsParameters.perform_patch(args, database_credential)

@@ -49,7 +49,7 @@ class PatchUserDetailsParameters(PatchJSONParameters):
     PATH_CHOICES = tuple(f'/{field}' for field in fields)
 
     @classmethod
-    def replace(cls, obj, field, value, state):
+    def replace(cls, obj, field, value):
         '''
         Some fields require extra permissions to be changed.
 
@@ -64,4 +64,4 @@ class PatchUserDetailsParameters(PatchJSONParameters):
 
         if field in {User.is_internal.fget.__name__, User.is_regular_user.fget.__name__}:
             permissions.InternalRolePermission().__enter__()
-        return super(PatchUserDetailsParameters, cls).replace(obj, field, value, state)
+        return super(PatchUserDetailsParameters, cls).replace(obj, field, value)

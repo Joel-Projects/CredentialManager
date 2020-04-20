@@ -34,9 +34,9 @@ class DetailedBotSchema(BaseBotSchema):
     '''
     Detailed Bot schema exposes all useful fields.
     '''
-    reddit_app = base_fields.Nested(DetailedRedditAppSchema, exclude=('enabled', 'owner_id'))
-    sentry_token = base_fields.Nested(DetailedSentryTokenSchema, exclude=('enabled', 'owner_id'))
-    database_credential = base_fields.Nested(DetailedDatabaseCredentialSchema, exclude=('enabled', 'owner_id'))
+    reddit_app = base_fields.Nested(DetailedRedditAppSchema, exclude=('enabled',))
+    sentry_token = base_fields.Nested(DetailedSentryTokenSchema, exclude=('enabled',))
+    database_credential = base_fields.Nested(DetailedDatabaseCredentialSchema, exclude=('enabled',))
 
     class Meta(BaseBotSchema.Meta):
         fields = BaseBotSchema.Meta.fields + (

@@ -1,6 +1,6 @@
 from flask_marshmallow import base_fields
 
-from flask_restplus_patched import ModelSchema
+from flask_restplus_patched import ModelSchema, fields
 from .models import RedditApp
 
 
@@ -8,7 +8,6 @@ class BaseRedditAppSchema(ModelSchema):
     '''
     Base Reddit App schema exposes only the most general fields.
     '''
-
     class Meta:
         ordered = True
         model = RedditApp
@@ -31,8 +30,8 @@ class DetailedRedditAppSchema(BaseRedditAppSchema):
     '''
     Detailed Reddit App schema exposes all useful fields.
     '''
-
     class Meta(BaseRedditAppSchema.Meta):
+
         fields = BaseRedditAppSchema.Meta.fields + (
             RedditApp.short_name.key,
             RedditApp.app_description.key,
@@ -43,6 +42,7 @@ class DetailedRedditAppSchema(BaseRedditAppSchema):
             RedditApp.enabled.key,
             RedditApp.owner_id.key
         )
+    app_type = base_fields.String(description='Type of the app. One of `web`, `installed`, or `script`', attribute='app_type.code')
 
 class AuthUrlSchema(BaseRedditAppSchema):
     '''

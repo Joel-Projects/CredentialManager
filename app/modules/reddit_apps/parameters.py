@@ -16,7 +16,7 @@ class ListRedditAppsParameters(PaginationParameters, ValidateOwner):
     invalidOwnerMessage = 'You can only query your own {}.'
 
 class CreateRedditAppParameters(PostFormParameters, schemas.DetailedRedditAppSchema, ValidateOwner):
-    reddit_app = base_fields.String(required=True, description='Name of the Reddit App')
+    app_name = base_fields.String(required=True, description='Name of the Reddit App')
     short_name = base_fields.String(description='Short name of the Reddit App')
     app_description = base_fields.String(description='Description of the Reddit App')
     client_id = base_fields.String(required=True, description='Client ID of the Reddit App')

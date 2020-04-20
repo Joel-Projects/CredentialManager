@@ -22,11 +22,11 @@ def test_creating_bot(flask_app_client, loginAs, redditApp, sentryToken, databas
     sentryToken.owner = loginAs
     databaseCredential.owner = loginAs
     if useRedditApp:
-        data['reddit_id'] = redditApp.id
+        data['reddit_app_id'] = redditApp.id
     if useSentryToken:
-        data['sentry_id'] = sentryToken.id
+        data['sentry_token_id'] = sentryToken.id
     if useDatabaseCredential:
-        data['database_id'] = databaseCredential.id
+        data['database_credential_id'] = databaseCredential.id
     response = flask_app_client.post(path, data=data)
 
     assertSuccess(response, loginAs, Bot, DetailedBotSchema)

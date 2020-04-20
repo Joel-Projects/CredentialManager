@@ -41,6 +41,7 @@ class DetailedUserSchema(BaseUserSchema):
             User.is_regular_user.fget.__name__,
             User.is_admin.fget.__name__,
             User.default_settings.key,
+            User.reddit_username.key,
             User.created.key,
             User.updated.key,
             'resource_type'
