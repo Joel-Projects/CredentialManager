@@ -1,12 +1,13 @@
 import base64
+import hashlib
 import logging
+
 import praw
 from flask_login import current_user
-from flask_restplus._http import HTTPStatus
+from sqlalchemy.event import listens_for
 from sqlalchemy_utils import ChoiceType, URLType
 
 from app.extensions import InfoAttrs, StrName, Timestamp, db
-from app.extensions.api import http_exceptions
 
 
 log = logging.getLogger(__name__)
@@ -98,3 +99,9 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         redditKwargs = ['client_id', 'client_secret', 'user_agent', 'redirect_uri']
         reddit = praw.Reddit(**{key: getattr(self, key) for key in redditKwargs})
         return reddit
+
+
+@listens_for(RedditApp, 'before_insert')
+@listens_for(RedditApp, 'before_update')
+def updateState(mapper, connect, target):
+    target.state = hashlib.sha256(target.client_id.encode()).digest().hex()
