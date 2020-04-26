@@ -60,6 +60,4 @@ class UserItemsSchema(BaseUserSchema):
             User.reddit_apps.key,
             User.sentry_tokens.key,
             User.database_credentials.key,
-            User.created.key,
-            User.updated.key
         )

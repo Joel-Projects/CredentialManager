@@ -29,7 +29,7 @@ def reddit_apps(page, perPage):
                 code = 403
                 return jsonify(status='error', message="You can't create Reddit Apps for other users"), code
             code = 201
-            data = form.data
+            data = {key: value for key, value in form.data.items() if value}
             redditApp = RedditApp(**data)
             db.session.add(redditApp)
         else:

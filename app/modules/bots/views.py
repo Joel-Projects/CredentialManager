@@ -31,7 +31,7 @@ def bots(page, perPage):
                     code = 403
                     return jsonify(status='error', message="You can't create Bots for other users"), code
             code = 201
-            data = form.data
+            data = {key: value for key, value in form.data.items() if value}
             bot = Bot(**data)
             db.session.add(bot)
         else:
@@ -56,6 +56,10 @@ def editBots(bot):
         if form.validate_on_submit():
             itemsToUpdate = []
             for item in PatchBotDetailsParameters.fields:
+                isApp = False
+                if item in ['reddit_app_id', 'sentry_token_id', 'database_credentials_id']:
+                    item = item[:-2]
+                    isApp = True
                 if getattr(form, item, None) is not None and getattr(bot, item) != getattr(form, item).data:
                     itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
             if itemsToUpdate:

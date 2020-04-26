@@ -96,13 +96,4 @@ class GetRefreshTokenByRedditor(Resource):
         redditApp = RedditApp.query.get_or_404(args['reddit_app_id'])
         refreshTokens = RefreshToken.query
         refreshToken = refreshTokens.filter_by(redditor=args['redditor'], reddit_app_id=redditApp.id, revoked=False)
-        # if current_user.is_internal:
-        # elif current_user.is_admin:
-        #     if redditApp.owner.is_internal:
-        #         http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Refresh Tokens.")
-        # else:
-        #     if redditApp.owner_id == current_user.id:
-        #         refreshToken = refreshTokens.filter_by(redditor=args['redditor'], reddit_app_id=redditApp.id, revoked=False)
-        #     else:
-        #         http_exceptions.abort(HTTPStatus.FORBIDDEN, "You don't have the permission to access other users' Refresh Tokens.")
         return refreshToken.first_or_404(f'Redditor {args["redditor"]!r} does not exist.')

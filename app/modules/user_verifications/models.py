@@ -31,7 +31,7 @@ class UserVerification(db.Model, InfoAttrs):
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     user_id = db.Column(db.String, nullable=False, unique=True, info={'label': "User's unique ID", 'description': 'Links reddit username to an unique ID'})
     extra_data = db.Column(db.JSON, info={'label': 'Extra Data', 'description': 'Extra JSON data linked to the verification'})
-    redditor = db.Column(db.String, info={'label': 'Reddit Username', 'description': "The user's Reddit username"})
+    redditor = db.Column(db.String, info={'label': 'Reddit Username', 'description': "The user's Reddit username. Note: This is not usually set manually."})
     verified_at = db.Column(db.DateTime(True))
     enabled = db.Column(db.Boolean, default=True, info={'label': 'Enable?', 'description': 'Allows the user verification to be used'})
     created = db.Column(db.DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False)

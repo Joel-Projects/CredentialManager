@@ -24,6 +24,6 @@ class BotForm(ModelForm):
 
     app_name = StringField('Name', validators=[InputRequired(), Unique([Bot.owner, Bot.app_name]), Length(3)])
     owner = ModelSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user)
-    reddit_app = ModelSelectField(query_factory=reddit_apps, queryKwargs={'owner': current_user}, allow_blank=True)
-    sentry_token = ModelSelectField(query_factory=sentry_tokens, queryKwargs={'owner': current_user}, allow_blank=True)
-    database_credential = ModelSelectField(query_factory=database_credentials, queryKwargs={'owner': current_user}, allow_blank=True)
+    reddit_app_id = ModelSelectField(query_factory=reddit_apps, queryKwargs={'owner': current_user}, allow_blank=True, label='Reddit App')
+    sentry_token_id = ModelSelectField(query_factory=sentry_tokens, queryKwargs={'owner': current_user}, allow_blank=True, label='Sentry Token')
+    database_credential_id = ModelSelectField(query_factory=database_credentials, queryKwargs={'owner': current_user}, allow_blank=True, label='Database Credential')

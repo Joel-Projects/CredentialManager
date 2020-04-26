@@ -12,7 +12,7 @@ from ..users import permissions
 
 class ListRefreshTokensParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()
-    redditor = base_fields.String()
+    redditor = base_fields.String(description='Redditor the Refresh Token is for')
 
     class Meta:
         model = RefreshToken
