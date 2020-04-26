@@ -55,36 +55,43 @@ def init_app(app):
     app.register_error_handler(404, notFoundError)
     try:
         with db.get_engine(app=app).connect() as sql:
-            sql.execute('CREATE SCHEMA IF NOT EXISTS credential_store;')
-    except: # pragma: no cover
-        log.error('Need to manually create schema')
+            results = sql.execute("SELECT schema_name FROM information_schema.schemata WHERE schema_name = 'credential_store';")
+            if not results.fetchone():
+                raise Exception('Need to manually create schema')
+    except Exception as error: # pragma: no cover
+        log.exception(error)
     db.create_all(app=app)
     try:
         with db.get_engine(app=app).connect() as sql:
-            if not app.testing:
-                additionalQuery = 'alter function credential_store.gen_state() owner to credential_manager;'
-            else:
-                additionalQuery = 'CREATE EXTENSION IF NOT EXISTS pgcrypto;'
             sql.execute(f'''
-        create or replace function credential_store.gen_state() returns trigger
-            language plpgsql
-        as $$
-        BEGIN
-            IF tg_op = 'INSERT' OR tg_op = 'UPDATE' THEN
-                NEW.state = encode(public.digest(NEW.client_id, 'sha256'), 'hex');
-                RETURN NEW;
-            END IF;
-        END;
-        $$;
-        
-        {additionalQuery}
-        drop trigger if exists refresh_token_state_hashing_trigger on credential_store.reddit_apps;
-        create trigger refresh_token_state_hashing_trigger
-            before insert or update
-            of client_id
-            on credential_store.reddit_apps
-            for each row
-            execute procedure credential_store.gen_state();
+            CREATE EXTENSION IF NOT EXISTS pgcrypto;
+            create or replace function credential_store.gen_state() returns trigger
+                language plpgsql
+            as $$
+            BEGIN
+                IF tg_op = 'INSERT' OR tg_op = 'UPDATE' THEN
+                    NEW.state = encode(public.digest(NEW.client_id, 'sha256'), 'hex');
+                    RETURN NEW;
+                END IF;
+            END;
+            $$;
+            alter function credential_store.gen_state() owner to credential_manager;
+            do
+            $$
+                begin
+                    perform tgname from pg_trigger where not tgisinternal and tgrelid = 'credential_store.reddit_apps'::regclass;
+                    if not found then
+                        create trigger refresh_token_state_hashing_trigger
+                            before
+                                insert or
+                                update
+                                    of client_id
+                            on credential_store.reddit_apps
+                            for each row
+                        execute procedure credential_store.gen_state();
+                    end if;
+                end
+            $$;
             ''')
     except Exception as error:  # pragma: no cover
         log.exception(error)
