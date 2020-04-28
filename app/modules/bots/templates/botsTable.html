@@ -29,16 +29,16 @@
                             {% endif %}
                         </div>
                         <div class="form-group">
-                            {{ botsForm.reddit_app_id.label }}
-                            {{ botsForm.reddit_app_id(class_="custom-select") }}
+                            {{ botsForm.reddit_app.label }}
+                            {{ botsForm.reddit_app(class_="custom-select") }}
                         </div>
                         <div class="form-group">
-                            {{ botsForm.sentry_token_id.label }}
-                            {{ botsForm.sentry_token_id(class_="custom-select") }}
+                            {{ botsForm.sentry_token.label }}
+                            {{ botsForm.sentry_token(class_="custom-select") }}
                         </div>
                         <div class="form-group">
-                            {{ botsForm.database_credential_id.label }}
-                            {{ botsForm.database_credential_id(class_="custom-select") }}
+                            {{ botsForm.database_credential.label }}
+                            {{ botsForm.database_credential(class_="custom-select") }}
                         </div>
                         <div class="form-group" {% if not current_user.is_admin and not current_user.is_internal %}hidden{% endif %}>
                             {{ botsForm.owner.label }}

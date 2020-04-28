@@ -56,12 +56,15 @@ def editBots(bot):
         if form.validate_on_submit():
             itemsToUpdate = []
             for item in PatchBotDetailsParameters.fields:
-                isApp = False
-                if item in ['reddit_app_id', 'sentry_token_id', 'database_credentials_id']:
-                    item = item[:-2]
-                    isApp = True
+                if item in ['reddit_app_id', 'sentry_token_id', 'database_credential_id']:
+                    item = item[:-3]
                 if getattr(form, item, None) is not None and getattr(bot, item) != getattr(form, item).data:
-                    itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+                    if item in ['reddit_app', 'sentry_token', 'database_credential']:
+                        value = getattr(form, item).data.id
+                        item = f'{item}_id'
+                    else:
+                        value = getattr(form, item).data
+                    itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': value})
             if itemsToUpdate:
                 for item in itemsToUpdate:
                     PatchBotDetailsParameters().validate_patch_structure(item)
