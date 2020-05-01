@@ -31,7 +31,7 @@ def bots(page, perPage):
                     code = 403
                     return jsonify(status='error', message="You can't create Bots for other users"), code
             code = 201
-            data = {key: value for key, value in form.data.items() if value}
+            data = {key: value for key, value in form.data.items() if value is not None}
             bot = Bot(**data)
             db.session.add(bot)
         else:

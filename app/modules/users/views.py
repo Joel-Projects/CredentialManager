@@ -51,7 +51,7 @@ def users(page, perPage):
     code = 200
     if request.method == 'POST':
         if form.validate_on_submit():
-            data = {key: value for key, value in form.data.items() if value}
+            data = {key: value for key, value in form.data.items() if value is not None}
             if 'default_settings' in request.form:
                 data['default_settings'] = {item['key']: item['value'] for item in json.loads(request.form['default_settings'])}
             user = User(**data)
@@ -182,7 +182,7 @@ def itemsPerUser(user, item):
     code = 200
     if request.method == 'POST':
         if form.validate_on_submit():
-            data = {key: value for key, value in form.data.items() if value}
+            data = {key: value for key, value in form.data.items() if value is not None}
             if item == 'api_tokens':
                 length = int(data['length'])
             model = Model(owner_id=data['owner'].id, **data)

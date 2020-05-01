@@ -28,7 +28,7 @@ def user_verifications(page, perPage):
                 code = 403
                 return jsonify(status='error', message="You can't create User Verifications for other users"), code # pragma: no cover
             code = 201
-            data = {key: value for key, value in form.data.items() if value}
+            data = {key: value for key, value in form.data.items() if value is not None}
             if 'extra_data' in form.data and form.data['extra_data']:
                 data['extra_data'] = json.loads(form.data['extra_data'])
 

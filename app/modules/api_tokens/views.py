@@ -30,7 +30,7 @@ def api_tokens(page=1, perPage=10):
                     code = 403
                     return jsonify(status='error', message="You can't create API Tokens for other users"), code
             code = 201
-            data = {key: value for key, value in form.data.items() if value}
+            data = {key: value for key, value in form.data.items() if value is not None}
             data['token'] = ApiToken.generate_token(data['length'])
             apiToken = ApiToken(**data)
             db.session.add(apiToken)

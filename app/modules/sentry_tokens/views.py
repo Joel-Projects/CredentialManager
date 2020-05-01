@@ -31,7 +31,7 @@ def sentry_tokens(page, perPage):
                     code = 403
                     return jsonify(status='error', message="You can't create Sentry Tokens for other users"), code
             code = 201
-            data = {key: value for key, value in form.data.items() if value}
+            data = {key: value for key, value in form.data.items() if value is not None}
             sentryToken = SentryToken(**data)
             db.session.add(sentryToken)
         else:
