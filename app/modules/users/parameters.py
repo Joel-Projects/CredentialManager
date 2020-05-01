@@ -19,10 +19,9 @@ class CreateUserParameters(PostFormParameters, schemas.BaseUserSchema):
     default_settings = base_fields.String(description='Default values to use for new apps (Example: ```{"database_flavor": "postgres", "database_host": "localhost"}```)', default={})
     is_active = base_fields.Boolean(description='Is the user active? Allows the user to sign in (Default: ``true``)', default=True)
     is_admin = base_fields.Boolean(description='Is the user an admin? Allows the user to see all objects and create users (Default: ``false``)', default=False)
-
     is_regular_user = base_fields.Boolean(description='(Internal use only)', default=True)
     is_internal = base_fields.Boolean(description='(Internal use only)', default=False)
-    created = base_fields.LocalDateTime()
+    reddit_username = base_fields.String(description='Reddit username for the user. Used in the default user agent for Reddit Apps')
 
     @validates('is_internal')
     def validateInternal(self, data):
@@ -30,7 +29,7 @@ class CreateUserParameters(PostFormParameters, schemas.BaseUserSchema):
             permissions.InternalRolePermission().__enter__()
 
     class Meta(schemas.BaseUserSchema.Meta):
-        fields = schemas.BaseUserSchema.Meta.fields + ('password', 'default_settings', 'is_admin', 'is_active', 'is_regular_user', 'is_internal', 'reddit_username')
+        fields = schemas.BaseUserSchema.Meta.fields + ('password', 'reddit_username', 'default_settings', 'is_admin', 'is_active', 'is_regular_user', 'is_internal')
 
 class GetUserByName(PostFormParameters):
     username = base_fields.String(required=True, description='Name of the User')

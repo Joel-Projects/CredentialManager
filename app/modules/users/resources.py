@@ -42,8 +42,6 @@ class Users(Resource):
         '''
         Create a new user.
         '''
-        args.created_by = current_user.id
-        args.updated_by = current_user.id
         fields = [
             'username',
             'password',
@@ -56,7 +54,7 @@ class Users(Resource):
             'is_regular_user',
             'is_internal',
         ]
-        user = User(**{k: v for k, v in args.items() if k in fields})
+        user = User(**{k: v for k, v in args.items() if k in fields}, created_by=current_user.id, updated_by=current_user.id)
         for perm in perms:
             if perm in args:
                 setattr(user, perm, args[perm])
