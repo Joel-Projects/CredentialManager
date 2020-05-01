@@ -19,8 +19,8 @@ build:build-latest:
         - docker build --pull -t $CONTAINER_BUILD_IMAGE .
         - docker push $CONTAINER_BUILD_IMAGE
 
-build:tag:
-    stage: build
+release:tag:
+    stage: release
     script:
         - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
         - docker pull $CONTAINER_BUILD_IMAGE
