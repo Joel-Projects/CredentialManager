@@ -16,12 +16,12 @@ class CreateUserParameters(PostFormParameters, schemas.BaseUserSchema):
 
     username = base_fields.String(description='Username for new user (Example: ```spaz```)', required=True)
     password = base_fields.String(description='Password for new user (Example: ```supersecurepassword```)', required=True)
+    reddit_username = base_fields.String(description='Reddit username for the user. Used in the default user agent for Reddit Apps')
     default_settings = base_fields.String(description='Default values to use for new apps (Example: ```{"database_flavor": "postgres", "database_host": "localhost"}```)', default={})
     is_active = base_fields.Boolean(description='Is the user active? Allows the user to sign in (Default: ``true``)', default=True)
     is_admin = base_fields.Boolean(description='Is the user an admin? Allows the user to see all objects and create users (Default: ``false``)', default=False)
     is_regular_user = base_fields.Boolean(description='(Internal use only)', default=True)
     is_internal = base_fields.Boolean(description='(Internal use only)', default=False)
-    reddit_username = base_fields.String(description='Reddit username for the user. Used in the default user agent for Reddit Apps')
 
     @validates('is_internal')
     def validateInternal(self, data):
