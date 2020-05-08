@@ -5,16 +5,21 @@ from wtforms_alchemy import Unique
 
 from app.extensions import ModelForm
 from .models import Bot
-from ..reddit_apps.models import RedditApp
-from ...extensions.frontend.forms import ModelSelectField, owners
+from flask import request
+
+from ..users.models import User
+from ...extensions.frontend.forms import ModelSelectField, owners, checkModelOwner
 
 def reddit_apps(owner):
+    owner = checkModelOwner(owner)
     return owner.reddit_apps
 
 def sentry_tokens(owner):
+    owner = checkModelOwner(owner)
     return owner.sentry_tokens
 
 def database_credentials(owner):
+    owner = checkModelOwner(owner)
     return owner.database_credentials
 
 class BotForm(ModelForm):

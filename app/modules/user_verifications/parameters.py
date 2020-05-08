@@ -1,30 +1,12 @@
-import json
-
 from flask_login import current_user
 from flask_marshmallow import base_fields
 from marshmallow import ValidationError, validates
 
-from app.extensions.api.parameters import PaginationParameters, ValidateOwner
+from app.extensions.api.parameters import JSON, PaginationParameters, ValidateOwner
 from flask_restplus_patched import PatchJSONParameters, PostFormParameters
 from . import schemas
 from .models import UserVerification
 
-
-class JSON(base_fields.Field):
-
-    default_error_messages = {
-        'empty': 'Empty JSON payload.',
-        'invalid': 'Unable to accept JSON payload.'
-    }
-
-    def _deserialize(self, value, attr, obj):
-        try:
-            data = json.loads(value)
-            if not data:  # pragma: no cover
-                self.fail('empty')
-            return data
-        except json.decoder.JSONDecodeError:  # pragma: no cover
-            self.fail('invalid')
 
 class ListUserVerificationsParameters(PaginationParameters, ValidateOwner):
     owner_id = base_fields.Integer()

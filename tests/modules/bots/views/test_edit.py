@@ -20,9 +20,6 @@ botLabels = [
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 @pytest.mark.parametrize('bot', bots, ids=botLabels)
 def test_bot_detail_edit_for_other_user(flask_app_client, loginAs, bot, redditApp, sentryToken, databaseCredential):
-    redditApp.owner = loginAs
-    sentryToken.owner = loginAs
-    databaseCredential.owner = loginAs
     data = {
         'itemType': 'bots',
         'itemId': f'{bot.id}',
@@ -31,6 +28,7 @@ def test_bot_detail_edit_for_other_user(flask_app_client, loginAs, bot, redditAp
         'sentry_token': f'{sentryToken.id}',
         'database_credential': f'{databaseCredential.id}',
         'enabled': 'y',
+        'owner': f'{bot.owner.id}'
     }
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(f'/bots/{bot.id}', content_type='application/x-www-form-urlencoded', data=data)
@@ -57,17 +55,15 @@ def test_bot_detail_edit_for_other_user(flask_app_client, loginAs, bot, redditAp
             assert modifiedBot == bot
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
-def test_bot_detail_edit(flask_app_client, loginAs, regularUserBot, redditApp, sentryToken, databaseCredential):
-    redditApp.owner = loginAs
-    sentryToken.owner = loginAs
-    databaseCredential.owner = loginAs
+def test_bot_detail_edit(flask_app_client, loginAs, regularUserBot, redditApp, redditApp2, sentryToken, databaseCredential):
     data = {
         'itemType': 'bots',
         'itemId': f'{regularUserBot.id}',
         'app_name': 'newName',
-        'reddit_app': f'{redditApp.id}',
+        'reddit_app': f'{redditApp2.id}',
         'sentry_token': f'{sentryToken.id}',
         'database_credential': f'{databaseCredential.id}',
+        'owner': f'{regularUserBot.owner.id}'
     }
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(f'/bots/{regularUserBot.id}', content_type='application/x-www-form-urlencoded', data=data)
@@ -85,9 +81,6 @@ def test_bot_detail_edit(flask_app_client, loginAs, regularUserBot, redditApp, s
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 def test_bot_detail_edit_self(flask_app_client, db, loginAs, regularUserBot, redditApp, sentryToken, databaseCredential):
-    redditApp.owner = loginAs
-    sentryToken.owner = loginAs
-    databaseCredential.owner = loginAs
     data = {
         'itemType': 'bots',
         'itemId': f'{regularUserBot.id}',
@@ -95,8 +88,12 @@ def test_bot_detail_edit_self(flask_app_client, db, loginAs, regularUserBot, red
         'reddit_app': f'{redditApp.id}',
         'sentry_token': f'{sentryToken.id}',
         'database_credential': f'{databaseCredential.id}',
+        'owner': f'{loginAs.id}'
     }
-    regularUserBot = changeOwner(db, loginAs, regularUserBot)
+    regularUserBot.owner = loginAs
+    redditApp.owner = loginAs
+    sentryToken.owner = loginAs
+    databaseCredential.owner = loginAs
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(f'/bots/{regularUserBot.id}', data=data)
         assert202(response)

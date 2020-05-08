@@ -1,3 +1,4 @@
+import json
 from http import HTTPStatus
 
 from flask_login import current_user
@@ -41,3 +42,18 @@ class ValidateOwner(Parameters):
                 raise http_exceptions.abort(HTTPStatus.FORBIDDEN, self.invalidOwnerMessage.format(self.Meta.model._displayNamePlural))
         else:
             raise ValidationError("That user doesn't exist")
+
+class JSON(base_fields.Field):
+    default_error_messages = {
+        'empty': 'Empty JSON payload.',
+        'invalid': 'Unable to accept JSON payload.'
+    }
+
+    def _deserialize(self, value, attr, obj):
+        try:
+            data = json.loads(value)
+            if not data:  # pragma: no cover
+                self.fail('empty')
+            return data
+        except json.decoder.JSONDecodeError:  # pragma: no cover
+            self.fail('invalid')

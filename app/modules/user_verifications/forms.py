@@ -6,13 +6,8 @@ from wtforms.fields import TextAreaField
 from app.extensions import ModelForm
 from .models import UserVerification
 from ..reddit_apps.models import RedditApp
-from ...extensions.frontend.forms import ModelSelectField, owners
+from ...extensions.frontend.forms import ModelSelectField, owners, reddit_apps
 
-
-def reddit_apps(owner):
-    if owner.is_admin or owner.is_internal:
-        return RedditApp.query
-    return owner.reddit_apps
 
 class ExtraDataValidation(object):
     def __init__(self, message=None):

@@ -40,11 +40,11 @@ def test_create_bot_profile(flask_app_client, loginAs, redditApp, sentryToken, d
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 def test_create_bot_other_user(flask_app_client, loginAs, regular_user, redditApp, sentryToken, databaseCredential):
     with captured_templates(flask_app_client.application) as templates:
-        if not (loginAs.is_admin and loginAs.is_internal):
+        if not (loginAs.is_admin or loginAs.is_internal):
             redditApp.owner = loginAs
             sentryToken.owner = loginAs
             databaseCredential.owner = loginAs
-        response = flask_app_client.post('/bots', content_type='application/x-www-form-urlencoded', data={'owner': str(regular_user.id), 'reddit_app': str(redditApp.id), **data})
+        response = flask_app_client.post('/bots', content_type='application/x-www-form-urlencoded', data={'owner': str(regular_user.id), **data})
         if loginAs.is_admin or loginAs.is_internal:
             assert201(response)
             assertRenderedTemplate(templates, 'bots.html')

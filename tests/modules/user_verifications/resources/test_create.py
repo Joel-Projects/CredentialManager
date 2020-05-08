@@ -21,6 +21,16 @@ def test_creating_user_verification(flask_app_client, loginAs, regular_user, red
         assert403(response, UserVerification, action='create')
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
+def test_creating_user_verification_existing(flask_app_client, loginAs, regular_user, redditApp, regularUserUserVerification):
+
+    response = flask_app_client.post(path, data={'owner_id': regular_user.id, 'reddit_app_id': redditApp.id, 'user_id': regularUserUserVerification.user_id})
+
+    if loginAs.is_admin or loginAs.is_internal:
+        assertSuccess(response, regular_user, UserVerification, DetailedUserVerificationSchema)
+    else:
+        assert403(response, UserVerification, action='create')
+
+@pytest.mark.parametrize('loginAs', users, ids=labels)
 def test_creating_user_verification_with_extra_data(flask_app_client, loginAs, redditApp):
     response = flask_app_client.post(path, data={'reddit_app_id': redditApp.id, 'extra_data': '{"key": "value"}', **data})
 

@@ -81,7 +81,7 @@ class Namespace(BaseNamespace):
             else:
                 protected_func = self.permission_required(permissions.ActiveUserRolePermission())(func)
 
-            return self.doc(security=['api_token', 'basic'])(self.response(code=HTTPStatus.UNAUTHORIZED.value, description='Authentication is required'))(protected_func)
+            return self.doc(security=allowedAuthMethods)(self.response(code=HTTPStatus.UNAUTHORIZED.value, description='Authentication is required'))(protected_func)
 
         return decorator
 

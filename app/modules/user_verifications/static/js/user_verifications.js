@@ -20,7 +20,7 @@ $(document).ready(function () {
             url: `/api/v1/users/${user_id}/apps`,
         })
             .done(function finished(data) {
-                var reddit_app = document.getElementById(`reddit_app_id`);
+                var reddit_app = document.getElementById(`reddit_app`);
                 removeOptions(reddit_app)
 
                 if (data.status == 422) {

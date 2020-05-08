@@ -1,11 +1,15 @@
-from flask_wtf import FlaskForm
-from markupsafe import text_type
-from wtforms.fields import StringField, BooleanField
-from wtforms.widgets import HTMLString, html_params
-from wtforms_alchemy import model_form_factory, QuerySelectField
 from html import escape
 
+from flask import request
+from flask_login import current_user
+from flask_wtf import FlaskForm
+from markupsafe import text_type
+from wtforms.fields import BooleanField, StringField
+from wtforms.widgets import HTMLString, html_params
+from wtforms_alchemy import QuerySelectField, model_form_factory
+
 from app.extensions import db
+from app.modules.users.models import User
 
 
 BaseModelForm = model_form_factory(FlaskForm)
@@ -79,3 +83,17 @@ def owners(current_user):
         return User.query
     else:
         return User.query.filter_by(internal=False)
+
+def checkModelOwner(owner):
+    if request.method == 'POST' and (current_user.is_admin or current_user.is_internal):
+        ownerId = int(request.form.get('owner', current_user.id))
+        owner = User.query.get(ownerId)
+    elif request.path.startswith('/bots/'):
+        owner = request.view_args['bot'].owner
+    elif request.path.startswith('/user_verifications/'):
+        owner = request.view_args['user_verification'].owner
+    return owner
+
+def reddit_apps(owner):
+    owner = checkModelOwner(owner)
+    return owner.reddit_apps

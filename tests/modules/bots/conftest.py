@@ -45,6 +45,17 @@ redditAppTestData = {
     'redirect_uri': 'https://credmgr.jesassn.org/oauth2/reddit_callback'
 }
 
+redditAppTestData2 = {
+    'app_name': 'reddit_app2',
+    'short_name': 'short_name',
+    'app_description': 'app_description',
+    'client_id': 'client_id2',
+    'client_secret': 'client_secret',
+    'user_agent': 'user_agent',
+    'app_type': 'web',
+    'redirect_uri': 'https://credmgr.jesassn.org/oauth2/reddit_callback'
+}
+
 sentryTokenTestData = {
     'app_name': 'sentry_token',
     'dsn': 'https://12345@sentry.jesassn.org/1'
@@ -71,6 +82,11 @@ databaseCredentialTestData = {
 @pytest.fixture()
 def redditApp(temp_db_instance_helper, regular_user):
     for _ in temp_db_instance_helper(RedditApp(owner=regular_user, **redditAppTestData)):
+        yield _
+
+@pytest.fixture()
+def redditApp2(temp_db_instance_helper, regular_user):
+    for _ in temp_db_instance_helper(RedditApp(owner=regular_user, **redditAppTestData2)):
         yield _
 
 @pytest.fixture()

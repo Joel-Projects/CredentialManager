@@ -1,6 +1,6 @@
 from flask_marshmallow import base_fields
 
-from flask_restplus_patched import ModelSchema
+from flask_restplus_patched import ModelSchema, Schema
 from .models import User
 from ..database_credentials.schemas import BaseDatabaseCredentialSchema
 from ..reddit_apps.schemas import BaseRedditAppSchema
@@ -27,6 +27,13 @@ class BaseUserSchema(ModelSchema):
 
     _resourceType = Meta.model.__name__
     resource_type = base_fields.String(default=_resourceType)
+
+class DefaultSettings(Schema):
+    database_flavor = base_fields.Str()
+    database_host = base_fields.Str()
+    ssh_host = base_fields.Str()
+    ssh_user = base_fields.Str()
+    user_agent = base_fields.Str()
 
 class DetailedUserSchema(BaseUserSchema):
     '''

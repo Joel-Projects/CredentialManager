@@ -54,7 +54,7 @@ def init_app(app):
     app.register_error_handler(403, unauthorizedError)
     app.register_error_handler(404, notFoundError)
     try:
-        with db.get_engine(app=app).connect() as sql:
+        with db.get_engine(app=app).connect() as sql: # pragma: no cover
             results = sql.execute("SELECT schema_name FROM information_schema.schemata WHERE schema_name = 'credential_store';")
             if not results.fetchone():
                 raise Exception('Need to manually create schema')

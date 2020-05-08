@@ -4,12 +4,13 @@ from flask_restplus._http import HTTPStatus
 from marshmallow import validates
 
 from app.extensions.api import abort
-from flask_restplus_patched import PatchJSONParameters, PostFormParameters
+from flask_restplus_patched import PatchJSONParameters, PostFormParameters, Parameters
 from . import permissions, schemas
 from .models import User
+from ...extensions.api.parameters import JSON
 
 
-class CreateUserParameters(PostFormParameters, schemas.BaseUserSchema):
+class CreateUserParameters(PostFormParameters, schemas.DetailedUserSchema):
     '''
     New user creation parameters.
     '''
@@ -17,7 +18,7 @@ class CreateUserParameters(PostFormParameters, schemas.BaseUserSchema):
     username = base_fields.String(description='Username for new user (Example: ```spaz```)', required=True)
     password = base_fields.String(description='Password for new user (Example: ```supersecurepassword```)', required=True)
     reddit_username = base_fields.String(description='Reddit username for the user. Used in the default user agent for Reddit Apps')
-    default_settings = base_fields.String(description='Default values to use for new apps (Example: ```{"database_flavor": "postgres", "database_host": "localhost"}```)', default={})
+    default_settings = JSON(description='JSON of default values to use for new apps. Can be any of: `database_flavor`, `database_host`, `ssh_host`, `ssh_user`, `user_agent` (Example: ```{"database_flavor": "postgres", "database_host": "localhost"}```)', default={'database_flavor': 'postgres', 'database_host': 'localhost'})
     is_active = base_fields.Boolean(description='Is the user active? Allows the user to sign in (Default: ``true``)', default=True)
     is_admin = base_fields.Boolean(description='Is the user an admin? Allows the user to see all objects and create users (Default: ``false``)', default=False)
     is_regular_user = base_fields.Boolean(description='(Internal use only)', default=True)
