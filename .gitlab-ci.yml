@@ -40,7 +40,7 @@ test:pytest3.8:
         POSTGRES_PASSWORD: ''
         POSTGRES_HOST_AUTH_METHOD: 'trust'
         DATABASE_URI: 'postgresql://postgres:@postgres:5432/postgres_test'
-        SCHEMA_NAME: 'postgres'
+        SCHEMA_NAME: 'public'
     script:
         - pip install -r app/requirements.txt -r tests/requirements.txt
         - pytest --cov-report=term --cov=app tests
@@ -58,7 +58,7 @@ test:pytest3.7:
         POSTGRES_PASSWORD: ''
         POSTGRES_HOST_AUTH_METHOD: 'trust'
         DATABASE_URI: 'postgresql://postgres:@postgres:5432/postgres_test'
-        SCHEMA_NAME: 'postgres'
+        SCHEMA_NAME: 'public'
     script:
         - pip install -r app/requirements.txt -r tests/requirements.txt
         - pytest --cov-report=term --cov=app tests
@@ -76,7 +76,7 @@ test:pytest3.6:
         POSTGRES_PASSWORD: ''
         POSTGRES_HOST_AUTH_METHOD: 'trust'
         DATABASE_URI: 'postgresql://postgres:@postgres:5432/postgres_test'
-        SCHEMA_NAME: 'postgres'
+        SCHEMA_NAME: 'public'
     script:
         - pip install -r app/requirements.txt -r tests/requirements.txt
         - pytest --cov-report=term --cov=app tests
