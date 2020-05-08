@@ -7,7 +7,7 @@ class BaseConfig(object):
     DD_API_KEY = os.getenv('DD_API_KEY')
     DD_APP_KEY = os.getenv('DD_APP_KEY')
     PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
-
+    SCHEMA_NAME = os.getenv('SCHEMA_NAME', 'credential_store')
     DB_USER = 'postgres'
     DB_PASSWORD = ''
     DB_NAME = 'postgres'

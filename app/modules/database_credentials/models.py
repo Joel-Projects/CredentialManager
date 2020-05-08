@@ -1,4 +1,5 @@
 from app.extensions import InfoAttrs, StrName, Timestamp, db
+from config import BaseConfig
 
 
 class DatabaseCredential(db.Model, Timestamp, InfoAttrs, StrName):
@@ -18,7 +19,7 @@ class DatabaseCredential(db.Model, Timestamp, InfoAttrs, StrName):
         'updated': 'Last updated at'
     }
 
-    __table_args__ = {'schema': 'credential_store'}
+    __table_args__ = {'schema': BaseConfig.SCHEMA_NAME}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     app_name = db.Column(db.String, nullable=False, info={'label': 'Database Name'})
     database_flavor = db.Column(db.String, nullable=False, default='postgres', info={'label': 'Database Kind', 'description': 'Mostly for infomational purposes. Defaults to \'postgres\'. Can be set in user defaults.'})

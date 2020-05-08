@@ -8,6 +8,7 @@ from sqlalchemy.event import listens_for
 from sqlalchemy_utils import ChoiceType, URLType
 
 from app.extensions import InfoAttrs, StrName, Timestamp, db
+from config import BaseConfig
 
 
 log = logging.getLogger(__name__)
@@ -32,7 +33,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         'updated': 'Last updated at'
     }
 
-    __table_args__ = {'schema': 'credential_store'}
+    __table_args__ = {'schema': BaseConfig.SCHEMA_NAME}
 
     redditAppTypes = [('web', 'Web App'), ('installed', 'Installed App'), ('script', 'Personal Use Script')]
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

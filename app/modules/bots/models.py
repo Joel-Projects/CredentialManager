@@ -1,6 +1,7 @@
 from sqlalchemy_utils import Timestamp
 
 from app.extensions import InfoAttrs, StrName, db, foreignKeyKwargs
+from config import BaseConfig
 
 
 class Bot(db.Model, Timestamp, InfoAttrs, StrName):
@@ -20,7 +21,7 @@ class Bot(db.Model, Timestamp, InfoAttrs, StrName):
         'updated': 'Last updated at'
     }
 
-    __table_args__ = {'schema': 'credential_store'}
+    __table_args__ = {'schema': BaseConfig.SCHEMA_NAME}
     id = db.Column(db.Integer, primary_key=True)
     app_name = db.Column(db.String(length=50), nullable=False, info={'label': 'Bot Name'})
     reddit_app_id = db.Column(db.Integer, db.ForeignKey('credential_store.reddit_apps.id', **foreignKeyKwargs), info={'label': 'Reddit App'})

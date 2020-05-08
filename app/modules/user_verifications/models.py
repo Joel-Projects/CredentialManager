@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 
 from app.extensions import InfoAttrs, db, foreignKeyKwargs
+from config import BaseConfig
 
 
 log = logging.getLogger(__name__)
@@ -23,7 +24,7 @@ class UserVerification(db.Model, InfoAttrs):
         'created': 'Created at'
     }
 
-    __table_args__ = {'schema': 'credential_store'}
+    __table_args__ = {'schema': BaseConfig.SCHEMA_NAME}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     reddit_app_id = db.Column(db.ForeignKey('credential_store.reddit_apps.id', **foreignKeyKwargs), info={'label': 'Reddit App', 'description': 'Reddit App the user will be verifying with'})
     reddit_app = db.relationship('RedditApp', primaryjoin='UserVerification.reddit_app_id == RedditApp.id', backref=__tablename__)

@@ -4,6 +4,7 @@ import requests
 from datetime import datetime, timezone
 
 from app.extensions import InfoAttrs, StrName, db
+from config import BaseConfig
 
 
 log = logging.getLogger(__name__)
@@ -36,7 +37,7 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
         with open('scopes.json', 'r') as f: # pragma: no cover
             scopeJSON = json.load(f)
 
-    __table_args__ = {'schema': 'credential_store'}
+    __table_args__ = {'schema': BaseConfig.SCHEMA_NAME}
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     reddit_app_id = db.Column(db.ForeignKey('credential_store.reddit_apps.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, info={'label': 'Reddit App', 'description': 'Reddit App for users to authorize with'})

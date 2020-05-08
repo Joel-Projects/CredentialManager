@@ -7,6 +7,7 @@ from sqlalchemy_utils import types as column_types
 from app.extensions import InfoAttrs, QueryProperty, StrName, Timestamp, db
 from app.extensions.api import abort
 from app.modules.api_tokens.models import ApiToken
+from config import BaseConfig
 
 
 def getStaticRole(roleName, staticRole):
@@ -54,7 +55,7 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
         'api_tokens.count': 'API Tokens'
     }
 
-    __table_args__ = {'schema': 'credential_store'}
+    __table_args__ = {'schema': BaseConfig.SCHEMA_NAME}
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(length=80), unique=True, nullable=False, info={'label': 'Username'})
     password = db.Column(column_types.PasswordType(max_length=128, schemes=('bcrypt',)), nullable=False, info={'label': 'Password'})

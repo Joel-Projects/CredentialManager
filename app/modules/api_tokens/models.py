@@ -1,6 +1,7 @@
 import random
 
 from app.extensions import InfoAttrs, Timestamp, db
+from config import BaseConfig
 
 
 class ApiToken(db.Model, Timestamp, InfoAttrs):
@@ -20,7 +21,7 @@ class ApiToken(db.Model, Timestamp, InfoAttrs):
         'last_used': 'Last Used'
     }
 
-    __table_args__ = {'schema': 'credential_store'}
+    __table_args__ = {'schema': BaseConfig.SCHEMA_NAME}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False, info={'label': 'Name'})
     token = db.Column(db.String, nullable=False, info={'label': 'API Token'})
