@@ -26,9 +26,9 @@ class UserVerification(db.Model, InfoAttrs):
 
     __table_args__ = {'schema': BaseConfig.SCHEMA_NAME}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    reddit_app_id = db.Column(db.ForeignKey('credential_store.reddit_apps.id', **foreignKeyKwargs), info={'label': 'Reddit App', 'description': 'Reddit App the user will be verifying with'})
+    reddit_app_id = db.Column(db.ForeignKey(f'{BaseConfig.SCHEMA_NAME}.reddit_apps.id', **foreignKeyKwargs), info={'label': 'Reddit App', 'description': 'Reddit App the user will be verifying with'})
     reddit_app = db.relationship('RedditApp', primaryjoin='UserVerification.reddit_app_id == RedditApp.id', backref=__tablename__)
-    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'), info={'label': 'Owner', 'description': 'Owner of the verification.'})
+    owner_id = db.Column(db.Integer, db.ForeignKey(f'{BaseConfig.SCHEMA_NAME}.users.id', ondelete='CASCADE', onupdate='CASCADE'), info={'label': 'Owner', 'description': 'Owner of the verification.'})
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     user_id = db.Column(db.String, nullable=False, unique=True, info={'label': "User's unique ID", 'description': 'Links reddit username to an unique ID'})
     extra_data = db.Column(db.JSON, info={'label': 'Extra Data', 'description': 'Extra JSON data linked to the verification'})

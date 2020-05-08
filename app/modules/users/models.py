@@ -62,9 +62,9 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
     defaultSettings = {'database_flavor': 'postgres', 'database_host': 'localhost'}
     default_settings = db.Column(db.JSON, server_default=json.dumps(defaultSettings), default=defaultSettings, info={'label': 'Default Settings'})
     reddit_username = db.Column(db.String, info={'label': 'Reddit Username'})
-    created_by = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='SET NULL', onupdate='CASCADE'))
+    created_by = db.Column(db.Integer, db.ForeignKey(f'{BaseConfig.SCHEMA_NAME}.users.id', ondelete='SET NULL', onupdate='CASCADE'))
     createdBy = db.relationship('User', remote_side=id, foreign_keys=[created_by])
-    updated_by = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='SET NULL', onupdate='CASCADE'))
+    updated_by = db.Column(db.Integer, db.ForeignKey(f'{BaseConfig.SCHEMA_NAME}.users.id', ondelete='SET NULL', onupdate='CASCADE'))
     updatedBy = db.relationship('User', remote_side=id, foreign_keys=[updated_by])
     internal = db.Column(db.Boolean, default=False)
 

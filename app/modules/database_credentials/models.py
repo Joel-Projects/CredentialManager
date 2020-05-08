@@ -37,7 +37,7 @@ class DatabaseCredential(db.Model, Timestamp, InfoAttrs, StrName):
     private_key = db.Column(db.Text, info={'label': 'Private Key', 'description': 'SSH private key.'})
     private_key_passphrase = db.Column(db.String, info={'label': 'Private Key Passphrase', 'description': 'Passphrase to decrypt SSH token. Leave blank if no password is needed'})
     enabled = db.Column(db.Boolean, default=True, info={'label': 'Enable?'})
-    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'), info={'label': 'Owner', 'description': 'Owner of the Database Credential'})
+    owner_id = db.Column(db.Integer, db.ForeignKey(f'{BaseConfig.SCHEMA_NAME}.users.id', ondelete='CASCADE', onupdate='CASCADE'), info={'label': 'Owner', 'description': 'Owner of the Database Credential'})
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     uniqueConstrant = db.UniqueConstraint(app_name, owner_id)
 

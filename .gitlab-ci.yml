@@ -39,8 +39,8 @@ test:pytest3.8:
         POSTGRES_USER: 'postgres'
         POSTGRES_PASSWORD: ''
         POSTGRES_HOST_AUTH_METHOD: 'trust'
-        DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
-        SCHEMA_NAME: "postgres"
+        DATABASE_URI: 'postgresql://postgres:@postgres:5432/postgres_test'
+        SCHEMA_NAME: 'postgres'
     script:
         - pip install -r app/requirements.txt -r tests/requirements.txt
         - pytest --cov-report=term --cov=app tests
@@ -57,8 +57,8 @@ test:pytest3.7:
         POSTGRES_USER: 'postgres'
         POSTGRES_PASSWORD: ''
         POSTGRES_HOST_AUTH_METHOD: 'trust'
-        DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
-        SCHEMA_NAME: "postgres"
+        DATABASE_URI: 'postgresql://postgres:@postgres:5432/postgres_test'
+        SCHEMA_NAME: 'postgres'
     script:
         - pip install -r app/requirements.txt -r tests/requirements.txt
         - pytest --cov-report=term --cov=app tests
@@ -75,8 +75,8 @@ test:pytest3.6:
         POSTGRES_USER: 'postgres'
         POSTGRES_PASSWORD: ''
         POSTGRES_HOST_AUTH_METHOD: 'trust'
-        DATABASE_URI: "postgresql://postgres:@postgres:5432/postgres_test"
-        SCHEMA_NAME: "postgres"
+        DATABASE_URI: 'postgresql://postgres:@postgres:5432/postgres_test'
+        SCHEMA_NAME:' 'postgres''
     script:
         - pip install -r app/requirements.txt -r tests/requirements.txt
         - pytest --cov-report=term --cov=app tests
@@ -84,15 +84,14 @@ test:pytest3.6:
 test:sonarqube:
     image:
         name: sonarsource/sonar-scanner-cli:latest
-        entrypoint: [""]
+        entrypoint: ['']
     stage: test
     allow_failure: true
     variables:
       SONAR_TOKEN: $SONAR_TOKEN
-      SONAR_HOST_URL: "https://qube.jesassn.org"
+      SONAR_HOST_URL: 'https://qube.jesassn.org'
       GIT_DEPTH: 0
     script:
-        - echo "sonar-scanner -Dsonar.projectKey=credmgr -Dproject.settings=$CI_PROJECT_DI/sonar-project.properties -Dsonar.qualitygate.wait=true"
         - sonar-scanner -Dsonar.projectKey=credmgr -Dproject.settings=$CI_PROJECT_DI/sonar-project.properties -Dsonar.qualitygate.wait=true
     only:
         - master
@@ -101,7 +100,6 @@ sentry_release:
     image: python:latest
     stage: .post
     script:
-        - echo "release to sentry"
         - pip install requests
         - export author=$(git show -s --format='%an' HEAD)
         - export email=$(git show -s --format='%ae' HEAD)

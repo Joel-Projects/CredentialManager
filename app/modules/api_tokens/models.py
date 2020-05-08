@@ -27,7 +27,7 @@ class ApiToken(db.Model, Timestamp, InfoAttrs):
     token = db.Column(db.String, nullable=False, info={'label': 'API Token'})
     length = db.Column(db.Integer, db.CheckConstraint('length BETWEEN 16 AND 128'), nullable=False, info={'label': 'Length'}, default=32)
     enabled = db.Column(db.Boolean, default=True, info={'label': 'Enabled'})
-    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'))
+    owner_id = db.Column(db.Integer, db.ForeignKey(f'{BaseConfig.SCHEMA_NAME}.users.id', ondelete='CASCADE', onupdate='CASCADE'))
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     last_used = db.Column(db.DateTime(True))
 

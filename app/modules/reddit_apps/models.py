@@ -46,7 +46,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
     app_type = db.Column(ChoiceType(redditAppTypes), nullable=False, info={'label': 'App Type', 'description': 'Type of the app. One of `web`, `installed`, or `script`'})
     redirect_uri = db.Column(URLType, default='https://credmgr.jesassn.org/oauth2/reddit_callback', nullable=False, info={'label': 'Redirect URI', 'description': 'Redirect URI for Oauth2 flow. Defaults to `https://credmgr.jesassn.org/oauth2/reddit_callback`. Changing this will disable fetching of users\' refresh tokens!'})
     enabled = db.Column(db.Boolean, default=True, info={'label': 'Enable?', 'description': 'Allows the app to be used'})
-    owner_id = db.Column(db.Integer, db.ForeignKey('credential_store.users.id', ondelete='CASCADE', onupdate='CASCADE'), info={'label': 'Owner', 'description': 'Owner of the Reddit App'})
+    owner_id = db.Column(db.Integer, db.ForeignKey(f'{BaseConfig.SCHEMA_NAME}.users.id', ondelete='CASCADE', onupdate='CASCADE'), info={'label': 'Owner', 'description': 'Owner of the Reddit App'})
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     state = db.Column(db.String)
     uniqueConstrant = db.UniqueConstraint(client_id, owner_id)
