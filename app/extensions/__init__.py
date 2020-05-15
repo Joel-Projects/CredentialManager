@@ -1,6 +1,8 @@
 import os
 from logging import getLogger
 
+from sqlalchemy import text
+
 from config import BaseConfig
 from .logging import Logging
 
@@ -57,7 +59,7 @@ def init_app(app):
     try:
         with db.get_engine(app=app).connect() as sql: # pragma: no cover
             schema_name = BaseConfig.SCHEMA_NAME
-            results = sql.execute(f'SELECT schema_name FROM information_schema.schemata WHERE :schema_name;', {'schema_name': schema_name})
+            results = sql.execute(text(f'SELECT schema_name FROM information_schema.schemata WHERE schema_name=:schema_name;'), schema_name=schema_name)
             if not results.fetchone():
                 raise Exception('Need to manually create schema')
     except Exception as error: # pragma: no cover

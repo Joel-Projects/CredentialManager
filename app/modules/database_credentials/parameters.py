@@ -34,8 +34,8 @@ class CreateDatabaseCredentialParameters(PostFormParameters, schemas.BaseDatabas
     enabled = base_fields.Boolean(default=True, description='Allows the credentials to be used')
     owner_id = base_fields.Integer(description='Owner of the app. Requires Admin to create for other users.')
 
-    class Meta(schemas.BaseDatabaseCredentialSchema.Meta):
-        fields = schemas.BaseDatabaseCredentialSchema.Meta.fields + ('owner_id',)
+    class Meta(schemas.DetailedDatabaseCredentialSchema.Meta):
+        fields = schemas.DetailedDatabaseCredentialSchema.Meta.fields + ('owner_id',)
 
     @validates('app_name')
     def validateName(self, data):
