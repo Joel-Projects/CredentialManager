@@ -55,6 +55,12 @@ def test_getting_redditor_from_user_id(flask_app_client, regularUserInstance, ad
     assert set(response.json.keys()) >= {'id', 'redditor'}
     assert response.json['redditor'] == adminUserUserVerification.redditor
 
+def test_getting_redditor_from_user_id_disabled(flask_app_client, regularUserInstance, adminUserUserVerification):
+    adminUserUserVerification.enabled = False
+    response = flask_app_client.post('/api/v1/user_verifications/get_redditor', data={'user_id': '123456789012345679'})
+
+    assert response.status_code == 424
+
 def test_getting_redditor_from_user_id_with_reddit_app(flask_app_client, regularUserInstance, adminUserUserVerification, redditApp):
     adminUserUserVerification.reddit_app = redditApp
     response = flask_app_client.post('/api/v1/user_verifications/get_redditor', data={'user_id': '123456789012345679', 'reddit_app_id': redditApp.id})

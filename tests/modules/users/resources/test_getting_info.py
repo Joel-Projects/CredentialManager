@@ -9,23 +9,6 @@ from tests.utils import assert401, assert403, assertSuccess
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 @pytest.mark.parametrize('userToGet', [pytest.lazy_fixture('admin_user'), pytest.lazy_fixture('internal_user'), pytest.lazy_fixture('regular_user')], ids=['get_admin_user', 'get_internal_user', 'get_regular_user'])
 def test_getting_user(flask_app_client, loginAs, userToGet):
-    response = flask_app_client.get(f'/api/v1/users/{userToGet.id}')
-
-    if userToGet.is_internal:
-        if loginAs.is_internal:
-            assertSuccess(response, None, User, DetailedUserSchema)
-        elif loginAs.is_admin:
-            assert403(response, User, internal=True)
-        else:
-            assert403(response, User, internal=True)
-    elif loginAs.is_admin or loginAs.is_internal:
-        assertSuccess(response, None, User, DetailedUserSchema)
-    else:
-        assert403(response, User, internal=True)
-
-@pytest.mark.parametrize('loginAs', users, ids=labels)
-@pytest.mark.parametrize('userToGet', [pytest.lazy_fixture('admin_user'), pytest.lazy_fixture('internal_user'), pytest.lazy_fixture('regular_user')], ids=['get_admin_user', 'get_internal_user', 'get_regular_user'])
-def test_getting_user(flask_app_client, loginAs, userToGet):
     response = flask_app_client.post(f'/api/v1/users/by_name', data={'username': userToGet.username})
 
     if userToGet.is_internal:

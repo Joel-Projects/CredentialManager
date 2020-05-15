@@ -1,7 +1,6 @@
 import pytest
 
 from tests.params import labels, users
-from tests.responseStatuses import assert404
 
 
 contentType = 'application/json'
@@ -23,6 +22,7 @@ def test_getting_list_of_bots_by_anonymous_user(flask_app_client):
 def test_getting_list_of_bots_by_authorized_user(flask_app_client, regular_user, regularUserBot, adminUserBot):
     with flask_app_client.login(regular_user):
         response = flask_app_client.get('/api/v1/bots/')
+
     assert response.status_code == 200
     assert response.content_type == contentType
     assert isinstance(response.json, list)
@@ -47,6 +47,26 @@ def test_getting_bot_info(flask_app_client, loginAs, regularUserBot):
         assert response.json['app_name'] == regularUserBot.app_name
     else:
         assert403(response)
+
+@pytest.mark.parametrize('loginAs', users, ids=labels)
+def test_getting_bot_info_disabled(flask_app_client, loginAs, regularUserBot):
+    regularUserBot.enabled = False
+    response = flask_app_client.get(f'/api/v1/bots/{regularUserBot.id}')
+
+    if loginAs.is_admin or loginAs.is_internal:
+        assert response.status_code == 424
+    else:
+        assert403(response)
+
+@pytest.mark.parametrize('loginAs', users, ids=labels)
+def test_getting_bot_info_disabled_apps(flask_app_client, loginAs, regularUserBot):
+    regularUserBot.enabled = True
+    regularUserBot.reddit_app.enabled = False
+    if not (loginAs.is_admin or loginAs.is_internal):
+        regularUserBot.owner = loginAs
+    response = flask_app_client.get(f'/api/v1/bots/{regularUserBot.id}')
+
+    assert response.status_code == 424
 
 @pytest.mark.parametrize('loginAs', users, ids=labels)
 def test_getting_bot_info_by_name(flask_app_client, loginAs, regularUserBot):

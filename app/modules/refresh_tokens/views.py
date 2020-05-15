@@ -12,7 +12,6 @@ from .models import RefreshToken
 from .tables import RefreshTokenTable
 from ..reddit_apps.models import RedditApp
 from ..user_verifications.models import UserVerification
-from ..users.models import User
 from ...extensions import db, paginateArgs, verifyEditable
 
 
@@ -26,7 +25,7 @@ refreshTokensBlueprint = Blueprint('refresh_tokens', __name__, template_folder='
 def refresh_tokens(page, perPage):
     showOld = request.args.get('showOld', 'false').lower() == 'true'
     if current_user.is_admin and not current_user.is_internal:
-        paginator = RefreshToken.query.filter(*(RefreshToken.owner_id != i.id for i in User.query.filter(User.internal == True).all()), or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld)).paginate(page, perPage, error_out=False)
+        paginator = RefreshToken.query.filter(RefreshToken.owner.has(internal=False), or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld)).paginate(page, perPage, error_out=False)
     elif current_user.is_internal:
         paginator = RefreshToken.query.filter(or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld)).paginate(page, perPage, error_out=False)
     else:

@@ -15,5 +15,7 @@ def getViewableItems(args, model):
         if not (current_user.is_admin or current_user.is_internal):
             query = query.filter(model.owner == current_user)
         elif current_user.is_admin:
-            query = query.filter(*(model.owner_id != i.id for i in User.query.filter(User.internal == True).all()))
+            query = query.filter(model.owner.has(internal=False))
+    if hasattr(model, 'enabled'):
+        query = query.filter(model.enabled==True)
     return query

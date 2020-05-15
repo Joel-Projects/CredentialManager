@@ -42,11 +42,17 @@ class Namespace(BaseNamespace):
         get_object_by_two_primary_keys(user_id=3, model_name='test')
         <MyModel(user_id=3, name='test', ...)>
         '''
+        byId = False
         if identity_arg_names is None:
             identity_arg_names = (f'{object_arg_name}_id',)
+            byId = True
         elif not isinstance(identity_arg_names, (list, tuple)): # pragma: no cover
             identity_arg_names = (identity_arg_names,)
-        return self.resolve_object(object_arg_name, resolver=lambda kwargs: model.query.get_or_404([kwargs.pop(identity_arg_name) for identity_arg_name in identity_arg_names]))
+        if byId:
+            return self.resolveObject(object_arg_name, resolver=lambda kwargs: model.query.get_or_404([kwargs.pop(identity_arg_name) for identity_arg_name in identity_arg_names]))
+        else:
+            return self.resolveObjectArgs(object_arg_name, resolver=lambda kwargs: model.query.filter_by(**{identity_arg_name: kwargs.pop(identity_arg_name) for identity_arg_name in identity_arg_names}).first_or_404())
+
 
     def model(self, name=None, model=None, **kwargs):
 
@@ -82,6 +88,48 @@ class Namespace(BaseNamespace):
                 protected_func = self.permission_required(permissions.ActiveUserRolePermission())(func)
 
             return self.doc(security=allowedAuthMethods)(self.response(code=HTTPStatus.UNAUTHORIZED.value, description='Authentication is required'))(protected_func)
+
+        return decorator
+
+
+    def restrictEnabled(self, objectFromKwargs):
+        '''
+        A decorator which restricts getting objects that are disabled.
+
+        This decorator puts together permissions restriction code with OpenAPI
+        Specification documentation.
+
+        Arguments:
+            permission (Permission) - it can be a class or an instance of
+                :class:``Permission``, which will be applied to a decorated
+                function, and docstrings of which will be used in OpenAPI
+                Specification.
+            kwargs_on_request (func) - a function which should accept only one
+                ``dict`` argument (all kwargs passed to the function), and
+                must return an ``object``.
+        '''
+
+        def decorator(func):
+            def _disabledCheck(func):
+                @wraps(func)
+                def wrapper(*args, **kwargs):
+                    inArgs = False
+                    if not kwargs:
+                        inArgs = True
+                    if inArgs:
+                        enabled = objectFromKwargs(args[1]).enabled
+                        args = (args[0], objectFromKwargs(args[1]))
+                    else:
+                        enabled = objectFromKwargs(kwargs).enabled
+                    if not enabled:
+                        http_exceptions.abort(code=HTTPStatus.FAILED_DEPENDENCY, message='Requested object is disabled')
+                    return func(*args, **kwargs)
+                return wrapper
+
+            protected_func = _disabledCheck(func)
+            self._register_access_restriction_decorator(protected_func, _disabledCheck)
+
+            return self.doc(description=f'**Must be enabled**\n\n')(self.response(code=HTTPStatus.FAILED_DEPENDENCY.value,description='Requested object is disabled')(protected_func))
 
         return decorator
 

@@ -37,7 +37,7 @@ def user_verifications(page, perPage):
         else:
             return jsonify(status='error', errors=form.errors), code
     if current_user.is_admin and not current_user.is_internal:
-        paginator = UserVerification.query.filter(*(UserVerification.owner_id != i.id for i in User.query.filter(User.internal == True).all())).paginate(page, perPage, error_out=False)
+        paginator = UserVerification.query.filter(UserVerification.owner.has(internal=False)).paginate(page, perPage, error_out=False)
     elif current_user.is_internal:
         paginator = UserVerification.query.paginate(page, perPage, error_out=False)
     else:

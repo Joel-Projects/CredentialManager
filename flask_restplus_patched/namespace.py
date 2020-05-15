@@ -20,14 +20,14 @@ class Namespace(OriginalNamespace):
             return
         cls.__apidoc__ = merge(getattr(cls, '__apidoc__', {}), doc)
 
-    def resolve_object(self, object_arg_name, resolver):
+    def resolveObject(self, object_arg_name, resolver):
         '''
         A helper decorator to resolve object instance from arguments (e.g. identity).
 
         Example:
         >>> @namespace.route('/<int:user_id>')
         ... class MyResource(Resource):
-        ...    @namespace.resolve_object(
+        ...    @namespace.resolveObject(
         ...        object_arg_name='user',
         ...        resolver=lambda kwargs: User.query.get_or_404(kwargs.pop('user_id'))
         ...    )
@@ -45,6 +45,27 @@ class Namespace(OriginalNamespace):
             @wraps(func_or_class)
             def wrapper(*args, **kwargs):
                 kwargs[object_arg_name] = resolver(kwargs)
+                return func_or_class(*args, **kwargs)
+
+            return wrapper
+
+        return decorator
+
+    def resolveObjectArgs(self, object_arg_name, resolver):
+        '''
+        A helper decorator to resolve object instance from arguments (e.g. identity).
+
+        '''
+        def decorator(func_or_class):
+            if isinstance(func_or_class, type):
+                # Handle Resource classes decoration
+
+                func_or_class._apply_decorator_to_methods(decorator)
+                return func_or_class
+
+            @wraps(func_or_class)
+            def wrapper(*args, **kwargs):
+                args[1][object_arg_name] = resolver(args[1])
                 return func_or_class(*args, **kwargs)
 
             return wrapper

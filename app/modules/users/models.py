@@ -67,6 +67,7 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
     updated_by = db.Column(db.Integer, db.ForeignKey(f'{BaseConfig.SCHEMA_NAME}.users.id', ondelete='SET NULL', onupdate='CASCADE'))
     updatedBy = db.relationship('User', remote_side=id, foreign_keys=[updated_by])
     internal = db.Column(db.Boolean, default=False)
+    admin = db.Column(db.Boolean, default=False)
 
     class StaticRoles(enum.Enum):
         INTERNAL = (0x8000, 'Internal')
@@ -101,6 +102,8 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
         self.static_roles |= role.mask
         if role.title == 'Internal':
             self.internal = True
+        if role.title == 'Admin':
+            self.admin = True
 
     def unsetStaticRole(self, role):
         if not self.hasStaticRole(role):
@@ -108,6 +111,8 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
         self.static_roles ^= role.mask
         if role.title == 'Internal':
             self.internal = False
+        if role.title == 'Admin':
+            self.admin = False
 
     def check_owner(self, user):
         return self == user

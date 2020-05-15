@@ -37,7 +37,7 @@ def database_credentials(page, perPage):
             return jsonify(status='error', errors=form.errors), code
     if current_user:
         if current_user.is_admin and not current_user.is_internal:
-            paginator = DatabaseCredential.query.filter(*(DatabaseCredential.owner_id != i.id for i in User.query.filter(User.internal == True).all())).paginate(page, perPage, error_out=False)
+            paginator = DatabaseCredential.query.filter(DatabaseCredential.owner.has(internal=False)).paginate(page, perPage, error_out=False)
         elif current_user.is_internal:
             paginator = DatabaseCredential.query.paginate(page, perPage, error_out=False)
         else:

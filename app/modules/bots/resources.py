@@ -15,6 +15,18 @@ from ..users.models import User
 log = logging.getLogger(__name__)
 api = Namespace('bots', description='Bot Management')
 
+def verifyEnabledApps(bot):
+    query = Bot.query
+    if not (current_user.is_admin or current_user.is_internal):
+        query = Bot.query.filter(Bot.owner == current_user)
+    elif current_user.is_admin:
+        query = Bot.query.filter(Bot.owner.has(internal=False))
+    bot = query.filter_by(id=bot.id).first_or_404()
+    for app in ['reddit_app', 'sentry_token', 'database_credential']:
+        if getattr(bot, app) and not getattr(bot, app).enabled:
+            http_exceptions.abort(code=HTTPStatus.FAILED_DEPENDENCY, message='Requested object is disabled')
+    return bot
+
 @api.route('/')
 @api.login_required()
 class Bots(Resource):
@@ -64,12 +76,13 @@ class BotByID(Resource):
 
     @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['bot']})
+    @api.restrictEnabled(lambda kwargs: kwargs['bot'])
     @api.response(schemas.DetailedBotSchema())
     def get(self, bot):
         '''
         Get Bot details by ID.
         '''
-        return bot
+        return verifyEnabledApps(bot)
 
     @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['bot']})
@@ -85,6 +98,7 @@ class BotByID(Resource):
 
     @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['bot']})
+    @api.restrictEnabled(lambda kwargs: kwargs['bot'])
     @api.parameters(parameters.PatchBotDetailsParameters())
     @api.response(schemas.DetailedBotSchema())
     @api.response(code=HTTPStatus.CONFLICT)
@@ -97,6 +111,7 @@ class BotByID(Resource):
             db.session.merge(bot)
         return bot
 
+
 @api.route('/by_name')
 @api.login_required()
 @api.response(code=HTTPStatus.NOT_FOUND, description='Bot not found.')
@@ -107,13 +122,11 @@ class GetBotByName(Resource):
 
     @api.parameters(parameters.GetBotByName())
     @api.response(schemas.DetailedBotSchema())
-    def post(self, args):
+    @api.resolveObjectToModel(Bot, 'bot', 'app_name')
+    @api.restrictEnabled(lambda kwargs: kwargs['bot'])
+    def post(self, bot):
         '''
         Get Bot by name.
-
-        Only Admins can specify ``owner_id`` to get other users' Bot details.
-        If ``owner_id`` is not specified, only your Bots will be queried.
         '''
-        app_name = args['app_name']
-        bots = getViewableItems(args, Bot).filter(Bot.app_name==app_name)
-        return bots.first_or_404(f'Bot {app_name!r} does not exist for the specified user.')
+        return verifyEnabledApps(bot)
+

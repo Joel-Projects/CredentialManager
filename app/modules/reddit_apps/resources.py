@@ -68,6 +68,7 @@ class RedditAppByID(Resource):
 
     @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['reddit_app']})
+    @api.restrictEnabled(lambda kwargs: kwargs['reddit_app'])
     @api.response(schemas.DetailedRedditAppSchema())
     @api.response(code=HTTPStatus.NOT_FOUND, description='Reddit App not found.')
     def get(self, reddit_app):
@@ -78,6 +79,7 @@ class RedditAppByID(Resource):
 
     @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['reddit_app']})
+    @api.restrictEnabled(lambda kwargs: kwargs['reddit_app'])
     @api.parameters(parameters.GetRefreshTokenByRedditor())
     @api.response(DetailedRefreshTokenSchema())
     @api.response(code=HTTPStatus.FORBIDDEN, description="You don't have the permission to access other users' Refresh Tokens.")
@@ -113,6 +115,7 @@ class RedditAppByID(Resource):
 
     @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['reddit_app']})
+    @api.restrictEnabled(lambda kwargs: kwargs['reddit_app'])
     @api.parameters(parameters.PatchRedditAppDetailsParameters())
     @api.response(schemas.DetailedRedditAppSchema())
     @api.response(code=HTTPStatus.CONFLICT)

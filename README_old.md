@@ -90,7 +90,7 @@ class UsersList(Resource):
 
 
 @users_api.route('/<int:user_id>')
-@users_api.resolve_object('user', lambda kwargs: User.query.get_or_404(kwargs.pop('user_id')))
+@users_api.resolveObject('user', lambda kwargs: User.query.get_or_404(kwargs.pop('user_id')))
 class UserByID(Resource):
 
     @users_api.response(UserSchema())

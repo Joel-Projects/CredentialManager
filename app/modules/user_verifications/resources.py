@@ -70,6 +70,7 @@ class UserVerificationByID(Resource):
 
     @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['user_verification']})
+    @api.restrictEnabled(lambda kwargs: kwargs['user_verification'])
     @api.response(schemas.DetailedUserVerificationSchema())
     def get(self, user_verification):
         '''
@@ -116,13 +117,15 @@ class GetUserVerificationByUserID(Resource):
     @api.response(schemas.DetailedUserVerificationSchema())
     def post(self, args):
         '''
-        Get  by User ID.
+        Get User Verification by User ID.
         Optionally filter by Reddit App ID
-
-        Only Admins can see Refresh Tokens for other users' Reddit Apps. Regular users will see their own Reddit Apps' Refresh Tokens.
         '''
         if 'reddit_app_id' in args:
             redditApp = RedditApp.query.get_or_404(args['reddit_app_id'], 'Reddit App not found')
-            return UserVerification.query.filter(UserVerification.user_id == args['user_id'], UserVerification.reddit_app == redditApp).first_or_404()
+            if redditApp.enabled:
+                userVerification = UserVerification.query.filter(UserVerification.user_id == args['user_id'], UserVerification.reddit_app == redditApp).first_or_404()
         else:
-            return UserVerification.query.filter(UserVerification.user_id == args['user_id']).first_or_404()
+            userVerification = UserVerification.query.filter(UserVerification.user_id == args['user_id']).first_or_404()
+        if userVerification.enabled:
+            return userVerification
+        http_exceptions.abort(code=HTTPStatus.FAILED_DEPENDENCY, message='Requested object is disabled')

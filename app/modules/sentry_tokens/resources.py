@@ -65,6 +65,7 @@ class SentryTokenByID(Resource):
 
     @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['sentry_token']})
+    @api.restrictEnabled(lambda kwargs: kwargs['sentry_token'])
     @api.response(schemas.DetailedSentryTokenSchema())
     def get(self, sentry_token):
         '''
@@ -87,6 +88,7 @@ class SentryTokenByID(Resource):
 
     @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['sentry_token']})
+    @api.restrictEnabled(lambda kwargs: kwargs['sentry_token'])
     @api.parameters(parameters.PatchSentryTokenDetailsParameters())
     @api.response(schemas.DetailedSentryTokenSchema())
     @api.response(code=HTTPStatus.CONFLICT)

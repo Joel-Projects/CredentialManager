@@ -12,15 +12,15 @@ from ...extensions.frontend.forms import ModelSelectField, owners, checkModelOwn
 
 def reddit_apps(owner):
     owner = checkModelOwner(owner)
-    return owner.reddit_apps
+    return owner.reddit_apps.filter_by(enabled=True)
 
 def sentry_tokens(owner):
     owner = checkModelOwner(owner)
-    return owner.sentry_tokens
+    return owner.sentry_tokens.filter_by(enabled=True)
 
 def database_credentials(owner):
     owner = checkModelOwner(owner)
-    return owner.database_credentials
+    return owner.database_credentials.filter_by(enabled=True)
 
 class BotForm(ModelForm):
     class Meta:

@@ -96,4 +96,4 @@ def checkModelOwner(owner):
 
 def reddit_apps(owner):
     owner = checkModelOwner(owner)
-    return owner.reddit_apps
+    return owner.reddit_apps.filter_by(enabled=True)
