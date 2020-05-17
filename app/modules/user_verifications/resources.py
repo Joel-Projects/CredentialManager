@@ -126,6 +126,6 @@ class GetUserVerificationByUserID(Resource):
                 userVerification = UserVerification.query.filter(UserVerification.user_id == args['user_id'], UserVerification.reddit_app == redditApp).first_or_404()
         else:
             userVerification = UserVerification.query.filter(UserVerification.user_id == args['user_id']).first_or_404()
-        if userVerification.enabled:
-            return userVerification
-        http_exceptions.abort(code=HTTPStatus.FAILED_DEPENDENCY, message='Requested object is disabled')
+        if not userVerification.enabled:
+            http_exceptions.abort(code=HTTPStatus.FAILED_DEPENDENCY, message='Requested object is disabled')
+        return userVerification

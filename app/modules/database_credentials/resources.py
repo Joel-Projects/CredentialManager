@@ -90,7 +90,6 @@ class DatabaseCredentialByID(Resource):
 
     @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['database_credential']})
-    @api.restrictEnabled(lambda kwargs: kwargs['database_credential'])
     @api.parameters(parameters.PatchDatabaseCredentialDetailsParameters())
     @api.response(schemas.DetailedDatabaseCredentialSchema())
     @api.response(code=HTTPStatus.CONFLICT)

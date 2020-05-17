@@ -24,7 +24,7 @@ def verifyEnabledApps(bot):
     bot = query.filter_by(id=bot.id).first_or_404()
     for app in ['reddit_app', 'sentry_token', 'database_credential']:
         if getattr(bot, app) and not getattr(bot, app).enabled:
-            http_exceptions.abort(code=HTTPStatus.FAILED_DEPENDENCY, message='Requested object is disabled')
+            http_exceptions.abort(code=HTTPStatus.FAILED_DEPENDENCY, message='Requested object has a sub-object that is disabled')
     return bot
 
 @api.route('/')
@@ -98,7 +98,6 @@ class BotByID(Resource):
 
     @api.login_required()
     @api.permission_required(permissions.OwnerRolePermission, kwargs_on_request=lambda kwargs: {'obj': kwargs['bot']})
-    @api.restrictEnabled(lambda kwargs: kwargs['bot'])
     @api.parameters(parameters.PatchBotDetailsParameters())
     @api.response(schemas.DetailedBotSchema())
     @api.response(code=HTTPStatus.CONFLICT)
