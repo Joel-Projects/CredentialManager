@@ -19,7 +19,7 @@ def verifyEnabledApps(bot):
     query = Bot.query
     if not (current_user.is_admin or current_user.is_internal):
         query = Bot.query.filter(Bot.owner == current_user)
-    elif current_user.is_admin:
+    elif current_user.is_admin and not current_user.is_internal:
         query = Bot.query.filter(Bot.owner.has(internal=False))
     bot = query.filter_by(id=bot.id).first_or_404()
     for app in ['reddit_app', 'sentry_token', 'database_credential']:
