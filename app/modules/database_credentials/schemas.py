@@ -19,13 +19,16 @@ class BaseDatabaseCredentialSchema(ModelSchema):
             DatabaseCredential.database_host.key,
             DatabaseCredential.database.key,
             DatabaseCredential.database_flavor.key,
+            DatabaseCredential.enabled.key,
             'resource_type'
         )
         dump_only = (
             DatabaseCredential.id.key,
             'resource_type'
         )
-
+        load_only = (
+            DatabaseCredential.enabled.key,
+        )
     _resourceType = Meta.model.__name__
     resource_type = base_fields.String(default=_resourceType)
 
@@ -46,6 +49,5 @@ class DetailedDatabaseCredentialSchema(BaseDatabaseCredentialSchema):
             DatabaseCredential.use_ssh_key.key,
             DatabaseCredential.private_key.key,
             DatabaseCredential.private_key_passphrase.key,
-            DatabaseCredential.enabled.key,
             DatabaseCredential.owner_id.key
         )

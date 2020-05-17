@@ -16,13 +16,16 @@ class BaseRedditAppSchema(ModelSchema):
             RedditApp.app_name.key,
             RedditApp.client_id.key,
             RedditApp.client_secret.key,
+            RedditApp.enabled.key,
             'resource_type'
         )
         dump_only = (
             RedditApp.id.key,
             'resource_type'
         )
-
+        load_only = (
+            RedditApp.enabled.key,
+        )
     _resourceType = Meta.model.__name__
     resource_type = base_fields.String(default=_resourceType)
 
@@ -39,9 +42,9 @@ class DetailedRedditAppSchema(BaseRedditAppSchema):
             RedditApp.app_type.key,
             RedditApp.redirect_uri.key,
             RedditApp.state.key,
-            RedditApp.enabled.key,
             RedditApp.owner_id.key
         )
+
     app_type = base_fields.String(description='Type of the app. One of `web`, `installed`, or `script`', attribute='app_type.code')
 
 class AuthUrlSchema(BaseRedditAppSchema):

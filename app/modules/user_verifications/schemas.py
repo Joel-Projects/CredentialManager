@@ -16,13 +16,16 @@ class BaseUserVerificationSchema(ModelSchema):
             UserVerification.id.key,
             UserVerification.user_id.key,
             UserVerification.redditor.key,
+            UserVerification.enabled.key,
             'resource_type'
         )
         dump_only = (
             UserVerification.id.key,
             'resource_type'
         )
-
+        load_only = (
+            UserVerification.enabled.key,
+        )
     _resourceType = Meta.model.__name__
     resource_type = base_fields.String(default=_resourceType)
 
