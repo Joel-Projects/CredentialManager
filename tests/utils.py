@@ -84,8 +84,11 @@ def assertSuccess(response, owner, model, schema, deleteItemId=None):
         assert item is None
     else:
         assert response.status_code == 200
-        assert set(response.json.keys()) >= set(schema.Meta.fields)
-        for field in schema.Meta.fields:
+        setToTest = set(schema.Meta.fields)
+        if 'enabled' in setToTest:
+            setToTest.remove('enabled')
+        assert set(response.json.keys()) >= setToTest
+        for field in setToTest:
             if response.json[field] and not field == 'resource_type':
                 if isinstance(getattr(model, field), property):
                     assert isinstance(response.json[field], bool)
@@ -98,8 +101,8 @@ def assertSuccess(response, owner, model, schema, deleteItemId=None):
         assert createdItem is not None
         if 'owner_id' in response.json:
             assert response.json['owner_id'] == owner.id
-        for field in schema.Meta.fields:
-            if not field == 'resource_type' and response.json[field]:
+        for field in setToTest:
+            if not field == 'resource_type' and response.json[field] and not field == 'enabled':
                 if isinstance(getattr(createdItem, field), datetime):
                     assert response.json[field] == datetime.astimezone(getattr(createdItem, field), timezone.utc).isoformat()
                 elif isinstance(getattr(createdItem, field), Choice):
