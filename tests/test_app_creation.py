@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from app import CONFIG_NAME_MAPPER, create_app
+from app import configNameMapper, create_app
 
 
 def test_create_app():
@@ -13,18 +13,18 @@ def test_create_app():
         # if we get SystemExit error.
         pass
 
-@pytest.mark.parametrize('flask_config_name', ['production', 'development', 'testing'])
-def test_create_app_passing_flask_config_name(monkeypatch, flask_config_name):
-    if flask_config_name == 'production':
+@pytest.mark.parametrize('flaskConfigName', ['production', 'development', 'testing'])
+def test_create_app_passing_flaskConfigName(monkeypatch, flaskConfigName):
+    if flaskConfigName == 'production':
         from config import ProductionConfig
         monkeypatch.setattr(ProductionConfig, 'SQLALCHEMY_DATABASE_URI', os.getenv('DATABASE_URI', 'postgresql://postgres:@localhost/postgres_test'))
         monkeypatch.setattr(ProductionConfig, 'SECRET_KEY', 'secret')
-    create_app(flask_config_name=flask_config_name)
+    create_app(flaskConfigName=flaskConfigName)
 
-@pytest.mark.parametrize('flask_config_name', ['production', 'development', 'testing'])
-def test_create_app_passing_FLASK_CONFIG_env(monkeypatch, flask_config_name):
-    monkeypatch.setenv('FLASK_CONFIG', flask_config_name)
-    if flask_config_name == 'production':
+@pytest.mark.parametrize('flaskConfigName', ['production', 'development', 'testing'])
+def test_create_app_passing_FLASK_CONFIG_env(monkeypatch, flaskConfigName):
+    monkeypatch.setenv('FLASK_CONFIG', flaskConfigName)
+    if flaskConfigName == 'production':
         from config import ProductionConfig
         monkeypatch.setattr(ProductionConfig, 'SQLALCHEMY_DATABASE_URI', os.getenv('DATABASE_URI', 'postgresql://postgres:@localhost/postgres_test'))
         monkeypatch.setattr(ProductionConfig, 'SECRET_KEY', 'secret')
@@ -40,7 +40,7 @@ def test_create_app_with_non_existing_config():
         create_app('non-existing-config')
 
 def test_create_app_with_broken_import_config():
-    CONFIG_NAME_MAPPER['broken-import-config'] = 'broken-import-config'
+    configNameMapper['broken-import-config'] = 'broken-import-config'
     with pytest.raises(ImportError):
         create_app('broken-import-config')
-    del CONFIG_NAME_MAPPER['broken-import-config']
+    del configNameMapper['broken-import-config']

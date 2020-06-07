@@ -36,7 +36,6 @@ class DetailedRedditAppSchema(BaseRedditAppSchema):
     class Meta(BaseRedditAppSchema.Meta):
 
         fields = BaseRedditAppSchema.Meta.fields + (
-            RedditApp.short_name.key,
             RedditApp.app_description.key,
             RedditApp.user_agent.key,
             RedditApp.app_type.key,

@@ -17,7 +17,6 @@ class RedditAppTable(BaseTable):
     html_attrs = {'id': 'reddit_apps_table'}
     _formFields = [
         'app_name',
-        'short_name',
         'app_description',
         'client_id',
         'client_secret',

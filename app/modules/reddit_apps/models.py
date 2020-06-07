@@ -38,7 +38,6 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
     redditAppTypes = [('web', 'Web App'), ('installed', 'Installed App'), ('script', 'Personal Use Script')]
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     app_name = db.Column(db.String, nullable=False, info={'label': 'App Name', 'description': 'Name of the Reddit App'})
-    short_name = db.Column(db.String, info={'label': 'Short Name', 'description': 'Short name of the Reddit App'})
     app_description = db.Column(db.Text, info={'label': 'Description', 'description': 'Description of the Reddit App'})
     client_id = db.Column(db.String, nullable=False, info={'label': 'Client ID', 'description': 'Client ID of the Reddit App'})
     client_secret = db.Column(db.String, info={'label': 'Client Secret', 'description': 'Client secret of the Reddit App'})

@@ -6,7 +6,6 @@ from app.modules.user_verifications.models import UserVerification
 
 
 test_data = {
-    'short_name': 'short_name',
     'app_description': 'app_description',
     'client_id': 'client_id',
     'client_secret': 'client_secret',

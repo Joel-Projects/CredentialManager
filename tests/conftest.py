@@ -8,7 +8,7 @@ from tests import utils
 
 @pytest.fixture()
 def flask_app():
-    app = create_app(flask_config_name='testing')
+    app = create_app(flaskConfigName='testing')
     from app.extensions import db
 
     with app.app_context():

@@ -45,7 +45,7 @@
                         {{ form.owner.label }}
                         {{ form.owner(class_="custom-select", default=reddit_app.owner, readonly=True) }}
                     </div>
-                    {% for fieldName in ['app_name', 'short_name', 'app_description', 'client_id', 'client_secret', 'user_agent', 'redirect_uri'] %}
+                    {% for fieldName in ['app_name', 'app_description', 'client_id', 'client_secret', 'user_agent', 'redirect_uri'] %}
                         {{ macros.textField(form, fieldName) }}
                     {% endfor %}
                     <div class="form-group">

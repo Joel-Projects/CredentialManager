@@ -19,7 +19,6 @@ def internalUserUserVerification(temp_db_instance_helper, internal_user, redditA
         yield _
 
 redditAppTestData = {
-    'short_name': 'short_name',
     'app_description': 'app_description',
     'client_id': 'client_id',
     'client_secret': 'client_secret',

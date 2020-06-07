@@ -113,7 +113,6 @@ def internalUserRefreshToken(temp_db_instance_helper, redditApp, internal_user):
         yield _
 
 redditAppData = {
-    'short_name': 'short_name',
     'app_description': 'app_description',
     'client_id': 'client_id',
     'client_secret': 'client_secret',

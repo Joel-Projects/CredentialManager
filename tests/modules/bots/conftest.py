@@ -36,7 +36,6 @@ def internalUserBot(temp_db_instance_helper, internal_user, redditApp, sentryTok
 
 redditAppTestData = {
     'app_name': 'reddit_app',
-    'short_name': 'short_name',
     'app_description': 'app_description',
     'client_id': 'client_id',
     'client_secret': 'client_secret',
@@ -47,7 +46,6 @@ redditAppTestData = {
 
 redditAppTestData2 = {
     'app_name': 'reddit_app2',
-    'short_name': 'short_name',
     'app_description': 'app_description',
     'client_id': 'client_id2',
     'client_secret': 'client_secret',

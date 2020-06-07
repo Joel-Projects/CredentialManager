@@ -5,14 +5,14 @@ from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
-CONFIG_NAME_MAPPER = {
+configNameMapper = {
     'development': 'config.DevelopmentConfig',
     'testing': 'config.TestingConfig',
     'production': 'config.ProductionConfig',
     'local': 'local_config.LocalConfig',
 }
 
-def create_app(flask_config_name=None, **kwargs):
+def create_app(flaskConfigName=None, **kwargs):
     # This is a workaround for Alpine Linux (musl libc) quirk:
     # https://github.com/docker-library/python/issues/211
     import threading
@@ -20,18 +20,18 @@ def create_app(flask_config_name=None, **kwargs):
 
     app = Flask(__name__, **kwargs)
 
-    env_flask_config_name = os.getenv('FLASK_CONFIG')
-    if not env_flask_config_name and flask_config_name is None:
-        flask_config_name = 'local'
-    elif flask_config_name is None:
-        flask_config_name = env_flask_config_name
+    envFlaskConfigName = os.getenv('FLASK_CONFIG')
+    if not envFlaskConfigName and flaskConfigName is None:
+        flaskConfigName = 'local'
+    elif flaskConfigName is None:
+        flaskConfigName = envFlaskConfigName
     else:
-        if env_flask_config_name:
-            assert env_flask_config_name == flask_config_name, f'FLASK_CONFIG environment variable ({env_flask_config_name!r}) and flask_config_name argument ({flask_config_name!r}) are both set and are not the same.'
+        if envFlaskConfigName:
+            assert envFlaskConfigName == flaskConfigName, f'FLASK_CONFIG environment variable ({envFlaskConfigName!r}) and flaskConfigName argument ({flaskConfigName!r}) are both set and are not the same.'
     try:
-        app.config.from_object(CONFIG_NAME_MAPPER[flask_config_name])
+        app.config.from_object(configNameMapper[flaskConfigName])
     except ImportError:
-        if flask_config_name == 'local':
+        if flaskConfigName == 'local':
             app.logger.error('You have to have `local_config.py` or `local_config/__init__.py` in order to use the default "local" Flask Config. Alternatively, you may set `FLASK_CONFIG` environment variable to one of the following options: development, production, testing.')
             sys.exit(1)
         raise

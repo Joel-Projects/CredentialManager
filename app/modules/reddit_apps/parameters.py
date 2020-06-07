@@ -17,7 +17,6 @@ class ListRedditAppsParameters(PaginationParameters, ValidateOwner):
 
 class CreateRedditAppParameters(PostFormParameters, schemas.DetailedRedditAppSchema, ValidateOwner):
     app_name = base_fields.String(required=True, description='Name of the Reddit App')
-    short_name = base_fields.String(description='Short name of the Reddit App')
     app_description = base_fields.String(description='Description of the Reddit App')
     client_id = base_fields.String(required=True, description='Client ID of the Reddit App')
     client_secret = base_fields.String(description='Client secret of the Reddit App')
@@ -43,7 +42,6 @@ class PatchRedditAppDetailsParameters(PatchJSONParameters):
     '''
     fields = (
         RedditApp.app_name.key,
-        RedditApp.short_name.key,
         RedditApp.app_description.key,
         RedditApp.client_id.key,
         RedditApp.client_secret.key,
