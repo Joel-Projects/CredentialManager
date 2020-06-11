@@ -1,4 +1,4 @@
-from flask_restplus_patched import ModelSchema
+from flask_restplus_patched import ModelSchema, Schema
 from flask_marshmallow import base_fields
 
 from .models import SentryToken
@@ -38,3 +38,8 @@ class DetailedSentryTokenSchema(BaseSentryTokenSchema):
         fields = BaseSentryTokenSchema.Meta.fields + (
             SentryToken.owner_id.key,
         )
+
+class OrganizationSchema(Schema):
+    id = base_fields.Str()
+    name = base_fields.Str()
+    slug = base_fields.Str()

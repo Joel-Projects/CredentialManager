@@ -9,7 +9,7 @@ from ...extensions.frontend.forms import HiddenFieldWithToggle
 class UserForm(ModelForm):
     class Meta:
         model = User
-        only = ['username', 'password', 'reddit_username']
+        only = ['username', 'password', 'reddit_username', 'sentry_auth_token']
 
     is_admin = BooleanField('Admin?')
     is_internal = BooleanField('Internal?')
@@ -19,7 +19,7 @@ class UserForm(ModelForm):
 class EditUserForm(ModelForm):
     class Meta:
         model = User
-        only = ['id', 'username', 'password', 'reddit_username']
+        only = ['id', 'username', 'password', 'reddit_username', 'sentry_auth_token']
         field_args = {
             'id': {'validators': [Optional()]},
             'password': {'validators': [Optional()]},

@@ -18,6 +18,7 @@ class CreateUserParameters(PostFormParameters, schemas.DetailedUserSchema):
     username = base_fields.String(description='Username for new user (Example: ```spaz```)', required=True)
     password = base_fields.String(description='Password for new user (Example: ```supersecurepassword```)', required=True)
     reddit_username = base_fields.String(description='Reddit username for the user. Used in the default user agent for Reddit Apps')
+    sentry_auth_token = base_fields.String(description='Auth token for Sentry. Allows CredentialManager to create Sentry apps for you.')
     default_settings = JSON(description='JSON of default values to use for new apps. Can be any of: `database_flavor`, `database_host`, `ssh_host`, `ssh_user`, `user_agent` (Example: ```{"database_flavor": "postgres", "database_host": "localhost"}```)', default={'database_flavor': 'postgres', 'database_host': 'localhost'})
     is_active = base_fields.Boolean(description='Is the user active? Allows the user to sign in (Default: ``true``)', default=True)
     is_admin = base_fields.Boolean(description='Is the user an admin? Allows the user to see all objects and create users (Default: ``false``)', default=False)
@@ -45,7 +46,7 @@ class PatchUserDetailsParameters(PatchJSONParameters):
     '''
     User details updating parameters following PATCH JSON RFC.
     '''
-    fields = (User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, User.default_settings.key, User.username.key, User.updated_by.key, User.reddit_username.key)
+    fields = (User.password.key, User.is_active.fget.__name__, User.is_regular_user.fget.__name__, User.is_internal.fget.__name__, User.is_admin.fget.__name__, User.default_settings.key, User.username.key, User.updated_by.key, User.reddit_username.key, User.sentry_auth_token.key)
     PATH_CHOICES = tuple(f'/{field}' for field in fields)
 
     @classmethod

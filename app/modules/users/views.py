@@ -27,7 +27,7 @@ from ..reddit_apps.tables import RedditAppTable
 from ..refresh_tokens.forms import GenerateRefreshTokenForm
 from ..refresh_tokens.models import RefreshToken
 from ..refresh_tokens.views import RefreshTokenTable
-from ..sentry_tokens.forms import SentryTokenForm
+from ..sentry_tokens.forms import EditSentryTokenForm, CreateSentryTokenForm
 from ..sentry_tokens.models import SentryToken
 from ..sentry_tokens.tables import SentryTokenTable
 from ..user_verifications.forms import UserVerificationForm
@@ -87,7 +87,7 @@ def editUser(user):
 
     sentry_tokens = user.sentry_tokens.all()
     kwargs['sentry_tokensTable'] = SentryTokenTable(sentry_tokens, current_user=current_user)
-    kwargs['sentry_tokensForm'] = SentryTokenForm()
+    kwargs['sentry_tokensForm'] = CreateSentryTokenForm()
 
     database_credentials = user.database_credentials.all()
     kwargs['database_credentialsTable'] = DatabaseCredentialTable(database_credentials, current_user=current_user)
@@ -166,7 +166,7 @@ def itemsPerUser(user, item):
     validItems = {
         'bots': [BotTable, BotForm, Bot],
         'reddit_apps': [RedditAppTable, RedditAppForm, RedditApp],
-        'sentry_tokens': [SentryTokenTable, SentryTokenForm, SentryToken],
+        'sentry_tokens': [SentryTokenTable, CreateSentryTokenForm, SentryToken],
         'database_credentials': [DatabaseCredentialTable, DatabaseCredentialForm, DatabaseCredential],
         'api_tokens': [ApiTokenTable, ApiTokenForm, ApiToken],
         'refresh_tokens': [RefreshTokenTable, GenerateRefreshTokenForm, RefreshToken],
