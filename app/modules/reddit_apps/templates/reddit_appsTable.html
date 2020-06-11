@@ -26,14 +26,14 @@
                                 <div class="form-group">
                                     {{ reddit_appsForm[fieldName].label }}
                                     {{ reddit_appsForm[fieldName](class_="custom-select") }}
-                                    <small id="headerHelp" class="form-text text-muted">{{ reddit_appsForm[fieldName].description }}</small>
+                                    <small id="{{ reddit_appsForm[fieldName].id }}Help" class="form-text text-muted">{{ reddit_appsForm[fieldName].description }}</small>
                                 </div>
                             {% elif fieldName == 'enabled' %}
                                 <div class="form-group">
                                     <div class="custom-control custom-switch">
                                         {{ reddit_appsForm[fieldName](checked=True, class_="custom-control-input") }}
                                         {{ reddit_appsForm[fieldName].label(class_='custom-control-label') }}
-                                        <small id="headerHelp" class="form-text text-muted">{{ reddit_appsForm[fieldName].description }}</small>
+                                        <small id="{{ reddit_appsForm[fieldName].id }}Help" class="form-text text-muted">{{ reddit_appsForm[fieldName].description }}</small>
                                     </div>
                                 </div>
                             {% elif fieldName == 'redirect_uri' %}
@@ -52,7 +52,7 @@
                                     {% else %}
                                         {{ reddit_appsForm[fieldName](value=redirectUri, size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
                                     {% endif %}
-                                    <small id="headerHelp" class="form-text text-muted">{{ reddit_appsForm[fieldName].description }}</small>
+                                    <small id="{{ reddit_appsForm[fieldName].id }}Help" class="form-text text-muted">{{ reddit_appsForm[fieldName].description }}</small>
                                 </div>
                             {% elif fieldName == 'user_agent' %}
                                 <div class="form-group">
@@ -70,7 +70,7 @@
                                     {% else %}
                                         {{ reddit_appsForm[fieldName](value=user_agent, size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
                                     {% endif %}
-                                    <small id="headerHelp" class="form-text text-muted">{{ reddit_appsForm[fieldName].description }}</small>
+                                    <small id="{{ reddit_appsForm[fieldName].id }}Help" class="form-text text-muted">{{ reddit_appsForm[fieldName].description }}</small>
                                 </div>
                             {% else %}
                                 {{ macros.textField(reddit_appsForm, fieldName) }}
@@ -79,7 +79,7 @@
                         <div class="form-group" {% if not current_user.is_admin and not current_user.is_internal %}hidden{% endif %}>
                             {{ reddit_appsForm.owner.label }}
                             {{ reddit_appsForm.owner(class_="custom-select", default=user or current_user) }}
-                            <small id="headerHelp" class="form-text text-muted">{{ reddit_appsForm.owner.description }}</small>
+                            <small id="{{ reddit_appsForm.owner.id }}Help" class="form-text text-muted">{{ reddit_appsForm.owner.description }}</small>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>

@@ -158,7 +158,7 @@
                                     <div class="custom-control custom-switch">
                                         {{ usersForm.is_admin(default=user.is_admin, class_="custom-control-input") }}
                                         {{ usersForm.is_admin.label(class_='custom-control-label') }}
-                                        <small id="headerHelp" class="form-text text-muted">Enables the user to create other admins and view other users' data</small>
+                                        <small id="enableHelp" class="form-text text-muted">Enables the user to create other admins and view other users' data</small>
                                     </div>
                                 </div>
                                 {% if current_user.is_internal %}
@@ -181,7 +181,7 @@
                                     <div class="custom-control custom-switch">
                                         {{ usersForm.is_active(default=user.is_active, class_="custom-control-input") }}
                                         {{ usersForm.is_active.label(class_='custom-control-label') }}
-                                        <small id="headerHelp" class="form-text text-muted">Enables the user to sign in and use the API</small>
+                                        <small id="enableHelp" class="form-text text-muted">Enables the user to sign in and use the API</small>
                                     </div>
                                 </div>
                                 <div class="form-group">

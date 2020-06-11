@@ -51,7 +51,7 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
     revoked = db.Column(db.Boolean, default=False)
     revoked_at = db.Column(db.DateTime(True))
 
-    uniqueConstrant = db.Index('only_one_active_token', reddit_app_id, redditor, revoked, unique=True, postgresql_where=(~revoked))
+    uniqueConstraint = db.Index('only_one_active_token', reddit_app_id, redditor, revoked, unique=True, postgresql_where=(~revoked))
 
     def check_owner(self, user):
         return self.owner == user

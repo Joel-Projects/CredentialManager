@@ -39,7 +39,7 @@ class DatabaseCredential(db.Model, Timestamp, InfoAttrs, StrName):
     enabled = db.Column(db.Boolean, default=True, info={'label': 'Enable?'})
     owner_id = db.Column(db.Integer, db.ForeignKey(f'{BaseConfig.SCHEMA_NAME}.users.id', ondelete='CASCADE', onupdate='CASCADE'), info={'label': 'Owner', 'description': 'Owner of the Database Credential'})
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
-    uniqueConstrant = db.UniqueConstraint(app_name, owner_id)
+    uniqueConstraint = db.UniqueConstraint(app_name, owner_id)
 
     @property
     def botsUsingApp(self):

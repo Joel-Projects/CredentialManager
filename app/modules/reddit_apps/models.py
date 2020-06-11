@@ -48,7 +48,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
     owner_id = db.Column(db.Integer, db.ForeignKey(f'{BaseConfig.SCHEMA_NAME}.users.id', ondelete='CASCADE', onupdate='CASCADE'), info={'label': 'Owner', 'description': 'Owner of the Reddit App'})
     owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
     state = db.Column(db.String)
-    uniqueConstrant = db.UniqueConstraint(client_id, owner_id)
+    uniqueConstraint = db.UniqueConstraint(client_id, owner_id)
 
     def check_owner(self, user):
         return self.owner == user

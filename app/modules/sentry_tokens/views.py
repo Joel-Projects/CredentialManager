@@ -1,12 +1,14 @@
 import logging
 
-from flask import Blueprint, flash, jsonify, render_template, request
+import requests
+from flask import Blueprint, flash, jsonify, redirect, render_template, request
 from flask_login import current_user, login_required
-from wtforms import BooleanField
 
+import app
+from config import BaseConfig
 from .parameters import PatchSentryTokenDetailsParameters
 from .resources import api
-from ..users.models import User
+from .sentryRequestor import SentryRequestor
 from ...extensions import db, paginateArgs, verifyEditable
 
 
@@ -16,9 +18,10 @@ from .forms import SentryTokenForm
 from .tables import SentryTokenTable
 
 
-sentryTokensBlueprint = Blueprint('sentry_tokens', __name__, template_folder='./templates', static_folder='./static', static_url_path='/sentry_tokens/static/')
+sentryTokensBlueprint = Blueprint('sentry_tokens', __name__, template_folder='./templates', static_folder='./static', static_url_path='/sentry_tokens/static/',
+    url_prefix='/sentry_tokens')
 
-@sentryTokensBlueprint.route('/sentry_tokens', methods=['GET', 'POST'])
+@sentryTokensBlueprint.route('/', methods=['GET', 'POST'])
 @login_required
 @paginateArgs(SentryToken)
 def sentry_tokens(page, perPage):
@@ -46,7 +49,7 @@ def sentry_tokens(page, perPage):
     form = SentryTokenForm()
     return render_template('sentry_tokens.html', sentry_tokensTable=table, sentry_tokensForm=form, paginator=paginator, route='sentry_tokens.sentry_tokens', perPage=perPage), code
 
-@sentryTokensBlueprint.route('/sentry_tokens/<SentryToken:sentry_token>/', methods=['GET', 'POST'])
+@sentryTokensBlueprint.route('/<SentryToken:sentry_token>/', methods=['GET', 'POST'])
 @login_required
 @verifyEditable('sentry_token')
 def editSentryToken(sentry_token):
