@@ -40,6 +40,7 @@ build:
         - docker push $CONTAINER_RELEASE_IMAGE
     only:
         - master
+        - tags
 include:
     -   template: Container-Scanning.gitlab-ci.yml
 
