@@ -28,10 +28,10 @@
                                 {{ sentry_tokensForm.app_name(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
                             {% endif %}
                         </div>
-                    {% if current_user.sentry_auth_token %}
+                        {% if current_user.sentry_auth_token %}
                             <div class="form-group">
                                 <div class="custom-control custom-switch">
-                                    {{ sentry_tokensForm.create_sentry_app(class_="custom-control-input", hiddenObject='create_sentry_appGroup', forFields=[sentry_tokensForm.sentry_organization, sentry_tokensForm.sentry_team], shownObject='dsnGroup', hideFields=[sentry_tokensForm.dsn]) }}
+                                    {{ sentry_tokensForm.create_sentry_app(class_="custom-control-input", hiddenObject='create_sentry_appGroup', forFields=[sentry_tokensForm.sentry_organization, sentry_tokensForm.sentry_team, sentry_tokensForm.sentry_platform], shownObject='dsnGroup', hideFields=[sentry_tokensForm.dsn]) }}
                                     {{ sentry_tokensForm.create_sentry_app.label(class_='custom-control-label') }}
                                     {% if sentry_tokensForm.create_sentry_app.description %}
                                         <small id="{{ sentry_tokensForm.create_sentry_app.id }}Help" class="form-text text-muted">{{ sentry_tokensForm.create_sentry_app.description }}</small>
@@ -48,18 +48,12 @@
                                     {{ sentry_tokensForm.sentry_team(class_="custom-select") }}
                                 </div>
                                 <div class="form-group">
-      <label>Example of select</label>
-      <select data-placeholder="Choose one thing" data-allow-clear="1" data-select2-id="1" tabindex="-1" class="select2-hidden-accessible" aria-hidden="true">
-        <option data-select2-id="3"></option>
-        <option data-select2-id="44">1</option>
-        <option data-select2-id="45">2</option>
-        <option data-select2-id="46">3</option>
-        <option data-select2-id="47">4</option>
-        <option data-select2-id="48">5</option>
-      </select><span class="select2 select2-container select2-container--bootstrap4 select2-container--below select2-container--focus" dir="ltr" data-select2-id="2"><span class="selection"><span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-labelledby="select2-nzpr-container"><span class="select2-selection__rendered" id="select2-nzpr-container" role="textbox" aria-readonly="true"><span class="select2-selection__placeholder">Choose one thing</span></span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
-    </div>
+                                    {{ sentry_tokensForm.sentry_platform.label }}
+                                    <small class="text-muted">{{ sentry_tokensForm.sentry_platform.description }}</small>
+                                    {{ sentry_tokensForm.sentry_platform(class_="form-control") }}
+                                </div>
                             </div>
-                    {% endif %}
+                        {% endif %}
                         <div id="dsnGroup">
                             <div class="form-group">
                                 {{ sentry_tokensForm.dsn.label }}
@@ -93,11 +87,4 @@
             </div>
         </div>
     </div>
-    <script>
-        $("#sentry_tokens_table").tablesorter({
-            theme: "bootstrap",
-            cancelSelection: false,
-            sortReset: true
-        });
-    </script>
 </div>

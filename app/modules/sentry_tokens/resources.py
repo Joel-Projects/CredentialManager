@@ -108,14 +108,14 @@ class SentryOrganizations(Resource):
     '''
 
     @api.login_required()
-    def get(self):
+    def get(self):  # pragma: no cover
         '''
         Get Sentry organizations
         '''
-        response = {}
+        response = []
         if current_user.sentry_auth_token:
             requestor = SentryRequestor(current_user.sentry_auth_token)
-            response = requestor.get('/api/0/organizations/', 'organization', params={'member': True}, raw=True)
+            response = [(i.slug, i.name) for i in requestor.get('/api/0/organizations/', 'organization', params={'member': True})]
         return response
 
 @api.route('/sentry_organizations/<org_slug>/teams')
@@ -125,12 +125,12 @@ class SentryOrganization(Resource):
     '''
 
     @api.login_required()
-    def get(self, org_slug):
+    def get(self, org_slug):  # pragma: no cover
         '''
         Get Sentry organizations
         '''
-        response = {}
+        response = []
         if current_user.sentry_auth_token:
             requestor = SentryRequestor(current_user.sentry_auth_token)
-            response = requestor.get(f'/api/0/organizations/{org_slug}/teams/', 'team', raw=True)
+            response = [(i.slug, i.name) for i in requestor.get(f'/api/0/organizations/{org_slug}/teams/', 'team')]
         return response

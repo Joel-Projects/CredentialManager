@@ -34,13 +34,12 @@ class SentryDSNValidator:
 
     def __call__(self, form, field):
         if not form.create_sentry_app.data:
-            if self.message is None:
-                message = field.gettext('This field is required.')
-            else:
-                message = self.message
-
-            field.errors[:] = []
-            raise StopValidation(message)
+            if not field.data:
+                if self.message is None:
+                    message = field.gettext('This field is required.')
+                else:
+                    message = self.message
+                raise StopValidation(message)
 
 class EditSentryTokenForm(ModelForm):
     class Meta:
@@ -55,5 +54,6 @@ class EditSentryTokenForm(ModelForm):
 class CreateSentryTokenForm(EditSentryTokenForm):
     create_sentry_app = HiddenFieldWithToggle('Create app on Sentry?', default=False, render_kw={'value': ''})
     dsn = StringField('DSN', validators=[SentryDSNValidator(create_sentry_app), SentryTokenValidator(message='Invalid Sentry Token', createSentryAppField=create_sentry_app)])
-    sentry_organization = SelectField('Sentry Organization', validate_choice=False)
-    sentry_team = SelectField('Sentry Team', validate_choice=False)
+    sentry_organization = SelectField('Sentry Organization', validate_choice=False, default='')
+    sentry_team = SelectField('Sentry Team', validate_choice=False, default='')
+    sentry_platform = SelectField('App Platform', validate_choice=False, default='')

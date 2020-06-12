@@ -1,3 +1,4 @@
+# pragma: no cover
 import re
 from datetime import datetime, timezone
 
@@ -65,6 +66,9 @@ class SentryRequestor(object):
 
     def post(self, url, itemName=None, data=None, json=None, raw=False, **kwargs):
         return self._request('POST', url, data=data, json=json, itemName=itemName, raw=raw, **kwargs)
+
+    def put(self, url, itemName=None, data=None, json=None, raw=False, **kwargs):
+        return self._request('PUT', url, data=data, json=json, itemName=itemName, raw=raw, **kwargs)
 
     def delete(self, url, params=None, raw=False):
         return self._request('DELETE', url, params=params, raw=raw)
