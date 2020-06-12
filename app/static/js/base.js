@@ -244,7 +244,7 @@ function invalidateField(field) {
 
 function removeOptions(selectBox) {
     var i;
-    for (i = selectBox.options.length - 1; i >= 1; i--) {
+    for (i = selectBox.options.length - 1; i >= 0; i--) {
         selectBox.remove(i);
     }
 }

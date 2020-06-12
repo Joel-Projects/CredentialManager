@@ -51,6 +51,17 @@
                             {% endif %}
                         </div>
                         <div class="form-group">
+                            {{ usersForm.sentry_auth_token.label }}
+                            {% if usersForm.sentry_auth_token.errors %}
+                                {{ usersForm.sentry_auth_token(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                {% for error in usersForm.sentry_auth_token.errors %}
+                                    <div class="invalid-feedback" id="sentry_auth_tokenFeedback">{{ error }}</div>
+                                {% endfor %}
+                            {% else %}
+                                {{ usersForm.sentry_auth_token(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
                             {{ usersForm.password.label }}
                             {% if usersForm.password.errors %}
                                 {{ usersForm.password(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}

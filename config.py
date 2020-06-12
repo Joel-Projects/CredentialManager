@@ -7,6 +7,8 @@ class BaseConfig(object):
     SENTRY_DSN = os.getenv('SENTRY_DSN')
     DD_API_KEY = os.getenv('DD_API_KEY')
     DD_APP_KEY = os.getenv('DD_APP_KEY')
+    SENTRY_INTEGRATION_CLIENT_ID = os.getenv('SENTRY_INTEGRATION_CLIENT_ID')
+    SENTRY_INTEGRATION_CLIENT_SECRET = os.getenv('SENTRY_INTEGRATION_CLIENT_SECRET')
     PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
     SCHEMA_NAME = os.getenv('SCHEMA_NAME', 'credential_store')
     DB_USER = 'postgres'

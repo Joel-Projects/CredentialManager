@@ -41,13 +41,25 @@ class HiddenFieldWithToggle(BooleanField):
     def __call__(self, **kwargs):
         hiddenObject = kwargs.pop('hiddenObject')
         targetFields = kwargs.pop('forFields')
+        shownObject = kwargs.pop('shownObject', '')
+        hideFields = kwargs.pop('hideFields', [])
         fields = []
         for field in targetFields:
             fields.append(f'''
                     var {field.id} = $('#{field.id}');
                     {field.id}.prop('required', checked);
                     ''')
+        for field in hideFields:
+            fields.append(f'''
+                    var {field.id} = $('#{field.id}');
+                    {field.id}.prop('required', !checked);
+                    ''')
         fields = '\n'.join(fields)
+        if shownObject:
+            shownObject = f'''
+                    var shownGroup = $('#{shownObject}');
+                    shownGroup.prop('hidden', checked);
+                    '''
         return HTMLString(f'''
         {self.meta.render_field(self, kwargs)}
         <script>
@@ -60,6 +72,7 @@ class HiddenFieldWithToggle(BooleanField):
                 }};
                 this.value = {self.id}_checked
                 group.prop('hidden', !checked);
+                {shownObject}
                 {fields}
         }});
         </script>''')

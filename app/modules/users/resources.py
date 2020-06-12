@@ -46,7 +46,8 @@ class Users(Resource):
             'username',
             'password',
             'default_settings',
-            'reddit_username'
+            'reddit_username',
+            'sentry_auth_token'
         ]
         perms = [
             'is_admin',

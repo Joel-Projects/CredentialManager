@@ -7,6 +7,7 @@ from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
 from . import parameters, schemas
 from .models import SentryToken, db
+from .sentryRequestor import SentryRequestor
 from .. import getViewableItems
 from ..users import permissions
 from ..users.models import User
@@ -99,3 +100,37 @@ class SentryTokenByID(Resource):
             parameters.PatchSentryTokenDetailsParameters.perform_patch(args, sentry_token)
             db.session.merge(sentry_token)
         return sentry_token
+
+@api.route('/sentry_organizations')
+class SentryOrganizations(Resource):
+    '''
+    Get organizations from Sentry
+    '''
+
+    @api.login_required()
+    def get(self):  # pragma: no cover
+        '''
+        Get Sentry organizations
+        '''
+        response = []
+        if current_user.sentry_auth_token:
+            requestor = SentryRequestor(current_user.sentry_auth_token)
+            response = [(i.slug, i.name) for i in requestor.get('/api/0/organizations/', 'organization', params={'member': True})]
+        return response
+
+@api.route('/sentry_organizations/<org_slug>/teams')
+class SentryOrganization(Resource):
+    '''
+    Get organizations from Sentry
+    '''
+
+    @api.login_required()
+    def get(self, org_slug):  # pragma: no cover
+        '''
+        Get Sentry organizations
+        '''
+        response = []
+        if current_user.sentry_auth_token:
+            requestor = SentryRequestor(current_user.sentry_auth_token)
+            response = [(i.slug, i.name) for i in requestor.get(f'/api/0/organizations/{org_slug}/teams/', 'team')]
+        return response

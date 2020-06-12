@@ -28,18 +28,45 @@
                                 {{ sentry_tokensForm.app_name(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
                             {% endif %}
                         </div>
-                        <div class="form-group">
-                            {{ sentry_tokensForm.dsn.label }}
-                            {% if sentry_tokensForm.dsn.errors %}
-                                {{ sentry_tokensForm.dsn(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
-                                {% for error in sentry_tokensForm.dsn.errors %}
-                                    <div class="invalid-feedback" id="usernameFeedback">{{ error }}</div>
-                                {% endfor %}
-                            {% else %}
-                                {{ sentry_tokensForm.dsn(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
-                            {% endif %}
+                        {% if current_user.sentry_auth_token %}
+                            <div class="form-group">
+                                <div class="custom-control custom-switch">
+                                    {{ sentry_tokensForm.create_sentry_app(class_="custom-control-input", hiddenObject='create_sentry_appGroup', forFields=[sentry_tokensForm.sentry_organization, sentry_tokensForm.sentry_team, sentry_tokensForm.sentry_platform], shownObject='dsnGroup', hideFields=[sentry_tokensForm.dsn]) }}
+                                    {{ sentry_tokensForm.create_sentry_app.label(class_='custom-control-label') }}
+                                    {% if sentry_tokensForm.create_sentry_app.description %}
+                                        <small id="{{ sentry_tokensForm.create_sentry_app.id }}Help" class="form-text text-muted">{{ sentry_tokensForm.create_sentry_app.description }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div id="create_sentry_appGroup" {% if not sentry_tokensForm.create_sentry_app.data %}hidden{% endif %}>
+                                <div class="form-group">
+                                    {{ sentry_tokensForm.sentry_organization.label }}
+                                    {{ sentry_tokensForm.sentry_organization(class_="custom-select") }}
+                                </div>
+                                <div class="form-group">
+                                    {{ sentry_tokensForm.sentry_team.label }}
+                                    {{ sentry_tokensForm.sentry_team(class_="custom-select") }}
+                                </div>
+                                <div class="form-group">
+                                    {{ sentry_tokensForm.sentry_platform.label }}
+                                    <small class="text-muted">{{ sentry_tokensForm.sentry_platform.description }}</small>
+                                    {{ sentry_tokensForm.sentry_platform(class_="form-control") }}
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div id="dsnGroup">
+                            <div class="form-group">
+                                {{ sentry_tokensForm.dsn.label }}
+                                {% if sentry_tokensForm.dsn.errors %}
+                                    {{ sentry_tokensForm.dsn(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                    {% for error in sentry_tokensForm.dsn.errors %}
+                                        <div class="invalid-feedback" id="usernameFeedback">{{ error }}</div>
+                                    {% endfor %}
+                                {% else %}
+                                    {{ sentry_tokensForm.dsn(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                {% endif %}
+                            </div>
                         </div>
-
                         <div class="form-group" {% if not current_user.is_admin and not current_user.is_internal %}hidden{% endif %}>
                             {{ sentry_tokensForm.owner.label }}
                             {{ sentry_tokensForm.owner(class_="custom-select") }}
@@ -60,11 +87,4 @@
             </div>
         </div>
     </div>
-    <script>
-        $("#sentry_tokens_table").tablesorter({
-            theme: "bootstrap",
-            cancelSelection: false,
-            sortReset: true
-        });
-    </script>
 </div>
