@@ -41,22 +41,9 @@ build:
     only:
         - master
         - tags
+
 include:
     -   template: Container-Scanning.gitlab-ci.yml
-
-#build:build-latest:
-#    stage: build
-#    script:
-#        - docker build --pull -t $CONTAINER_BUILD_IMAGE .
-#        - docker push $CONTAINER_BUILD_IMAGE
-#
-#release:tag:
-#    stage: release
-#    script:
-#        - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
-#        - docker pull $CONTAINER_BUILD_IMAGE
-#        - docker tag $CONTAINER_BUILD_IMAGE $CONTAINER_RELEASE_IMAGE
-#        - docker push $CONTAINER_RELEASE_IMAGE
 
 test:pytest3.8:
     image: python:3.8
@@ -85,12 +72,11 @@ test:sonarqube:
     only:
         - master
 
-sentry_release:
-    image: python:latest
-    stage: .post
+publish:release:
+    image: registry.gitlab.com/gitlab-automation-toolkit/gitlab-auto-release
+    stage: sentry_release
+    before_script: []
     script:
-        - pip install requests
-        - export author=$(git show -s --format='%an' HEAD)
-        - export email=$(git show -s --format='%ae' HEAD)
-        - export message=$(git show -s --format='%s' HEAD)
-        - python3 release.py $SENTRY_AUTH_TOKEN $CI_COMMIT_SHA $CI_PROJECT_NAME '$author' $email '$message'
+        - gitlab_auto_release
+    only:
+        - tags
