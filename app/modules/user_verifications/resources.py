@@ -50,6 +50,9 @@ class UserVerifications(Resource):
         '''
         existing = UserVerification.query.filter_by(user_id=args.user_id).first()
         if existing:
+            with api.commit_or_abort(db.session, default_error_message='Failed to update User Verification details.'):
+                existing.extra_data = args.extra_data
+                db.session.merge(existing)
             return existing
         else:
             args.owner = current_user
