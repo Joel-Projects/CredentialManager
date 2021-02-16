@@ -1,4 +1,4 @@
-FROM python:3.9-alpine3.9
+FROM python:3.8-alpine3.8
 
 COPY ./app /opt/www/CredentialManager/app
 COPY ./config.py /opt/www/CredentialManager/config.py
