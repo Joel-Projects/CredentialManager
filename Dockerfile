@@ -1,4 +1,4 @@
-FROM python:3.7-alpine3.7
+FROM python:3.9-alpine3.9
 
 COPY ./app /opt/www/CredentialManager/app
 COPY ./config.py /opt/www/CredentialManager/config.py
@@ -10,7 +10,7 @@ ENV TZ America/Chicago
 ENV FLASK_CONFIG production
 
 RUN apk add --no-cache postgresql-libs nano bash && \
-    apk add --no-cache --virtual .build-deps make gcc python-dev libffi-dev musl-dev postgresql-dev&& \
+    apk add --no-cache --virtual alpine-sdk .build-deps make gcc python-dev libffi-dev musl-dev postgresql-dev&& \
     pip install -r requirements.txt && \
     apk --purge del .build-deps
 
