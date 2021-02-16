@@ -5,14 +5,15 @@ from flask_restplus._http import HTTPStatus
 API_DEFAULT_HTTP_CODE_MESSAGES = {
     HTTPStatus.UNAUTHORIZED.value: "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.",
     HTTPStatus.FORBIDDEN.value: "You don't have the permission to access the requested resource.",
-    HTTPStatus.UNPROCESSABLE_ENTITY.value: 'The request was well-formed but was unable to be followed due to semantic errors.',
+    HTTPStatus.UNPROCESSABLE_ENTITY.value: "The request was well-formed but was unable to be followed due to semantic errors.",
 }
 
+
 def abort(code, message=None, **kwargs):
-    '''
+    """
     Custom abort function used to provide extra information in the error
     response, namely, ``status`` and ``message`` info.
-    '''
+    """
     if message is None:  # pragma: no cover
         message = HTTPStatus(code).description
         if code in API_DEFAULT_HTTP_CODE_MESSAGES:

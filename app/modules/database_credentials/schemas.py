@@ -5,9 +5,9 @@ from .models import DatabaseCredential
 
 
 class BaseDatabaseCredentialSchema(ModelSchema):
-    '''
+    """
     Base Database Credential schema exposes only the most general fields.
-    '''
+    """
 
     class Meta:
         ordered = True
@@ -20,22 +20,19 @@ class BaseDatabaseCredentialSchema(ModelSchema):
             DatabaseCredential.database.key,
             DatabaseCredential.database_flavor.key,
             DatabaseCredential.enabled.key,
-            'resource_type'
+            "resource_type",
         )
-        dump_only = (
-            DatabaseCredential.id.key,
-            'resource_type'
-        )
-        load_only = (
-            DatabaseCredential.enabled.key,
-        )
+        dump_only = (DatabaseCredential.id.key, "resource_type")
+        load_only = (DatabaseCredential.enabled.key,)
+
     _resourceType = Meta.model.__name__
     resource_type = base_fields.String(default=_resourceType)
 
+
 class DetailedDatabaseCredentialSchema(BaseDatabaseCredentialSchema):
-    '''
+    """
     Detailed Database Credential schema exposes all useful fields.
-    '''
+    """
 
     class Meta(BaseDatabaseCredentialSchema.Meta):
         fields = BaseDatabaseCredentialSchema.Meta.fields + (
@@ -49,5 +46,5 @@ class DetailedDatabaseCredentialSchema(BaseDatabaseCredentialSchema):
             DatabaseCredential.use_ssh_key.key,
             DatabaseCredential.private_key.key,
             DatabaseCredential.private_key_passphrase.key,
-            DatabaseCredential.owner_id.key
+            DatabaseCredential.owner_id.key,
         )

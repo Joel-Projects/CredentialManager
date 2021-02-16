@@ -11,16 +11,46 @@ from ...extensions.frontend.forms import ModelSelectField, owners
 class ApiTokenForm(ModelForm):
     class Meta:
         model = ApiToken
-        only = ['enabled']
+        only = ["enabled"]
 
-    name = StringField('Name', validators=[InputRequired(), Unique([ApiToken.owner, ApiToken.name]), Length(3)])
-    length = SelectField('Length', choices=[(i, str(i)) for i in itertools.chain(range(16, 56, 8), [64])], default='32', validators=None, description='How long you want the API token to be', coerce=int)
-    owner = ModelSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user)
+    name = StringField(
+        "Name",
+        validators=[
+            InputRequired(),
+            Unique([ApiToken.owner, ApiToken.name]),
+            Length(3),
+        ],
+    )
+    length = SelectField(
+        "Length",
+        choices=[(i, str(i)) for i in itertools.chain(range(16, 56, 8), [64])],
+        default="32",
+        validators=None,
+        description="How long you want the API token to be",
+        coerce=int,
+    )
+    owner = ModelSelectField(
+        query_factory=owners,
+        queryKwargs={"current_user": current_user},
+        default=current_user,
+    )
+
 
 class EditApiTokenForm(ModelForm):
     class Meta:
         model = ApiToken
-        only = ['token', 'enabled']
+        only = ["token", "enabled"]
 
-    name = StringField('Name', validators=[InputRequired(), Unique([ApiToken.owner, ApiToken.name]), Length(3)])
-    owner = ModelSelectField(query_factory=owners, queryKwargs={'current_user': current_user}, default=current_user)
+    name = StringField(
+        "Name",
+        validators=[
+            InputRequired(),
+            Unique([ApiToken.owner, ApiToken.name]),
+            Length(3),
+        ],
+    )
+    owner = ModelSelectField(
+        query_factory=owners,
+        queryKwargs={"current_user": current_user},
+        default=current_user,
+    )

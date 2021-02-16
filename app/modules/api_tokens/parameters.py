@@ -13,7 +13,8 @@ class ListApiTokensParameters(PaginationParameters, ValidateOwner):
     class Meta:
         model = ApiToken
 
-    invalidOwnerMessage = 'You can only query your own {}.'
+    invalidOwnerMessage = "You can only query your own {}."
+
 
 # #class CreateApiTokenParameters(PostFormParameters, schemas.BaseApiTokenSchema, ValidateOwner):
 # #    name = base_fields.String(required=True, description='Name of the API token')
@@ -35,6 +36,7 @@ class ListApiTokensParameters(PaginationParameters, ValidateOwner):
 # #        elif 128 < data:
 # #            raise ValidationError('Length must be less than 128.')
 
+
 class PatchApiTokenDetailsParameters(PatchJSONParameters):
     fields = (ApiToken.name.key, ApiToken.enabled.key)
-    PATH_CHOICES = tuple(f'/{field}' for field in fields)
+    PATH_CHOICES = tuple(f"/{field}" for field in fields)

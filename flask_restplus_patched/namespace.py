@@ -15,13 +15,13 @@ class Namespace(OriginalNamespace):
     WEBARGS_PARSER = webargs_parser
 
     def _handle_api_doc(self, cls, doc):
-        if doc is False: # pragma: no cover
+        if doc is False:  # pragma: no cover
             cls.__apidoc__ = False
             return
-        cls.__apidoc__ = merge(getattr(cls, '__apidoc__', {}), doc)
+        cls.__apidoc__ = merge(getattr(cls, "__apidoc__", {}), doc)
 
     def resolveObject(self, object_arg_name, resolver):
-        '''
+        """
         A helper decorator to resolve object instance from arguments (e.g. identity).
 
         Example:
@@ -33,7 +33,7 @@ class Namespace(OriginalNamespace):
         ...    )
         ...    def get(self, user):
         ...        # user is a User instance here
-        '''
+        """
 
         def decorator(func_or_class):
             if isinstance(func_or_class, type):
@@ -52,10 +52,11 @@ class Namespace(OriginalNamespace):
         return decorator
 
     def resolveObjectArgs(self, object_arg_name, resolver):
-        '''
+        """
         A helper decorator to resolve object instance from arguments (e.g. identity).
 
-        '''
+        """
+
         def decorator(func_or_class):
             if isinstance(func_or_class, type):
                 # Handle Resource classes decoration
@@ -73,17 +74,21 @@ class Namespace(OriginalNamespace):
         return decorator
 
     def model(self, name=None, model=None, mask=None, **kwargs):
-        '''
+        """
         Model registration decorator.
-        '''
-        if isinstance(model, (flask_marshmallow.Schema, flask_marshmallow.base_fields.FieldABC)):
+        """
+        if isinstance(
+            model, (flask_marshmallow.Schema, flask_marshmallow.base_fields.FieldABC)
+        ):
             name = name or model.__class__.__name__
             api_model = Model(name, model, mask=mask)
             api_model.__apidoc__ = kwargs
             return self.add_model(name, api_model)
-        return super(Namespace, self).model(name=name, model=model, **kwargs) # pragma: no cover
+        return super(Namespace, self).model(
+            name=name, model=model, **kwargs
+        )  # pragma: no cover
 
-    def _build_doc(self, cls, doc): # pragma: no cover
+    def _build_doc(self, cls, doc):  # pragma: no cover
         if doc is False:
             return False
         # unshortcut_params_description(doc)
@@ -96,28 +101,31 @@ class Namespace(OriginalNamespace):
         #         handle_deprecations(doc[http_method])
         #         if 'expect' in doc[http_method] and not isinstance(doc[http_method]['expect'], (list, tuple)):
         #             doc[http_method]['expect'] = [doc[http_method]['expect']]
-        return merge(getattr(cls, '__apidoc__', {}), doc)
+        return merge(getattr(cls, "__apidoc__", {}), doc)
 
     def parameters(self, parameters, locations=None):
-        '''
+        """
         Endpoint parameters registration decorator.
-        '''
+        """
 
         def decorator(func):
-            if locations is None and getattr(parameters, 'many', None):
-                _locations = ('json',)
+            if locations is None and getattr(parameters, "many", None):
+                _locations = ("json",)
             else:
                 _locations = locations
             if _locations is not None:
-                parameters.context['in'] = _locations
+                parameters.context["in"] = _locations
 
             return self.doc(params=parameters)(
-                self.response(code=HTTPStatus.UNPROCESSABLE_ENTITY)(self.WEBARGS_PARSER.use_args(parameters)(func)))
+                self.response(code=HTTPStatus.UNPROCESSABLE_ENTITY)(
+                    self.WEBARGS_PARSER.use_args(parameters)(func)
+                )
+            )
 
         return decorator
 
     def response(self, model=None, code=HTTPStatus.OK, description=None, **kwargs):
-        '''
+        """
         Endpoint response OpenAPI documentation decorator.
 
         It automatically documents HTTPError%(code)d responses with relevant
@@ -138,22 +146,24 @@ class Namespace(OriginalNamespace):
         ...     if not user.is_admin:
         ...         abort(HTTPStatus.FORBIDDEN)
         ...     return Team.query.all()
-        '''
+        """
         code = HTTPStatus(code)
         if code is HTTPStatus.NO_CONTENT:
             assert model is None
         if model is None and code not in {HTTPStatus.ACCEPTED, HTTPStatus.NO_CONTENT}:
-            if code.value not in http_exceptions.default_exceptions: # pragma: no cover
-                raise ValueError(f'`model` parameter is required for code {code}')
-            model = self.model(name=f'HTTPError{code}', model=DefaultHTTPErrorSchema(http_code=code))
+            if code.value not in http_exceptions.default_exceptions:  # pragma: no cover
+                raise ValueError(f"`model` parameter is required for code {code}")
+            model = self.model(
+                name=f"HTTPError{code}", model=DefaultHTTPErrorSchema(http_code=code)
+            )
         if description is None:
             description = code.description
 
         def response_serializer_decorator(func):
-            '''
+            """
             This decorator handles responses to serialize the returned value
             with a given model.
-            '''
+            """
 
             def dump_wrapper(*args, **kwargs):
 
@@ -161,8 +171,10 @@ class Namespace(OriginalNamespace):
                 extra_headers = None
 
                 if response is None:
-                    if model is not None: # pragma: no cover
-                        raise ValueError(f'Response cannot not be None with HTTP status {code}')
+                    if model is not None:  # pragma: no cover
+                        raise ValueError(
+                            f"Response cannot not be None with HTTP status {code}"
+                        )
                     return flask.Response(status=code)
                 elif isinstance(response, flask.Response) or model is None:
                     return response
@@ -183,7 +195,7 @@ class Namespace(OriginalNamespace):
                 # produce a response later, so we don't need to apply a useless
                 # wrapper.
                 decorated_func_or_class = func_or_class
-            elif isinstance(func_or_class, type): # pragma: no cover
+            elif isinstance(func_or_class, type):  # pragma: no cover
                 # Handle Resource classes decoration
 
                 func_or_class._apply_decorator_to_methods(response_serializer_decorator)
@@ -200,7 +212,7 @@ class Namespace(OriginalNamespace):
                     api_model = model
                 else:
                     api_model = self.model(model=model)
-                if getattr(model, 'many', False):
+                if getattr(model, "many", False):
                     api_model = [api_model]
 
             doc_decorator = self.doc(responses={code.value: (description, api_model)})
@@ -209,12 +221,13 @@ class Namespace(OriginalNamespace):
         return decorator
 
     def preflight_options_handler(self, func):
-
         @wraps(func)
         def wrapper(self, *args, **kwargs):
-            if 'Access-Control-Request-Method' in flask.request.headers:
+            if "Access-Control-Request-Method" in flask.request.headers:
                 response = flask.Response(status=HTTPStatus.OK)
-                response.headers['Access-Control-Allow-Methods'] = ', '.join(self.methods)
+                response.headers["Access-Control-Allow-Methods"] = ", ".join(
+                    self.methods
+                )
                 return response
             return func(self, *args, **kwargs)
 
@@ -224,7 +237,7 @@ class Namespace(OriginalNamespace):
         base_wrapper = super(Namespace, self).route(*args, **kwargs)
 
         def wrapper(cls):
-            if 'OPTIONS' in cls.methods:
+            if "OPTIONS" in cls.methods:
                 cls.options = self.preflight_options_handler(
                     self.response(code=HTTPStatus.NO_CONTENT)(cls.options)
                 )

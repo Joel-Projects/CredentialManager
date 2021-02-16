@@ -5,7 +5,6 @@ from app.modules.bots.models import Bot
 
 
 class BotConverter(BaseConverter):
-
     def to_python(self, value):
         bot = Bot.query.filter(Bot.id == value).first()
         if bot:

@@ -9,49 +9,87 @@ from config import BaseConfig
 
 log = logging.getLogger(__name__)
 
-class RefreshToken(db.Model, InfoAttrs, StrName):
 
+class RefreshToken(db.Model, InfoAttrs, StrName):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    __tablename__ = 'refresh_tokens'
-    _displayNamePlural = 'Refresh Tokens'
-    _nameAttr = 'app_name'
+    __tablename__ = "refresh_tokens"
+    _displayNamePlural = "Refresh Tokens"
+    _nameAttr = "app_name"
     _infoAttrs = {
-        'id': 'Refresh Token ID',
-        'reddit_app': 'Reddit App',
-        'redditor': 'Redditor',
-        'owner': 'Owner',
-        'refresh_token': 'Refresh Token',
-        'scopes': 'Authorized Scopes',
-        'issued_at': 'Issued at',
-        'revoked_at': 'Revoked at'
+        "id": "Refresh Token ID",
+        "reddit_app": "Reddit App",
+        "redditor": "Redditor",
+        "owner": "Owner",
+        "refresh_token": "Refresh Token",
+        "scopes": "Authorized Scopes",
+        "issued_at": "Issued at",
+        "revoked_at": "Revoked at",
+        "updated": "Last updated at",
     }
     scopeJSON = None
     try:
-        response = requests.get('https://www.reddit.com/api/v1/scopes.json', headers={'User-Agent': 'python:flask scope checker by u/Lil_SpazJoekp'})
+        response = requests.get(
+            "https://www.reddit.com/api/v1/scopes.json",
+            headers={"User-Agent": "python:flask scope checker by u/Lil_SpazJoekp"},
+        )
         scopeJSON = response.json()
-    except Exception as error: # pragma: no cover
+    except Exception as error:  # pragma: no cover
         log.exception(error)
     if not scopeJSON:
-        with open('scopes.json', 'r') as f: # pragma: no cover
+        with open("scopes.json", "r") as f:  # pragma: no cover
             scopeJSON = json.load(f)
 
-    __table_args__ = {'schema': BaseConfig.SCHEMA_NAME}
+    __table_args__ = {"schema": BaseConfig.SCHEMA_NAME}
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    reddit_app_id = db.Column(db.ForeignKey(f'{BaseConfig.SCHEMA_NAME}.reddit_apps.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, info={'label': 'Reddit App', 'description': 'Reddit App for users to authorize with'})
-    reddit_app = db.relationship('RedditApp', primaryjoin='RefreshToken.reddit_app_id == RedditApp.id', backref='refresh_tokens')
-    owner_id = db.Column(db.Integer, db.ForeignKey(f'{BaseConfig.SCHEMA_NAME}.users.id', ondelete='CASCADE', onupdate='CASCADE'), info={'label': 'Owner', 'description': 'Owner of the refresh token. Determines what Reddit Apps are displayed.'})
-    owner = db.relationship('User', backref=db.backref(__tablename__, lazy='dynamic'))
+    reddit_app_id = db.Column(
+        db.ForeignKey(
+            f"{BaseConfig.SCHEMA_NAME}.reddit_apps.id",
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
+        nullable=False,
+        info={
+            "label": "Reddit App",
+            "description": "Reddit App for users to authorize with",
+        },
+    )
+    reddit_app = db.relationship(
+        "RedditApp",
+        primaryjoin="RefreshToken.reddit_app_id == RedditApp.id",
+        backref="refresh_tokens",
+    )
+    owner_id = db.Column(
+        db.Integer,
+        db.ForeignKey(
+            f"{BaseConfig.SCHEMA_NAME}.users.id", ondelete="CASCADE", onupdate="CASCADE"
+        ),
+        info={
+            "label": "Owner",
+            "description": "Owner of the refresh token. Determines what Reddit Apps are displayed.",
+        },
+    )
+    owner = db.relationship("User", backref=db.backref(__tablename__, lazy="dynamic"))
     redditor = db.Column(db.String(22), nullable=False)
     refresh_token = db.Column(db.Text, unique=True, nullable=False)
     scopes = db.Column(db.JSON, default=[])
     issued_at = db.Column(db.DateTime(True), default=datetime.utcnow(), nullable=False)
     revoked = db.Column(db.Boolean, default=False)
     revoked_at = db.Column(db.DateTime(True))
+    updated = db.Column(
+        db.DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False
+    )
 
-    uniqueConstraint = db.Index('only_one_active_token', reddit_app_id, redditor, revoked, unique=True, postgresql_where=(~revoked))
+    uniqueConstraint = db.Index(
+        "only_one_active_token",
+        reddit_app_id,
+        redditor,
+        revoked,
+        unique=True,
+        postgresql_where=(~revoked),
+    )
 
     def check_owner(self, user):
         return self.owner == user
@@ -70,5 +108,8 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
 
     @property
     def chunkScopes(self):
-        scopes = [(scope, scope in self.scopes, value['description']) for scope, value in self.scopeJSON.items()]
-        return [scopes[x:x + 4] for x in range(0, len(scopes), 4)]
+        scopes = [
+            (scope, scope in self.scopes, value["description"])
+            for scope, value in self.scopeJSON.items()
+        ]
+        return [scopes[x : x + 4] for x in range(0, len(scopes), 4)]

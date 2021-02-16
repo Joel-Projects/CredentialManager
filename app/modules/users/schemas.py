@@ -8,25 +8,19 @@ from ..sentry_tokens.schemas import BaseSentryTokenSchema
 
 
 class BaseUserSchema(ModelSchema):
-    '''
+    """
     Base user schema exposes only the most general fields.
-    '''
+    """
 
     class Meta:
         ordered = True
         model = User
-        fields = (
-            User.id.key,
-            User.username.key,
-            'resource_type'
-        )
-        dump_only = (
-            User.id.key,
-            'resource_type'
-        )
+        fields = (User.id.key, User.username.key, "resource_type")
+        dump_only = (User.id.key, "resource_type")
 
     _resourceType = Meta.model.__name__
     resource_type = base_fields.String(default=_resourceType)
+
 
 class DefaultSettings(Schema):
     database_flavor = base_fields.Str()
@@ -35,10 +29,11 @@ class DefaultSettings(Schema):
     ssh_user = base_fields.Str()
     user_agent = base_fields.Str()
 
+
 class DetailedUserSchema(BaseUserSchema):
-    '''
+    """
     Detailed user schema exposes all useful fields.
-    '''
+    """
 
     class Meta(BaseUserSchema.Meta):
         fields = (
@@ -51,13 +46,15 @@ class DetailedUserSchema(BaseUserSchema):
             User.reddit_username.key,
             User.created.key,
             User.updated.key,
-            'resource_type'
+            "resource_type",
         )
 
+
 class UserItemsSchema(BaseUserSchema):
-    '''
+    """
     User items schema exposes all items.
-    '''
+    """
+
     reddit_apps = base_fields.Nested(BaseRedditAppSchema, many=True)
     sentry_tokens = base_fields.Nested(BaseSentryTokenSchema, many=True)
     database_credentials = base_fields.Nested(BaseDatabaseCredentialSchema, many=True)

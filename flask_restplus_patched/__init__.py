@@ -3,7 +3,6 @@ from .api import Api
 from .model import Schema, DefaultHTTPErrorSchema
 
 
-
 from .model import ModelSchema
 from .namespace import Namespace
 from .parameters import Parameters, PostFormParameters, PatchJSONParameters

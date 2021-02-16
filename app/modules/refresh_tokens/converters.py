@@ -5,7 +5,6 @@ from .models import RefreshToken
 
 
 class RefreshTokenConverter(BaseConverter):
-
     def to_python(self, value):
         refreshToken = RefreshToken.query.filter(RefreshToken.id == value).first()
         if refreshToken:

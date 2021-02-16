@@ -13,34 +13,49 @@ def test_create_app():
         # if we get SystemExit error.
         pass
 
-@pytest.mark.parametrize('flaskConfigName', ['production', 'development', 'testing'])
+
+@pytest.mark.parametrize("flaskConfigName", ["production", "development", "testing"])
 def test_create_app_passing_flaskConfigName(monkeypatch, flaskConfigName):
-    if flaskConfigName == 'production':
+    if flaskConfigName == "production":
         from config import ProductionConfig
-        monkeypatch.setattr(ProductionConfig, 'SQLALCHEMY_DATABASE_URI', os.getenv('DATABASE_URI', 'postgresql://postgres:@localhost/postgres_test'))
-        monkeypatch.setattr(ProductionConfig, 'SECRET_KEY', 'secret')
+
+        monkeypatch.setattr(
+            ProductionConfig,
+            "SQLALCHEMY_DATABASE_URI",
+            os.getenv("DATABASE_URI", "postgresql://postgres:@localhost/postgres_test"),
+        )
+        monkeypatch.setattr(ProductionConfig, "SECRET_KEY", "secret")
     create_app(flaskConfigName=flaskConfigName)
 
-@pytest.mark.parametrize('flaskConfigName', ['production', 'development', 'testing'])
+
+@pytest.mark.parametrize("flaskConfigName", ["production", "development", "testing"])
 def test_create_app_passing_FLASK_CONFIG_env(monkeypatch, flaskConfigName):
-    monkeypatch.setenv('FLASK_CONFIG', flaskConfigName)
-    if flaskConfigName == 'production':
+    monkeypatch.setenv("FLASK_CONFIG", flaskConfigName)
+    if flaskConfigName == "production":
         from config import ProductionConfig
-        monkeypatch.setattr(ProductionConfig, 'SQLALCHEMY_DATABASE_URI', os.getenv('DATABASE_URI', 'postgresql://postgres:@localhost/postgres_test'))
-        monkeypatch.setattr(ProductionConfig, 'SECRET_KEY', 'secret')
+
+        monkeypatch.setattr(
+            ProductionConfig,
+            "SQLALCHEMY_DATABASE_URI",
+            os.getenv("DATABASE_URI", "postgresql://postgres:@localhost/postgres_test"),
+        )
+        monkeypatch.setattr(ProductionConfig, "SECRET_KEY", "secret")
     create_app()
 
+
 def test_create_app_with_conflicting_config(monkeypatch):
-    monkeypatch.setenv('FLASK_CONFIG', 'production')
+    monkeypatch.setenv("FLASK_CONFIG", "production")
     with pytest.raises(AssertionError):
-        create_app('development')
+        create_app("development")
+
 
 def test_create_app_with_non_existing_config():
     with pytest.raises(KeyError):
-        create_app('non-existing-config')
+        create_app("non-existing-config")
+
 
 def test_create_app_with_broken_import_config():
-    configNameMapper['broken-import-config'] = 'broken-import-config'
+    configNameMapper["broken-import-config"] = "broken-import-config"
     with pytest.raises(ImportError):
-        create_app('broken-import-config')
-    del configNameMapper['broken-import-config']
+        create_app("broken-import-config")
+    del configNameMapper["broken-import-config"]

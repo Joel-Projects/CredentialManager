@@ -9,24 +9,25 @@ from ...extensions.frontend.forms import HiddenFieldWithToggle
 class UserForm(ModelForm):
     class Meta:
         model = User
-        only = ['username', 'password', 'reddit_username', 'sentry_auth_token']
+        only = ["username", "password", "reddit_username", "sentry_auth_token"]
 
-    is_admin = BooleanField('Admin?')
-    is_internal = BooleanField('Internal?')
-    is_regular_user = BooleanField('Regular User?')
-    is_active = BooleanField('Active?')
+    is_admin = BooleanField("Admin?")
+    is_internal = BooleanField("Internal?")
+    is_regular_user = BooleanField("Regular User?")
+    is_active = BooleanField("Active?")
+
 
 class EditUserForm(ModelForm):
     class Meta:
         model = User
-        only = ['id', 'username', 'password', 'reddit_username', 'sentry_auth_token']
+        only = ["id", "username", "password", "reddit_username", "sentry_auth_token"]
         field_args = {
-            'id': {'validators': [Optional()]},
-            'password': {'validators': [Optional()]},
+            "id": {"validators": [Optional()]},
+            "password": {"validators": [Optional()]},
         }
 
-    updatePassword = HiddenFieldWithToggle('Update Password?')
-    is_admin = BooleanField('Admin?')
-    is_internal = BooleanField('Internal?')
-    is_regular_user = BooleanField('Regular User?')
-    is_active = BooleanField('Active?')
+    updatePassword = HiddenFieldWithToggle("Update Password?")
+    is_admin = BooleanField("Admin?")
+    is_internal = BooleanField("Internal?")
+    is_regular_user = BooleanField("Regular User?")
+    is_active = BooleanField("Active?")

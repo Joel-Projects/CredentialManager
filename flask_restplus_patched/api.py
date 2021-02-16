@@ -11,8 +11,8 @@ import logging
 
 log = logging.getLogger(__name__)
 
-class Api(OriginalApi):
 
+class Api(OriginalApi):
     @cached_property
     def __schema__(self):
         # The only purpose of this method is to pass custom Swagger class
@@ -29,17 +29,20 @@ class Api(OriginalApi):
         super(Api, self).init_app(app, **kwargs)
         app.errorhandler(HTTPStatus.UNPROCESSABLE_ENTITY.value)(handle_validation_error)
 
-    def namespace(self, *args, **kwargs): # pragma: no cover
+    def namespace(self, *args, **kwargs):  # pragma: no cover
         # The only purpose of this method is to pass a custom Namespace class
-        kwargs['ordered'] = kwargs.get('ordered', self.ordered)
+        kwargs["ordered"] = kwargs.get("ordered", self.ordered)
         _namespace = Namespace(*args, **kwargs)
         self.add_namespace(_namespace)
         return _namespace
 
+
 # Return validation errors as JSON
-def handle_validation_error(err): # pragma: no cover
-    exc = err.data['exc']
-    return jsonify({
-        'status': HTTPStatus.UNPROCESSABLE_ENTITY.value,
-        'message': exc.messages
-    }), HTTPStatus.UNPROCESSABLE_ENTITY.value
+def handle_validation_error(err):  # pragma: no cover
+    exc = err.data["exc"]
+    return (
+        jsonify(
+            {"status": HTTPStatus.UNPROCESSABLE_ENTITY.value, "message": exc.messages}
+        ),
+        HTTPStatus.UNPROCESSABLE_ENTITY.value,
+    )

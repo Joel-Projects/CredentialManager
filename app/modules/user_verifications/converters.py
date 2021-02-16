@@ -5,9 +5,10 @@ from .models import UserVerification
 
 
 class UserVerificationConverter(BaseConverter):
-
     def to_python(self, value):
-        userVerification = UserVerification.query.filter(UserVerification.id == value).first()
+        userVerification = UserVerification.query.filter(
+            UserVerification.id == value
+        ).first()
         if userVerification:
             return userVerification
         else:

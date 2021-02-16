@@ -18,9 +18,16 @@ from .forms import EditSentryTokenForm, CreateSentryTokenForm
 from .tables import SentryTokenTable
 
 
-sentryTokensBlueprint = Blueprint('sentry_tokens', __name__, template_folder='./templates', static_folder='./static', static_url_path='/sentry_tokens/static/')
+sentryTokensBlueprint = Blueprint(
+    "sentry_tokens",
+    __name__,
+    template_folder="./templates",
+    static_folder="./static",
+    static_url_path="/sentry_tokens/static/",
+)
 
-@sentryTokensBlueprint.route('/sentry_tokens', methods=['GET', 'POST'])
+
+@sentryTokensBlueprint.route("/sentry_tokens", methods=["GET", "POST"])
 @login_required
 @paginateArgs(SentryToken)
 def sentry_tokens(page, perPage):
@@ -28,76 +35,140 @@ def sentry_tokens(page, perPage):
     form = CreateSentryTokenForm()
     requestor = SentryRequestor(current_user.sentry_auth_token)
     sentrydsn = None
-    if request.method == 'POST':
+    if request.method == "POST":
         if form.validate_on_submit():
             if not current_user.is_admin and not current_user.is_internal:
-                if current_user != form.data['owner']:
+                if current_user != form.data["owner"]:
                     code = 403
-                    return jsonify(status='error', message="You can't create Sentry Tokens for other users"), code
+                    return (
+                        jsonify(
+                            status="error",
+                            message="You can't create Sentry Tokens for other users",
+                        ),
+                        code,
+                    )
             if form.create_sentry_app.data:  # pragma: no cover
                 if form.sentry_organization.data and form.sentry_team.data:
-                    response = requestor.post(f'/api/0/teams/{form.sentry_organization.data}/{form.sentry_team.data}/projects/', itemName='project', json={'name': form.app_name.data})
-                    if hasattr(response, 'slug'):
-                        keys = requestor.get(f'/api/0/projects/{form.sentry_organization.data}/{response.slug}/keys/', itemName='key')
+                    response = requestor.post(
+                        f"/api/0/teams/{form.sentry_organization.data}/{form.sentry_team.data}/projects/",
+                        itemName="project",
+                        json={"name": form.app_name.data},
+                    )
+                    if hasattr(response, "slug"):
+                        keys = requestor.get(
+                            f"/api/0/projects/{form.sentry_organization.data}/{response.slug}/keys/",
+                            itemName="key",
+                        )
                         sentrydsn = keys[0].dsn.public
                         if form.sentry_platform.data:
-                            requestor.put(f'/api/0/projects/{form.sentry_organization.data}/{response.slug}/', itemName='project', json={'platform': form.sentry_platform.data})
+                            requestor.put(
+                                f"/api/0/projects/{form.sentry_organization.data}/{response.slug}/",
+                                itemName="project",
+                                json={"platform": form.sentry_platform.data},
+                            )
                     else:
                         code = 400
-                        return jsonify(status='error', message='Failed to create Sentry token'), code
+                        return (
+                            jsonify(
+                                status="error", message="Failed to create Sentry token"
+                            ),
+                            code,
+                        )
             code = 201
             data = {key: value for key, value in form.data.items() if value is not None}
             if sentrydsn:  # pragma: no cover
-                data['dsn'] = sentrydsn
-            data.pop('create_sentry_app')
-            data.pop('sentry_organization')
-            data.pop('sentry_team')
-            data.pop('sentry_platform')
+                data["dsn"] = sentrydsn
+            data.pop("create_sentry_app")
+            data.pop("sentry_organization")
+            data.pop("sentry_team")
+            data.pop("sentry_platform")
             sentryToken = SentryToken(**data)
             db.session.add(sentryToken)
         else:
-            return jsonify(status='error', errors=form.errors)
+            return jsonify(status="error", errors=form.errors)
     paginator = current_user.sentry_tokens.paginate(page, perPage, error_out=False)
     if current_user:
         if current_user.is_admin and not current_user.is_internal:
-            paginator = SentryToken.query.filter(SentryToken.owner.has(internal=False)).paginate(page, perPage, error_out=False)
+            paginator = SentryToken.query.filter(
+                SentryToken.owner.has(internal=False)
+            ).paginate(page, perPage, error_out=False)
         elif current_user.is_internal:
             paginator = SentryToken.query.paginate(page, perPage, error_out=False)
     if current_user.sentry_auth_token:
-        response = requestor.get('/api/0/organizations/', 'organization', params={'member': True})
-        organizations = [('','')] + [(i.slug, i.name) for i in response]
+        response = requestor.get(
+            "/api/0/organizations/", "organization", params={"member": True}
+        )
+        organizations = [("", "")] + [(i.slug, i.name) for i in response]
         form.sentry_organization.choices = organizations
     table = SentryTokenTable(paginator.items, current_user=current_user)
-    return render_template('sentry_tokens.html', sentry_tokensTable=table, sentry_tokensForm=form, paginator=paginator, route='sentry_tokens.sentry_tokens', perPage=perPage), code
+    return (
+        render_template(
+            "sentry_tokens.html",
+            sentry_tokensTable=table,
+            sentry_tokensForm=form,
+            paginator=paginator,
+            route="sentry_tokens.sentry_tokens",
+            perPage=perPage,
+        ),
+        code,
+    )
 
-@sentryTokensBlueprint.route('/sentry_tokens/<SentryToken:sentry_token>/', methods=['GET', 'POST'])
+
+@sentryTokensBlueprint.route(
+    "/sentry_tokens/<SentryToken:sentry_token>/", methods=["GET", "POST"]
+)
 @login_required
-@verifyEditable('sentry_token')
+@verifyEditable("sentry_token")
 def editSentryToken(sentry_token):
     form = EditSentryTokenForm(obj=sentry_token)
     code = 200
-    if request.method == 'POST':
+    if request.method == "POST":
         if form.validate_on_submit():
             itemsToUpdate = []
             for item in PatchSentryTokenDetailsParameters.fields:
-                if getattr(form, item, None) is not None and getattr(sentry_token, item) != getattr(form, item).data:
-                    itemsToUpdate.append({'op': 'replace', 'path': f'/{item}', 'value': getattr(form, item).data})
+                if (
+                    getattr(form, item, None) is not None
+                    and getattr(sentry_token, item) != getattr(form, item).data
+                ):
+                    itemsToUpdate.append(
+                        {
+                            "op": "replace",
+                            "path": f"/{item}",
+                            "value": getattr(form, item).data,
+                        }
+                    )
             if itemsToUpdate:
                 for item in itemsToUpdate:
                     PatchSentryTokenDetailsParameters().validate_patch_structure(item)
                 try:
-                    with api.commit_or_abort(db.session, default_error_message='Failed to update Sentry Token details.'):
-                        PatchSentryTokenDetailsParameters.perform_patch(itemsToUpdate, sentry_token)
+                    with api.commit_or_abort(
+                        db.session,
+                        default_error_message="Failed to update Sentry Token details.",
+                    ):
+                        PatchSentryTokenDetailsParameters.perform_patch(
+                            itemsToUpdate, sentry_token
+                        )
                         db.session.merge(sentry_token)
                         code = 202
-                        flash(f'Sentry Token {sentry_token.app_name!r} saved successfully!', 'success')
+                        flash(
+                            f"Sentry Token {sentry_token.app_name!r} saved successfully!",
+                            "success",
+                        )
                 except Exception as error:  # pragma: no cover
                     log.exception(error)
                     code = 400
-                    flash(f'Failed to update Sentry Token {sentry_token.app_name!r}', 'error')
+                    flash(
+                        f"Failed to update Sentry Token {sentry_token.app_name!r}",
+                        "error",
+                    )
         else:
             code = 422
-    return render_template('edit_sentry_token.html', sentry_token=sentry_token, form=form), code
+    return (
+        render_template("edit_sentry_token.html", sentry_token=sentry_token, form=form),
+        code,
+    )
+
+
 #
 # @sentryTokensBlueprint.route('/setup')
 # def sentry_callback():

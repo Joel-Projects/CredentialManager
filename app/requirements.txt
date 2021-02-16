@@ -32,3 +32,5 @@ permission
 psycopg2-binary
 unflatten
 colorlog
+
+black
