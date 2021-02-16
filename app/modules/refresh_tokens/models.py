@@ -79,7 +79,9 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
     revoked = db.Column(db.Boolean, default=False)
     revoked_at = db.Column(db.DateTime(True))
     updated = db.Column(
-        db.DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False
+        db.DateTime(True),
+        default=datetime.astimezone(datetime.utcnow()),
+        nullable=False,
     )
 
     uniqueConstraint = db.Index(

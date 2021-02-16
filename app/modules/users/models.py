@@ -50,7 +50,7 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
         "bots.count": "Bots",
         "database_credentials.count": "Database Credentials",
         "reddit_apps.count": "Reddit Apps",
-        'refresh_tokens.count': 'Authenticated Users',
+        "refresh_tokens.count": "Authenticated Users",
         "sentry_tokens.count": "Sentry Tokens",
         "api_tokens.count": "API Tokens",
     }

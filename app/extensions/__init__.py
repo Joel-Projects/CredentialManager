@@ -87,3 +87,4 @@ def init_app(app):
     except Exception as error:  # pragma: no cover
         log.exception(error)
     db.create_all(app=app)
+    db.update

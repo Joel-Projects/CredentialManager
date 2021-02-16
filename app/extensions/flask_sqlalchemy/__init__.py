@@ -3,7 +3,6 @@ import operator
 import sqlalchemy
 from datetime import datetime
 
-from flask_login import current_user
 from sqlalchemy import Column, DateTime
 from flask_sqlalchemy import SQLAlchemy as BaseSQLAlchemy, _QueryProperty
 
@@ -29,13 +28,8 @@ class SQLAlchemy(BaseSQLAlchemy):
 
     def init_app(self, app):
         super(SQLAlchemy, self).init_app(app)
-
         database_uri = app.config["SQLALCHEMY_DATABASE_URI"]
         assert database_uri, "SQLALCHEMY_DATABASE_URI must be configured!"
-
-        app.extensions["migrate"] = AlembicDatabaseMigrationConfig(
-            self, compare_type=True
-        )
 
 
 class Timestamp(object):

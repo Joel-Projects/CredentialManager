@@ -74,7 +74,7 @@ def test_user_detail_edit_without_update_password(
         response = flask_app_client.post(
             "/profile", content_type="application/x-www-form-urlencoded", data=data
         )
-        assert200(response)
+        assert202(response)
         assertRenderedTemplate(templates, "edit_user.html")
         modifiedUser = User.query.get(regularUserInstance.id)
         assert modifiedUser == regularUserInstance

@@ -59,18 +59,17 @@ def test_create_sentry_token_other_user(flask_app_client, loginAs, regular_user)
 
 
 def test_create_sentry_token_bad_params(flask_app_client, regularUserInstance):
-    data["dsn"] = "invalid_url"
+    data["dsn"] = None
     response = flask_app_client.post(
         "/sentry_tokens", content_type="application/x-www-form-urlencoded", data=data
     )
     assert response.status_code == 200
-    assert response.mimetype == "application/json"
     sentryToken = SentryToken.query.filter_by(app_name="sentry_token").first()
     assert sentryToken is None
 
 
 def test_create_sentry_token_bad_params_profile(flask_app_client, regularUserInstance):
-    data["dsn"] = "invalid_url"
+    data["dsn"] = None
     response = flask_app_client.post(
         "/profile/sentry_tokens",
         content_type="application/x-www-form-urlencoded",

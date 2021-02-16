@@ -277,6 +277,41 @@ def itemsPerUser(user, item):
     if request.method == "POST":
         if form.validate_on_submit():
             data = {key: value for key, value in form.data.items() if value is not None}
+            if data.get("create_sentry_app", None) is not None:  # pragma: no cover
+                if data.get("sentry_organization", None) and data.get(
+                    "sentry_team", None
+                ):
+                    requestor = SentryRequestor(current_user.sentry_auth_token)
+                    response = requestor.post(
+                        f"/api/0/teams/{data['sentry_organization']}/{data['sentry_team']}/projects/",
+                        itemName="project",
+                        json={"name": data["app_name"]},
+                    )
+                    if hasattr(response, "slug"):
+                        keys = requestor.get(
+                            f"/api/0/projects/{data['sentry_organization']}/{response.slug}/keys/",
+                            itemName="key",
+                        )
+                        sentrydsn = keys[0].dsn.public
+                        if data["sentry_platform"]:
+                            requestor.put(
+                                f"/api/0/projects/{data['sentry_organization']}/{response.slug}/",
+                                itemName="project",
+                                json={"platform": data["sentry_platform"]},
+                            )
+                        data["dsn"] = sentrydsn
+                    else:
+                        code = 400
+                        return (
+                            jsonify(
+                                status="error", message="Failed to create Sentry token"
+                            ),
+                            code,
+                        )
+                data.pop("create_sentry_app")
+                data.pop("sentry_organization")
+                data.pop("sentry_team")
+                data.pop("sentry_platform")
             if item == "api_tokens":
                 length = int(data["length"])
             model = Model(owner_id=data["owner"].id, **data)

@@ -42,15 +42,37 @@ def test_modifying_refresh_token(flask_app_client, regularUserRefreshToken, logi
 
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_modifying_refresh_token_update_token(flask_app_client, regularUserRefreshToken, loginAs):
-    data = [{
-        "op": "replace", "path": "/refresh_token", "value": 'new',
-    }]
+def test_modifying_refresh_token_update_token(
+    flask_app_client, regularUserRefreshToken, loginAs
+):
+    data = [
+        {
+            "op": "replace",
+            "path": "/refresh_token",
+            "value": "new",
+        }
+    ]
     response = flask_app_client.patch(
         f"/api/v1/refresh_tokens/{regularUserRefreshToken.id}",
         content_type="application/json",
         data=json.dumps(data),
     )
+    if loginAs.is_admin or loginAs.is_internal:
+        assertSuccess(
+            response,
+            regularUserRefreshToken.owner,
+            RefreshToken,
+            DetailedRefreshTokenSchema,
+        )
+    else:
+        assert403(
+            response,
+            RefreshToken,
+            action="patch",
+            internal=True,
+            oldItem=regularUserRefreshToken,
+        )
+
 
 def test_modifying_refresh_token_by_self(
     flask_app_client, regularUserInstance, regularUserRefreshToken
