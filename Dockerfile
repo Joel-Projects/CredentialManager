@@ -17,4 +17,5 @@ RUN apk add --no-cache postgresql-libs nano bash && \
 WORKDIR /opt/www/CredentialManager/
 
 EXPOSE 5000
+
 CMD ["gunicorn", "-b", "0.0.0.0:5000", "-w", "4", "-k", "gevent", "--statsd-host", "datadog:8125", "app:create_app()"]
