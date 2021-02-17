@@ -10,7 +10,7 @@ ENV TZ America/Chicago
 ENV FLASK_CONFIG production
 
 RUN apk add --no-cache postgresql-libs nano bash && \
-    apk add --no-cache --virtual alpine-sdk make gcc libffi-dev musl-dev postgresql-dev&& \
+    apk add --no-cache --virtual .build-deps alpine-sdk build-base make gcc libffi-dev musl-dev postgresql-dev && \
     pip install -r requirements.txt && \
     apk --purge del .build-deps
 
