@@ -22,8 +22,6 @@ flask_debugtoolbar
 Flask-Moment
 gunicorn[gevent]
 jinja2
-datadog
-datadog_logger
 praw
 sentry-sdk[flask]
 passlib[bcrypt]

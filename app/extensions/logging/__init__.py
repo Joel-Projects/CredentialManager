@@ -1,7 +1,6 @@
-import logging, datadog, sentry_sdk, sys
+import logging, sentry_sdk, sys
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
-from datadog_logger import DatadogLogHandler
 
 
 class Logging(object):
@@ -21,12 +20,7 @@ class Logging(object):
 
         remote = sys.platform == "darwin"
         dsn = app.config["SENTRY_DSN"]
-        ddApiKey = app.config["DD_API_KEY"]
-        ddAppKey = app.config["DD_APP_KEY"]
         sentry_logging = LoggingIntegration(level=logging.INFO)
-        if ddApiKey and ddAppKey:  # pragma: no cover
-            datadog.initialize(api_key=ddApiKey, app_key=ddAppKey)
-            app.logger.addHandler(DatadogLogHandler(level=logging.WARNING))
         if remote and dsn:  # pragma: no cover
             sentry_sdk.init(
                 dsn=dsn,
