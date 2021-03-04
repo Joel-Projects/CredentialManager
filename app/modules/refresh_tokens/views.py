@@ -108,6 +108,8 @@ def reddit_callback():
                 if userVerification and userVerification.reddit_app == redditApp:
                     userVerification.redditor = redditor
                     userVerification.verified_at = now
+                with db.session.begin():
+                    db.session.merge(userVerification)
                 if userVerification.extra_data:
                     if "sioux_bot" in userVerification.extra_data:  # pragma: no cover
                         webhook = os.getenv("SIOUX_BOT_WEBHOOK")
