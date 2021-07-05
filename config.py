@@ -2,7 +2,7 @@ import os
 
 
 class BaseConfig(object):
-    VERSION = "v1.5.1"
+    VERSION = "v1.6.0"
     SECRET_KEY = "this-really-needs-to-be-changed"
     SENTRY_DSN = os.getenv("SENTRY_DSN")
     DD_API_KEY = os.getenv("DD_API_KEY")
