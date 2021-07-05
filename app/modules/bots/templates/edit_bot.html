@@ -29,7 +29,7 @@
                         {% if attr == 'owner' and not bot.check_owner(current_user) and (current_user.is_admin or current_user.is_internal) %}
                             <a href="/u/{{ bot.getInfoAttr(attr).username }}">{{ bot.getInfoAttr(attr).username }}</a>
                         {% elif bot.getInfoAttr(attr).__class__.__name__ == 'datetime' %}
-                            <a>{{ moment(bot.getInfoAttr(attr)).format('M/DD/YYYY, h:mm:ss a zz') }}</a>
+                            <a>{{ moment(bot.getInfoAttr(attr)).format(' MM/DD/YYYY, h:mm:ss a') }}</a>
                         {% else %}
                             <a>{{ bot.getInfoAttr(attr) }}</a>
                         {% endif %}

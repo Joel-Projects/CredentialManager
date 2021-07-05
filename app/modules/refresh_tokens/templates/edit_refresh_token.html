@@ -32,7 +32,7 @@
                     <br>
                     <br>
                 {% elif refresh_token.getInfoAttr(attr).__class__.__name__ == 'datetime' %}
-                    <a>{{ moment(refresh_token.getInfoAttr(attr)).format('M/DD/YYYY, h:mm:ss a zz') }}</a>
+                    <a>{{ moment(refresh_token.getInfoAttr(attr)).format(' MM/DD/YYYY, h:mm:ss a') }}</a>
                     <br>
                     <br>
                 {% elif attr == 'reddit_app' %}

@@ -1,4 +1,5 @@
 Flask
+MarkupSafe<2
 flask-restplus>=0.11.0,<0.13
 Flask-Table
 Flask-CORS

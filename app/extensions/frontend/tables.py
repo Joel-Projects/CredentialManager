@@ -25,7 +25,7 @@ class DatetimeColumn(BaseCol):
             return str(
                 current_app.extensions["moment"](
                     content.astimezone(timezone.utc)
-                ).format("M/DD/YYYY, h:mm:ss a zz")
+                ).format(" MM/DD/YYYY, h:mm:ss a")
             )
         else:
             return "Never"
