@@ -1,11 +1,11 @@
 import json
+
 import pytest
 
 from app.modules.api_tokens.models import ApiToken
 from app.modules.api_tokens.schemas import DetailedApiTokenSchema
 from tests.params import labels, users
 from tests.utils import assert403, assert409, assert422, assertSuccess
-
 
 data = [
     {

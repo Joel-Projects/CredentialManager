@@ -5,15 +5,16 @@ from app.modules.user_verifications.schemas import DetailedUserVerificationSchem
 from tests.params import labels, users
 from tests.utils import assert403, assert422, assertSuccess
 
-
 path = "/api/v1/user_verifications/"
 data = {"user_id": 123456789012345678}
 
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_creating_user_verification(flask_app_client, loginAs, regular_user, redditApp):
+def test_creating_user_verification(
+    flask_app_client, loginAs, regular_user, reddit_app
+):
     response = flask_app_client.post(
-        path, data={"owner_id": regular_user.id, "reddit_app_id": redditApp.id, **data}
+        path, data={"owner_id": regular_user.id, "reddit_app_id": reddit_app.id, **data}
     )
 
     if loginAs.is_admin or loginAs.is_internal:
@@ -26,14 +27,14 @@ def test_creating_user_verification(flask_app_client, loginAs, regular_user, red
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
 def test_creating_user_verification_existing(
-    flask_app_client, loginAs, regular_user, redditApp, regularUserUserVerification
+    flask_app_client, loginAs, regular_user, reddit_app, regularUserUserVerification
 ):
 
     response = flask_app_client.post(
         path,
         data={
             "owner_id": regular_user.id,
-            "reddit_app_id": redditApp.id,
+            "reddit_app_id": reddit_app.id,
             "user_id": regularUserUserVerification.user_id,
         },
     )
@@ -48,11 +49,11 @@ def test_creating_user_verification_existing(
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
 def test_creating_user_verification_with_extra_data(
-    flask_app_client, loginAs, redditApp
+    flask_app_client, loginAs, reddit_app
 ):
     response = flask_app_client.post(
         path,
-        data={"reddit_app_id": redditApp.id, "extra_data": '{"key": "value"}', **data},
+        data={"reddit_app_id": reddit_app.id, "extra_data": '{"key": "value"}', **data},
     )
 
     if loginAs.is_admin or loginAs.is_internal:
@@ -75,10 +76,12 @@ def test_creating_user_verification_with_extra_data(
 
 
 def test_creating_user_verification_for_self(
-    flask_app_client, regularUserInstance, redditApp
+    flask_app_client, regularUserInstance, reddit_app
 ):
-    redditApp.owner = regularUserInstance
-    response = flask_app_client.post(path, data={"reddit_app_id": redditApp.id, **data})
+    reddit_app.owner = regularUserInstance
+    response = flask_app_client.post(
+        path, data={"reddit_app_id": reddit_app.id, **data}
+    )
 
     assertSuccess(
         response, regularUserInstance, UserVerification, DetailedUserVerificationSchema
@@ -86,14 +89,14 @@ def test_creating_user_verification_for_self(
 
 
 def test_creating_user_verification_for_self_with_owner(
-    flask_app_client, regularUserInstance, redditApp
+    flask_app_client, regularUserInstance, reddit_app
 ):
-    redditApp.owner = regularUserInstance
+    reddit_app.owner = regularUserInstance
     response = flask_app_client.post(
         path,
         data={
             "owner_id": regularUserInstance.id,
-            "reddit_app_id": redditApp.id,
+            "reddit_app_id": reddit_app.id,
             **data,
         },
     )

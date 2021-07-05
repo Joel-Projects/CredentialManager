@@ -10,7 +10,6 @@ from tests.utils import (
     changeOwner,
 )
 
-
 sentryTokens = [
     pytest.lazy_fixture("adminUserSentryToken"),
     pytest.lazy_fixture("internalUserSentryToken"),

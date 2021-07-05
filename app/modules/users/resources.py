@@ -5,9 +5,9 @@ from flask_restplus._http import HTTPStatus
 
 from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
+
 from . import parameters, permissions, schemas
 from .models import User, db
-
 
 log = logging.getLogger(__name__)
 api = Namespace("users", description="User Management")

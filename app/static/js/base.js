@@ -46,10 +46,6 @@ function doneLoading(button, buttonText) {
     $(`#${button.id}`).html(buttonText);
 };
 
-function saveUser(button) {
-    $(`#${button.id}`).disabled = true;
-    $(`#${button.id}`).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>Saving...');
-};
 
 function doneSave(id, form) {
     $(`#${id}`).prop('disabled', false);

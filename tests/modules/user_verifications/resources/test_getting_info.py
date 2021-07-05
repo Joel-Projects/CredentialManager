@@ -2,7 +2,6 @@ import pytest
 
 from tests.params import labels, users
 
-
 contentType = "application/json"
 
 
@@ -94,12 +93,12 @@ def test_getting_redditor_from_user_id_disabled(
 
 
 def test_getting_redditor_from_user_id_with_reddit_app(
-    flask_app_client, regularUserInstance, adminUserUserVerification, redditApp
+    flask_app_client, regularUserInstance, adminUserUserVerification, reddit_app
 ):
-    adminUserUserVerification.reddit_app = redditApp
+    adminUserUserVerification.reddit_app = reddit_app
     response = flask_app_client.post(
         "/api/v1/user_verifications/get_redditor",
-        data={"user_id": "123456789012345679", "reddit_app_id": redditApp.id},
+        data={"user_id": "123456789012345679", "reddit_app_id": reddit_app.id},
     )
 
     assert response.status_code == 200
@@ -109,9 +108,9 @@ def test_getting_redditor_from_user_id_with_reddit_app(
 
 
 def test_getting_redditor_from_non_existant_redditor_with_bad_reddit_app(
-    flask_app_client, regularUserInstance, adminUserUserVerification, redditApp
+    flask_app_client, regularUserInstance, adminUserUserVerification, reddit_app
 ):
-    adminUserUserVerification.reddit_app = redditApp
+    adminUserUserVerification.reddit_app = reddit_app
     response = flask_app_client.post(
         "/api/v1/user_verifications/get_redditor",
         data={"user_id": "123456789012345679", "reddit_app_id": 2},

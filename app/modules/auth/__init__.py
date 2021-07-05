@@ -1,10 +1,10 @@
-import base64, logging
+import base64
+import logging
 
-from flask_login import user_logged_in, login_user
+from flask_login import login_user, user_logged_in
 
 from app.extensions import login_manager
 from app.modules.users.models import User
-
 
 log = logging.getLogger(__name__)
 

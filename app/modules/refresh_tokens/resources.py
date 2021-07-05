@@ -5,12 +5,12 @@ from flask_restplus._http import HTTPStatus
 
 from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
-from . import parameters, schemas
-from .models import RefreshToken, db
+
 from .. import getViewableItems
 from ..reddit_apps.models import RedditApp
 from ..users import permissions
-
+from . import parameters, schemas
+from .models import RefreshToken, db
 
 log = logging.getLogger(__name__)
 api = Namespace("refresh_tokens", description="Refresh Token Management")
@@ -111,10 +111,10 @@ class GetRefreshTokenByRedditor(Resource):
 
         Only Admins can see Refresh Tokens for other users' Reddit Apps. Regular users will see their own Reddit Apps' Refresh Tokens.
         """
-        redditApp = RedditApp.query.get_or_404(args["reddit_app_id"])
+        reddit_app = RedditApp.query.get_or_404(args["reddit_app_id"])
         refreshTokens = RefreshToken.query
         refreshToken = refreshTokens.filter_by(
-            redditor=args["redditor"], reddit_app_id=redditApp.id, revoked=False
+            redditor=args["redditor"], reddit_app_id=reddit_app.id, revoked=False
         )
         return refreshToken.first_or_404(
             f'Redditor {args["redditor"]!r} does not exist.'

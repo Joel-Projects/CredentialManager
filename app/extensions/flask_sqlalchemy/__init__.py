@@ -1,10 +1,10 @@
 import operator
-
-import sqlalchemy
 from datetime import datetime
 
+import sqlalchemy
+from flask_sqlalchemy import SQLAlchemy as BaseSQLAlchemy
+from flask_sqlalchemy import _QueryProperty
 from sqlalchemy import Column, DateTime
-from flask_sqlalchemy import SQLAlchemy as BaseSQLAlchemy, _QueryProperty
 
 
 class AlembicDatabaseMigrationConfig(object):

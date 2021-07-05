@@ -4,12 +4,12 @@ from app.modules.refresh_tokens.models import RefreshToken
 from tests.utils import assertRenderedTemplate, captured_templates
 
 
-def test_authorize(db, flask_app_client, redditApp, mocker, reddit, recorder):
-    redditApp.client_id = pytest.placeholders.client_id
-    redditApp.client_secret = pytest.placeholders.client_secret
-    redditApp.redirect_uri = pytest.placeholders.redirect_uri
-    redditApp.user_agent = pytest.placeholders.user_agent
-    db.session.merge(redditApp)
+def test_authorize(db, flask_app_client, reddit_app, mocker, reddit, recorder):
+    reddit_app.client_id = pytest.placeholders.client_id
+    reddit_app.client_secret = pytest.placeholders.client_secret
+    reddit_app.redirect_uri = pytest.placeholders.redirect_uri
+    reddit_app.user_agent = pytest.placeholders.user_agent
+    db.session.merge(reddit_app)
     mocker.patch(
         "app.modules.reddit_apps.models.RedditApp.redditInstance",
         new_callable=mocker.PropertyMock,
@@ -17,7 +17,7 @@ def test_authorize(db, flask_app_client, redditApp, mocker, reddit, recorder):
     )
     with recorder.use_cassette("RefreshTokens.test_authorize"):
         with captured_templates(flask_app_client.application) as templates:
-            url = f"/oauth2/reddit_callback?state={redditApp.state}&code={pytest.placeholders.auth_code}"
+            url = f"/oauth2/reddit_callback?state={reddit_app.state}&code={pytest.placeholders.auth_code}"
             response = flask_app_client.get(url)
             assert response.content_type == "text/html; charset=utf-8"
             assert response.status_code == 200
@@ -32,12 +32,12 @@ def test_authorize(db, flask_app_client, redditApp, mocker, reddit, recorder):
             assert templates["templates"][0][1]["success"]
 
 
-def test_authorize_temp(db, flask_app_client, redditApp, mocker, reddit, recorder):
-    redditApp.client_id = pytest.placeholders.client_id
-    redditApp.client_secret = pytest.placeholders.client_secret
-    redditApp.redirect_uri = pytest.placeholders.redirect_uri
-    redditApp.user_agent = pytest.placeholders.user_agent
-    db.session.merge(redditApp)
+def test_authorize_temp(db, flask_app_client, reddit_app, mocker, reddit, recorder):
+    reddit_app.client_id = pytest.placeholders.client_id
+    reddit_app.client_secret = pytest.placeholders.client_secret
+    reddit_app.redirect_uri = pytest.placeholders.redirect_uri
+    reddit_app.user_agent = pytest.placeholders.user_agent
+    db.session.merge(reddit_app)
     mocker.patch(
         "app.modules.reddit_apps.models.RedditApp.redditInstance",
         new_callable=mocker.PropertyMock,
@@ -45,7 +45,7 @@ def test_authorize_temp(db, flask_app_client, redditApp, mocker, reddit, recorde
     )
     with recorder.use_cassette("RefreshTokens.test_authorize_temp"):
         with captured_templates(flask_app_client.application) as templates:
-            url = f"/oauth2/reddit_callback?state={redditApp.state}&code={pytest.placeholders.auth_code}"
+            url = f"/oauth2/reddit_callback?state={reddit_app.state}&code={pytest.placeholders.auth_code}"
             response = flask_app_client.get(url)
             assert response.content_type == "text/html; charset=utf-8"
             assert response.status_code == 200
@@ -60,13 +60,13 @@ def test_authorize_temp(db, flask_app_client, redditApp, mocker, reddit, recorde
 
 
 def test_authorize_exisiting(
-    db, flask_app_client, redditApp, mocker, reddit, recorder, regularUserRefreshToken
+    db, flask_app_client, reddit_app, mocker, reddit, recorder, regularUserRefreshToken
 ):
-    redditApp.client_id = pytest.placeholders.client_id
-    redditApp.client_secret = pytest.placeholders.client_secret
-    redditApp.redirect_uri = pytest.placeholders.redirect_uri
-    redditApp.user_agent = pytest.placeholders.user_agent
-    db.session.merge(redditApp)
+    reddit_app.client_id = pytest.placeholders.client_id
+    reddit_app.client_secret = pytest.placeholders.client_secret
+    reddit_app.redirect_uri = pytest.placeholders.redirect_uri
+    reddit_app.user_agent = pytest.placeholders.user_agent
+    db.session.merge(reddit_app)
     mocker.patch(
         "app.modules.reddit_apps.models.RedditApp.redditInstance",
         new_callable=mocker.PropertyMock,
@@ -74,7 +74,7 @@ def test_authorize_exisiting(
     )
     with recorder.use_cassette("RefreshTokens.test_authorize"):
         with captured_templates(flask_app_client.application) as templates:
-            url = f"/oauth2/reddit_callback?state={redditApp.state}&code={pytest.placeholders.auth_code}"
+            url = f"/oauth2/reddit_callback?state={reddit_app.state}&code={pytest.placeholders.auth_code}"
             response = flask_app_client.get(url)
             assert response.content_type == "text/html; charset=utf-8"
             assert response.status_code == 200
@@ -92,23 +92,23 @@ def test_authorize_exisiting(
 def test_authorize_user_id(
     db,
     flask_app_client,
-    redditApp,
+    reddit_app,
     mocker,
     reddit,
     recorder,
     regularUserUserVerification,
 ):
-    redditApp.client_id = pytest.placeholders.client_id
-    redditApp.client_secret = pytest.placeholders.client_secret
-    redditApp.redirect_uri = pytest.placeholders.redirect_uri
-    redditApp.user_agent = pytest.placeholders.user_agent
-    db.session.merge(redditApp)
+    reddit_app.client_id = pytest.placeholders.client_id
+    reddit_app.client_secret = pytest.placeholders.client_secret
+    reddit_app.redirect_uri = pytest.placeholders.redirect_uri
+    reddit_app.user_agent = pytest.placeholders.user_agent
+    db.session.merge(reddit_app)
     mocker.patch(
         "app.modules.reddit_apps.models.RedditApp.redditInstance",
         new_callable=mocker.PropertyMock,
         return_value=reddit,
     )
-    state = redditApp.genAuthUrl(
+    state = reddit_app.genAuthUrl(
         ["identity"], "permanent", user_verification=regularUserUserVerification
     ).split("state=")[1]
     with recorder.use_cassette("RefreshTokens.test_authorize"):
@@ -124,11 +124,11 @@ def test_authorize_user_id(
             assert templates["templates"][0][1]["success"]
 
 
-def test_authorize_bad_code(flask_app_client, redditApp, mocker, reddit, recorder):
-    redditApp.client_id = pytest.placeholders.client_id
-    redditApp.client_secret = pytest.placeholders.client_secret
-    redditApp.redirect_uri = pytest.placeholders.redirect_uri
-    redditApp.user_agent = pytest.placeholders.user_agent
+def test_authorize_bad_code(flask_app_client, reddit_app, mocker, reddit, recorder):
+    reddit_app.client_id = pytest.placeholders.client_id
+    reddit_app.client_secret = pytest.placeholders.client_secret
+    reddit_app.redirect_uri = pytest.placeholders.redirect_uri
+    reddit_app.user_agent = pytest.placeholders.user_agent
     mocker.patch(
         "app.modules.reddit_apps.models.RedditApp.redditInstance",
         new_callable=mocker.PropertyMock,
@@ -146,7 +146,7 @@ def test_authorize_bad_code(flask_app_client, redditApp, mocker, reddit, recorde
             assert templates["templates"][0][1]["error"]
 
 
-def test_authorize_root(flask_app_client, redditApp):
+def test_authorize_root(flask_app_client, reddit_app):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.get("/oauth2/reddit_callback")
         assert response.content_type == "text/html; charset=utf-8"

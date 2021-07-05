@@ -3,17 +3,16 @@ import logging
 from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
 
+from ...extensions import db, paginateArgs, verifyEditable
+from .. import getPaginator
+from ..users.models import User
 from .parameters import PatchRedditAppDetailsParameters
 from .resources import api
-from ..users.models import User
-from ...extensions import db, paginateArgs, verifyEditable
-
 
 log = logging.getLogger(__name__)
-from .models import RedditApp
 from .forms import RedditAppForm
+from .models import RedditApp
 from .tables import RedditAppTable
-
 
 redditAppsBlueprint = Blueprint(
     "reddit_apps",
@@ -27,7 +26,7 @@ redditAppsBlueprint = Blueprint(
 @redditAppsBlueprint.route("/reddit_apps", methods=["GET", "POST"])
 @login_required
 @paginateArgs(RedditApp)
-def reddit_apps(page, perPage):
+def reddit_apps(page, perPage, orderBy, sort_columns, sort_directions):
     code = 200
     form = RedditAppForm()
     if request.method == "POST":
@@ -47,19 +46,14 @@ def reddit_apps(page, perPage):
                 )
             code = 201
             data = {key: value for key, value in form.data.items() if value is not None}
-            redditApp = RedditApp(**data)
-            db.session.add(redditApp)
+            reddit_app = RedditApp(**data)
+            db.session.add(reddit_app)
         else:
             return jsonify(status="error", errors=form.errors), code
-    if current_user.is_admin and not current_user.is_internal:
-        paginator = RedditApp.query.filter(
-            RedditApp.owner.has(internal=False)
-        ).paginate(page, perPage, error_out=False)
-    elif current_user.is_internal:
-        paginator = RedditApp.query.paginate(page, perPage, error_out=False)
-    else:
-        paginator = current_user.reddit_apps.paginate(page, perPage, error_out=False)
-    table = RedditAppTable(paginator.items, current_user=current_user)
+    paginator = getPaginator(RedditApp, page, perPage, orderBy, sort_columns)
+    table = RedditAppTable(
+        paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
+    )
     form = RedditAppForm()
     return (
         render_template(

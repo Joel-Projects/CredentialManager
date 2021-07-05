@@ -5,13 +5,13 @@ from flask_restplus._http import HTTPStatus
 
 from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
-from . import parameters, schemas
-from .models import UserVerification, db
-from ..reddit_apps.models import RedditApp
+
 from .. import getViewableItems
+from ..reddit_apps.models import RedditApp
 from ..users import permissions
 from ..users.models import User
-
+from . import parameters, schemas
+from .models import UserVerification, db
 
 log = logging.getLogger(__name__)
 api = Namespace("user_verifications", description="User Verification Management")
@@ -149,13 +149,13 @@ class GetUserVerificationByUserID(Resource):
         Optionally filter by Reddit App ID
         """
         if "reddit_app_id" in args:
-            redditApp = RedditApp.query.get_or_404(
+            reddit_app = RedditApp.query.get_or_404(
                 args["reddit_app_id"], "Reddit App not found"
             )
-            if redditApp.enabled:
+            if reddit_app.enabled:
                 userVerification = UserVerification.query.filter(
                     UserVerification.user_id == args["user_id"],
-                    UserVerification.reddit_app == redditApp,
+                    UserVerification.reddit_app == reddit_app,
                 ).first_or_404()
         else:
             userVerification = UserVerification.query.filter(

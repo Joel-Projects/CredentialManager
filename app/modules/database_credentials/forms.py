@@ -4,8 +4,9 @@ from wtforms.validators import Length, Optional
 from wtforms_alchemy import InputRequired, Unique
 
 from app.extensions import ModelForm
+
+from ...extensions.frontend.forms import HiddenFieldWithToggle, ModelSelectField, owners
 from .models import DatabaseCredential
-from ...extensions.frontend.forms import ModelSelectField, HiddenFieldWithToggle, owners
 
 
 class DatabaseCredentialForm(ModelForm):

@@ -1,16 +1,17 @@
-import logging, json
+import json
+import logging
 
 from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
 
+from ...extensions import db, paginateArgs, verifyEditable
+from .. import getPaginator
+from ..users.models import User
 from .forms import UserVerificationForm
 from .models import UserVerification
 from .parameters import PatchUserVerificationDetailsParameters
 from .resources import api
 from .tables import UserVerificationTable
-from ..users.models import User
-from ...extensions import db, paginateArgs, verifyEditable
-
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ userVerificationsBlueprint = Blueprint(
 @userVerificationsBlueprint.route("/user_verifications", methods=["GET", "POST"])
 @login_required
 @paginateArgs(UserVerification)
-def user_verifications(page, perPage):
+def user_verifications(page, perPage, orderBy, sort_columns, sort_directions):
     code = 200
     form = UserVerificationForm()
     if request.method == "POST":
@@ -53,17 +54,10 @@ def user_verifications(page, perPage):
             db.session.add(userVerification)
         else:
             return jsonify(status="error", errors=form.errors), code
-    if current_user.is_admin and not current_user.is_internal:
-        paginator = UserVerification.query.filter(
-            UserVerification.owner.has(internal=False)
-        ).paginate(page, perPage, error_out=False)
-    elif current_user.is_internal:
-        paginator = UserVerification.query.paginate(page, perPage, error_out=False)
-    else:
-        paginator = current_user.user_verifications.paginate(
-            page, perPage, error_out=False
-        )
-    table = UserVerificationTable(paginator.items, current_user=current_user)
+    paginator = getPaginator(UserVerification, page, perPage, orderBy, sort_columns)
+    table = UserVerificationTable(
+        paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
+    )
     form = UserVerificationForm()
     return (
         render_template(

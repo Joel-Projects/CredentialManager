@@ -4,7 +4,6 @@ from app.modules.sentry_tokens.models import SentryToken
 from tests.params import labels, users
 from tests.utils import assert403, assertSuccess
 
-
 sentryTokensToDelete = [
     pytest.lazy_fixture("adminUserSentryToken"),
     pytest.lazy_fixture("internalUserSentryToken"),

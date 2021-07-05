@@ -1,11 +1,11 @@
 import json
+
 import pytest
 
 from app.modules.database_credentials.models import DatabaseCredential
 from app.modules.database_credentials.schemas import DetailedDatabaseCredentialSchema
 from tests.params import labels, users
 from tests.utils import assert403, assert409, assert422, assertSuccess
-
 
 data = [
     {

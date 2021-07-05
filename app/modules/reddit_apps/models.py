@@ -10,7 +10,6 @@ from sqlalchemy_utils import ChoiceType, URLType
 from app.extensions import InfoAttrs, StrName, Timestamp, db
 from config import BaseConfig
 
-
 log = logging.getLogger(__name__)
 
 

@@ -3,6 +3,7 @@ from marshmallow import ValidationError, validates
 
 from app.extensions.api.parameters import PaginationParameters, ValidateOwner
 from flask_restplus_patched import Parameters, PatchJSONParameters, PostFormParameters
+
 from . import schemas
 from .models import Bot
 

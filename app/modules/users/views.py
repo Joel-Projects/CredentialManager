@@ -1,17 +1,14 @@
 import json
 import logging
 
-from flask import Blueprint, flash, jsonify, redirect, render_template, request
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 from unflatten import unflatten
 from wtforms import BooleanField
 
-from .forms import EditUserForm, UserForm
-from .models import User
-from .parameters import PatchUserDetailsParameters
-from .resources import api
-from .tables import UserTable
+from ...extensions import ModelForm, db, paginateArgs, requiresAdmin, verifyEditable
+from ...extensions.api import abort
 from ..api_tokens.forms import ApiTokenForm
 from ..api_tokens.models import ApiToken
 from ..api_tokens.views import ApiTokenTable
@@ -27,15 +24,17 @@ from ..reddit_apps.tables import RedditAppTable
 from ..refresh_tokens.forms import GenerateRefreshTokenForm
 from ..refresh_tokens.models import RefreshToken
 from ..refresh_tokens.views import RefreshTokenTable
-from ..sentry_tokens.forms import EditSentryTokenForm, CreateSentryTokenForm
+from ..sentry_tokens.forms import CreateSentryTokenForm, EditSentryTokenForm
 from ..sentry_tokens.models import SentryToken
 from ..sentry_tokens.tables import SentryTokenTable
 from ..user_verifications.forms import UserVerificationForm
 from ..user_verifications.models import UserVerification
 from ..user_verifications.views import UserVerificationTable
-from ...extensions import ModelForm, db, paginateArgs, requiresAdmin, verifyEditable
-from ...extensions.api import abort
-
+from .forms import EditUserForm, UserForm
+from .models import User
+from .parameters import PatchUserDetailsParameters
+from .resources import api
+from .tables import UserTable
 
 log = logging.getLogger(__name__)
 
@@ -52,8 +51,7 @@ usersBlueprint = Blueprint(
 @login_required
 @requiresAdmin
 @paginateArgs(User)
-def users(page, perPage):
-    query = User.query
+def users(page, perPage, orderBy, sort_columns, sort_directions):
     form = UserForm()
     code = 200
     if request.method == "POST":
@@ -72,13 +70,33 @@ def users(page, perPage):
         else:
             # code = 422
             return jsonify(status="error", errors=form.errors), code
+
+    if not orderBy:
+        orderBy = [User.id.asc()]
     if current_user.is_internal:
-        paginator = query.paginate(page, perPage, error_out=False)
+        query = User.query
     elif current_user.is_admin:
-        paginator = query.filter_by(internal=False).paginate(
-            page, perPage, error_out=False
-        )
-    table = UserTable(paginator.items, current_user, endpointAttr="username")
+        query = User.query.filter_by(internal=current_user.is_internal)
+    else:
+        query = User.query.filter_by(id=current_user.id)
+    mapping = {
+        "owner": User,
+        "bot": Bot,
+        "bots": Bot,
+        "reddit_app": RedditApp,
+        "reddit_apps": RedditApp,
+        "database_credential": DatabaseCredential,
+        "database_credentials": DatabaseCredential,
+        "sentry_token": SentryToken,
+        "sentry_tokens": SentryToken,
+    }
+    for column in sort_columns:
+        if column in mapping:
+            query = query.join(mapping[column])
+    paginator = query.order_by(*orderBy).paginate(page, perPage, error_out=False)
+    table = UserTable(
+        paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
+    )
     return (
         render_template(
             "users.html",
@@ -103,40 +121,60 @@ def editUser(user):
     showOld = request.args.get("showOld", "False") == "True"
 
     bots = user.bots.all()
-    kwargs["botsTable"] = BotTable(bots, current_user=current_user)
+    kwargs["botsTable"] = BotTable(
+        bots, route_kwargs=dict(endpoint="users.itemsPerUser", user=user, item="bots")
+    )
     kwargs["botsForm"] = BotForm()
 
     reddit_apps = user.reddit_apps.all()
-    kwargs["reddit_appsTable"] = RedditAppTable(reddit_apps, current_user=current_user)
+    kwargs["reddit_appsTable"] = RedditAppTable(
+        reddit_apps,
+        route_kwargs=dict(endpoint="users.itemsPerUser", user=user, item="reddit_apps"),
+    )
     kwargs["reddit_appsForm"] = RedditAppForm()
 
     sentry_tokens = user.sentry_tokens.all()
     kwargs["sentry_tokensTable"] = SentryTokenTable(
-        sentry_tokens, current_user=current_user
+        sentry_tokens,
+        route_kwargs=dict(
+            endpoint="users.itemsPerUser", user=user, item="sentry_tokens"
+        ),
     )
     kwargs["sentry_tokensForm"] = CreateSentryTokenForm()
 
     database_credentials = user.database_credentials.all()
     kwargs["database_credentialsTable"] = DatabaseCredentialTable(
-        database_credentials, current_user=current_user
+        database_credentials,
+        route_kwargs=dict(
+            endpoint="users.itemsPerUser", user=user, item="database_credentials"
+        ),
     )
     kwargs["database_credentialsForm"] = DatabaseCredentialForm()
 
     api_tokens = user.api_tokens.all()
-    kwargs["api_tokensTable"] = ApiTokenTable(api_tokens, current_user=current_user)
+    kwargs["api_tokensTable"] = ApiTokenTable(
+        api_tokens,
+        route_kwargs=dict(endpoint="users.itemsPerUser", user=user, item="api_tokens"),
+    )
     kwargs["api_tokensForm"] = ApiTokenForm()
 
     refresh_tokens = user.refresh_tokens.filter(
         or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld)
     ).all()
     kwargs["refresh_tokensTable"] = RefreshTokenTable(
-        refresh_tokens, current_user=current_user
+        refresh_tokens,
+        route_kwargs=dict(
+            endpoint="users.itemsPerUser", user=user, item="refresh_tokens"
+        ),
     )
     kwargs["refresh_tokensForm"] = GenerateRefreshTokenForm()
 
     user_verifications = user.user_verifications.all()
     kwargs["user_verificationsTable"] = UserVerificationTable(
-        user_verifications, current_user=current_user
+        user_verifications,
+        route_kwargs=dict(
+            endpoint="users.itemsPerUser", user=user, item="user_verifications"
+        ),
     )
     kwargs["user_verificationsForm"] = UserVerificationForm()
 
@@ -270,7 +308,8 @@ def itemsPerUser(user, item):
     if not item in validItems:
         abort(404)
     items = getattr(user, item).all()
-    table = validItems[item][0](items, current_user=current_user)
+
+    table = validItems[item][0](items)
     Model = validItems[item][2]
     form = validItems[item][1]()
     code = 200
@@ -319,7 +358,7 @@ def itemsPerUser(user, item):
                 model.token = model.generate_token(length)
             db.session.add(model)
             items = getattr(user, item).all()
-            table = validItems[item][0](items, current_user=current_user)
+            table = validItems[item][0](items)
             code = 201
         else:
             code = 422

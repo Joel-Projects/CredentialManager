@@ -4,14 +4,14 @@ from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
 from wtforms import BooleanField
 
+from ...extensions import db, paginateArgs, verifyEditable
+from .. import getPaginator
+from ..users.models import User
 from .forms import ApiTokenForm, EditApiTokenForm
 from .models import ApiToken
 from .parameters import PatchApiTokenDetailsParameters
 from .resources import api
 from .tables import ApiTokenTable
-from ..users.models import User
-from ...extensions import db, paginateArgs, verifyEditable
-
 
 log = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ apiTokensBlueprint = Blueprint(
 @apiTokensBlueprint.route("/api_tokens", methods=["GET", "POST"])
 @login_required
 @paginateArgs(ApiToken)
-def api_tokens(page=1, perPage=10):
+def api_tokens(page, perPage, orderBy, sort_columns, sort_directions):
     form = ApiTokenForm()
     code = 200
     if request.method == "POST":
@@ -49,15 +49,10 @@ def api_tokens(page=1, perPage=10):
             db.session.add(apiToken)
         else:
             return jsonify(status="error", errors=form.errors), code
-    if current_user.is_admin and not current_user.is_internal:
-        paginator = ApiToken.query.filter(ApiToken.owner.has(internal=False)).paginate(
-            page, perPage, error_out=False
-        )
-    elif current_user.is_internal:
-        paginator = ApiToken.query.paginate(page, perPage, error_out=False)
-    else:
-        paginator = current_user.api_tokens.paginate(page, perPage, error_out=False)
-    table = ApiTokenTable(paginator.items, current_user=current_user)
+    paginator = getPaginator(ApiToken, page, perPage, orderBy, sort_columns)
+    table = ApiTokenTable(
+        paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
+    )
     return (
         render_template(
             "api_tokens.html",

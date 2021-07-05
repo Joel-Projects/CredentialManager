@@ -1,19 +1,19 @@
 import logging
 import os
-import requests
 from datetime import datetime, timezone
 
+import requests
 from flask import Blueprint, render_template, request
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
+from ...extensions import db, paginateArgs, verifyEditable
+from ..reddit_apps.models import RedditApp
+from ..user_verifications.models import UserVerification
+from ..users.models import User
 from .forms import GenerateRefreshTokenForm
 from .models import RefreshToken
 from .tables import RefreshTokenTable
-from ..reddit_apps.models import RedditApp
-from ..user_verifications.models import UserVerification
-from ...extensions import db, paginateArgs, verifyEditable
-
 
 log = logging.getLogger(__name__)
 
@@ -29,23 +29,24 @@ refreshTokensBlueprint = Blueprint(
 @refreshTokensBlueprint.route("/refresh_tokens", methods=["GET", "POST"])
 @login_required
 @paginateArgs(RefreshToken)
-def refresh_tokens(page, perPage):
+def refresh_tokens(page, perPage, orderBy, sort_columns, sort_directions):
     showOld = request.args.get("showOld", "false").lower() == "true"
-    if current_user.is_admin and not current_user.is_internal:
-        paginator = RefreshToken.query.filter(
-            RefreshToken.owner.has(internal=False),
-            or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld),
-        ).paginate(page, perPage, error_out=False)
-    elif current_user.is_internal:
-        paginator = RefreshToken.query.filter(
-            or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld)
-        ).paginate(page, perPage, error_out=False)
+    if current_user.is_internal:
+        query = RefreshToken.query
+    elif current_user.is_admin:
+        query = RefreshToken.query.filter(RefreshToken.owner.has(internal=False))
     else:
-        paginator = current_user.refresh_tokens.filter(
-            or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld)
-        ).paginate(page, perPage, error_out=False)
+        query = current_user.refresh_tokens
+    if not orderBy:
+        orderBy = [RefreshToken.redditor.asc()]
+    paginator = (
+        query.join(User).order_by(*orderBy).paginate(page, perPage, error_out=False)
+    )
     table = RefreshTokenTable(
-        paginator.items, current_user=current_user, showOld=showOld
+        paginator.items,
+        sort_columns=sort_columns,
+        sort_directions=sort_directions,
+        showOld=showOld,
     )
     form = GenerateRefreshTokenForm()
     return render_template(
@@ -77,27 +78,27 @@ def reddit_callback():
         now = datetime.now(timezone.utc)
         now.replace(tzinfo=timezone.utc)
         refreshToken = None
-        redditApp, user_id = RedditApp().getAppFromState(state)
-        if redditApp:
-            reddit = redditApp.redditInstance
+        reddit_app, user_id = RedditApp().getAppFromState(state)
+        if reddit_app:
+            reddit = reddit_app.redditInstance
             token = reddit.auth.authorize(code)
             redditor = reddit.user.me().name
             if token:
                 scopes = reddit.auth.scopes()
                 existing = RefreshToken.query.filter(
-                    RefreshToken.reddit_app == redditApp,
+                    RefreshToken.reddit_app == reddit_app,
                     RefreshToken.redditor == redditor,
                     RefreshToken.revoked == False,
                 ).first()
                 if existing:  # pragma: no cover
                     existing.revoke()
                 refreshToken = RefreshToken(
-                    reddit_app=redditApp,
+                    reddit_app=reddit_app,
                     redditor=redditor,
                     refresh_token=token,
                     scopes=list(scopes),
                     issued_at=now,
-                    owner=redditApp.owner,
+                    owner=reddit_app.owner,
                 )
                 with db.session.begin():
                     db.session.add(refreshToken)
@@ -105,7 +106,7 @@ def reddit_callback():
                 userVerification = UserVerification.query.filter_by(
                     user_id=user_id
                 ).first()
-                if userVerification and userVerification.reddit_app == redditApp:
+                if userVerification and userVerification.reddit_app == reddit_app:
                     userVerification.redditor = redditor
                     userVerification.verified_at = now
                 with db.session.begin():
@@ -140,7 +141,7 @@ def reddit_callback():
                 appName = refreshToken.reddit_app.app_name
                 header = f"Reddit Authorization Complete"
             else:
-                appName = redditApp.app_name
+                appName = reddit_app.app_name
                 header = f"Reddit Verification Complete"
             return render_template(
                 "oauth_result.html",

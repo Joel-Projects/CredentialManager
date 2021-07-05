@@ -1,8 +1,13 @@
+import logging
+from datetime import timezone
+
+from flask import current_app, url_for
 from flask_login import current_user
 from flask_table import Col, Table
 from flask_table.html import element
-from flask import current_app
-from datetime import timezone
+from markupsafe import Markup
+
+log = logging.getLogger(__name__)
 
 
 class BaseCol(Col):
@@ -11,6 +16,7 @@ class BaseCol(Col):
         if not "style" in kwargs["td_html_attrs"]:
             kwargs["td_html_attrs"]["style"] = "text-align:center"
         super(BaseCol, self).__init__(*args, **kwargs)
+        self.sort_name = self.attr_list[0]
 
 
 class DatetimeColumn(BaseCol):
@@ -54,7 +60,7 @@ class CopyableField(BaseCol):
 
 class ToolTipColumn(BaseCol):  # pragma: no cover
     def __init__(self, name, tooltip=None, **kwargs):
-        super(ToolTipColumn, self).__init__(name, **kwargs)
+        super(ToolTipColumn, self).__init__(name, allow_sort=False, **kwargs)
         self.tooltip = tooltip
 
     def td_contents(self, item, attr_list):
@@ -141,7 +147,9 @@ class ObjectCountCol(BaseCol):
 
 class DropdownActionColumn(ModifiedCol):
     def __init__(self, name, *args, toggle=True, **kwargs):
-        super(DropdownActionColumn, self).__init__(name, *args, **kwargs)
+        super(DropdownActionColumn, self).__init__(
+            name, allow_sort=False, *args, **kwargs
+        )
         self.toggle = toggle
 
     def td_contents(self, item, attr_list):
@@ -182,14 +190,36 @@ class DropdownActionColumn(ModifiedCol):
 
 
 class BaseTable(Table):
+    allow_empty = True
+    allow_sort = True
+    classes = [
+        "table",
+        "table-hover",
+        "table-bordered",
+        "table-striped",
+        "tablesorter-bootstrap",
+    ]
+    thead_attrs = {"style": "text-align:center"}
+    thead_classes = ["thead-dark"]
+
     def __init__(
         self,
         items,
         editable=True,
         canBeDisabled=True,
-        current_user=None,
         endpointAttr="id",
+        sort_columns=None,
+        sort_directions=None,
+        *args,
+        **kwargs,
     ):
+        if sort_columns is None:
+            sort_columns = []
+        self.sort_columns = sort_columns
+        if sort_directions is None:
+            sort_directions = []
+        self.sort_directions = sort_directions
+        self.sort_keys = dict(zip(sort_columns, sort_directions))
         if editable:
             name = "Edit"
         else:
@@ -197,24 +227,47 @@ class BaseTable(Table):
         self.add_column(
             name, DropdownActionColumn(name, endpointAttr, toggle=canBeDisabled)
         )
+        super().__init__(items, *args, **kwargs)
+        self._cols.move_to_end(name)
 
-        super().__init__(items)
+    def th_contents(self, col_key, col):
+        if not (col.allow_sort and self.allow_sort):
+            return None, None, Markup.escape(col.name)
+
+        if col.sort_name in self.sort_columns:
+            sort_reverse = (
+                self.sort_directions[self.sort_columns.index(col.sort_name)] == "desc"
+            )
+            if sort_reverse:
+                sort_href = self.sort_url(col.sort_name, remove_sort=True)
+                sort_direction = "tablesorter-headerDesc"
+            else:
+                sort_href = self.sort_url(col.sort_name, reverse=True)
+                sort_direction = "tablesorter-headerAsc"
+        else:
+            sort_href = self.sort_url(col.sort_name)
+            sort_direction = "tablesorter-headerUnSorted"
+        return sort_direction, sort_href, Markup.escape(col.name)
 
     def th(self, col_key, col):
-        if col_key == "Edit":
-            return element(
-                "th",
-                content=self.th_contents(col_key, col),
-                escape_content=False,
-                attrs={"data-sorter": "false", **col.th_html_attrs},
-            )
+        sort_class, sort_href, content = self.th_contents(col_key, col)
+        classes = ["tablesorter-header"]
+        attrs = {
+            **col.th_html_attrs,
+        }
+        if sort_class:
+            classes.append(sort_class)
+            attrs["onclick"] = f"location.href='{sort_href}';"
         else:
-            return element(
-                "th",
-                content=self.th_contents(col_key, col),
-                escape_content=False,
-                attrs=col.th_html_attrs,
-            )
+            classes.append("sorter-false")
+            classes.append("tablesorter-headerUnSorted")
+        attrs["class"] = " ".join(classes)
+        return element(
+            "th",
+            content=content,
+            escape_content=False,
+            attrs=attrs,
+        )
 
     def tr(self, item):
         content = "".join(c.td(item, attr) for attr, c in self._cols.items() if c.show)
@@ -233,7 +286,29 @@ class BaseTable(Table):
         content = f"\n{outContent}\n"
         return element("tbody", content=content, escape_content=False)
 
-    allow_empty = True
-    classes = ["table", "table-hover", "table-bordered", "table-striped"]
-    thead_classes = ["thead-dark"]
-    thead_attrs = {"style": "text-align:center"}
+    def sort_url(self, col_key, reverse=False, remove_sort=False):
+        current_columns = self.sort_columns[::]
+        current_directions = self.sort_directions[::]
+        if remove_sort:
+            item_index = self.sort_columns.index(col_key)
+            current_columns.pop(item_index)
+            current_directions.pop(item_index)
+        else:
+            ""
+            if reverse:
+                direction = "desc"
+            else:
+                direction = "asc"
+            if col_key in current_columns:
+                current_directions[current_columns.index(col_key)] = direction
+            else:
+                current_columns.append(col_key)
+                current_directions.append(direction)
+        if current_columns:
+            return url_for(
+                **self.route_kwargs,
+                orderBy=",".join(current_columns),
+                direction=",".join(current_directions),
+            )
+        else:
+            return url_for(**self.route_kwargs)

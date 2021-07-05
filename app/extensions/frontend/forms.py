@@ -11,7 +11,6 @@ from wtforms_alchemy import QuerySelectField, model_form_factory
 from app.extensions import db
 from app.modules.users.models import User
 
-
 BaseModelForm = model_form_factory(FlaskForm)
 
 

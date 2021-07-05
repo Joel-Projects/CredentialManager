@@ -5,18 +5,17 @@ from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
 from wtforms import BooleanField
 
+from ...extensions import db, paginateArgs, verifyEditable
+from .. import getPaginator
+from ..users.models import User
 from .parameters import PatchSentryTokenDetailsParameters
 from .resources import api
 from .sentryRequestor import SentryRequestor
-from ..users.models import User
-from ...extensions import db, paginateArgs, verifyEditable
-
 
 log = logging.getLogger(__name__)
+from .forms import CreateSentryTokenForm, EditSentryTokenForm
 from .models import SentryToken
-from .forms import EditSentryTokenForm, CreateSentryTokenForm
 from .tables import SentryTokenTable
-
 
 sentryTokensBlueprint = Blueprint(
     "sentry_tokens",
@@ -30,7 +29,7 @@ sentryTokensBlueprint = Blueprint(
 @sentryTokensBlueprint.route("/sentry_tokens", methods=["GET", "POST"])
 @login_required
 @paginateArgs(SentryToken)
-def sentry_tokens(page, perPage):
+def sentry_tokens(page, perPage, orderBy, sort_columns, sort_directions):
     code = 200
     form = CreateSentryTokenForm()
     requestor = SentryRequestor(current_user.sentry_auth_token)
@@ -86,21 +85,16 @@ def sentry_tokens(page, perPage):
             db.session.add(sentryToken)
         else:
             return jsonify(status="error", errors=form.errors)
-    paginator = current_user.sentry_tokens.paginate(page, perPage, error_out=False)
-    if current_user:
-        if current_user.is_admin and not current_user.is_internal:
-            paginator = SentryToken.query.filter(
-                SentryToken.owner.has(internal=False)
-            ).paginate(page, perPage, error_out=False)
-        elif current_user.is_internal:
-            paginator = SentryToken.query.paginate(page, perPage, error_out=False)
+    paginator = getPaginator(SentryToken, page, perPage, orderBy, sort_columns)
     if current_user.sentry_auth_token:
         response = requestor.get(
             "/api/0/organizations/", "organization", params={"member": True}
         )
         organizations = [("", "")] + [(i.slug, i.name) for i in response]
         form.sentry_organization.choices = organizations
-    table = SentryTokenTable(paginator.items, current_user=current_user)
+    table = SentryTokenTable(
+        paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
+    )
     return (
         render_template(
             "sentry_tokens.html",

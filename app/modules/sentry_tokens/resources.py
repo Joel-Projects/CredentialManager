@@ -5,13 +5,13 @@ from flask_restplus._http import HTTPStatus
 
 from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
-from . import parameters, schemas
-from .models import SentryToken, db
-from .sentryRequestor import SentryRequestor
+
 from .. import getViewableItems
 from ..users import permissions
 from ..users.models import User
-
+from . import parameters, schemas
+from .models import SentryToken, db
+from .sentryRequestor import SentryRequestor
 
 log = logging.getLogger(__name__)
 api = Namespace("sentry_tokens", description="Sentry Token Management")

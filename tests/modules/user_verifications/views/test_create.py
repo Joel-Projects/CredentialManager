@@ -5,16 +5,15 @@ from tests.params import labels, users
 from tests.responseStatuses import assert201, assert403Create, assert422
 from tests.utils import assertCreated, assertRenderedTemplate, captured_templates
 
-
 data = {
     "user_id": "123456789012345678",
 }
 
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_create_user_verification(flask_app_client, loginAs, redditApp):
+def test_create_user_verification(flask_app_client, loginAs, reddit_app):
     with captured_templates(flask_app_client.application) as templates:
-        redditApp.owner = loginAs
+        reddit_app.owner = loginAs
         response = flask_app_client.post(
             "/user_verifications",
             content_type="application/x-www-form-urlencoded",
@@ -29,7 +28,9 @@ def test_create_user_verification(flask_app_client, loginAs, redditApp):
 
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_create_user_verification_with_extra_data(flask_app_client, loginAs, redditApp):
+def test_create_user_verification_with_extra_data(
+    flask_app_client, loginAs, reddit_app
+):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
             "/user_verifications",
@@ -46,7 +47,7 @@ def test_create_user_verification_with_extra_data(flask_app_client, loginAs, red
 
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_create_user_verification_profile(flask_app_client, loginAs, redditApp):
+def test_create_user_verification_profile(flask_app_client, loginAs, reddit_app):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
             f"/profile/user_verifications",
@@ -63,17 +64,17 @@ def test_create_user_verification_profile(flask_app_client, loginAs, redditApp):
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
 def test_create_user_verification_other_user(
-    flask_app_client, loginAs, regular_user, redditApp
+    flask_app_client, loginAs, regular_user, reddit_app
 ):
     with captured_templates(flask_app_client.application) as templates:
         if not (loginAs.is_admin or loginAs.is_internal):
-            redditApp.owner = loginAs
+            reddit_app.owner = loginAs
         response = flask_app_client.post(
             "/user_verifications",
             content_type="application/x-www-form-urlencoded",
             data={
                 "owner": str(regular_user.id),
-                "reddit_app": str(redditApp.id),
+                "reddit_app": str(reddit_app.id),
                 **data,
             },
         )

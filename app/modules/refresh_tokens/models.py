@@ -1,11 +1,11 @@
 import json
 import logging
-import requests
 from datetime import datetime, timezone
+
+import requests
 
 from app.extensions import InfoAttrs, StrName, db
 from config import BaseConfig
-
 
 log = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
 
     __tablename__ = "refresh_tokens"
     _displayNamePlural = "Refresh Tokens"
-    _nameAttr = "app_name"
+    _nameAttr = "redditor"
     _infoAttrs = {
         "id": "Refresh Token ID",
         "reddit_app": "Reddit App",

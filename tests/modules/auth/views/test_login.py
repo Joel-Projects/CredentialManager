@@ -3,7 +3,6 @@ import pytest
 from app.modules.users.models import User
 from tests.utils import assertMessageFlashed, assertRenderedTemplate, captured_templates
 
-
 users = [
     pytest.lazy_fixture("admin_user_deactivated"),
     pytest.lazy_fixture("internal_user_deactivated"),

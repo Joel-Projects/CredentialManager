@@ -1,14 +1,14 @@
+from flask import request
 from flask_login import current_user
 from wtforms import StringField
 from wtforms.validators import InputRequired, Length
 from wtforms_alchemy import Unique
 
 from app.extensions import ModelForm
-from .models import Bot
-from flask import request
 
+from ...extensions.frontend.forms import ModelSelectField, checkModelOwner, owners
 from ..users.models import User
-from ...extensions.frontend.forms import ModelSelectField, owners, checkModelOwner
+from .models import Bot
 
 
 def reddit_apps(owner):

@@ -4,10 +4,11 @@ from flask_restplus._http import HTTPStatus
 from marshmallow import validates
 
 from app.extensions.api import abort
-from flask_restplus_patched import PatchJSONParameters, PostFormParameters, Parameters
+from flask_restplus_patched import Parameters, PatchJSONParameters, PostFormParameters
+
+from ...extensions.api.parameters import JSON
 from . import permissions, schemas
 from .models import User
-from ...extensions.api.parameters import JSON
 
 
 class CreateUserParameters(PostFormParameters, schemas.DetailedUserSchema):

@@ -4,7 +4,6 @@ from app.modules.reddit_apps.models import RedditApp
 from app.modules.refresh_tokens.models import RefreshToken
 from app.modules.user_verifications.models import UserVerification
 
-
 test_data = {
     "app_description": "app_description",
     "client_id": "client_id",

@@ -1,10 +1,8 @@
 import logging
 
-from six import itervalues
-
 from flask_marshmallow import Schema, base_fields
-from marshmallow import validate, validates_schema, ValidationError
-
+from marshmallow import ValidationError, validate, validates_schema
+from six import itervalues
 
 log = logging.getLogger(__name__)
 

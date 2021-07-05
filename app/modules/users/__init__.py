@@ -5,7 +5,7 @@ def init_app(app, **kwargs):
     """
     Init users module.
     """
-    from . import models, resources, converters, views
+    from . import converters, models, resources, views
 
     api_v1.add_namespace(resources.api)
     app.url_map.converters["User"] = converters.UserConverter

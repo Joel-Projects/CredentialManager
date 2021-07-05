@@ -149,13 +149,13 @@ test_data = {
 
 
 @pytest.fixture()
-def regularUserRefreshToken(temp_db_instance_helper, redditApp, regular_user):
-    redditApp.owner = regular_user
+def regularUserRefreshToken(temp_db_instance_helper, reddit_app, regular_user):
+    reddit_app.owner = regular_user
     for _ in temp_db_instance_helper(
         RefreshToken(
             redditor="regularRedditor",
             refresh_token="regular",
-            reddit_app=redditApp,
+            reddit_app=reddit_app,
             owner=regular_user,
         )
     ):
@@ -163,13 +163,13 @@ def regularUserRefreshToken(temp_db_instance_helper, redditApp, regular_user):
 
 
 @pytest.fixture()
-def adminUserRefreshToken(temp_db_instance_helper, redditApp, admin_user):
-    redditApp.owner = admin_user
+def adminUserRefreshToken(temp_db_instance_helper, reddit_app, admin_user):
+    reddit_app.owner = admin_user
     for _ in temp_db_instance_helper(
         RefreshToken(
             redditor="adminRedditor",
             refresh_token="admin",
-            reddit_app=redditApp,
+            reddit_app=reddit_app,
             owner=admin_user,
         )
     ):
@@ -177,13 +177,13 @@ def adminUserRefreshToken(temp_db_instance_helper, redditApp, admin_user):
 
 
 @pytest.fixture()
-def internalUserRefreshToken(temp_db_instance_helper, redditApp, internal_user):
-    redditApp.owner = internal_user
+def internalUserRefreshToken(temp_db_instance_helper, reddit_app, internal_user):
+    reddit_app.owner = internal_user
     for _ in temp_db_instance_helper(
         RefreshToken(
             redditor="internalRedditor",
             refresh_token="internal",
-            reddit_app=redditApp,
+            reddit_app=reddit_app,
             owner=internal_user,
         )
     ):
@@ -201,7 +201,7 @@ redditAppData = {
 
 
 @pytest.fixture()
-def redditApp(temp_db_instance_helper, regular_user):
+def reddit_app(temp_db_instance_helper, regular_user):
     for _ in temp_db_instance_helper(
         RedditApp(
             app_name="regular_user_reddit_app", owner=regular_user, **redditAppData
@@ -211,10 +211,10 @@ def redditApp(temp_db_instance_helper, regular_user):
 
 
 @pytest.fixture()
-def regularUserUserVerification(temp_db_instance_helper, regular_user, redditApp):
+def regularUserUserVerification(temp_db_instance_helper, regular_user, reddit_app):
     for _ in temp_db_instance_helper(
         UserVerification(
-            reddit_app=redditApp, owner=regular_user, user_id="123456789012345678"
+            reddit_app=reddit_app, owner=regular_user, user_id="123456789012345678"
         )
     ):
         yield _

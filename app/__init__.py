@@ -4,7 +4,6 @@ import sys
 from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-
 configNameMapper = {
     "development": "config.DevelopmentConfig",
     "testing": "config.TestingConfig",

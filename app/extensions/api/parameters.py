@@ -2,9 +2,8 @@ import json
 from http import HTTPStatus
 
 from flask_login import current_user
-from marshmallow import validate, validates, ValidationError
-
 from flask_marshmallow import base_fields
+from marshmallow import ValidationError, validate, validates
 
 from app.extensions.api import http_exceptions
 from app.modules.users import permissions

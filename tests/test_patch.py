@@ -3,7 +3,6 @@ import json
 from app.modules.users.models import User
 from tests.utils import assert422
 
-
 data = [
     {
         "op": "test",

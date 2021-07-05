@@ -2,7 +2,7 @@ import pytest
 
 from app.modules.database_credentials.models import DatabaseCredential
 from tests.params import labels, users
-from tests.responseStatuses import assert201, assert422, assert403Create
+from tests.responseStatuses import assert201, assert403Create, assert422
 from tests.utils import assertCreated, assertRenderedTemplate, captured_templates
 
 data = {

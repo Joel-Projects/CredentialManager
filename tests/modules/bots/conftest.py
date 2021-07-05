@@ -1,24 +1,23 @@
 import pytest
 
+from app.modules.bots.models import Bot
 from app.modules.database_credentials.models import DatabaseCredential
 from app.modules.reddit_apps.models import RedditApp
-from app.modules.bots.models import Bot
 from app.modules.sentry_tokens.models import SentryToken
-
 
 test_data = {"app_name": "bot"}
 
 
 @pytest.fixture()
 def regularUserBot(
-    temp_db_instance_helper, regular_user, redditApp, sentryToken, databaseCredential
+    temp_db_instance_helper, regular_user, reddit_app, sentryToken, databaseCredential
 ):
-    redditApp.owner = regular_user
+    reddit_app.owner = regular_user
     sentryToken.owner = regular_user
     databaseCredential.owner = regular_user
     for _ in temp_db_instance_helper(
         Bot(
-            reddit_app=redditApp,
+            reddit_app=reddit_app,
             sentry_token=sentryToken,
             database_credential=databaseCredential,
             owner=regular_user,
@@ -30,14 +29,14 @@ def regularUserBot(
 
 @pytest.fixture()
 def adminUserBot(
-    temp_db_instance_helper, admin_user, redditApp, sentryToken, databaseCredential
+    temp_db_instance_helper, admin_user, reddit_app, sentryToken, databaseCredential
 ):
-    redditApp.owner = admin_user
+    reddit_app.owner = admin_user
     sentryToken.owner = admin_user
     databaseCredential.owner = admin_user
     for _ in temp_db_instance_helper(
         Bot(
-            reddit_app=redditApp,
+            reddit_app=reddit_app,
             sentry_token=sentryToken,
             database_credential=databaseCredential,
             owner=admin_user,
@@ -49,14 +48,14 @@ def adminUserBot(
 
 @pytest.fixture()
 def internalUserBot(
-    temp_db_instance_helper, internal_user, redditApp, sentryToken, databaseCredential
+    temp_db_instance_helper, internal_user, reddit_app, sentryToken, databaseCredential
 ):
-    redditApp.owner = internal_user
+    reddit_app.owner = internal_user
     sentryToken.owner = internal_user
     databaseCredential.owner = internal_user
     for _ in temp_db_instance_helper(
         Bot(
-            reddit_app=redditApp,
+            reddit_app=reddit_app,
             sentry_token=sentryToken,
             database_credential=databaseCredential,
             owner=internal_user,
@@ -111,7 +110,7 @@ databaseCredentialTestData = {
 
 
 @pytest.fixture()
-def redditApp(temp_db_instance_helper, regular_user):
+def reddit_app(temp_db_instance_helper, regular_user):
     for _ in temp_db_instance_helper(
         RedditApp(owner=regular_user, **redditAppTestData)
     ):

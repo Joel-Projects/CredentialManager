@@ -2,7 +2,6 @@ import pytest
 
 from tests.utils import assertRenderedTemplate, captured_templates
 
-
 users = [
     pytest.lazy_fixture("adminUserInstance"),
     pytest.lazy_fixture("anonymousUserInstance"),

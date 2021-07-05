@@ -7,7 +7,6 @@ from app.modules.user_verifications.schemas import DetailedUserVerificationSchem
 from tests.params import labels, users
 from tests.utils import assert403, assert409, assert422, assertSuccess
 
-
 data = [
     {
         "op": "replace",

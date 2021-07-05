@@ -1,9 +1,4 @@
 $(document).ready(function () {
-    $("#user_verifications_table").tablesorter({
-        theme: "bootstrap",
-        cancelSelection: false,
-        sortReset: true
-    });
     $("#all").change(function () {
         $("#scopesGroup *").filter(':input').each(function () {
             let check = $("#all")[0].checked

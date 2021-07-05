@@ -2,7 +2,7 @@ import pytest
 
 from app.modules.reddit_apps.models import RedditApp
 from tests.params import labels, users
-from tests.responseStatuses import assert201, assert422, assert403Create
+from tests.responseStatuses import assert201, assert403Create, assert422
 from tests.utils import assertCreated, assertRenderedTemplate, captured_templates
 
 data = {
@@ -22,8 +22,8 @@ def test_create_reddit_app(flask_app_client, loginAs):
         )
         assert201(response)
         assertRenderedTemplate(templates, "reddit_apps.html")
-        redditApp = RedditApp.query.filter_by(app_name="reddit_app").first()
-        assertCreated(redditApp, data)
+        reddit_app = RedditApp.query.filter_by(app_name="reddit_app").first()
+        assertCreated(reddit_app, data)
 
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
@@ -36,8 +36,8 @@ def test_create_reddit_app_profile(flask_app_client, loginAs):
         )
         assert201(response)
         assertRenderedTemplate(templates, "reddit_apps.html")
-        redditApp = RedditApp.query.filter_by(app_name="reddit_app").first()
-        assertCreated(redditApp, data)
+        reddit_app = RedditApp.query.filter_by(app_name="reddit_app").first()
+        assertCreated(reddit_app, data)
 
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
@@ -51,13 +51,13 @@ def test_create_reddit_app_other_user(flask_app_client, loginAs, regular_user):
         if loginAs.is_admin or loginAs.is_internal:
             assert201(response)
             assertRenderedTemplate(templates, "reddit_apps.html")
-            redditApp = RedditApp.query.filter_by(app_name="reddit_app").first()
-            assertCreated(redditApp, data)
-            assert redditApp.owner == regular_user
+            reddit_app = RedditApp.query.filter_by(app_name="reddit_app").first()
+            assertCreated(reddit_app, data)
+            assert reddit_app.owner == regular_user
         else:
             assert403Create(response)
-            redditApp = RedditApp.query.filter_by(app_name="reddit_app").first()
-            assert redditApp is None
+            reddit_app = RedditApp.query.filter_by(app_name="reddit_app").first()
+            assert reddit_app is None
 
 
 def test_create_reddit_app_bad_params(flask_app_client, regularUserInstance):
@@ -68,8 +68,8 @@ def test_create_reddit_app_bad_params(flask_app_client, regularUserInstance):
         )
         assert response.status_code == 200
         assert response.mimetype == "application/json"
-        redditApp = RedditApp.query.filter_by(app_name="reddit_app").first()
-        assert redditApp is None
+        reddit_app = RedditApp.query.filter_by(app_name="reddit_app").first()
+        assert reddit_app is None
 
 
 def test_create_reddit_app_bad_params_profile(flask_app_client, regularUserInstance):
@@ -81,5 +81,5 @@ def test_create_reddit_app_bad_params_profile(flask_app_client, regularUserInsta
             data=data,
         )
         assert422(response)
-        redditApp = RedditApp.query.filter_by(app_name="reddit_app").first()
-        assert redditApp is None
+        reddit_app = RedditApp.query.filter_by(app_name="reddit_app").first()
+        assert reddit_app is None

@@ -10,12 +10,12 @@ from flask_restplus._http import HTTPStatus
 
 from app.extensions.api import Namespace
 from flask_restplus_patched import Resource
-from . import parameters, schemas
-from .models import DatabaseCredential, db
+
 from .. import getViewableItems
 from ..users import permissions
 from ..users.models import User
-
+from . import parameters, schemas
+from .models import DatabaseCredential, db
 
 log = logging.getLogger(__name__)
 api = Namespace("database_credentials", description="Database Credential Management")

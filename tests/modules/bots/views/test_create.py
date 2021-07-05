@@ -5,7 +5,6 @@ from tests.params import labels, users
 from tests.responseStatuses import assert201, assert403Create, assert422
 from tests.utils import assertCreated, assertRenderedTemplate, captured_templates
 
-
 data = {
     "app_name": "bot",
     "reddit_app": "1",
@@ -16,10 +15,10 @@ data = {
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
 def test_create_bot(
-    flask_app_client, loginAs, redditApp, sentryToken, databaseCredential
+    flask_app_client, loginAs, reddit_app, sentryToken, databaseCredential
 ):
     with captured_templates(flask_app_client.application) as templates:
-        redditApp.owner = loginAs
+        reddit_app.owner = loginAs
         sentryToken.owner = loginAs
         databaseCredential.owner = loginAs
         response = flask_app_client.post(
@@ -33,10 +32,10 @@ def test_create_bot(
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
 def test_create_bot_profile(
-    flask_app_client, loginAs, redditApp, sentryToken, databaseCredential
+    flask_app_client, loginAs, reddit_app, sentryToken, databaseCredential
 ):
     with captured_templates(flask_app_client.application) as templates:
-        redditApp.owner = loginAs
+        reddit_app.owner = loginAs
         sentryToken.owner = loginAs
         databaseCredential.owner = loginAs
         response = flask_app_client.post(
@@ -52,11 +51,11 @@ def test_create_bot_profile(
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
 def test_create_bot_other_user(
-    flask_app_client, loginAs, regular_user, redditApp, sentryToken, databaseCredential
+    flask_app_client, loginAs, regular_user, reddit_app, sentryToken, databaseCredential
 ):
     with captured_templates(flask_app_client.application) as templates:
         if not (loginAs.is_admin or loginAs.is_internal):
-            redditApp.owner = loginAs
+            reddit_app.owner = loginAs
             sentryToken.owner = loginAs
             databaseCredential.owner = loginAs
         response = flask_app_client.post(

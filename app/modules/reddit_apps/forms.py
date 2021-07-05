@@ -1,14 +1,15 @@
 from flask_login import current_user
 from wtforms.fields import StringField
-from wtforms_alchemy import InputRequired, URL, Unique
+from wtforms_alchemy import URL, InputRequired, Unique
 
 from app.extensions import ModelForm
-from .models import RedditApp
+
 from ...extensions.frontend.forms import (
     ModelSelectField,
     TextAreaFieldWithDefault,
     owners,
 )
+from .models import RedditApp
 
 
 class RedditAppForm(ModelForm):

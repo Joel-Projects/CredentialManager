@@ -4,7 +4,7 @@ import pytest
 
 from app.modules.api_tokens.models import ApiToken
 from tests.params import labels, users
-from tests.responseStatuses import assert201, assert401, assert422, assert403Create
+from tests.responseStatuses import assert201, assert401, assert403Create, assert422
 from tests.utils import assertRenderedTemplate, captured_templates
 
 

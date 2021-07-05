@@ -10,7 +10,6 @@ from tests.utils import (
     changeOwner,
 )
 
-
 apiTokens = [
     pytest.lazy_fixture("adminUserApiToken"),
     pytest.lazy_fixture("internalUserApiToken"),

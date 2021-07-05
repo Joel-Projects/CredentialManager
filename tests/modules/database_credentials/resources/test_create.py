@@ -5,7 +5,6 @@ from app.modules.database_credentials.schemas import DetailedDatabaseCredentialS
 from tests.params import labels, users
 from tests.utils import assert403, assert422, assertSuccess
 
-
 path = "/api/v1/database_credentials/"
 data = {
     "app_name": "database_credential",

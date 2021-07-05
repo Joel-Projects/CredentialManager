@@ -1,14 +1,15 @@
 import re
 
 from flask_login import current_user
+from wtforms import SelectField
 from wtforms.fields import StringField
 from wtforms.validators import HostnameValidation, Regexp, StopValidation
 from wtforms_alchemy import InputRequired, Length, Unique
-from wtforms import SelectField
 
 from app.extensions import ModelForm
-from .models import SentryToken
+
 from ...extensions.frontend.forms import HiddenFieldWithToggle, ModelSelectField, owners
+from .models import SentryToken
 
 
 class SentryHostnameValidation(HostnameValidation):

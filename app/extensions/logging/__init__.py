@@ -1,4 +1,7 @@
-import logging, sentry_sdk, sys
+import logging
+import sys
+
+import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 

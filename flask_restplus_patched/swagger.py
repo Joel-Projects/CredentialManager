@@ -1,13 +1,10 @@
 from collections import OrderedDict
 
 from apispec.ext.marshmallow.swagger import schema2parameters
-from flask_restplus.swagger import (
-    Swagger as OriginalSwagger,
-    parse_docstring,
-    extract_path_params,
-)
+from flask_restplus.swagger import Swagger as OriginalSwagger
+from flask_restplus.swagger import extract_path_params, parse_docstring
 from flask_restplus.utils import merge
-from six import string_types, iteritems
+from six import iteritems, string_types
 
 
 class Swagger(OriginalSwagger):

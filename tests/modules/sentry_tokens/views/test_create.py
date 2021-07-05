@@ -2,7 +2,7 @@ import pytest
 
 from app.modules.sentry_tokens.models import SentryToken
 from tests.params import labels, users
-from tests.responseStatuses import assert201, assert422, assert403Create
+from tests.responseStatuses import assert201, assert403Create, assert422
 from tests.utils import assertCreated, assertRenderedTemplate, captured_templates
 
 data = {"app_name": "sentry_token", "dsn": "https://1234asdf@sentry.jesassn.org/1"}

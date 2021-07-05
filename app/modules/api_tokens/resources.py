@@ -6,12 +6,12 @@ from werkzeug import security
 
 from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
-from . import parameters, schemas
-from .models import ApiToken, db
+
 from .. import getViewableItems
 from ..users import permissions
 from ..users.models import User
-
+from . import parameters, schemas
+from .models import ApiToken, db
 
 log = logging.getLogger(__name__)
 api = Namespace("api_tokens", description="API Token Management")

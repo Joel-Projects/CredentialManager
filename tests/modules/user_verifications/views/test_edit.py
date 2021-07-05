@@ -11,7 +11,6 @@ from tests.utils import (
     changeOwner,
 )
 
-
 userVerifications = [
     pytest.lazy_fixture("adminUserUserVerification"),
     pytest.lazy_fixture("internalUserUserVerification"),
@@ -29,13 +28,13 @@ userVerificationLabels = [
     "userVerification", userVerifications, ids=userVerificationLabels
 )
 def test_user_verification_detail_edit_for_other_user(
-    flask_app_client, loginAs, userVerification, redditApp
+    flask_app_client, loginAs, userVerification, reddit_app
 ):
-    redditApp.owner = loginAs
+    reddit_app.owner = loginAs
     data = {
         "itemType": "user_verifications",
         "itemId": f"{userVerification.id}",
-        "reddit_app": f"{redditApp.id}",
+        "reddit_app": f"{reddit_app.id}",
         "enabled": "y",
         "user_id": "123456789012345679",
         "redditor": "redditor",
@@ -59,7 +58,7 @@ def test_user_verification_detail_edit_for_other_user(
             ).first()
             assertModified(data, modifiedUserVerification)
         elif loginAs.is_admin:
-            if redditApp.owner.is_internal or userVerification.owner.is_internal:
+            if reddit_app.owner.is_internal or userVerification.owner.is_internal:
                 assert403(response, templates)
                 modifiedUserVerification = UserVerification.query.filter_by(
                     id=userVerification.id
@@ -87,13 +86,13 @@ def test_user_verification_detail_edit_for_other_user(
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
 def test_user_verification_detail_edit(
-    flask_app_client, loginAs, regularUserUserVerification, redditApp
+    flask_app_client, loginAs, regularUserUserVerification, reddit_app
 ):
-    redditApp.owner = loginAs
+    reddit_app.owner = loginAs
     data = {
         "itemType": "user_verifications",
         "itemId": f"{regularUserUserVerification.id}",
-        "reddit_app": f"{redditApp.id}",
+        "reddit_app": f"{reddit_app.id}",
         "enabled": "y",
         "user_id": "123456789012345679",
         "redditor": "redditor",
@@ -127,13 +126,13 @@ def test_user_verification_detail_edit(
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
 def test_user_verification_detail_edit_self(
-    flask_app_client, db, loginAs, regularUserUserVerification, redditApp
+    flask_app_client, db, loginAs, regularUserUserVerification, reddit_app
 ):
-    redditApp.owner = loginAs
+    reddit_app.owner = loginAs
     data = {
         "itemType": "user_verifications",
         "itemId": f"{regularUserUserVerification.id}",
-        "reddit_app": f"{redditApp.id}",
+        "reddit_app": f"{reddit_app.id}",
         "enabled": "y",
         "user_id": "123456789012345679",
         "redditor": "redditor",

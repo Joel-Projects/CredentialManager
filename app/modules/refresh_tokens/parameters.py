@@ -5,9 +5,10 @@ from marshmallow import validates
 
 from app.extensions.api.parameters import PaginationParameters, ValidateOwner
 from flask_restplus_patched import PatchJSONParameters, PostFormParameters
+
+from ..users import permissions
 from . import schemas
 from .models import RefreshToken
-from ..users import permissions
 
 
 class ListRefreshTokensParameters(PaginationParameters, ValidateOwner):
@@ -32,10 +33,10 @@ class GetRefreshTokenByRedditor(PostFormParameters):
     def validateRedditApp(self, data):
         from ..reddit_apps.models import RedditApp
 
-        redditApp = RedditApp.query.get_or_404(data)
-        if redditApp.owner.is_internal:
+        reddit_app = RedditApp.query.get_or_404(data)
+        if reddit_app.owner.is_internal:
             permissions.InternalRolePermission().__enter__()
-        permissions.OwnerRolePermission(redditApp).__enter__()
+        permissions.OwnerRolePermission(reddit_app).__enter__()
 
 
 class CreateRefreshTokenParameters(

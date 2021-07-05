@@ -11,7 +11,6 @@ from tests.utils import (
     changeOwner,
 )
 
-
 redditApps = [
     pytest.lazy_fixture("adminUserRedditApp"),
     pytest.lazy_fixture("internalUserRedditApp"),
@@ -25,11 +24,11 @@ redditAppLabels = [
 
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
-@pytest.mark.parametrize("redditApp", redditApps, ids=redditAppLabels)
-def test_reddit_app_detail_edit_for_other_user(flask_app_client, loginAs, redditApp):
+@pytest.mark.parametrize("reddit_app", redditApps, ids=redditAppLabels)
+def test_reddit_app_detail_edit_for_other_user(flask_app_client, loginAs, reddit_app):
     data = {
         "itemType": "reddit_apps",
-        "itemId": f"{redditApp.id}",
+        "itemId": f"{reddit_app.id}",
         "enabled": "y",
         "app_name": "newName",
         "client_id": "client_idNew",
@@ -39,26 +38,26 @@ def test_reddit_app_detail_edit_for_other_user(flask_app_client, loginAs, reddit
     }
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/reddit_apps/{redditApp.id}",
+            f"/reddit_apps/{reddit_app.id}",
             content_type="application/x-www-form-urlencoded",
             data=data,
         )
-        if redditApp.owner.is_internal and not loginAs.is_internal:
+        if reddit_app.owner.is_internal and not loginAs.is_internal:
             assert403(response, templates)
-            modifiedRedditApp = RedditApp.query.filter_by(id=redditApp.id).first()
-            assert modifiedRedditApp == redditApp
+            modifiedRedditApp = RedditApp.query.filter_by(id=reddit_app.id).first()
+            assert modifiedRedditApp == reddit_app
         elif loginAs.is_admin or loginAs.is_internal:
             assert202(response)
             assertRenderedTemplate(templates, "edit_reddit_app.html")
             assertMessageFlashed(
                 templates, "Reddit App 'newName' saved successfully!", "success"
             )
-            modifiedRedditApp = RedditApp.query.filter_by(id=redditApp.id).first()
+            modifiedRedditApp = RedditApp.query.filter_by(id=reddit_app.id).first()
             assertModified(data, modifiedRedditApp)
         else:
             assert403(response, templates)
-            modifiedRedditApp = RedditApp.query.filter_by(id=redditApp.id).first()
-            assert modifiedRedditApp == redditApp
+            modifiedRedditApp = RedditApp.query.filter_by(id=reddit_app.id).first()
+            assert modifiedRedditApp == reddit_app
 
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)

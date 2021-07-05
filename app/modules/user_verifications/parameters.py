@@ -4,6 +4,7 @@ from marshmallow import ValidationError, validates
 
 from app.extensions.api.parameters import JSON, PaginationParameters, ValidateOwner
 from flask_restplus_patched import PatchJSONParameters, PostFormParameters
+
 from . import schemas
 from .models import UserVerification
 

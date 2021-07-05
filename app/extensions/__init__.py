@@ -4,12 +4,12 @@ from logging import getLogger
 from sqlalchemy import text
 
 from config import BaseConfig
-from .logging import Logging
 
+from .logging import Logging
 
 logging = Logging()
 
-from .flask_sqlalchemy import SQLAlchemy, Timestamp, InfoAttrs, StrName, QueryProperty
+from .flask_sqlalchemy import InfoAttrs, QueryProperty, SQLAlchemy, StrName, Timestamp
 
 db = SQLAlchemy()
 
@@ -42,11 +42,10 @@ from flask_cors import CORS
 
 cross_origin_resource_sharing = CORS()
 
-from .frontend.forms import ModelForm
-from .frontend.errors import unauthorizedError, notFoundError
-from .frontend.decorators import paginateArgs, requiresAdmin, verifyEditable
-
 from . import api
+from .frontend.decorators import paginateArgs, requiresAdmin, verifyEditable
+from .frontend.errors import notFoundError, unauthorizedError
+from .frontend.forms import ModelForm
 
 foreignKeyKwargs = dict(ondelete="SET NULL", onupdate="CASCADE")
 log = getLogger(__name__)
@@ -87,4 +86,3 @@ def init_app(app):
     except Exception as error:  # pragma: no cover
         log.exception(error)
     db.create_all(app=app)
-    db.update

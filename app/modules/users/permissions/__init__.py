@@ -5,7 +5,6 @@ from permission import Permission
 
 from . import rules
 
-
 log = logging.getLogger(__name__)
 
 

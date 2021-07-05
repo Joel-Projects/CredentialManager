@@ -4,7 +4,6 @@ from app.modules.reddit_apps.models import RedditApp
 from tests.params import labels, users
 from tests.utils import assert403, assertSuccess
 
-
 redditAppsToDelete = [
     pytest.lazy_fixture("adminUserRedditApp"),
     pytest.lazy_fixture("internalUserRedditApp"),

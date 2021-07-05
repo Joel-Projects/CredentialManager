@@ -1,9 +1,4 @@
 $(document).ready(function () {
-    $("#bots_table").tablesorter({
-        theme: "bootstrap",
-        cancelSelection: false,
-        sortReset: true
-    });
     $("#owner").change(function () {
         let user_id = parseInt($("#owner").val())
         $.ajax({

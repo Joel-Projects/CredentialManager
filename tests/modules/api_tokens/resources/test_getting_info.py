@@ -5,7 +5,6 @@ from app.modules.api_tokens.schemas import DetailedApiTokenSchema
 from tests.params import labels, users
 from tests.utils import assert403, assertSuccess
 
-
 path = "/api/v1/api_tokens/"
 
 

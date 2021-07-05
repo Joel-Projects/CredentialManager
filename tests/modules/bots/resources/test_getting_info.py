@@ -2,7 +2,6 @@ import pytest
 
 from tests.params import labels, users
 
-
 contentType = "application/json"
 
 

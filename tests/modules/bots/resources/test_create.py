@@ -6,7 +6,6 @@ from tests.params import labels, users
 from tests.responseStatuses import assert422
 from tests.utils import assert403, assertSuccess
 
-
 path = "/api/v1/bots/"
 baseData = {"app_name": "newBot"}
 
@@ -18,7 +17,7 @@ baseData = {"app_name": "newBot"}
 def test_creating_bot(
     flask_app_client,
     loginAs,
-    redditApp,
+    reddit_app,
     sentryToken,
     databaseCredential,
     useRedditApp,
@@ -26,11 +25,11 @@ def test_creating_bot(
     useDatabaseCredential,
 ):
     data = {**baseData}
-    redditApp.owner = loginAs
+    reddit_app.owner = loginAs
     sentryToken.owner = loginAs
     databaseCredential.owner = loginAs
     if useRedditApp:
-        data["reddit_app_id"] = redditApp.id
+        data["reddit_app_id"] = reddit_app.id
     if useSentryToken:
         data["sentry_token_id"] = sentryToken.id
     if useDatabaseCredential:
@@ -42,13 +41,13 @@ def test_creating_bot(
 
 @pytest.mark.parametrize("loginAs", users, ids=labels)
 def test_creating_bot_with_owner(
-    flask_app_client, loginAs, regular_user, redditApp, sentryToken, databaseCredential
+    flask_app_client, loginAs, regular_user, reddit_app, sentryToken, databaseCredential
 ):
     response = flask_app_client.post(
         path,
         data={
             "owner_id": regular_user.id,
-            "reddit_app_id": redditApp.id,
+            "reddit_app_id": reddit_app.id,
             "sentry_token_id": sentryToken.id,
             "database_credential_id": databaseCredential.id,
             **baseData,
@@ -62,13 +61,13 @@ def test_creating_bot_with_owner(
 
 
 def test_creating_bot_for_self(
-    flask_app_client, regularUserInstance, redditApp, sentryToken, databaseCredential
+    flask_app_client, regularUserInstance, reddit_app, sentryToken, databaseCredential
 ):
-    redditApp.owner = regularUserInstance
+    reddit_app.owner = regularUserInstance
     response = flask_app_client.post(
         path,
         data={
-            "reddit_app_id": redditApp.id,
+            "reddit_app_id": reddit_app.id,
             "sentry_token_id": sentryToken.id,
             "database_credential_id": databaseCredential.id,
             **baseData,
@@ -79,14 +78,14 @@ def test_creating_bot_for_self(
 
 
 def test_creating_bot_for_self_with_owner(
-    flask_app_client, regularUserInstance, redditApp, sentryToken, databaseCredential
+    flask_app_client, regularUserInstance, reddit_app, sentryToken, databaseCredential
 ):
-    redditApp.owner = regularUserInstance
+    reddit_app.owner = regularUserInstance
     response = flask_app_client.post(
         path,
         data={
             "owner_id": regularUserInstance.id,
-            "reddit_app_id": redditApp.id,
+            "reddit_app_id": reddit_app.id,
             "sentry_token_id": sentryToken.id,
             "database_credential_id": databaseCredential.id,
             **baseData,
@@ -97,13 +96,13 @@ def test_creating_bot_for_self_with_owner(
 
 
 def test_creating_bot_bad_name(
-    flask_app_client, regularUserInstance, redditApp, sentryToken, databaseCredential
+    flask_app_client, regularUserInstance, reddit_app, sentryToken, databaseCredential
 ):
-    redditApp.owner = regularUserInstance
+    reddit_app.owner = regularUserInstance
     response = flask_app_client.post(
         path,
         data={
-            "reddit_app_id": redditApp.id,
+            "reddit_app_id": reddit_app.id,
             "sentry_token_id": sentryToken.id,
             "database_credential_id": databaseCredential.id,
             "app_name": "bo",

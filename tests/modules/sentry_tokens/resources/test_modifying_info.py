@@ -1,11 +1,11 @@
 import json
+
 import pytest
 
 from app.modules.sentry_tokens.models import SentryToken
 from app.modules.sentry_tokens.schemas import DetailedSentryTokenSchema
 from tests.params import labels, users
 from tests.utils import assert403, assert409, assert422, assertSuccess
-
 
 data = [
     {

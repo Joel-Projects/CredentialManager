@@ -10,7 +10,6 @@ from tests.utils import (
     changeOwner,
 )
 
-
 databaseCredentials = [
     pytest.lazy_fixture("adminUserDatabaseCredential"),
     pytest.lazy_fixture("internalUserDatabaseCredential"),

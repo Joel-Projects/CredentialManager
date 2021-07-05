@@ -3,8 +3,9 @@ from wtforms import BooleanField
 from wtforms.validators import InputRequired
 
 from app.extensions import ModelForm
-from .models import RefreshToken
+
 from ...extensions.frontend.forms import ModelSelectField, owners
+from .models import RefreshToken
 
 
 def reddit_apps(owner):

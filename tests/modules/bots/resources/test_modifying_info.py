@@ -7,7 +7,6 @@ from app.modules.bots.schemas import DetailedBotSchema
 from tests.params import labels, users
 from tests.utils import assert403, assert409, assert422, assertSuccess
 
-
 data = [
     {
         "op": "replace",

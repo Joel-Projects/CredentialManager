@@ -1,10 +1,11 @@
 from flask_marshmallow import base_fields
 
 from flask_restplus_patched import ModelSchema, Schema
-from .models import User
+
 from ..database_credentials.schemas import BaseDatabaseCredentialSchema
 from ..reddit_apps.schemas import BaseRedditAppSchema
 from ..sentry_tokens.schemas import BaseSentryTokenSchema
+from .models import User
 
 
 class BaseUserSchema(ModelSchema):

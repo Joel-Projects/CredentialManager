@@ -49,11 +49,6 @@ var Select2Cascade = (function (window, $) {
 
 })(window, $);
 $(document).ready(function () {
-    $("#sentry_tokens_table").tablesorter({
-        theme: "bootstrap",
-        cancelSelection: false,
-        sortReset: true
-    });
     let sentryTeam = $('#sentry_team')
     let addSentryTokenModal = $('#addSentryTokenModal');
     new Select2Cascade($('#sentry_organization'), sentryTeam, '/api/v1/sentry_tokens/sentry_organizations/:parentId:/teams', {theme: 'bootstrap4', dropdownParent: addSentryTokenModal}, 'Select an Organization', 'Select a Team');

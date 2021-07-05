@@ -3,17 +3,16 @@ import logging
 from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
 
+from ...extensions import db, paginateArgs, verifyEditable
+from .. import getPaginator
+from ..users.models import User
 from .parameters import PatchDatabaseCredentialDetailsParameters
 from .resources import api
-from ..users.models import User
-from ...extensions import db, paginateArgs, verifyEditable
-
 
 log = logging.getLogger(__name__)
-from .models import DatabaseCredential
 from .forms import DatabaseCredentialForm
+from .models import DatabaseCredential
 from .tables import DatabaseCredentialTable
-
 
 DatabaseCredentialsBlueprint = Blueprint(
     "database_credentials",
@@ -27,7 +26,7 @@ DatabaseCredentialsBlueprint = Blueprint(
 @DatabaseCredentialsBlueprint.route("/database_credentials", methods=["GET", "POST"])
 @login_required
 @paginateArgs(DatabaseCredential)
-def database_credentials(page, perPage):
+def database_credentials(page, perPage, orderBy, sort_columns, sort_directions):
     form = DatabaseCredentialForm()
     code = 200
     if request.method == "POST":
@@ -48,24 +47,10 @@ def database_credentials(page, perPage):
             db.session.add(databaseCredential)
         else:
             return jsonify(status="error", errors=form.errors), code
-    if current_user:
-        if current_user.is_admin and not current_user.is_internal:
-            paginator = DatabaseCredential.query.filter(
-                DatabaseCredential.owner.has(internal=False)
-            ).paginate(page, perPage, error_out=False)
-        elif current_user.is_internal:
-            paginator = DatabaseCredential.query.paginate(
-                page, perPage, error_out=False
-            )
-        else:
-            paginator = current_user.database_credentials.paginate(
-                page, perPage, error_out=False
-            )
-    else:  # pragma: no cover
-        paginator = current_user.database_credentials.paginate(
-            page, perPage, error_out=False
-        )
-    table = DatabaseCredentialTable(paginator.items, current_user=current_user)
+    paginator = getPaginator(DatabaseCredential, page, perPage, orderBy, sort_columns)
+    table = DatabaseCredentialTable(
+        paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
+    )
     form = DatabaseCredentialForm()
     return (
         render_template(
@@ -74,6 +59,7 @@ def database_credentials(page, perPage):
             database_credentialsForm=form,
             paginator=paginator,
             perPage=perPage,
+            route="database_credentials.database_credentials",
         ),
         code,
     )

@@ -1,6 +1,5 @@
 import pytest
 
-
 users = [
     pytest.lazy_fixture("adminUserInstance"),
     pytest.lazy_fixture("internalUserInstance"),

@@ -2,8 +2,9 @@ from wtforms.fields import BooleanField
 from wtforms.validators import Optional
 
 from app.extensions import ModelForm
-from .models import User
+
 from ...extensions.frontend.forms import HiddenFieldWithToggle
+from .models import User
 
 
 class UserForm(ModelForm):

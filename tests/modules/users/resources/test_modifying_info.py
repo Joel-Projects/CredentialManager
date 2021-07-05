@@ -2,7 +2,6 @@ import json
 
 from app.modules.users.models import User
 
-
 data = [
     {
         "op": "replace",

@@ -1,11 +1,13 @@
 import itertools
+
 from flask_login import current_user
 from wtforms import SelectField, StringField
 from wtforms_alchemy import InputRequired, Length, Unique
 
 from app.extensions import ModelForm
-from .models import ApiToken
+
 from ...extensions.frontend.forms import ModelSelectField, owners
+from .models import ApiToken
 
 
 class ApiTokenForm(ModelForm):

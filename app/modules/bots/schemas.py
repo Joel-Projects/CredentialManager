@@ -1,10 +1,11 @@
 from flask_marshmallow import base_fields
 
 from flask_restplus_patched import ModelSchema
-from .models import Bot
+
 from ..database_credentials.schemas import DetailedDatabaseCredentialSchema
 from ..reddit_apps.schemas import DetailedRedditAppSchema
 from ..sentry_tokens.schemas import DetailedSentryTokenSchema
+from .models import Bot
 
 
 class BaseBotSchema(ModelSchema):

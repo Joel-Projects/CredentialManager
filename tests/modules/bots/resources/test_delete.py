@@ -4,7 +4,6 @@ from app.modules.bots.models import Bot
 from tests.params import labels, users
 from tests.utils import assert403, assertSuccess
 
-
 botsToDelete = [
     pytest.lazy_fixture("adminUserBot"),
     pytest.lazy_fixture("internalUserBot"),

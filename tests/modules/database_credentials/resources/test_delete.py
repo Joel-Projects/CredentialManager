@@ -4,7 +4,6 @@ from app.modules.database_credentials.models import DatabaseCredential
 from tests.params import labels, users
 from tests.utils import assert403, assertSuccess
 
-
 databaseCredentialsToDelete = [
     pytest.lazy_fixture("adminUserDatabaseCredential"),
     pytest.lazy_fixture("internalUserDatabaseCredential"),

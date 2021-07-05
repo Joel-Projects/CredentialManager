@@ -1,3 +1,5 @@
+from flask_login import current_user
+
 from app.extensions.frontend.tables import (
     BaseCol,
     BaseTable,
@@ -8,7 +10,12 @@ from app.extensions.frontend.tables import (
 
 
 class SentryTokenTable(BaseTable):
-    def __init__(self, items, current_user=None):
+    html_attrs = {"id": "sentry_tokens_table"}
+
+    def __init__(self, items, *args, route_kwargs=None, **kwargs):
+        if route_kwargs is None:
+            route_kwargs = {"endpoint": "sentry_tokens.sentry_tokens"}
+        self.route_kwargs = route_kwargs
         self.add_column(
             "Name",
             BaseCol("Name", "app_name", td_html_attrs={"style": "text-align:left"}),
@@ -19,6 +26,4 @@ class SentryTokenTable(BaseTable):
 
         if current_user.is_admin or current_user.is_internal:
             self.add_column("Owner", OwnerCol("Owner", attr_list=["owner", "username"]))
-        super().__init__(items)
-
-    html_attrs = {"id": "sentry_tokens_table"}
+        super().__init__(items, *args, **kwargs)

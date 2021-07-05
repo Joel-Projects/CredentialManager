@@ -5,7 +5,6 @@ from app.modules.reddit_apps.schemas import DetailedRedditAppSchema
 from tests.params import labels, users
 from tests.utils import assert403, assert422, assertSuccess
 
-
 path = "/api/v1/reddit_apps/"
 data = {
     "app_name": "reddit_app",

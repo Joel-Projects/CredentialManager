@@ -9,7 +9,12 @@ from app.extensions.frontend.tables import (
 
 
 class UserTable(BaseTable):
-    def __init__(self, items, *args, **kwargs):
+    html_attrs = {"id": "users_table"}
+
+    def __init__(self, items, *args, route_kwargs=None, **kwargs):
+        if route_kwargs is None:
+            route_kwargs = {"endpoint": "users.users"}
+        self.route_kwargs = route_kwargs
         self.add_column(
             "Username",
             OwnerCol("Name", "username", td_html_attrs={"style": "text-align:left"}),
@@ -35,5 +40,3 @@ class UserTable(BaseTable):
             self.add_column("Internal", BoolIconColumn("Internal", "is_internal"))
 
         super().__init__(items, *args, **kwargs)
-
-    html_attrs = {"id": "users_table"}

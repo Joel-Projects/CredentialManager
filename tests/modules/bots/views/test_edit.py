@@ -11,7 +11,6 @@ from tests.utils import (
     changeOwner,
 )
 
-
 bots = [
     pytest.lazy_fixture("adminUserBot"),
     pytest.lazy_fixture("internalUserBot"),
@@ -27,13 +26,13 @@ botLabels = [
 @pytest.mark.parametrize("loginAs", users, ids=labels)
 @pytest.mark.parametrize("bot", bots, ids=botLabels)
 def test_bot_detail_edit_for_other_user(
-    flask_app_client, loginAs, bot, redditApp, sentryToken, databaseCredential
+    flask_app_client, loginAs, bot, reddit_app, sentryToken, databaseCredential
 ):
     data = {
         "itemType": "bots",
         "itemId": f"{bot.id}",
         "app_name": "newName",
-        "reddit_app": f"{redditApp.id}",
+        "reddit_app": f"{reddit_app.id}",
         "sentry_token": f"{sentryToken.id}",
         "database_credential": f"{databaseCredential.id}",
         "enabled": "y",
@@ -54,7 +53,7 @@ def test_bot_detail_edit_for_other_user(
             modifiedBot = Bot.query.filter_by(id=bot.id).first()
             assertModified(data, modifiedBot)
         elif loginAs.is_admin:
-            if redditApp.owner.is_internal or bot.owner.is_internal:
+            if reddit_app.owner.is_internal or bot.owner.is_internal:
                 assert403(response, templates)
                 modifiedBot = Bot.query.filter_by(id=bot.id).first()
                 assert modifiedBot == bot
@@ -77,7 +76,7 @@ def test_bot_detail_edit(
     flask_app_client,
     loginAs,
     regularUserBot,
-    redditApp,
+    reddit_app,
     redditApp2,
     sentryToken,
     databaseCredential,
@@ -118,7 +117,7 @@ def test_bot_detail_edit_self(
     db,
     loginAs,
     regularUserBot,
-    redditApp,
+    reddit_app,
     sentryToken,
     databaseCredential,
 ):
@@ -126,13 +125,13 @@ def test_bot_detail_edit_self(
         "itemType": "bots",
         "itemId": f"{regularUserBot.id}",
         "app_name": "newName",
-        "reddit_app": f"{redditApp.id}",
+        "reddit_app": f"{reddit_app.id}",
         "sentry_token": f"{sentryToken.id}",
         "database_credential": f"{databaseCredential.id}",
         "owner": f"{loginAs.id}",
     }
     regularUserBot.owner = loginAs
-    redditApp.owner = loginAs
+    reddit_app.owner = loginAs
     sentryToken.owner = loginAs
     databaseCredential.owner = loginAs
     with captured_templates(flask_app_client.application) as templates:
@@ -150,7 +149,7 @@ def test_bot_detail_conflicting_name(
     regularUserInstance,
     regularUserBot,
     adminUserBot,
-    redditApp,
+    reddit_app,
     sentryToken,
     databaseCredential,
 ):
@@ -163,7 +162,7 @@ def test_bot_detail_conflicting_name(
         "itemType": "bots",
         "itemId": f"{regularUserBot.id}",
         "app_name": f"{original.app_name}",
-        "reddit_app": f"{redditApp.id}",
+        "reddit_app": f"{reddit_app.id}",
         "sentry_token": f"{sentryToken.id}",
         "database_credential": f"{databaseCredential.id}",
     }

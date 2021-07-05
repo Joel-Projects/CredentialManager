@@ -6,9 +6,9 @@ from datetime import datetime, timezone
 from flask import Response, message_flashed, template_rendered
 from flask.testing import FlaskClient
 from flask_sqlalchemy import Model
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy_utils import Choice
 from werkzeug.utils import cached_property
-from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 from app.modules.users.models import User
 

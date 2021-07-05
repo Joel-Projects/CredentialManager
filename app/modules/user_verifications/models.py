@@ -4,7 +4,6 @@ from datetime import datetime
 from app.extensions import InfoAttrs, db, foreignKeyKwargs
 from config import BaseConfig
 
-
 log = logging.getLogger(__name__)
 
 

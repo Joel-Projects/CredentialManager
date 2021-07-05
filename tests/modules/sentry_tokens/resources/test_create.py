@@ -5,7 +5,6 @@ from app.modules.sentry_tokens.schemas import DetailedSentryTokenSchema
 from tests.params import labels, users
 from tests.utils import assert403, assert422, assertSuccess
 
-
 path = "/api/v1/sentry_tokens/"
 data = {"app_name": "testToken", "dsn": "https://1234@abcd.com/1"}
 

@@ -4,17 +4,16 @@ from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
 from wtforms import BooleanField
 
+from ...extensions import db, paginateArgs, verifyEditable
+from .. import getPaginator
+from ..users.models import User
 from .parameters import PatchBotDetailsParameters
 from .resources import api
-from ..users.models import User
-from ...extensions import db, paginateArgs, verifyEditable
-
 
 log = logging.getLogger(__name__)
-from .models import Bot
 from .forms import BotForm
+from .models import Bot
 from .tables import BotTable
-
 
 botsBlueprint = Blueprint(
     "bots",
@@ -28,7 +27,7 @@ botsBlueprint = Blueprint(
 @botsBlueprint.route("/bots", methods=["GET", "POST"])
 @login_required
 @paginateArgs(Bot)
-def bots(page, perPage):
+def bots(page, perPage, orderBy, sort_columns, sort_directions):
     form = BotForm()
     code = 200
     if request.method == "POST":
@@ -49,15 +48,10 @@ def bots(page, perPage):
             db.session.add(bot)
         else:
             return jsonify(status="error", errors=form.errors), code
-    if current_user.is_admin and not current_user.is_internal:
-        paginator = Bot.query.filter(Bot.owner.has(internal=False)).paginate(
-            page, perPage, error_out=False
-        )
-    elif current_user.is_internal:
-        paginator = Bot.query.paginate(page, perPage, error_out=False)
-    else:
-        paginator = current_user.bots.paginate(page, perPage, error_out=False)
-    table = BotTable(paginator.items, current_user=current_user)
+    paginator = getPaginator(Bot, page, perPage, orderBy, sort_columns)
+    table = BotTable(
+        paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
+    )
     form = BotForm()
     return (
         render_template(
