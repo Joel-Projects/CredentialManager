@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% import 'bootstrap/wtf.html' as wtf %}
 {% block title %}Credential Manager - {% if current_user.is_admin or current_user.is_internal %}{{ user.username }}{% else %}Profile{% endif %}{% endblock %}
 {% block breadCrumbs %}
     <!--suppress HtmlUnknownTarget -->

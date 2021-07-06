@@ -26,6 +26,33 @@ def getViewableItems(args, model):
     return query
 
 
+def get_model(item):
+    from .api_tokens.models import ApiToken
+    from .bots.models import Bot
+    from .database_credentials.models import DatabaseCredential
+    from .reddit_apps.models import RedditApp
+    from .refresh_tokens.models import RefreshToken
+    from .sentry_tokens.models import SentryToken
+    from .user_verifications.models import UserVerification
+    from .users.models import User
+
+    return {
+        "api_token": ApiToken,
+        "api_tokens": ApiToken,
+        "bot": Bot,
+        "bots": Bot,
+        "database_credential": DatabaseCredential,
+        "database_credentials": DatabaseCredential,
+        "owner": User,
+        "reddit_app": RedditApp,
+        "reddit_apps": RedditApp,
+        "refresh_tokens": RefreshToken,
+        "sentry_token": SentryToken,
+        "sentry_tokens": SentryToken,
+        "user_verifications": UserVerification,
+    }.get(item, None)
+
+
 def getPaginator(model, page, perPage, orderBy, order_by_raw):
     if current_user.is_internal:
         query = model.query
@@ -33,26 +60,10 @@ def getPaginator(model, page, perPage, orderBy, order_by_raw):
         query = model.query.filter(model.owner.has(internal=False))
     else:
         query = getattr(current_user, model.__tablename__)
-    from .bots.models import Bot
-    from .database_credentials.models import DatabaseCredential
-    from .reddit_apps.models import RedditApp
-    from .sentry_tokens.models import SentryToken
-    from .users.models import User
 
-    mapping = {
-        "owner": User,
-        "bot": Bot,
-        "bots": Bot,
-        "reddit_app": RedditApp,
-        "reddit_apps": RedditApp,
-        "database_credential": DatabaseCredential,
-        "database_credentials": DatabaseCredential,
-        "sentry_token": SentryToken,
-        "sentry_tokens": SentryToken,
-    }
     for column in order_by_raw:
-        if column in mapping:
-            query = query.join(mapping[column])
+        if column in get_model(column):
+            query = query.outerjoin(get_model(column))
     if not orderBy:
         orderBy = [getattr(model, model._nameAttr).asc()]
     return query.order_by(*orderBy).paginate(page, perPage, error_out=False)

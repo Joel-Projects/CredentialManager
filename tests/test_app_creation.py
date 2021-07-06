@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from app import configNameMapper, create_app
+from app import config_name_mapper, create_app
 
 
 def test_create_app():
@@ -55,7 +55,7 @@ def test_create_app_with_non_existing_config():
 
 
 def test_create_app_with_broken_import_config():
-    configNameMapper["broken-import-config"] = "broken-import-config"
+    config_name_mapper["broken-import-config"] = "broken-import-config"
     with pytest.raises(ImportError):
         create_app("broken-import-config")
-    del configNameMapper["broken-import-config"]
+    del config_name_mapper["broken-import-config"]

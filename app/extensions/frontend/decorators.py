@@ -11,6 +11,11 @@ def paginateArgs(model):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
+            from ...modules.bots.models import Bot
+            from ...modules.database_credentials.models import DatabaseCredential
+            from ...modules.reddit_apps.models import RedditApp
+            from ...modules.sentry_tokens.models import SentryToken
+
             page = request.args.get("page", 1, int)
             perPage = request.args.get("perPage", 10, int)
             sort_columns = request.args.get("orderBy", type=str)
@@ -19,24 +24,26 @@ def paginateArgs(model):
             kwargs["sort_directions"] = (
                 sort_directions.split(",") if sort_directions else []
             )
+            nonlocal model
+            if model is None:
+                from ...modules import get_model
+
+                model = get_model(request.path.strip("/").split("/")[-1])
+                perPage = 0
             if perPage == 0:  # pragma: no cover
                 perPage = model.query.count()
             kwargs["page"] = page
             kwargs["perPage"] = perPage
             sorts = []
+            if request.endpoint == "users.itemsPerUser":
+                del kwargs["page"]
+                del kwargs["perPage"]
             for column, direction in zip(
                 kwargs["sort_columns"], kwargs["sort_directions"]
             ):
                 try:
                     sorts.append(getattr(getattr(model, column), direction)())
                 except NotImplementedError:
-                    from ...modules.bots.models import Bot
-                    from ...modules.database_credentials.models import (
-                        DatabaseCredential,
-                    )
-                    from ...modules.reddit_apps.models import RedditApp
-                    from ...modules.sentry_tokens.models import SentryToken
-
                     mapping = {
                         "owner": getattr(User.username, direction),
                         "bot": getattr(Bot.app_name, direction),

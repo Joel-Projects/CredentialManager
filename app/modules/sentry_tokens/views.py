@@ -13,7 +13,7 @@ from .resources import api
 from .sentryRequestor import SentryRequestor
 
 log = logging.getLogger(__name__)
-from .forms import CreateSentryTokenForm, EditSentryTokenForm
+from .forms import EditSentryTokenForm, SentryTokenForm
 from .models import SentryToken
 from .tables import SentryTokenTable
 
@@ -31,7 +31,7 @@ sentryTokensBlueprint = Blueprint(
 @paginateArgs(SentryToken)
 def sentry_tokens(page, perPage, orderBy, sort_columns, sort_directions):
     code = 200
-    form = CreateSentryTokenForm()
+    form = SentryTokenForm()
     requestor = SentryRequestor(current_user.sentry_auth_token)
     sentrydsn = None
     if request.method == "POST":

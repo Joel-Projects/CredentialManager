@@ -87,4 +87,13 @@
             </form>
         </div>
     </div>
+    {% if enable_tablesorter %}
+        <script>
+            $("#refresh_tokens_table").tablesorter({
+                theme: "bootstrap",
+                cancelSelection: false,
+                sortReset: true
+            });
+        </script>
+    {% endif %}
 </div>

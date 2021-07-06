@@ -76,7 +76,7 @@ class EditSentryTokenForm(ModelForm):
     )
 
 
-class CreateSentryTokenForm(EditSentryTokenForm):
+class SentryTokenForm(EditSentryTokenForm):
     create_sentry_app = HiddenFieldWithToggle(
         "Create app on Sentry?", default=False, render_kw={"value": ""}
     )

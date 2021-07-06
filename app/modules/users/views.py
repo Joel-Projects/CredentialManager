@@ -5,10 +5,10 @@ from flask import Blueprint, flash, jsonify, redirect, render_template, request,
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 from unflatten import unflatten
-from wtforms import BooleanField
 
 from ...extensions import ModelForm, db, paginateArgs, requiresAdmin, verifyEditable
 from ...extensions.api import abort
+from .. import get_model
 from ..api_tokens.forms import ApiTokenForm
 from ..api_tokens.models import ApiToken
 from ..api_tokens.views import ApiTokenTable
@@ -21,10 +21,10 @@ from ..database_credentials.tables import DatabaseCredentialTable
 from ..reddit_apps.forms import RedditAppForm
 from ..reddit_apps.models import RedditApp
 from ..reddit_apps.tables import RedditAppTable
-from ..refresh_tokens.forms import GenerateRefreshTokenForm
+from ..refresh_tokens.forms import RefreshTokenForm
 from ..refresh_tokens.models import RefreshToken
 from ..refresh_tokens.views import RefreshTokenTable
-from ..sentry_tokens.forms import CreateSentryTokenForm, EditSentryTokenForm
+from ..sentry_tokens.forms import SentryTokenForm
 from ..sentry_tokens.models import SentryToken
 from ..sentry_tokens.tables import SentryTokenTable
 from ..user_verifications.forms import UserVerificationForm
@@ -79,20 +79,9 @@ def users(page, perPage, orderBy, sort_columns, sort_directions):
         query = User.query.filter_by(internal=current_user.is_internal)
     else:
         query = User.query.filter_by(id=current_user.id)
-    mapping = {
-        "owner": User,
-        "bot": Bot,
-        "bots": Bot,
-        "reddit_app": RedditApp,
-        "reddit_apps": RedditApp,
-        "database_credential": DatabaseCredential,
-        "database_credentials": DatabaseCredential,
-        "sentry_token": SentryToken,
-        "sentry_tokens": SentryToken,
-    }
     for column in sort_columns:
-        if column in mapping:
-            query = query.join(mapping[column])
+        if get_model(column):
+            query = query.outerjoin(get_model(column))
     paginator = query.order_by(*orderBy).paginate(page, perPage, error_out=False)
     table = UserTable(
         paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
@@ -120,63 +109,28 @@ def editUser(user):
     kwargs = {}
     showOld = request.args.get("showOld", "False") == "True"
 
-    bots = user.bots.all()
-    kwargs["botsTable"] = BotTable(
-        bots, route_kwargs=dict(endpoint="users.itemsPerUser", user=user, item="bots")
-    )
-    kwargs["botsForm"] = BotForm()
-
-    reddit_apps = user.reddit_apps.all()
-    kwargs["reddit_appsTable"] = RedditAppTable(
-        reddit_apps,
-        route_kwargs=dict(endpoint="users.itemsPerUser", user=user, item="reddit_apps"),
-    )
-    kwargs["reddit_appsForm"] = RedditAppForm()
-
-    sentry_tokens = user.sentry_tokens.all()
-    kwargs["sentry_tokensTable"] = SentryTokenTable(
-        sentry_tokens,
-        route_kwargs=dict(
-            endpoint="users.itemsPerUser", user=user, item="sentry_tokens"
-        ),
-    )
-    kwargs["sentry_tokensForm"] = CreateSentryTokenForm()
-
-    database_credentials = user.database_credentials.all()
-    kwargs["database_credentialsTable"] = DatabaseCredentialTable(
-        database_credentials,
-        route_kwargs=dict(
-            endpoint="users.itemsPerUser", user=user, item="database_credentials"
-        ),
-    )
-    kwargs["database_credentialsForm"] = DatabaseCredentialForm()
-
-    api_tokens = user.api_tokens.all()
-    kwargs["api_tokensTable"] = ApiTokenTable(
-        api_tokens,
-        route_kwargs=dict(endpoint="users.itemsPerUser", user=user, item="api_tokens"),
-    )
-    kwargs["api_tokensForm"] = ApiTokenForm()
-
-    refresh_tokens = user.refresh_tokens.filter(
-        or_(RefreshToken.revoked == False, RefreshToken.revoked == showOld)
-    ).all()
-    kwargs["refresh_tokensTable"] = RefreshTokenTable(
-        refresh_tokens,
-        route_kwargs=dict(
-            endpoint="users.itemsPerUser", user=user, item="refresh_tokens"
-        ),
-    )
-    kwargs["refresh_tokensForm"] = GenerateRefreshTokenForm()
-
-    user_verifications = user.user_verifications.all()
-    kwargs["user_verificationsTable"] = UserVerificationTable(
-        user_verifications,
-        route_kwargs=dict(
-            endpoint="users.itemsPerUser", user=user, item="user_verifications"
-        ),
-    )
-    kwargs["user_verificationsForm"] = UserVerificationForm()
+    items = {
+        "bots": "Bot",
+        "reddit_apps": "RedditApp",
+        "sentry_tokens": "SentryToken",
+        "database_credentials": "DatabaseCredential",
+        "api_tokens": "ApiToken",
+        "refresh_tokens": "RefreshToken",
+        "user_verifications": "UserVerification",
+    }
+    for item, model_name in items.items():
+        locals()[item] = getattr(user, item).all()
+        kwargs[f"{item}Table"] = globals()[f"{model_name}Table"](
+            locals()[item],
+            allow_sort=False,
+            route_kwargs=dict(
+                endpoint="users.editUser",
+                user=user,
+                item=item,
+                _anchor=item,
+            ),
+        )
+        kwargs[f"{item}Form"] = globals()[f"{model_name}Form"]()
 
     form = EditUserForm(obj=user)
     newUsername = None
@@ -267,6 +221,7 @@ def editUser(user):
             "edit_user.html",
             user=user,
             usersForm=form,
+            enable_tablesorter=True,
             defaultSettings=json.dumps(
                 [
                     {"Setting": key, "Default Value": value}
@@ -290,14 +245,14 @@ def itemsPerUser(user, item):
     validItems = {
         "bots": [BotTable, BotForm, Bot],
         "reddit_apps": [RedditAppTable, RedditAppForm, RedditApp],
-        "sentry_tokens": [SentryTokenTable, CreateSentryTokenForm, SentryToken],
+        "sentry_tokens": [SentryTokenTable, SentryTokenForm, SentryToken],
         "database_credentials": [
             DatabaseCredentialTable,
             DatabaseCredentialForm,
             DatabaseCredential,
         ],
         "api_tokens": [ApiTokenTable, ApiTokenForm, ApiToken],
-        "refresh_tokens": [RefreshTokenTable, GenerateRefreshTokenForm, RefreshToken],
+        "refresh_tokens": [RefreshTokenTable, RefreshTokenForm, RefreshToken],
         "user_verifications": [
             UserVerificationTable,
             UserVerificationForm,
@@ -309,7 +264,7 @@ def itemsPerUser(user, item):
         abort(404)
     items = getattr(user, item).all()
 
-    table = validItems[item][0](items)
+    table = validItems[item][0](items, allow_sort=False)
     Model = validItems[item][2]
     form = validItems[item][1]()
     code = 200
@@ -367,4 +322,7 @@ def itemsPerUser(user, item):
         f"{item}Table": table,
         f"{item}Form": form,
     }
-    return render_template(f"{item}.html", user=user, **kwargs), code
+    return (
+        render_template(f"{item}.html", enable_tablesorter=True, user=user, **kwargs),
+        code,
+    )

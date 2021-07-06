@@ -4,7 +4,7 @@ import sys
 from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-configNameMapper = {
+config_name_mapper = {
     "development": "config.DevelopmentConfig",
     "testing": "config.TestingConfig",
     "production": "config.ProductionConfig",
@@ -32,7 +32,7 @@ def create_app(flaskConfigName=None, **kwargs):
                 envFlaskConfigName == flaskConfigName
             ), f"FLASK_CONFIG environment variable ({envFlaskConfigName!r}) and flaskConfigName argument ({flaskConfigName!r}) are both set and are not the same."
     try:
-        app.config.from_object(configNameMapper[flaskConfigName])
+        app.config.from_object(config_name_mapper[flaskConfigName])
     except ImportError:
         if flaskConfigName == "local":
             app.logger.error(

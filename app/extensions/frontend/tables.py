@@ -210,9 +210,11 @@ class BaseTable(Table):
         endpointAttr="id",
         sort_columns=None,
         sort_directions=None,
+        allow_sort=True,
         *args,
         **kwargs,
     ):
+        self.allow_sort = allow_sort
         if sort_columns is None:
             sort_columns = []
         self.sort_columns = sort_columns
@@ -227,6 +229,9 @@ class BaseTable(Table):
         self.add_column(
             name, DropdownActionColumn(name, endpointAttr, toggle=canBeDisabled)
         )
+        hide_owner = kwargs.pop("hide_owner", False)
+        if hide_owner:
+            del self._cols["Owner"]
         super().__init__(items, *args, **kwargs)
         self._cols.move_to_end(name)
 
@@ -259,7 +264,8 @@ class BaseTable(Table):
             classes.append(sort_class)
             attrs["onclick"] = f"location.href='{sort_href}';"
         else:
-            classes.append("sorter-false")
+            if self.allow_sort:
+                classes.append("sorter-false")
             classes.append("tablesorter-headerUnSorted")
         attrs["class"] = " ".join(classes)
         return element(
@@ -294,7 +300,6 @@ class BaseTable(Table):
             current_columns.pop(item_index)
             current_directions.pop(item_index)
         else:
-            ""
             if reverse:
                 direction = "desc"
             else:

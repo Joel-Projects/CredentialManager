@@ -16,7 +16,7 @@ def user_verifications(owner):
     return owner.user_verifications
 
 
-class GenerateRefreshTokenForm(ModelForm):
+class RefreshTokenForm(ModelForm):
     class Meta:
         item = RefreshToken
         fields = only = ["reddit_app_id", "owner"]

@@ -58,4 +58,13 @@
             </div>
         </div>
     </div>
+    {% if enable_tablesorter %}
+        <script>
+            $("#api_tokens_table").tablesorter({
+                theme: "bootstrap",
+                cancelSelection: false,
+                sortReset: true
+            });
+        </script>
+    {% endif %}
 </div>

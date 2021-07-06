@@ -11,7 +11,7 @@ from ...extensions import db, paginateArgs, verifyEditable
 from ..reddit_apps.models import RedditApp
 from ..user_verifications.models import UserVerification
 from ..users.models import User
-from .forms import GenerateRefreshTokenForm
+from .forms import RefreshTokenForm
 from .models import RefreshToken
 from .tables import RefreshTokenTable
 
@@ -39,16 +39,18 @@ def refresh_tokens(page, perPage, orderBy, sort_columns, sort_directions):
         query = current_user.refresh_tokens
     if not orderBy:
         orderBy = [RefreshToken.redditor.asc()]
-    paginator = (
-        query.join(User).order_by(*orderBy).paginate(page, perPage, error_out=False)
-    )
+    if "reddit_app" in sort_columns:
+        query = query.outerjoin(RedditApp)
+    if "owner" in sort_columns:
+        query = query.outerjoin(User)
+    paginator = query.order_by(*orderBy).paginate(page, perPage, error_out=False)
     table = RefreshTokenTable(
         paginator.items,
         sort_columns=sort_columns,
         sort_directions=sort_directions,
         showOld=showOld,
     )
-    form = GenerateRefreshTokenForm()
+    form = RefreshTokenForm()
     return render_template(
         "refresh_tokens.html",
         refresh_tokensTable=table,

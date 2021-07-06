@@ -91,4 +91,13 @@
             </div>
         </div>
     </div>
+    {% if enable_tablesorter %}
+        <script>
+            $("#reddit_apps_table").tablesorter({
+                theme: "bootstrap",
+                cancelSelection: false,
+                sortReset: true
+            });
+        </script>
+    {% endif %}
 </div>
