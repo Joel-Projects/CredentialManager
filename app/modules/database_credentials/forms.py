@@ -45,10 +45,10 @@ class DatabaseCredentialForm(ModelForm):
         ]
 
     if current_user:  # pragma: no cover
-        databaseFlavorDefault = current_user.getDefault("user_agent")
-        databaseHostDefault = current_user.getDefault("user_agent")
-        sshHostDefault = current_user.getDefault("redirect_uri")
-        sshUserDefault = current_user.getDefault("redirect_uri")
+        databaseFlavorDefault = current_user.getDefault("database_flavor")
+        databaseHostDefault = current_user.getDefault("database_host")
+        sshHostDefault = current_user.getDefault("ssh_host")
+        sshUserDefault = current_user.getDefault("ssh_user")
     else:
         databaseFlavorDefault = DatabaseCredential.database_flavor.default.arg
         databaseHostDefault = DatabaseCredential.database_host.default.arg

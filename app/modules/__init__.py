@@ -62,7 +62,7 @@ def getPaginator(model, page, perPage, orderBy, order_by_raw):
         query = getattr(current_user, model.__tablename__)
 
     for column in order_by_raw:
-        if column in get_model(column):
+        if get_model(column):
             query = query.outerjoin(get_model(column))
     if not orderBy:
         orderBy = [getattr(model, model._nameAttr).asc()]
