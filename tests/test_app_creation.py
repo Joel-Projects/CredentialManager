@@ -14,9 +14,9 @@ def test_create_app():
         pass
 
 
-@pytest.mark.parametrize("flaskConfigName", ["production", "development", "testing"])
-def test_create_app_passing_flaskConfigName(monkeypatch, flaskConfigName):
-    if flaskConfigName == "production":
+@pytest.mark.parametrize("flask_config_name", ["production", "development", "testing"])
+def test_create_app_passing_flask_config_name(monkeypatch, flask_config_name):
+    if flask_config_name == "production":
         from config import ProductionConfig
 
         monkeypatch.setattr(
@@ -25,13 +25,13 @@ def test_create_app_passing_flaskConfigName(monkeypatch, flaskConfigName):
             os.getenv("DATABASE_URI", "postgresql://postgres:@localhost/postgres_test"),
         )
         monkeypatch.setattr(ProductionConfig, "SECRET_KEY", "secret")
-    create_app(flaskConfigName=flaskConfigName)
+    create_app(flask_config_name=flask_config_name)
 
 
-@pytest.mark.parametrize("flaskConfigName", ["production", "development", "testing"])
-def test_create_app_passing_FLASK_CONFIG_env(monkeypatch, flaskConfigName):
-    monkeypatch.setenv("FLASK_CONFIG", flaskConfigName)
-    if flaskConfigName == "production":
+@pytest.mark.parametrize("flask_config_name", ["production", "development", "testing"])
+def test_create_app_passing_flask_config_env(monkeypatch, flask_config_name):
+    monkeypatch.setenv("FLASK_CONFIG", flask_config_name)
+    if flask_config_name == "production":
         from config import ProductionConfig
 
         monkeypatch.setattr(

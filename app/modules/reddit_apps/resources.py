@@ -7,7 +7,7 @@ from sqlalchemy import not_
 from app.extensions.api import Namespace, abort, http_exceptions
 from flask_restplus_patched import Resource
 
-from .. import getViewableItems
+from .. import get_viewable_items
 from ..refresh_tokens.schemas import DetailedRefreshTokenSchema
 from ..user_verifications.models import UserVerification
 from ..users import permissions
@@ -38,8 +38,8 @@ class RedditApps(Resource):
 
         Only Admins can specify ``owner`` to see Reddit Apps for other users. Regular users will see their own Reddit Apps.
         """
-        redditApps = getViewableItems(args, RedditApp)
-        return redditApps.offset(args["offset"]).limit(args["limit"])
+        reddit_apps = get_viewable_items(args, RedditApp)
+        return reddit_apps.offset(args["offset"]).limit(args["limit"])
 
     @api.parameters(parameters.CreateRedditAppParameters())
     @api.response(schemas.DetailedRedditAppSchema())
@@ -64,7 +64,7 @@ class RedditApps(Resource):
 @api.route("/<int:reddit_app_id>")
 @api.response(code=HTTPStatus.NOT_FOUND, description="Reddit App not found.")
 @api.login_required()
-@api.resolveObjectToModel(RedditApp, "reddit_app")
+@api.resolve_object_to_model(RedditApp, "reddit_app")
 class RedditAppByID(Resource):
     """
     Manipulations with a specific Reddit App.
@@ -75,7 +75,7 @@ class RedditAppByID(Resource):
         permissions.OwnerRolePermission,
         kwargs_on_request=lambda kwargs: {"obj": kwargs["reddit_app"]},
     )
-    @api.restrictEnabled(lambda kwargs: kwargs["reddit_app"])
+    @api.restrict_enabled(lambda kwargs: kwargs["reddit_app"])
     @api.response(schemas.DetailedRedditAppSchema())
     @api.response(code=HTTPStatus.NOT_FOUND, description="Reddit App not found.")
     def get(self, reddit_app):
@@ -89,7 +89,7 @@ class RedditAppByID(Resource):
         permissions.OwnerRolePermission,
         kwargs_on_request=lambda kwargs: {"obj": kwargs["reddit_app"]},
     )
-    @api.restrictEnabled(lambda kwargs: kwargs["reddit_app"])
+    @api.restrict_enabled(lambda kwargs: kwargs["reddit_app"])
     @api.parameters(parameters.GetRefreshTokenByRedditor())
     @api.response(DetailedRefreshTokenSchema())
     @api.response(
@@ -105,9 +105,9 @@ class RedditAppByID(Resource):
 
         Only Admins can see Refresh Tokens for other users' Reddit Apps. Regular users will see their own Reddit Apps' Refresh Tokens.
         """
-        refreshToken = reddit_app.getRefreshToken(args["redditor"])
-        if refreshToken:
-            return refreshToken
+        refresh_token = reddit_app.get_refresh_token(args["redditor"])
+        if refresh_token:
+            return refresh_token
         else:
             abort(404)
 
@@ -157,7 +157,7 @@ class RedditAppByID(Resource):
 @api.route("/<int:reddit_app_id>/generate_auth")
 @api.login_required()
 @api.response(code=HTTPStatus.NOT_FOUND, description="Reddit App not found.")
-@api.resolveObjectToModel(RedditApp, "reddit_app")
+@api.resolve_object_to_model(RedditApp, "reddit_app")
 class GenerateAuthUrl(Resource):
     """
     Generate a reddit auth url
@@ -182,7 +182,7 @@ class GenerateAuthUrl(Resource):
             user_verification = UserVerification.query.filter_by(
                 user_id=user_verification_user_id
             ).first_or_404()
-        auth_url = reddit_app.genAuthUrl(
+        auth_url = reddit_app.gen_auth_url(
             args["scopes"], args["duration"], user_verification
         )
         setattr(reddit_app, "auth_url", auth_url)

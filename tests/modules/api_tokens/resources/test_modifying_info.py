@@ -5,13 +5,13 @@ import pytest
 from app.modules.api_tokens.models import ApiToken
 from app.modules.api_tokens.schemas import DetailedApiTokenSchema
 from tests.params import labels, users
-from tests.utils import assert403, assert409, assert422, assertSuccess
+from tests.utils import assert403, assert409, assert422, assert_success
 
 data = [
     {
         "op": "replace",
         "path": "/name",
-        "value": "newName",
+        "value": "new_name",
     },
     {
         "op": "replace",
@@ -21,9 +21,9 @@ data = [
 ]
 
 tokens = [
-    pytest.lazy_fixture("regularUserApiToken"),
-    pytest.lazy_fixture("adminUserApiToken"),
-    pytest.lazy_fixture("internalUserApiToken"),
+    pytest.lazy_fixture("regular_user_api_token"),
+    pytest.lazy_fixture("admin_user_api_token"),
+    pytest.lazy_fixture("internal_user_api_token"),
 ]
 
 
@@ -36,8 +36,8 @@ tokens = [
         "modify_regular_user_token",
     ],
 )
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_modifying_api_token(flask_app_client, token, loginAs):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+def test_modifying_api_token(flask_app_client, token, login_as):
     response = flask_app_client.patch(
         f"/api/v1/api_tokens/{token.id}",
         content_type="application/json",
@@ -45,35 +45,35 @@ def test_modifying_api_token(flask_app_client, token, loginAs):
     )
 
     if token.owner.is_internal:
-        if loginAs.is_internal:
-            assertSuccess(response, token.owner, ApiToken, DetailedApiTokenSchema)
+        if login_as.is_internal:
+            assert_success(response, token.owner, ApiToken, DetailedApiTokenSchema)
         else:
-            assert403(response, ApiToken, action="patch", internal=True, oldItem=token)
-    elif loginAs.is_admin or loginAs.is_internal:
-        assertSuccess(response, token.owner, ApiToken, DetailedApiTokenSchema)
+            assert403(response, ApiToken, action="patch", internal=True, old_item=token)
+    elif login_as.is_admin or login_as.is_internal:
+        assert_success(response, token.owner, ApiToken, DetailedApiTokenSchema)
     else:
-        assert403(response, ApiToken, action="patch", internal=True, oldItem=token)
+        assert403(response, ApiToken, action="patch", internal=True, old_item=token)
 
 
 def test_modifying_api_token_by_self(
-    flask_app_client, regularUserInstance, regularUserApiToken
+    flask_app_client, regular_user_instance, regular_user_api_token
 ):
-    regularUserApiToken.owner = regularUserInstance
+    regular_user_api_token.owner = regular_user_instance
     response = flask_app_client.patch(
-        f"/api/v1/api_tokens/{regularUserApiToken.id}",
+        f"/api/v1/api_tokens/{regular_user_api_token.id}",
         content_type="application/json",
         data=json.dumps(data),
     )
 
-    assertSuccess(response, regularUserInstance, ApiToken, DetailedApiTokenSchema)
+    assert_success(response, regular_user_instance, ApiToken, DetailedApiTokenSchema)
 
 
 def test_modifying_api_token_info_with_invalid_format_must_fail(
-    flask_app_client, regularUserInstance, regularUserApiToken
+    flask_app_client, regular_user_instance, regular_user_api_token
 ):
-    regularUserApiToken.owner = regularUserInstance
+    regular_user_api_token.owner = regular_user_instance
     response = flask_app_client.patch(
-        f"/api/v1/api_tokens/{regularUserInstance.id}",
+        f"/api/v1/api_tokens/{regular_user_instance.id}",
         content_type="application/json",
         data=json.dumps(
             [
@@ -93,22 +93,25 @@ def test_modifying_api_token_info_with_invalid_format_must_fail(
         response,
         ApiToken,
         [("1", {"_schema": ["value is required"]})],
-        oldItem=regularUserApiToken,
+        old_item=regular_user_api_token,
         action="patch",
     )
 
 
 def test_modifying_api_token_info_with_conflict_data_must_fail(
-    flask_app_client, regularUserInstance, regularUserApiToken, adminUserApiToken
+    flask_app_client,
+    regular_user_instance,
+    regular_user_api_token,
+    admin_user_api_token,
 ):
-    regularUserApiToken.owner = regularUserInstance
-    adminUserApiToken.name = "differentName"
-    adminUserApiToken.owner = regularUserInstance
+    regular_user_api_token.owner = regular_user_instance
+    admin_user_api_token.name = "different_name"
+    admin_user_api_token.owner = regular_user_instance
     response = flask_app_client.patch(
-        f"/api/v1/api_tokens/{regularUserApiToken.id}",
+        f"/api/v1/api_tokens/{regular_user_api_token.id}",
         content_type="application/json",
         data=json.dumps(
-            [{"op": "replace", "path": "/name", "value": adminUserApiToken.name}]
+            [{"op": "replace", "path": "/name", "value": admin_user_api_token.name}]
         ),
     )
 
@@ -116,8 +119,8 @@ def test_modifying_api_token_info_with_conflict_data_must_fail(
         response,
         ApiToken,
         "Failed to update API Token details.",
-        loginAs=regularUserInstance,
-        messageAttrs=[("1", {"_schema": ["value is required"]})],
-        oldItem=regularUserApiToken,
+        login_as=regular_user_instance,
+        message_attrs=[("1", {"_schema": ["value is required"]})],
+        old_item=regular_user_api_token,
         action="patch",
     )

@@ -10,7 +10,7 @@ from app.extensions.frontend.tables import (
 
 
 class RedditAppTable(BaseTable):
-    _formFields = [
+    _form_fields = [
         "app_name",
         "app_description",
         "client_id",

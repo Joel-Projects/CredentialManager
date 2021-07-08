@@ -47,7 +47,7 @@ class CreateUserParameters(PostFormParameters, schemas.DetailedUserSchema):
     is_internal = base_fields.Boolean(description="(Internal use only)", default=False)
 
     @validates("is_internal")
-    def validateInternal(self, data):
+    def validate_internal(self, data):
         if data:
             permissions.InternalRolePermission().__enter__()
 

@@ -2,197 +2,202 @@ import pytest
 
 from app.modules.database_credentials.models import DatabaseCredential
 from tests.params import labels, users
-from tests.responseStatuses import assert202, assert403
+from tests.response_statuses import assert202, assert403
 from tests.utils import (
-    assertMessageFlashed,
-    assertRenderedTemplate,
+    assert_message_flashed,
+    assert_rendered_template,
     captured_templates,
-    changeOwner,
+    change_owner,
 )
 
-databaseCredentials = [
-    pytest.lazy_fixture("adminUserDatabaseCredential"),
-    pytest.lazy_fixture("internalUserDatabaseCredential"),
-    pytest.lazy_fixture("regularUserDatabaseCredential"),
+database_credentials = [
+    pytest.lazy_fixture("admin_user_database_credential"),
+    pytest.lazy_fixture("internal_user_database_credential"),
+    pytest.lazy_fixture("regular_user_database_credential"),
 ]
-databaseCredentialLabels = [
+database_credential_labels = [
     "admin_user_database_credential",
     "internal_user_database_credential",
     "regular_user_database_credential",
 ]
 
 data = {
-    "itemType": "database_credentials",
+    "item_type": "database_credentials",
     "enabled": "",
-    "app_name": "newName",
+    "app_name": "new_name",
     "database_flavor": "sqlite",
-    "database_host": "localhostNew",
+    "database_host": "localhost_new",
     "database_port": 7654,
-    "database_username": "postgresNew",
-    "database_password": "database_passwordNew",
-    "database": "postgresNew",
+    "database_username": "postgres_new",
+    "database_password": "database_password_new",
+    "database": "postgres_new",
     "use_ssh": "",
-    "ssh_host": "ssh_hostNew",
+    "ssh_host": "ssh_host_new",
     "ssh_port": 23,
-    "ssh_username": "rootNew",
-    "ssh_password": "passNew",
+    "ssh_username": "root_new",
+    "ssh_password": "pass_new",
     "use_ssh_key": "",
-    "private_key": "private_keyNew",
-    "private_key_passphrase": "passphraseNew",
+    "private_key": "private_key_new",
+    "private_key_passphrase": "passphrase_new",
 }
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 @pytest.mark.parametrize(
-    "databaseCredential", databaseCredentials, ids=databaseCredentialLabels
+    "database_credential", database_credentials, ids=database_credential_labels
 )
 def test_database_credential_detail_edit_for_other_user(
-    flask_app_client, loginAs, databaseCredential
+    flask_app_client, login_as, database_credential
 ):
     with captured_templates(flask_app_client.application) as templates:
-        data["itemId"] = f"{databaseCredential.id}"
+        data["item_id"] = f"{database_credential.id}"
         response = flask_app_client.post(
-            f"/database_credentials/{databaseCredential.id}",
+            f"/database_credentials/{database_credential.id}",
             content_type="application/x-www-form-urlencoded",
             data=data,
         )
-        if databaseCredential.owner.is_internal and not loginAs.is_internal:
+        if database_credential.owner.is_internal and not login_as.is_internal:
             assert403(response, templates)
-            modifiedDatabaseCredential = DatabaseCredential.query.filter_by(
-                id=databaseCredential.id
+            modified_database_credential = DatabaseCredential.query.filter_by(
+                id=database_credential.id
             ).first()
-            assert modifiedDatabaseCredential == databaseCredential
-        elif loginAs.is_admin or loginAs.is_internal:
+            assert modified_database_credential == database_credential
+        elif login_as.is_admin or login_as.is_internal:
             assert202(response)
-            assertRenderedTemplate(templates, "edit_database_credential.html")
-            assertMessageFlashed(
+            assert_rendered_template(templates, "edit_database_credential.html")
+            assert_message_flashed(
                 templates,
-                "Database Credentials 'newName' saved successfully!",
+                "Database Credentials 'new_name' saved successfully!",
                 "success",
             )
-            modifiedDatabaseCredential = DatabaseCredential.query.filter_by(
-                id=databaseCredential.id
+            modified_database_credential = DatabaseCredential.query.filter_by(
+                id=database_credential.id
             ).first()
-            assert modifiedDatabaseCredential.app_name == "newName"
-            assert not modifiedDatabaseCredential.enabled
-            assert modifiedDatabaseCredential.database_flavor == "sqlite"
-            assert modifiedDatabaseCredential.database_host == "localhostNew"
-            assert modifiedDatabaseCredential.database_port == 7654
-            assert modifiedDatabaseCredential.database_username == "postgresNew"
+            assert modified_database_credential.app_name == "new_name"
+            assert not modified_database_credential.enabled
+            assert modified_database_credential.database_flavor == "sqlite"
+            assert modified_database_credential.database_host == "localhost_new"
+            assert modified_database_credential.database_port == 7654
+            assert modified_database_credential.database_username == "postgres_new"
             assert (
-                modifiedDatabaseCredential.database_password == "database_passwordNew"
+                modified_database_credential.database_password
+                == "database_password_new"
             )
-            assert modifiedDatabaseCredential.database == "postgresNew"
-            assert not modifiedDatabaseCredential.use_ssh
-            assert modifiedDatabaseCredential.ssh_host == "ssh_hostNew"
-            assert modifiedDatabaseCredential.ssh_port == 23
-            assert modifiedDatabaseCredential.ssh_username == "rootNew"
-            assert modifiedDatabaseCredential.ssh_password == "passNew"
-            assert not modifiedDatabaseCredential.use_ssh_key
-            assert modifiedDatabaseCredential.private_key == "private_keyNew"
-            assert modifiedDatabaseCredential.private_key_passphrase == "passphraseNew"
+            assert modified_database_credential.database == "postgres_new"
+            assert not modified_database_credential.use_ssh
+            assert modified_database_credential.ssh_host == "ssh_host_new"
+            assert modified_database_credential.ssh_port == 23
+            assert modified_database_credential.ssh_username == "root_new"
+            assert modified_database_credential.ssh_password == "pass_new"
+            assert not modified_database_credential.use_ssh_key
+            assert modified_database_credential.private_key == "private_key_new"
+            assert (
+                modified_database_credential.private_key_passphrase == "passphrase_new"
+            )
         else:
             assert403(response, templates)
-            modifiedDatabaseCredential = DatabaseCredential.query.filter_by(
-                id=databaseCredential.id
+            modified_database_credential = DatabaseCredential.query.filter_by(
+                id=database_credential.id
             ).first()
-            assert modifiedDatabaseCredential == databaseCredential
+            assert modified_database_credential == database_credential
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 def test_database_credential_detail_edit(
-    flask_app_client, loginAs, regularUserDatabaseCredential
+    flask_app_client, login_as, regular_user_database_credential
 ):
-    data["itemId"] = f"{regularUserDatabaseCredential.id}"
+    data["item_id"] = f"{regular_user_database_credential.id}"
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/database_credentials/{regularUserDatabaseCredential.id}",
+            f"/database_credentials/{regular_user_database_credential.id}",
             content_type="application/x-www-form-urlencoded",
             data=data,
         )
-        if loginAs.is_admin or loginAs.is_internal:
+        if login_as.is_admin or login_as.is_internal:
             assert202(response)
-            assertRenderedTemplate(templates, "edit_database_credential.html")
-            assertMessageFlashed(
+            assert_rendered_template(templates, "edit_database_credential.html")
+            assert_message_flashed(
                 templates,
-                "Database Credentials 'newName' saved successfully!",
+                "Database Credentials 'new_name' saved successfully!",
                 "success",
             )
-            modifiedDatabaseCredential = DatabaseCredential.query.filter_by(
-                id=regularUserDatabaseCredential.id
+            modified_database_credential = DatabaseCredential.query.filter_by(
+                id=regular_user_database_credential.id
             ).first()
-            assert modifiedDatabaseCredential == regularUserDatabaseCredential
+            assert modified_database_credential == regular_user_database_credential
         else:
             assert403(response, templates)
-            modifiedDatabaseCredential = DatabaseCredential.query.filter_by(
-                id=regularUserDatabaseCredential.id
+            modified_database_credential = DatabaseCredential.query.filter_by(
+                id=regular_user_database_credential.id
             ).first()
-            assert modifiedDatabaseCredential == regularUserDatabaseCredential
+            assert modified_database_credential == regular_user_database_credential
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 def test_database_credential_detail_edit_self(
-    flask_app_client, db, loginAs, regularUserDatabaseCredential
+    flask_app_client, db, login_as, regular_user_database_credential
 ):
-    data["itemId"] = f"{regularUserDatabaseCredential.id}"
-    regularUserDatabaseCredential = changeOwner(
-        db, loginAs, regularUserDatabaseCredential
+    data["item_id"] = f"{regular_user_database_credential.id}"
+    regular_user_database_credential = change_owner(
+        db, login_as, regular_user_database_credential
     )
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/database_credentials/{regularUserDatabaseCredential.id}", data=data
+            f"/database_credentials/{regular_user_database_credential.id}", data=data
         )
         assert202(response)
-        assertRenderedTemplate(templates, "edit_database_credential.html")
-        assertMessageFlashed(
-            templates, "Database Credentials 'newName' saved successfully!", "success"
+        assert_rendered_template(templates, "edit_database_credential.html")
+        assert_message_flashed(
+            templates, "Database Credentials 'new_name' saved successfully!", "success"
         )
-        modifiedDatabaseCredential = DatabaseCredential.query.filter_by(
-            id=regularUserDatabaseCredential.id
+        modified_database_credential = DatabaseCredential.query.filter_by(
+            id=regular_user_database_credential.id
         ).first()
-        assert modifiedDatabaseCredential.app_name == "newName"
-        assert not modifiedDatabaseCredential.enabled
-        assert modifiedDatabaseCredential.database_flavor == "sqlite"
-        assert modifiedDatabaseCredential.database_host == "localhostNew"
-        assert modifiedDatabaseCredential.database_port == 7654
-        assert modifiedDatabaseCredential.database_username == "postgresNew"
-        assert modifiedDatabaseCredential.database_password == "database_passwordNew"
-        assert modifiedDatabaseCredential.database == "postgresNew"
-        assert not modifiedDatabaseCredential.use_ssh
-        assert modifiedDatabaseCredential.ssh_host == "ssh_hostNew"
-        assert modifiedDatabaseCredential.ssh_port == 23
-        assert modifiedDatabaseCredential.ssh_username == "rootNew"
-        assert modifiedDatabaseCredential.ssh_password == "passNew"
-        assert not modifiedDatabaseCredential.use_ssh_key
-        assert modifiedDatabaseCredential.private_key == "private_keyNew"
-        assert modifiedDatabaseCredential.private_key_passphrase == "passphraseNew"
+        assert modified_database_credential.app_name == "new_name"
+        assert not modified_database_credential.enabled
+        assert modified_database_credential.database_flavor == "sqlite"
+        assert modified_database_credential.database_host == "localhost_new"
+        assert modified_database_credential.database_port == 7654
+        assert modified_database_credential.database_username == "postgres_new"
+        assert modified_database_credential.database_password == "database_password_new"
+        assert modified_database_credential.database == "postgres_new"
+        assert not modified_database_credential.use_ssh
+        assert modified_database_credential.ssh_host == "ssh_host_new"
+        assert modified_database_credential.ssh_port == 23
+        assert modified_database_credential.ssh_username == "root_new"
+        assert modified_database_credential.ssh_password == "pass_new"
+        assert not modified_database_credential.use_ssh_key
+        assert modified_database_credential.private_key == "private_key_new"
+        assert modified_database_credential.private_key_passphrase == "passphrase_new"
 
 
 def test_database_credential_detail_conflicting_app_name(
     flask_app_client,
     db,
-    regularUserInstance,
-    regularUserDatabaseCredential,
-    adminUserDatabaseCredential,
+    regular_user_instance,
+    regular_user_database_credential,
+    admin_user_database_credential,
 ):
-    original = changeOwner(db, regularUserInstance, adminUserDatabaseCredential)
+    original = change_owner(db, regular_user_instance, admin_user_database_credential)
     original.app_name = "original"
-    toBeModified = changeOwner(db, regularUserInstance, regularUserDatabaseCredential)
+    to_be_modified = change_owner(
+        db, regular_user_instance, regular_user_database_credential
+    )
     db.session.merge(original)
-    data["itemId"] = f"{regularUserDatabaseCredential.id}"
+    data["item_id"] = f"{regular_user_database_credential.id}"
     data["app_name"] = "original"
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/database_credentials/{toBeModified.id}", json=data
+            f"/database_credentials/{to_be_modified.id}", json=data
         )
         assert response.status_code == 422
         assert response.mimetype == "text/html"
-        assertRenderedTemplate(templates, "edit_database_credential.html")
+        assert_rendered_template(templates, "edit_database_credential.html")
         assert (
             templates["templates"][0][1]["form"].errors["app_name"][0]
             == "Already exists."
         )
-        modifiedDatabaseCredential = DatabaseCredential.query.filter_by(
-            id=toBeModified.id
+        modified_database_credential = DatabaseCredential.query.filter_by(
+            id=to_be_modified.id
         ).first()
-        assert modifiedDatabaseCredential.app_name == toBeModified.app_name
+        assert modified_database_credential.app_name == to_be_modified.app_name

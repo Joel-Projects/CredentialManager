@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from app.extensions import InfoAttrs, db, foreignKeyKwargs
+from app.extensions import InfoAttrs, db, foreign_key_kwargs
 from config import BaseConfig
 
 log = logging.getLogger(__name__)
@@ -12,11 +12,11 @@ class UserVerification(db.Model, InfoAttrs):
         super().__init__(*args, **kwargs)
 
     __tablename__ = "user_verifications"
-    _displayNamePlural = "User Verifications"
-    _nameAttr = "user_id"
-    _enabledAttr = "enabled"
+    _display_name_plural = "User Verifications"
+    _name_attr = "user_id"
+    _enabled_attr = "enabled"
 
-    _infoAttrs = {
+    _info_attrs = {
         "id": "User Verification ID",
         "owner": "Owner",
         "verified_at": "Verified at",
@@ -26,7 +26,7 @@ class UserVerification(db.Model, InfoAttrs):
     __table_args__ = {"schema": BaseConfig.SCHEMA_NAME}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     reddit_app_id = db.Column(
-        db.ForeignKey(f"{BaseConfig.SCHEMA_NAME}.reddit_apps.id", **foreignKeyKwargs),
+        db.ForeignKey(f"{BaseConfig.SCHEMA_NAME}.reddit_apps.id", **foreign_key_kwargs),
         info={
             "label": "Reddit App",
             "description": "Reddit App the user will be verifying with",

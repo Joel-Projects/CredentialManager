@@ -7,7 +7,7 @@ from werkzeug import security
 from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
 
-from .. import getViewableItems
+from .. import get_viewable_items
 from ..users import permissions
 from ..users.models import User
 from . import parameters, schemas
@@ -35,14 +35,14 @@ class ApiTokens(Resource):
 
         Only Admins can specify ``owner`` to see API Tokens for other users. Regular users will see their own API Tokens.
         """
-        apiTokens = getViewableItems(args, ApiToken)
-        return apiTokens.offset(args["offset"]).limit(args["limit"])
+        api_tokens = get_viewable_items(args, ApiToken)
+        return api_tokens.offset(args["offset"]).limit(args["limit"])
 
 
 @api.route("/<int:api_token_id>")
 @api.login_required()
 @api.response(code=HTTPStatus.NOT_FOUND, description="API Token not found.")
-@api.resolveObjectToModel(ApiToken, "api_token")
+@api.resolve_object_to_model(ApiToken, "api_token")
 class ApiTokenByID(Resource):
     """
     Manipulations with a specific API TOken.

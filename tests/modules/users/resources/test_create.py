@@ -3,7 +3,7 @@ import pytest
 from app.modules.users.models import User
 from app.modules.users.schemas import DetailedUserSchema
 from tests.params import labels, users
-from tests.utils import assert401, assert403, assert409, assertSuccess
+from tests.utils import assert401, assert403, assert409, assert_success
 
 
 # noinspection PyUnresolvedReferences
@@ -12,15 +12,15 @@ from tests.utils import assert401, assert403, assert409, assertSuccess
     [(True, False, False), (False, True, True), (False, False, True)],
     ids=["create_internal_user", "create_admin_user", "create_regular_user"],
 )
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 def test_creating_user(
-    flask_app_client, is_internal, is_admin, is_regular_user, loginAs: User
+    flask_app_client, is_internal, is_admin, is_regular_user, login_as: User
 ):
     response = flask_app_client.post(
         "/api/v1/users/",
         data={
-            "username": "testUsername",
-            "password": "testPassword",
+            "username": "test_username",
+            "password": "test_password",
             "is_internal": is_internal,
             "is_admin": is_admin,
             "is_regular_user": is_regular_user,
@@ -29,14 +29,14 @@ def test_creating_user(
     )
 
     if is_internal:
-        if loginAs.is_internal:
-            assertSuccess(response, None, User, DetailedUserSchema)
+        if login_as.is_internal:
+            assert_success(response, None, User, DetailedUserSchema)
         else:
-            assert403(response, User, loginAs=loginAs, internal=True)
-    elif loginAs.is_admin or loginAs.is_internal:
-        assertSuccess(response, None, User, DetailedUserSchema)
+            assert403(response, User, login_as=login_as, internal=True)
+    elif login_as.is_admin or login_as.is_internal:
+        assert_success(response, None, User, DetailedUserSchema)
     else:
-        assert403(response, User, loginAs=loginAs, internal=True)
+        assert403(response, User, login_as=login_as, internal=True)
 
 
 @pytest.mark.parametrize(
@@ -45,11 +45,11 @@ def test_creating_user(
     ids=["internal_user", "admin_user", "regular_user"],
 )
 @pytest.mark.parametrize(
-    "loginAs",
+    "login_as",
     [
-        pytest.lazy_fixture("adminUserInstanceDeactivated"),
-        pytest.lazy_fixture("internalUserInstanceDeactivated"),
-        pytest.lazy_fixture("regularUserInstanceDeactivated"),
+        pytest.lazy_fixture("admin_user_instance_deactivated"),
+        pytest.lazy_fixture("internal_user_instance_deactivated"),
+        pytest.lazy_fixture("regular_user_instance_deactivated"),
     ],
     ids=[
         "as_deactivated_admin_user",
@@ -58,27 +58,27 @@ def test_creating_user(
     ],
 )
 def test_creating_user_as_deactivated(
-    flask_app_client, is_internal, is_admin, is_regular_user, loginAs: User
+    flask_app_client, is_internal, is_admin, is_regular_user, login_as: User
 ):
-    with flask_app_client.login(loginAs):
+    with flask_app_client.login(login_as):
         response = flask_app_client.post(
             "/api/v1/users/",
             data={
-                "username": "testUsername",
-                "password": "testPassword",
+                "username": "test_username",
+                "password": "test_password",
                 "is_internal": is_internal,
                 "is_admin": is_admin,
                 "is_regular_user": is_regular_user,
                 "is_active": True,
             },
         )
-    assert401(response, User, loginAs=loginAs)
+    assert401(response, User, login_as=login_as)
 
 
 def test_creating_conflict_user(flask_app_client, admin_user):
     with flask_app_client.login(admin_user):
         response = flask_app_client.post(
             "/api/v1/users/",
-            data={"username": "admin_user", "password": "testPassword"},
+            data={"username": "admin_user", "password": "test_password"},
         )
-        assert409(response, User, "Failed to create a new user.", loginAs=admin_user)
+        assert409(response, User, "Failed to create a new user.", login_as=admin_user)

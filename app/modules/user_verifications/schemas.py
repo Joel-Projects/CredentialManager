@@ -23,8 +23,8 @@ class BaseUserVerificationSchema(ModelSchema):
         dump_only = (UserVerification.id.key, "resource_type")
         load_only = (UserVerification.enabled.key,)
 
-    _resourceType = Meta.model.__name__
-    resource_type = base_fields.String(default=_resourceType)
+    _resource_type = Meta.model.__name__
+    resource_type = base_fields.String(default=_resource_type)
 
 
 class DetailedUserVerificationSchema(BaseUserVerificationSchema):

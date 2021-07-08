@@ -4,8 +4,8 @@ import logging
 from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
 
-from ...extensions import db, paginateArgs, verifyEditable
-from .. import getPaginator
+from ...extensions import db, paginate_args, verify_editable
+from .. import get_paginator
 from ..users.models import User
 from .forms import UserVerificationForm
 from .models import UserVerification
@@ -15,7 +15,7 @@ from .tables import UserVerificationTable
 
 log = logging.getLogger(__name__)
 
-userVerificationsBlueprint = Blueprint(
+user_verifications_blueprint = Blueprint(
     "user_verifications",
     __name__,
     template_folder="./templates",
@@ -24,10 +24,10 @@ userVerificationsBlueprint = Blueprint(
 )
 
 
-@userVerificationsBlueprint.route("/user_verifications", methods=["GET", "POST"])
+@user_verifications_blueprint.route("/user_verifications", methods=["GET", "POST"])
 @login_required
-@paginateArgs(UserVerification)
-def user_verifications(page, perPage, orderBy, sort_columns, sort_directions):
+@paginate_args(UserVerification)
+def user_verifications(page, per_page, order_by, sort_columns, sort_directions):
     code = 200
     form = UserVerificationForm()
     if request.method == "POST":
@@ -50,11 +50,11 @@ def user_verifications(page, perPage, orderBy, sort_columns, sort_directions):
             if "extra_data" in form.data and form.data["extra_data"]:
                 data["extra_data"] = json.loads(form.data["extra_data"])
 
-            userVerification = UserVerification(**data)
-            db.session.add(userVerification)
+            user_verification = UserVerification(**data)
+            db.session.add(user_verification)
         else:
             return jsonify(status="error", errors=form.errors), code
-    paginator = getPaginator(UserVerification, page, perPage, orderBy, sort_columns)
+    paginator = get_paginator(UserVerification, page, per_page, order_by, sort_columns)
     table = UserVerificationTable(
         paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
     )
@@ -62,41 +62,41 @@ def user_verifications(page, perPage, orderBy, sort_columns, sort_directions):
     return (
         render_template(
             "user_verifications.html",
-            user_verificationsTable=table,
-            user_verificationsForm=form,
+            user_verifications_table=table,
+            user_verifications_form=form,
             user_verification_paginator=paginator,
             route="user_verifications.user_verifications",
-            perPage=perPage,
+            per_page=per_page,
         ),
         code,
     )
 
 
-@userVerificationsBlueprint.route(
+@user_verifications_blueprint.route(
     "/user_verifications/<UserVerification:user_verification>/", methods=["GET", "POST"]
 )
 @login_required
-@verifyEditable("user_verification")
-def editUserVerification(user_verification):
+@verify_editable("user_verification")
+def edit_user_verification(user_verification):
     form = UserVerificationForm(obj=user_verification)
     code = 200
     if request.method == "POST":
         if form.validate_on_submit():
-            itemsToUpdate = []
+            items_to_update = []
             for item in PatchUserVerificationDetailsParameters.fields:
                 if (
                     getattr(form, item, None) is not None
                     and getattr(user_verification, item) != getattr(form, item).data
                 ):
-                    itemsToUpdate.append(
+                    items_to_update.append(
                         {
                             "op": "replace",
                             "path": f"/{item}",
                             "value": getattr(form, item).data,
                         }
                     )
-            if itemsToUpdate:
-                for item in itemsToUpdate:
+            if items_to_update:
+                for item in items_to_update:
                     PatchUserVerificationDetailsParameters().validate_patch_structure(
                         item
                     )
@@ -106,7 +106,7 @@ def editUserVerification(user_verification):
                         default_error_message="Failed to update User Verification details.",
                     ):
                         PatchUserVerificationDetailsParameters.perform_patch(
-                            itemsToUpdate, user_verification
+                            items_to_update, user_verification
                         )
                         db.session.merge(user_verification)
                         code = 202

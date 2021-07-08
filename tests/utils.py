@@ -62,7 +62,7 @@ class JSONResponse(Response):
         return json.loads(self.get_data(as_text=True))
 
 
-def generateUserInstance(
+def generate_user_instance(
     user_id=None,
     username="username",
     password=None,
@@ -101,7 +101,7 @@ def generateUserInstance(
     return user_instance
 
 
-def assertValidResponseContentType(response, delete=False):
+def assert_valid_response_content_type(response, delete=False):
     if delete:
         assert response.content_type == "text/html; charset=utf-8"
         assert response.content_length is None
@@ -110,19 +110,19 @@ def assertValidResponseContentType(response, delete=False):
         assert isinstance(response.json, dict)
 
 
-def assertSuccess(response, owner, model, schema, deleteItemId=None):
-    assertValidResponseContentType(response, delete=deleteItemId)
-    if deleteItemId:
+def assert_success(response, owner, model, schema, delete_item_id=None):
+    assert_valid_response_content_type(response, delete=delete_item_id)
+    if delete_item_id:
         assert response.status_code == 204
-        item = model.query.get(deleteItemId)
+        item = model.query.get(delete_item_id)
         assert item is None
     else:
         assert response.status_code == 200
-        setToTest = set(schema.Meta.fields)
-        if "enabled" in setToTest:
-            setToTest.remove("enabled")
-        assert set(response.json.keys()) >= setToTest
-        for field in setToTest:
+        set_to_test = set(schema.Meta.fields)
+        if "enabled" in set_to_test:
+            set_to_test.remove("enabled")
+        assert set(response.json.keys()) >= set_to_test
+        for field in set_to_test:
             if response.json[field] and not field == "resource_type":
                 if isinstance(getattr(model, field), property):
                     assert isinstance(response.json[field], bool)
@@ -135,65 +135,65 @@ def assertSuccess(response, owner, model, schema, deleteItemId=None):
                         assert isinstance(
                             response.json[field], getattr(model, field).type.python_type
                         )
-        createdItem = model.query.filter_by(id=response.json["id"]).first()
-        assert createdItem is not None
+        created_item = model.query.filter_by(id=response.json["id"]).first()
+        assert created_item is not None
         if "owner_id" in response.json:
             assert response.json["owner_id"] == owner.id
-        for field in setToTest:
+        for field in set_to_test:
             if (
                 not field == "resource_type"
                 and response.json[field]
                 and not field == "enabled"
             ):
-                if isinstance(getattr(createdItem, field), datetime):
+                if isinstance(getattr(created_item, field), datetime):
                     assert (
                         response.json[field]
                         == datetime.astimezone(
-                            getattr(createdItem, field), timezone.utc
+                            getattr(created_item, field), timezone.utc
                         ).isoformat()
                     )
-                elif isinstance(getattr(createdItem, field), Choice):
-                    assert response.json[field] == getattr(createdItem, field).code
-                elif issubclass(type(getattr(createdItem, field)), Model):
+                elif isinstance(getattr(created_item, field), Choice):
+                    assert response.json[field] == getattr(created_item, field).code
+                elif issubclass(type(getattr(created_item, field)), Model):
                     for key, value in response.json[field].items():
                         if key != "resource_type":
                             if isinstance(
-                                getattr(getattr(createdItem, field), key), Choice
+                                getattr(getattr(created_item, field), key), Choice
                             ):
                                 assert (
-                                    getattr(getattr(createdItem, field), key).code
+                                    getattr(getattr(created_item, field), key).code
                                     == value
                                 )
                             else:
                                 assert (
-                                    getattr(getattr(createdItem, field), key) == value
+                                    getattr(getattr(created_item, field), key) == value
                                 )
                 else:
                     if field != "resource_type":
-                        assert response.json[field] == getattr(createdItem, field)
+                        assert response.json[field] == getattr(created_item, field)
 
 
-def itemNotCreated(model, *, loginAs):
+def item_not_created(model, *, login_as):
     items = model.query.all()
     if model._sa_class_manager.class_ == User:
-        createdUser = User.query.filter(User.id != loginAs.id).first()
-        assert createdUser is None
+        created_user = User.query.filter(User.id != login_as.id).first()
+        assert created_user is None
     else:
         assert len(items) == 0
 
 
-def itemNotModified(model, oldItem):
-    item = model.query.get(oldItem.id)
-    assert item == oldItem
+def item_not_modified(model, old_item):
+    item = model.query.get(old_item.id)
+    assert item == old_item
 
 
-def itemNotDeleted(model, oldItem):
-    item = model.query.get(oldItem.id)
+def item_not_deleted(model, old_item):
+    item = model.query.get(old_item.id)
     assert item is not None
 
 
-def __assertResponseError(
-    response, code, message, action="created", keys=None, messageAttrs=None, **kwargs
+def __assert_response_error(
+    response, code, message, action="created", keys=None, message_attrs=None, **kwargs
 ):
     if keys is None:
         keys = {"status", "message"}
@@ -203,69 +203,73 @@ def __assertResponseError(
     assert set(response.json.keys()) >= keys
     assert response.json["message"] == message
     if "messages" in response.json:
-        for messageAttr, message in messageAttrs:
-            assert response.json["messages"][messageAttr] == message
+        for message_attr, message in message_attrs:
+            assert response.json["messages"][message_attr] == message
     if action == "patch":
-        itemNotModified(
-            **{k: v for k, v in kwargs.items() if k in ["model", "oldItem"]}
+        item_not_modified(
+            **{k: v for k, v in kwargs.items() if k in ["model", "old_item"]}
         )
     elif action == "created":
-        itemNotCreated(**{k: v for k, v in kwargs.items() if k in ["model", "loginAs"]})
+        item_not_created(
+            **{k: v for k, v in kwargs.items() if k in ["model", "login_as"]}
+        )
     elif action == "deleted":
-        itemNotDeleted(**{k: v for k, v in kwargs.items() if k in ["model", "oldItem"]})
+        item_not_deleted(
+            **{k: v for k, v in kwargs.items() if k in ["model", "old_item"]}
+        )
 
 
-def assert401(response, model, *, loginAs, action="None"):
-    __assertResponseError(
+def assert401(response, model, *, login_as, action="None"):
+    __assert_response_error(
         response,
         401,
         "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.",
         model=model,
-        loginAs=loginAs,
+        login_as=login_as,
         action=action,
     )
 
 
 def assert403(
-    response, model, *, action=None, loginAs=None, internal=False, oldItem=None
+    response, model, *, action=None, login_as=None, internal=False, old_item=None
 ):
     if internal:
-        __assertResponseError(
+        __assert_response_error(
             response,
             403,
             "You don't have the permission to access the requested resource.",
             action=action,
             model=model,
-            loginAs=loginAs,
-            oldItem=oldItem,
+            login_as=login_as,
+            old_item=old_item,
         )
     else:
-        __assertResponseError(
+        __assert_response_error(
             response,
             403,
-            f"You don't have the permission to create {model._displayNamePlural} for other users.",
+            f"You don't have the permission to create {model._display_name_plural} for other users.",
             action=action,
             model=model,
-            loginAs=loginAs,
-            oldItem=oldItem,
+            login_as=login_as,
+            old_item=old_item,
         )
 
 
-def assert409(response, model, message, loginAs, **kwargs):
-    __assertResponseError(
-        response, 409, message=message, model=model, loginAs=loginAs, **kwargs
+def assert409(response, model, message, login_as, **kwargs):
+    __assert_response_error(
+        response, 409, message=message, model=model, login_as=login_as, **kwargs
     )
 
 
-def assert422(response, model, messageAttrs, *, loginAs=None, **kwargs):
-    __assertResponseError(
+def assert422(response, model, message_attrs, *, login_as=None, **kwargs):
+    __assert_response_error(
         response,
         422,
         "The request was well-formed but was unable to be followed due to semantic errors.",
         model=model,
-        loginAs=loginAs,
+        login_as=login_as,
         keys={"status", "message", "messages"},
-        messageAttrs=messageAttrs,
+        message_attrs=message_attrs,
         **kwargs,
     )
 
@@ -274,47 +278,47 @@ def assert422(response, model, messageAttrs, *, loginAs=None, **kwargs):
 def captured_templates(app):
     recorded = {}
 
-    def recordTemplate(sender, template, context, **extra):
+    def record_template(sender, template, context, **extra):
         if not "templates" in recorded:
             recorded["templates"] = []
         recorded["templates"].append((template, context))
 
-    def recordFlash(sender, message, category, **extra):
+    def record_flash(sender, message, category, **extra):
         if not "flashes" in recorded:
             recorded["flashes"] = []
         recorded["flashes"].append((message, category))
 
-    template_rendered.connect(recordTemplate, app)
-    message_flashed.connect(recordFlash, app)
+    template_rendered.connect(record_template, app)
+    message_flashed.connect(record_flash, app)
     try:
         yield recorded
     finally:
-        template_rendered.disconnect(recordTemplate, app)
-        message_flashed.disconnect(recordFlash, app)
+        template_rendered.disconnect(record_template, app)
+        message_flashed.disconnect(record_flash, app)
 
 
-def assertRenderedTemplate(items, templateName):
+def assert_rendered_template(items, template_name):
     templates = items["templates"]
     assert len(templates) == 1
     template, context = templates[0]
-    assert template.name == templateName
+    assert template.name == template_name
 
 
-def assertMessageFlashed(items, message, category):
+def assert_message_flashed(items, message, category):
     flashes = items["flashes"]
     assert len(flashes) == 1
-    flashedMessage, flashedCategory = flashes[0]
-    assert flashedMessage == message
-    assert flashedCategory == category
+    flashed_message, flashed_category = flashes[0]
+    assert flashed_message == message
+    assert flashed_category == category
 
 
-def changeOwner(db, newOwner, item):
-    item.owner = newOwner
+def change_owner(db, new_owner, item):
+    item.owner = new_owner
     db.session.merge(item)
     return item
 
 
-def assertCreated(item, data):
+def assert_created(item, data):
     assert item is not None
     assert item.id == 1
     for key, value in data.items():
@@ -324,7 +328,7 @@ def assertCreated(item, data):
             assert getattr(item, key) == value
 
 
-def assertModified(data, model):
+def assert_modified(data, model):
     for key, value in data.items():
         if key in dir(model):
             if key == "enabled":

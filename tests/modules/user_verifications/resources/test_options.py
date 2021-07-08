@@ -27,8 +27,8 @@ def test_user_verifications_options_authorized(
     expected_allowed_methods,
     flask_app_client,
     regular_user,
-    regularUserUserVerification,
-    adminUserUserVerification,
+    regular_user_user_verification,
+    admin_user_user_verification,
 ):
     with flask_app_client.login(regular_user):
         response = flask_app_client.options(path)

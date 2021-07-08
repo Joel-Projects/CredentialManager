@@ -4,8 +4,8 @@ from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
 from wtforms import BooleanField
 
-from ...extensions import db, paginateArgs, verifyEditable
-from .. import getPaginator
+from ...extensions import db, paginate_args, verify_editable
+from .. import get_paginator
 from ..users.models import User
 from .parameters import PatchBotDetailsParameters
 from .resources import api
@@ -15,7 +15,7 @@ from .forms import BotForm
 from .models import Bot
 from .tables import BotTable
 
-botsBlueprint = Blueprint(
+bots_blueprint = Blueprint(
     "bots",
     __name__,
     template_folder="./templates",
@@ -24,10 +24,10 @@ botsBlueprint = Blueprint(
 )
 
 
-@botsBlueprint.route("/bots", methods=["GET", "POST"])
+@bots_blueprint.route("/bots", methods=["GET", "POST"])
 @login_required
-@paginateArgs(Bot)
-def bots(page, perPage, orderBy, sort_columns, sort_directions):
+@paginate_args(Bot)
+def bots(page, per_page, order_by, sort_columns, sort_directions):
     form = BotForm()
     code = 200
     if request.method == "POST":
@@ -48,7 +48,7 @@ def bots(page, perPage, orderBy, sort_columns, sort_directions):
             db.session.add(bot)
         else:
             return jsonify(status="error", errors=form.errors), code
-    paginator = getPaginator(Bot, page, perPage, orderBy, sort_columns)
+    paginator = get_paginator(Bot, page, per_page, order_by, sort_columns)
     table = BotTable(
         paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
     )
@@ -56,25 +56,25 @@ def bots(page, perPage, orderBy, sort_columns, sort_directions):
     return (
         render_template(
             "bots.html",
-            botsTable=table,
-            botsForm=form,
+            bots_table=table,
+            bots_form=form,
             paginator=paginator,
             route="bots.bots",
-            perPage=perPage,
+            per_page=per_page,
         ),
         code,
     )
 
 
-@botsBlueprint.route("/bots/<Bot:bot>/", methods=["GET", "POST"])
+@bots_blueprint.route("/bots/<Bot:bot>/", methods=["GET", "POST"])
 @login_required
-@verifyEditable("bot")
-def editBots(bot):
+@verify_editable("bot")
+def edit_bots(bot):
     form = BotForm(obj=bot)
     code = 200
     if request.method == "POST":
         if form.validate_on_submit():
-            itemsToUpdate = []
+            items_to_update = []
             for item in PatchBotDetailsParameters.fields:
                 if item in [
                     "reddit_app_id",
@@ -91,18 +91,18 @@ def editBots(bot):
                         item = f"{item}_id"
                     else:
                         value = getattr(form, item).data
-                    itemsToUpdate.append(
+                    items_to_update.append(
                         {"op": "replace", "path": f"/{item}", "value": value}
                     )
-            if itemsToUpdate:
-                for item in itemsToUpdate:
+            if items_to_update:
+                for item in items_to_update:
                     PatchBotDetailsParameters().validate_patch_structure(item)
                 try:
                     with api.commit_or_abort(
                         db.session,
                         default_error_message="Failed to update Bot details.",
                     ):
-                        PatchBotDetailsParameters.perform_patch(itemsToUpdate, bot)
+                        PatchBotDetailsParameters.perform_patch(items_to_update, bot)
                         db.session.merge(bot)
                         code = 202
                         flash(f"Bot {bot.app_name!r} saved successfully!", "success")

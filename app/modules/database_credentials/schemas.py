@@ -26,8 +26,8 @@ class BaseDatabaseCredentialSchema(ModelSchema):
         dump_only = (DatabaseCredential.id.key, "resource_type")
         load_only = (DatabaseCredential.enabled.key,)
 
-    _resourceType = Meta.model.__name__
-    resource_type = base_fields.String(default=_resourceType)
+    _resource_type = Meta.model.__name__
+    resource_type = base_fields.String(default=_resource_type)
 
 
 class DetailedDatabaseCredentialSchema(BaseDatabaseCredentialSchema):

@@ -33,7 +33,7 @@ class ApiTokenForm(ModelForm):
     )
     owner = ModelSelectField(
         query_factory=owners,
-        queryKwargs={"current_user": current_user},
+        query_kwargs={"current_user": current_user},
         default=current_user,
     )
 
@@ -53,6 +53,6 @@ class EditApiTokenForm(ModelForm):
     )
     owner = ModelSelectField(
         query_factory=owners,
-        queryKwargs={"current_user": current_user},
+        query_kwargs={"current_user": current_user},
         default=current_user,
     )

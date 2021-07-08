@@ -14,7 +14,7 @@ class ListApiTokensParameters(PaginationParameters, ValidateOwner):
     class Meta:
         model = ApiToken
 
-    invalidOwnerMessage = "You can only query your own {}."
+    invalid_owner_message = "You can only query your own {}."
 
 
 # #class CreateApiTokenParameters(PostFormParameters, schemas.BaseApiTokenSchema, ValidateOwner):
@@ -26,12 +26,12 @@ class ListApiTokensParameters(PaginationParameters, ValidateOwner):
 # #        fields = schemas.BaseApiTokenSchema.Meta.fields + ('owner_id', 'length')
 # #
 # #    @validates('name')
-# #    def validateName(self, data):
+# #    def validate_name(self, data):
 # #        if len(data) < 3:
 # #            raise ValidationError('Name must be greater than 3 characters long.')
 # #
 # #    @validates('length')
-# #    def validateLength(self, data):
+# #    def validate_length(self, data):
 # #        if 16 > data:
 # #            raise ValidationError('Length must be greater than 16.')
 # #        elif 128 < data:

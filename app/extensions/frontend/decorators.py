@@ -7,7 +7,7 @@ from app.extensions.api import abort
 from app.modules.users.models import User
 
 
-def paginateArgs(model):
+def paginate_args(model):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -17,8 +17,8 @@ def paginateArgs(model):
             from ...modules.sentry_tokens.models import SentryToken
 
             page = request.args.get("page", 1, int)
-            perPage = request.args.get("perPage", 10, int)
-            sort_columns = request.args.get("orderBy", type=str)
+            per_page = request.args.get("per_page", 10, int)
+            sort_columns = request.args.get("order_by", type=str)
             kwargs["sort_columns"] = sort_columns.split(",") if sort_columns else []
             sort_directions = request.args.get("direction", type=str)
             kwargs["sort_directions"] = (
@@ -29,15 +29,15 @@ def paginateArgs(model):
                 from ...modules import get_model
 
                 model = get_model(request.path.strip("/").split("/")[-1])
-                perPage = 0
-            if perPage == 0:  # pragma: no cover
-                perPage = model.query.count()
+                per_page = 0
+            if per_page == 0:  # pragma: no cover
+                per_page = model.query.count()
             kwargs["page"] = page
-            kwargs["perPage"] = perPage
+            kwargs["per_page"] = per_page
             sorts = []
-            if request.endpoint == "users.itemsPerUser":
+            if request.endpoint == "users.items_per_user":
                 del kwargs["page"]
-                del kwargs["perPage"]
+                del kwargs["per_page"]
             for column, direction in zip(
                 kwargs["sort_columns"], kwargs["sort_directions"]
             ):
@@ -60,7 +60,7 @@ def paginateArgs(model):
                         "sentry_tokens": getattr(SentryToken.app_name, direction),
                     }
                     sorts.append(mapping[column]())
-            kwargs["orderBy"] = sorts
+            kwargs["order_by"] = sorts
             return func(*args, **kwargs)
 
         return wrapper
@@ -68,7 +68,7 @@ def paginateArgs(model):
     return decorator
 
 
-def requiresAdmin(func):
+def requires_admin(func):
     @wraps(func)
     def decorated(*args, **kwargs):
         if current_user and (current_user.is_admin or current_user.is_internal):
@@ -78,24 +78,24 @@ def requiresAdmin(func):
     return decorated
 
 
-def verifyEditable(kwargName):
+def verify_editable(kwarg_name):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            currentObject = kwargs[kwargName]
+            current_object = kwargs[kwarg_name]
             if current_user and (
                 current_user.is_admin
                 or current_user.is_internal
-                or currentObject.check_owner(current_user)
+                or current_object.check_owner(current_user)
             ):
-                if currentObject._sa_class_manager.class_ == User:
+                if current_object._sa_class_manager.class_ == User:
                     if (
-                        currentObject.is_internal and not current_user.is_internal
+                        current_object.is_internal and not current_user.is_internal
                     ):  # pragma: no cover
                         abort(403)
                 elif (
-                    currentObject.owner.is_internal
-                    and current_user.is_internal != currentObject.owner.is_internal
+                    current_object.owner.is_internal
+                    and current_user.is_internal != current_object.owner.is_internal
                 ):
                     abort(403)
             else:

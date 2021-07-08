@@ -24,8 +24,8 @@ class BaseRedditAppSchema(ModelSchema):
         dump_only = (RedditApp.id.key, "resource_type")
         load_only = (RedditApp.enabled.key,)
 
-    _resourceType = Meta.model.__name__
-    resource_type = base_fields.String(default=_resourceType)
+    _resource_type = Meta.model.__name__
+    resource_type = base_fields.String(default=_resource_type)
 
 
 class DetailedRedditAppSchema(BaseRedditAppSchema):

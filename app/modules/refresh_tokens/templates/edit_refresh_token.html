@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import 'macros.html' as macros %}
 {% block title %}Credential Manager - Edit Refresh Token - {{ refresh_token.app_name }} - {{ refresh_token.redditor }}{% endblock %}
-{% block breadCrumbs %}
+{% block bread_crumbs %}
     <!--suppress HtmlUnknownTarget -->
     {% if user and (current_user.is_admin or current_user.is_internal or refresh_token.check_owner(current_user)) %}
         <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
@@ -12,7 +12,7 @@
     {% endif %}
     <li class="breadcrumb-item"><a href="/refresh_tokens/{{ refresh_token.id }}">{{ refresh_token.app_name }} - {{ refresh_token.redditor }}</a></li>
 {% endblock %}
-{% block activeItem %}active item{% endblock %}
+{% block active_item %}active item{% endblock %}
 {% block content %}
     <!--suppress ALL -->
     <script src="{{ url_for('refresh_tokens.static', filename='js/edit_refresh_token.js') }}"></script>
@@ -24,35 +24,35 @@
         <div class="jumbotron">
             <h4>Refresh Token Info</h4>
             <hr style="border-top: 1px solid">
-            {% for attr, displayName in refresh_token._infoAttrs.items() %}
-                <strong>{{ displayName }}:</strong>
+            {% for attr, display_name in refresh_token._info_attrs.items() %}
+                <strong>{{ display_name }}:</strong>
                 <br>
                 {% if attr == 'owner' and not refresh_token.check_owner(current_user) and (current_user.is_admin or current_user.is_internal) %}
-                    <a href="/u/{{ refresh_token.getInfoAttr(attr).username }}">{{ refresh_token.getInfoAttr(attr).username }}</a>
+                    <a href="/u/{{ refresh_token.get_info_attr(attr).username }}">{{ refresh_token.get_info_attr(attr).username }}</a>
                     <br>
                     <br>
-                {% elif refresh_token.getInfoAttr(attr).__class__.__name__ == 'datetime' %}
-                    <a>{{ moment(refresh_token.getInfoAttr(attr)).format(' MM/DD/YYYY, h:mm:ss a') }}</a>
+                {% elif refresh_token.get_info_attr(attr).__class__.__name__ == 'datetime' %}
+                    <a>{{ moment(refresh_token.get_info_attr(attr)).format(' MM/DD/YYYY, h:mm:ss a') }}</a>
                     <br>
                     <br>
                 {% elif attr == 'reddit_app' %}
-                    <a href="/reddit_apps/{{ refresh_token.getInfoAttr(attr).id }}">{{ refresh_token.getInfoAttr(attr).app_name }}</a>
+                    <a href="/reddit_apps/{{ refresh_token.get_info_attr(attr).id }}">{{ refresh_token.get_info_attr(attr).app_name }}</a>
                     <br>
                     <br>
                 {% elif attr == 'refresh_token' %}
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" style="background-color: grey;color: lightgray" readonly="" value="{{ refresh_token.getInfoAttr(attr) }}" aria-describedby="copyBox">
+                        <input type="text" class="form-control" style="background-color: grey;color: lightgray" readonly="" value="{{ refresh_token.get_info_attr(attr) }}" aria-describedby="copy_box">
                         <div class="input-group-append">
-                            <button class="input-group-text btn-dark" type="button" onclick="copy(this)" id="copyBox"><a class="fas fa-clipboard"></a></button>
+                            <button class="input-group-text btn-dark" type="button" onclick="copy(this)" id="copy_box"><a class="fas fa-clipboard"></a></button>
                         </div>
                     </div>
                 {% elif attr == 'revoked_at' %}
-                    <a>{% if refresh_token.getInfoAttr(attr) %}{{ refresh_token.getInfoAttr(attr) }}{% else %}Never{% endif %}</a>
+                    <a>{% if refresh_token.get_info_attr(attr) %}{{ refresh_token.get_info_attr(attr) }}{% else %}Never{% endif %}</a>
                     <br>
                     <br>
                 {% elif attr == 'scopes' %}
                     <div class="container">
-                        {% for row in refresh_token.chunkScopes %}
+                        {% for row in refresh_token.chunk_scopes %}
                             <div class="row">
                                 {% for scope, enabled, description in row %}
                                     <div class="col-sm-3">
@@ -73,12 +73,12 @@
                     <br>
                     <br>
                 {% else %}
-                    <a>{{ refresh_token.getInfoAttr(attr) }}</a>
+                    <a>{{ refresh_token.get_info_attr(attr) }}</a>
                     <br>
                     <br>
                 {% endif %}
             {% endfor %}
-            <button class="btn btn-danger" id="delete" data-target="#confirmationModal" onclick="showDeleteModal('{{ refresh_token.app_name }}', 'refresh_tokens', {{ refresh_token.id }})" data-toggle="modal">Delete</button>
+            <button class="btn btn-danger" id="delete" data-target="#confirmation_modal" onclick="show_delete_modal('{{ refresh_token.app_name }}', 'refresh_tokens', {{ refresh_token.id }})" data-toggle="modal">Delete</button>
             {#                </div>#}
             {#            </div>#}
         </div>

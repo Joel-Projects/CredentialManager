@@ -27,7 +27,7 @@ class EditUserForm(ModelForm):
             "password": {"validators": [Optional()]},
         }
 
-    updatePassword = HiddenFieldWithToggle("Update Password?")
+    update_password = HiddenFieldWithToggle("Update Password?")
     is_admin = BooleanField("Admin?")
     is_internal = BooleanField("Internal?")
     is_regular_user = BooleanField("Regular User?")

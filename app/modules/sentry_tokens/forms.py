@@ -17,8 +17,8 @@ class SentryHostnameValidation(HostnameValidation):
 
 
 class SentryTokenValidator(Regexp):
-    def __init__(self, require_tld=True, message=None, createSentryAppField=None):
-        self.createSentryAppField = createSentryAppField
+    def __init__(self, require_tld=True, message=None, create_sentry_app_field=None):
+        self.create_sentry_app_field = create_sentry_app_field
         regex = r"^[a-z]+://(?P<host>[^/:]+)(?P<port>:[0-9]+)?(?P<path>\/.*)?$"
         super(SentryTokenValidator, self).__init__(regex, re.IGNORECASE, message)
         self.validate_hostname = SentryHostnameValidation(
@@ -27,15 +27,15 @@ class SentryTokenValidator(Regexp):
         )
 
     def __call__(self, *args, **kwargs):
-        if not self.createSentryAppField:
+        if not self.create_sentry_app_field:
             super(SentryTokenValidator, self).__call__(*args, **kwargs)
         else:
             return True
 
 
 class SentryDSNValidator:
-    def __init__(self, createSentryAppField, message=None):
-        self.createSentryAppField = createSentryAppField
+    def __init__(self, create_sentry_app_field, message=None):
+        self.create_sentry_app_field = create_sentry_app_field
         self.message = message
 
     def __call__(self, form, field):
@@ -71,7 +71,7 @@ class EditSentryTokenForm(ModelForm):
     )
     owner = ModelSelectField(
         query_factory=owners,
-        queryKwargs={"current_user": current_user},
+        query_kwargs={"current_user": current_user},
         default=current_user,
     )
 
@@ -85,7 +85,8 @@ class SentryTokenForm(EditSentryTokenForm):
         validators=[
             SentryDSNValidator(create_sentry_app),
             SentryTokenValidator(
-                message="Invalid Sentry Token", createSentryAppField=create_sentry_app
+                message="Invalid Sentry Token",
+                create_sentry_app_field=create_sentry_app,
             ),
         ],
     )

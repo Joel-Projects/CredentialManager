@@ -1,34 +1,34 @@
 import pytest
 
 from tests.params import labels, users
-from tests.responseStatuses import assert200, assert403, assert404
-from tests.utils import assertRenderedTemplate, captured_templates, changeOwner
+from tests.response_statuses import assert200, assert403, assert404
+from tests.utils import assert_rendered_template, captured_templates, change_owner
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 def test_user_verification_detail(
-    flask_app_client, loginAs, regularUserUserVerification
+    flask_app_client, login_as, regular_user_user_verification
 ):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.get(
-            f"/user_verifications/{regularUserUserVerification.id}"
+            f"/user_verifications/{regular_user_user_verification.id}"
         )
-        if loginAs.is_admin or loginAs.is_internal:
+        if login_as.is_admin or login_as.is_internal:
             assert200(response)
-            assertRenderedTemplate(templates, "edit_user_verification.html")
+            assert_rendered_template(templates, "edit_user_verification.html")
         else:
             assert403(response, templates)
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 def test_user_verification_detail_self(
-    flask_app_client, db, loginAs, regularUserUserVerification
+    flask_app_client, db, login_as, regular_user_user_verification
 ):
-    changeOwner(db, loginAs, regularUserUserVerification)
+    change_owner(db, login_as, regular_user_user_verification)
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.get(f"/profile/user_verifications")
         assert200(response)
-        assertRenderedTemplate(templates, "user_verifications.html")
+        assert_rendered_template(templates, "user_verifications.html")
 
 
 def test_non_existant_user_verification_detail(flask_app_client, regular_user):

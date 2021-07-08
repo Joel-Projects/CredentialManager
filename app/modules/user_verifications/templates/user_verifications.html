@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Credential Manager - User Verifications{% endblock %}
-{% block breadCrumbs %}
+{% block bread_crumbs %}
     {% if request.full_path.startswith('/profile') %}
         <li class="breadcrumb-item"><a href=/profile>Profile</a></li>
     {% elif user %}
@@ -12,5 +12,5 @@
 {% block content %}
     <body>
     <script src="{{ url_for('user_verifications.static', filename='js/user_verifications.js') }}"></script>
-    {% include 'user_verificationsTable.html' %}
+    {% include 'user_verifications_table.html' %}
 {% endblock %}

@@ -3,12 +3,12 @@ import pytest
 from app.modules.users.models import User
 from app.modules.users.schemas import DetailedUserSchema
 from tests.params import labels, users
-from tests.utils import assert401, assert403, assertSuccess
+from tests.utils import assert401, assert403, assert_success
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 @pytest.mark.parametrize(
-    "userToGet",
+    "user_to_get",
     [
         pytest.lazy_fixture("admin_user"),
         pytest.lazy_fixture("internal_user"),
@@ -16,30 +16,30 @@ from tests.utils import assert401, assert403, assertSuccess
     ],
     ids=["get_admin_user", "get_internal_user", "get_regular_user"],
 )
-def test_getting_user(flask_app_client, loginAs, userToGet):
+def test_getting_user(flask_app_client, login_as, user_to_get):
     response = flask_app_client.post(
-        f"/api/v1/users/by_name", data={"username": userToGet.username}
+        f"/api/v1/users/by_name", data={"username": user_to_get.username}
     )
 
-    if userToGet.is_internal:
-        if loginAs.is_internal:
-            assertSuccess(response, None, User, DetailedUserSchema)
-        elif loginAs.is_admin:
+    if user_to_get.is_internal:
+        if login_as.is_internal:
+            assert_success(response, None, User, DetailedUserSchema)
+        elif login_as.is_admin:
             assert403(response, User, internal=True)
         else:
             assert403(response, User, internal=True)
-    elif loginAs.is_admin or loginAs.is_internal:
-        assertSuccess(response, None, User, DetailedUserSchema)
+    elif login_as.is_admin or login_as.is_internal:
+        assert_success(response, None, User, DetailedUserSchema)
     else:
         assert403(response, User, internal=True)
 
 
 @pytest.mark.parametrize(
-    "loginAs",
+    "login_as",
     [
-        pytest.lazy_fixture("adminUserInstanceDeactivated"),
-        pytest.lazy_fixture("internalUserInstanceDeactivated"),
-        pytest.lazy_fixture("regularUserInstanceDeactivated"),
+        pytest.lazy_fixture("admin_user_instance_deactivated"),
+        pytest.lazy_fixture("internal_user_instance_deactivated"),
+        pytest.lazy_fixture("regular_user_instance_deactivated"),
     ],
     ids=[
         "as_deactivated_admin_user",
@@ -48,7 +48,7 @@ def test_getting_user(flask_app_client, loginAs, userToGet):
     ],
 )
 @pytest.mark.parametrize(
-    "userToGet",
+    "user_to_get",
     [
         pytest.lazy_fixture("internal_user"),
         pytest.lazy_fixture("admin_user"),
@@ -56,20 +56,22 @@ def test_getting_user(flask_app_client, loginAs, userToGet):
     ],
     ids=["get_admin_user", "get_internal_user", "get_regular_user"],
 )
-def test_getting_user_deactivated(flask_app_client, loginAs, userToGet):
-    with flask_app_client.login(loginAs):
-        response = flask_app_client.get(f"/api/v1/users/{userToGet.id}")
-    assert401(response, User, loginAs=loginAs, action="None")
+def test_getting_user_deactivated(flask_app_client, login_as, user_to_get):
+    with flask_app_client.login(login_as):
+        response = flask_app_client.get(f"/api/v1/users/{user_to_get.id}")
+    assert401(response, User, login_as=login_as, action="None")
 
 
 def test_getting_list_of_users_by_unauthorized_user_must_fail(
-    flask_app_client, regularUserInstance
+    flask_app_client, regular_user_instance
 ):
     response = flask_app_client.get("/api/v1/users/")
-    assert403(response, User, loginAs=regularUserInstance, internal=True)
+    assert403(response, User, login_as=regular_user_instance, internal=True)
 
 
-def test_getting_list_of_users_by_authorized_user(flask_app_client, adminUserInstance):
+def test_getting_list_of_users_by_authorized_user(
+    flask_app_client, admin_user_instance
+):
     response = flask_app_client.get("/api/v1/users/")
 
     assert response.status_code == 200
@@ -78,7 +80,7 @@ def test_getting_list_of_users_by_authorized_user(flask_app_client, adminUserIns
     assert set(response.json[0].keys()) >= {"id", "username"}
 
 
-def test_getting_user_me_info(flask_app_client, regularUserInstance):
+def test_getting_user_me_info(flask_app_client, regular_user_instance):
     response = flask_app_client.get("/api/v1/users/me")
 
     assert response.status_code == 200
@@ -88,8 +90,8 @@ def test_getting_user_me_info(flask_app_client, regularUserInstance):
     assert "password" not in response.json.keys()
 
 
-def test_getting_user_apps(flask_app_client, regularUserInstance):
-    response = flask_app_client.get(f"/api/v1/users/{regularUserInstance.id}/apps")
+def test_getting_user_apps(flask_app_client, regular_user_instance):
+    response = flask_app_client.get(f"/api/v1/users/{regular_user_instance.id}/apps")
 
     assert response.status_code == 200
     assert response.content_type == "application/json"

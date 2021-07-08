@@ -72,7 +72,7 @@ class PatchJSONParameters(Parameters):
 
     value = base_fields.Raw(required=False, allow_none=True)
 
-    fromPath = base_fields.String(required=False)
+    from_path = base_fields.String(required=False)
 
     def __init__(self, *args, **kwargs):
 
@@ -90,7 +90,7 @@ class PatchJSONParameters(Parameters):
         self.fields["path"].validators = self.fields["path"].validators + [
             validate.OneOf(self.PATH_CHOICES)
         ]
-        self.fields["fromPath"].validators = self.fields["fromPath"].validators + [
+        self.fields["from_path"].validators = self.fields["from_path"].validators + [
             validate.OneOf(self.PATH_CHOICES)
         ]
 
@@ -110,7 +110,7 @@ class PatchJSONParameters(Parameters):
             raise ValidationError("value is required")
 
         if data["op"] == self.OP_COPY:
-            data["from"] = data["fromPath"][1:]
+            data["from"] = data["from_path"][1:]
 
         if "path" not in data:
             raise ValidationError("Path is required and must always begin with /")
@@ -218,12 +218,12 @@ class PatchJSONParameters(Parameters):
         raise NotImplementedError()  # pragma: no cover
 
     @classmethod
-    def copy(cls, obj, fromPath, path):
+    def copy(cls, obj, from_path, path):
         if path.startswith("/"):
             path = path[1:]  # pragma: no cover
-        if not hasattr(obj, fromPath) or not hasattr(obj, path):
+        if not hasattr(obj, from_path) or not hasattr(obj, path):
             raise ValidationError(
-                f"Field '{fromPath}' does not exist, so it cannot be patched"
+                f"Field '{from_path}' does not exist, so it cannot be patched"
             )  # pragma: no cover
-        setattr(obj, path, getattr(obj, fromPath))
+        setattr(obj, path, getattr(obj, from_path))
         return True

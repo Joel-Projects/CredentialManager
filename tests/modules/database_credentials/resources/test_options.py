@@ -27,8 +27,8 @@ def test_database_credentials_options_authorized(
     expected_allowed_methods,
     flask_app_client,
     regular_user,
-    regularUserDatabaseCredential,
-    adminUserDatabaseCredential,
+    regular_user_database_credential,
+    admin_user_database_credential,
 ):
     with flask_app_client.login(regular_user):
         response = flask_app_client.options(path)

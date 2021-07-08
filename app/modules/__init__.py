@@ -8,7 +8,7 @@ def init_app(app, **kwargs):
         import_module(f".{module_name}", package=__name__).init_app(app, **kwargs)
 
 
-def getViewableItems(args, model):
+def get_viewable_items(args, model):
     from flask_login import current_user
 
     from app.modules.users.models import User
@@ -22,7 +22,7 @@ def getViewableItems(args, model):
         elif current_user.is_admin and not current_user.is_internal:
             query = query.filter(model.owner.has(internal=False))
     if hasattr(model, "enabled"):
-        query = query.filter(model.enabled == True)
+        query = query.filter(model.enabled)
     return query
 
 
@@ -53,7 +53,7 @@ def get_model(item):
     }.get(item, None)
 
 
-def getPaginator(model, page, perPage, orderBy, order_by_raw):
+def get_paginator(model, page, per_page, order_by, order_by_raw):
     if current_user.is_internal:
         query = model.query
     elif current_user.is_admin:
@@ -64,6 +64,6 @@ def getPaginator(model, page, perPage, orderBy, order_by_raw):
     for column in order_by_raw:
         if get_model(column):
             query = query.outerjoin(get_model(column))
-    if not orderBy:
-        orderBy = [getattr(model, model._nameAttr).asc()]
-    return query.order_by(*orderBy).paginate(page, perPage, error_out=False)
+    if not order_by:
+        order_by = [getattr(model, model._name_attr).asc()]
+    return query.order_by(*order_by).paginate(page, per_page, error_out=False)

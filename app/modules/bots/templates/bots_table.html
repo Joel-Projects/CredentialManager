@@ -1,0 +1,72 @@
+<div class="container">
+    <div class="table-responsive">
+        {{ bots_table }}
+    </div>
+    <div class="row">
+        <div class="col">
+            <button class="btn btn-primary" id="add_bot" data-toggle="modal" data-target="#add_bot_modal">Add Bot</button>
+        </div>
+        {% include 'paginator.html' %}
+    </div>
+    <div class="modal fade" id="add_bot_modal" tabindex="-1" role="dialog" aria-labelledby="add_bot_modal_label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="add_bot_modal_label">Add Bot</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add_bot_form" method="post" resource="{% if user %}/u/{{ user.username }}{% endif %}/bots">
+                        <div class="form-group">
+                            {{ bots_form.app_name.label }}
+                            {% if bots_form.app_name.errors %}
+                                {{ bots_form.app_name(size=16, class_="form-control is-invalid", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
+                                {% for error in bots_form.app_name.errors %}
+                                    <div class="invalid-feedback" id="bot_name_feedback">{{ error }}</div>
+                                {% endfor %}
+                            {% else %}
+                                {{ bots_form.app_name(size=16, class_="form-control", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ bots_form.reddit_app.label }}
+                            {{ bots_form.reddit_app(class_="custom-select") }}
+                        </div>
+                        <div class="form-group">
+                            {{ bots_form.sentry_token.label }}
+                            {{ bots_form.sentry_token(class_="custom-select") }}
+                        </div>
+                        <div class="form-group">
+                            {{ bots_form.database_credential.label }}
+                            {{ bots_form.database_credential(class_="custom-select") }}
+                        </div>
+                        <div class="form-group" {% if not current_user.is_admin and not current_user.is_internal %}hidden{% endif %}>
+                            {{ bots_form.owner.label }}
+                            {{ bots_form.owner(class_="custom-select") }}
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                                {{ bots_form.enabled(checked=True, class_="custom-control-input") }}
+                                {{ bots_form.enabled.label(class_='custom-control-label') }}
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>
+                            {#                            <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="bot_create_new">Add and New</button>#}
+                            <button type="submit" name="submit" tabindex="0" class="btn btn-primary" onclick="create_item(this, 'add_bot_form', '{% if user %}/u/{{ user.username }}{% endif %}/bots')" id="bot_create">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if enable_tablesorter %}
+        <script>
+            $("#bots_table").tablesorter({
+                theme: "bootstrap",
+                cancelSelection: false,
+                sortReset: true
+            });
+        </script>
+    {% endif %}
+</div>

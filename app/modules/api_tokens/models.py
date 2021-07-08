@@ -9,10 +9,10 @@ class ApiToken(db.Model, Timestamp, InfoAttrs):
         super().__init__(*args, **kwargs)
 
     __tablename__ = "api_tokens"
-    _nameAttr = "name"
-    _displayNamePlural = "API Tokens"
-    _enabledAttr = "enabled"
-    _infoAttrs = {
+    _name_attr = "name"
+    _display_name_plural = "API Tokens"
+    _enabled_attr = "enabled"
+    _info_attrs = {
         "id": "API Token ID",
         "owner": "Owner",
         "created": "Created at",
@@ -50,8 +50,8 @@ class ApiToken(db.Model, Timestamp, InfoAttrs):
 
     @staticmethod
     def generate_token(length=32):
-        """genToken = lambda: base64.b64encode(hashlib.sha256(str(random.getrandbits(256)).encode()).digest(), random.choice([b'rA', b'aZ', b'gQ', b'hH', b'hG', b'aR', b'DD'])).rstrip(b'==').decode()
-        self.token = ''.join([''.join(list(i)) for i in zip(genToken(), genToken())])[:length]
+        """gen_token = lambda: base64.b64encode(hashlib.sha256(str(random.getrandbits(256)).encode()).digest(), random.choice([b'rA', b'aZ', b'gQ', b'hH', b'hG', b'aR', b'DD'])).rstrip(b'==').decode()
+        self.token = ''.join([''.join(list(i)) for i in zip(gen_token(), gen_token())])[:length]
         """
         characters = (
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.-~"

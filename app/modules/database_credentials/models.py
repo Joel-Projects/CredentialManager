@@ -7,13 +7,13 @@ class DatabaseCredential(db.Model, Timestamp, InfoAttrs, StrName):
         super().__init__(*args, **kwargs)
 
     __tablename__ = "database_credentials"
-    _nameAttr = "app_name"
-    _displayNamePlural = "Database Credentials"
-    _enabledAttr = "enabled"
-    _infoAttrs = {
+    _name_attr = "app_name"
+    _display_name_plural = "Database Credentials"
+    _enabled_attr = "enabled"
+    _info_attrs = {
         "id": "Database Credential ID",
         "owner": "Owner",
-        "botsUsingApp": "Bots using this",
+        "bots_using_app": "Bots using this",
         "created": "Created at",
         "updated": "Last updated at",
     }
@@ -121,10 +121,10 @@ class DatabaseCredential(db.Model, Timestamp, InfoAttrs, StrName):
         info={"label": "Owner", "description": "Owner of the Database Credential"},
     )
     owner = db.relationship("User", backref=db.backref(__tablename__, lazy="dynamic"))
-    uniqueConstraint = db.UniqueConstraint(app_name, owner_id)
+    unique_constraint = db.UniqueConstraint(app_name, owner_id)
 
     @property
-    def botsUsingApp(self):
+    def bots_using_app(self):
         from app.modules.bots.models import Bot
 
         return Bot.query.filter_by(database_credential=self).count()

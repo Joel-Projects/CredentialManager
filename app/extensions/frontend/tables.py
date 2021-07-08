@@ -50,9 +50,9 @@ class CopyableField(BaseCol):
     def td_format(self, contents):
         content, item = contents
         return f"""<div class="input-group mb-3">
-  <input type="text" class="form-control" style="background-color: grey;color: lightgray" readonly value="{content}" aria-describedby="copyBox">
+  <input type="text" class="form-control" style="background-color: grey;color: lightgray" readonly value="{content}" aria-describedby="copy_box">
   <div class="input-group-append">
-    <button class="input-group-text btn-dark" type="button"  onclick="copy(this)" id="copyBox"><a  class="fas fa-clipboard"></a></button>
+    <button class="input-group-text btn-dark" type="button"  onclick="copy(this)" id="copy_box"><a  class="fas fa-clipboard"></a></button>
   </div>
 </div>
 """
@@ -95,8 +95,8 @@ class CreatedBy(BaseCol):  # pragma: no cover
     def td_format(self, item):
         content, item, tooltip = item
         link = ""
-        if item.createdBy:
-            if item.createdBy.is_internal:
+        if item.created_by:
+            if item.created_by.is_internal:
                 if current_user.is_internal:
                     link = f' href = "/u/{content}"'
             else:
@@ -158,31 +158,31 @@ class DropdownActionColumn(ModifiedCol):
     def td_format(self, data):
         content, item = data
         if item.__tablename__ == "users":
-            itemSubPath = "u"
+            item_sub_path = "u"
         else:
-            itemSubPath = item.__tablename__
-        href = f"/{itemSubPath}/{content}"
+            item_sub_path = item.__tablename__
+        href = f"/{item_sub_path}/{content}"
         if self.toggle:
-            enabled = getattr(item, item._enabledAttr)
+            enabled = getattr(item, item._enabled_attr)
             if enabled:
                 color = "E74C3C"
                 text = "Disable"
             else:
                 color = "00BC8C"
                 text = "Enable"
-            toggleStr = f"""<a class="dropdown-item" id="{item.__tablename__}_{item.id}_toggle" style="color: #{color}" onclick="toggleItem('{item.__tablename__}', {item.id}, '{getattr(item, item._nameAttr)}', '{item._nameAttr}', '{item._enabledAttr}')">{text}</a>"""
+            toggle_str = f"""<a class="dropdown-item" id="{item.__tablename__}_{item.id}_toggle" style="color: #{color}" onclick="toggle_item('{item.__tablename__}', {item.id}, '{getattr(item, item._name_attr)}', '{item._name_attr}', '{item._enabled_attr}')">{text}</a>"""
         else:  # pragma: no cover
-            toggleStr = ""
+            toggle_str = ""
 
         return f"""<div aria-label="Button group with nested dropdown" class="btn-group" role="group">
     <button type="button" class="btn btn-primary" onclick="location.href='{href}'">{self.name}</button>
     <div class="btn-group" role="group">
-        <button id="{item.__tablename__}_{item.id}_buttonGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-        <div class="dropdown-menu" aria-labelledby="{item.__tablename__}_{item.id}_buttonGroup" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 36px, 0px);">
+        <button id="{item.__tablename__}_{item.id}_button_group" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+        <div class="dropdown-menu" aria-labelledby="{item.__tablename__}_{item.id}_button_group" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 36px, 0px);">
             <a class="dropdown-item" href="{href}">{self.name}</a>
-            {toggleStr}
+            {toggle_str}
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" onclick="showTableItemDeleteModal('{getattr(item, item._nameAttr)}', '{item.__tablename__}', {item.id}, {item.loopIndex})" style="color: red">Delete</a>
+            <a class="dropdown-item" onclick="show_table_item_delete_modal('{getattr(item, item._name_attr)}', '{item.__tablename__}', {item.id}, {item.loop_index})" style="color: red">Delete</a>
         </div>
     </div>
 </div>
@@ -206,8 +206,8 @@ class BaseTable(Table):
         self,
         items,
         editable=True,
-        canBeDisabled=True,
-        endpointAttr="id",
+        can_be_disabled=True,
+        endpoint_attr="id",
         sort_columns=None,
         sort_directions=None,
         allow_sort=True,
@@ -227,7 +227,7 @@ class BaseTable(Table):
         else:
             name = "View"
         self.add_column(
-            name, DropdownActionColumn(name, endpointAttr, toggle=canBeDisabled)
+            name, DropdownActionColumn(name, endpoint_attr, toggle=can_be_disabled)
         )
         hide_owner = kwargs.pop("hide_owner", False)
         if hide_owner:
@@ -283,13 +283,13 @@ class BaseTable(Table):
 
     def tbody(self):
         out = []
-        for loopIndex, item in enumerate(self.items, 1):
-            setattr(item, "loopIndex", loopIndex)
+        for loop_index, item in enumerate(self.items, 1):
+            setattr(item, "loop_index", loop_index)
             out.append(self.tr(item))
         if not out:
             return ""
-        outContent = "\n".join(out)
-        content = f"\n{outContent}\n"
+        out_content = "\n".join(out)
+        content = f"\n{out_content}\n"
         return element("tbody", content=content, escape_content=False)
 
     def sort_url(self, col_key, reverse=False, remove_sort=False):
@@ -312,7 +312,7 @@ class BaseTable(Table):
         if current_columns:
             return url_for(
                 **self.route_kwargs,
-                orderBy=",".join(current_columns),
+                order_by=",".join(current_columns),
                 direction=",".join(current_directions),
             )
         else:

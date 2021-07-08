@@ -18,7 +18,7 @@ class Namespace(BaseNamespace):
 
     WEBARGS_PARSER = CustomWebargsParser()
 
-    def resolveObjectToModel(self, model, object_arg_name, identity_arg_names=None):
+    def resolve_object_to_model(self, model, object_arg_name, identity_arg_names=None):
         """
         A helper decorator to resolve DB record instance by id.
 
@@ -30,26 +30,26 @@ class Namespace(BaseNamespace):
                 object identity, by default it will be auto-generated as
                 ``%(object_arg_name)s_id``.
 
-        @namespace.resolveObjectToModel(User, 'user')
+        @namespace.resolve_object_to_model(User, 'user')
         def get_user_by_id(user):
             return user
         get_user_by_id(user_id=3)
         <User(id=3, ...)>
 
-        @namespace.resolveObjectToModel(MyModel, 'my_model', ('user_id', 'model_name'))
+        @namespace.resolve_object_to_model(MyModel, 'my_model', ('user_id', 'model_name'))
         def get_object_by_two_primary_keys(my_model):
             return my_model
         get_object_by_two_primary_keys(user_id=3, model_name='test')
         <MyModel(user_id=3, name='test', ...)>
         """
-        byId = False
+        by_id = False
         if identity_arg_names is None:
             identity_arg_names = (f"{object_arg_name}_id",)
-            byId = True
+            by_id = True
         elif not isinstance(identity_arg_names, (list, tuple)):  # pragma: no cover
             identity_arg_names = (identity_arg_names,)
-        if byId:
-            return self.resolveObject(
+        if by_id:
+            return self.resolve_object(
                 object_arg_name,
                 resolver=lambda kwargs: model.query.get_or_404(
                     [
@@ -59,7 +59,7 @@ class Namespace(BaseNamespace):
                 ),
             )
         else:
-            return self.resolveObjectArgs(
+            return self.resolve_object_args(
                 object_arg_name,
                 resolver=lambda kwargs: model.query.filter_by(
                     **{
@@ -87,7 +87,7 @@ class Namespace(BaseNamespace):
         return super(Namespace, self).model(name=name, model=model, **kwargs)
 
     def login_required(
-        self, locations=("headers",), allowedAuthMethods=["api_token", "basic"]
+        self, locations=("headers",), allowed_auth_methods=["api_token", "basic"]
     ):
         def decorator(func_or_class):
 
@@ -105,7 +105,7 @@ class Namespace(BaseNamespace):
                     permissions.ActiveUserRolePermission()
                 )(func)
 
-            return self.doc(security=allowedAuthMethods)(
+            return self.doc(security=allowed_auth_methods)(
                 self.response(
                     code=HTTPStatus.UNAUTHORIZED.value,
                     description="Authentication is required",
@@ -114,7 +114,7 @@ class Namespace(BaseNamespace):
 
         return decorator
 
-    def restrictEnabled(self, objectFromKwargs):
+    def restrict_enabled(self, object_from_kwargs):
         """
         A decorator which restricts getting objects that are disabled.
 
@@ -132,17 +132,17 @@ class Namespace(BaseNamespace):
         """
 
         def decorator(func):
-            def _disabledCheck(func):
+            def _disabled_check(func):
                 @wraps(func)
                 def wrapper(*args, **kwargs):
-                    inArgs = False
+                    in_args = False
                     if not kwargs:
-                        inArgs = True
-                    if inArgs:
-                        enabled = objectFromKwargs(args[1]).enabled
-                        args = (args[0], objectFromKwargs(args[1]))
+                        in_args = True
+                    if in_args:
+                        enabled = object_from_kwargs(args[1]).enabled
+                        args = (args[0], object_from_kwargs(args[1]))
                     else:
-                        enabled = objectFromKwargs(kwargs).enabled
+                        enabled = object_from_kwargs(kwargs).enabled
                     if not enabled:
                         http_exceptions.abort(
                             code=HTTPStatus.FAILED_DEPENDENCY,
@@ -152,8 +152,8 @@ class Namespace(BaseNamespace):
 
                 return wrapper
 
-            protected_func = _disabledCheck(func)
-            self._register_access_restriction_decorator(protected_func, _disabledCheck)
+            protected_func = _disabled_check(func)
+            self._register_access_restriction_decorator(protected_func, _disabled_check)
 
             return self.doc(description=f"**Must be enabled**\n\n")(
                 self.response(

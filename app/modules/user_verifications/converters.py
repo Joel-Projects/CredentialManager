@@ -7,10 +7,10 @@ from .models import UserVerification
 
 class UserVerificationConverter(BaseConverter):
     def to_python(self, value):
-        userVerification = UserVerification.query.filter(
+        user_verification = UserVerification.query.filter(
             UserVerification.id == value
         ).first()
-        if userVerification:
-            return userVerification
+        if user_verification:
+            return user_verification
         else:
             abort(404)

@@ -2,39 +2,45 @@ import pytest
 
 from app.modules.sentry_tokens.models import SentryToken
 from tests.params import labels, users
-from tests.utils import assert403, assertSuccess
+from tests.utils import assert403, assert_success
 
-sentryTokensToDelete = [
-    pytest.lazy_fixture("adminUserSentryToken"),
-    pytest.lazy_fixture("internalUserSentryToken"),
-    pytest.lazy_fixture("regularUserSentryToken"),
+sentry_tokens_to_delete = [
+    pytest.lazy_fixture("admin_user_sentry_token"),
+    pytest.lazy_fixture("internal_user_sentry_token"),
+    pytest.lazy_fixture("regular_user_sentry_token"),
 ]
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_deleting_user(flask_app_client, loginAs, regularUserSentryToken):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+def test_deleting_user(flask_app_client, login_as, regular_user_sentry_token):
     response = flask_app_client.delete(
-        f"/api/v1/sentry_tokens/{regularUserSentryToken.id}"
+        f"/api/v1/sentry_tokens/{regular_user_sentry_token.id}"
     )
 
-    if loginAs.is_admin or loginAs.is_internal:
-        assertSuccess(
-            response, None, SentryToken, None, deleteItemId=regularUserSentryToken.id
+    if login_as.is_admin or login_as.is_internal:
+        assert_success(
+            response,
+            None,
+            SentryToken,
+            None,
+            delete_item_id=regular_user_sentry_token.id,
         )
     else:
         assert403(
             response,
             SentryToken,
-            oldItem=regularUserSentryToken,
+            old_item=regular_user_sentry_token,
             internal=True,
             action="deleted",
         )
 
 
-def test_deleting_self(flask_app_client, adminUserInstance, regularUserSentryToken):
+def test_deleting_self(
+    flask_app_client, admin_user_instance, regular_user_sentry_token
+):
     response = flask_app_client.delete(
-        f"/api/v1/sentry_tokens/{regularUserSentryToken.id}"
+        f"/api/v1/sentry_tokens/{regular_user_sentry_token.id}"
     )
-    assertSuccess(
-        response, None, SentryToken, None, deleteItemId=regularUserSentryToken.id
+    assert_success(
+        response, None, SentryToken, None, delete_item_id=regular_user_sentry_token.id
     )

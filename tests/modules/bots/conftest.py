@@ -9,17 +9,17 @@ test_data = {"app_name": "bot"}
 
 
 @pytest.fixture()
-def regularUserBot(
-    temp_db_instance_helper, regular_user, reddit_app, sentryToken, databaseCredential
+def regular_user_bot(
+    temp_db_instance_helper, regular_user, reddit_app, sentry_token, database_credential
 ):
     reddit_app.owner = regular_user
-    sentryToken.owner = regular_user
-    databaseCredential.owner = regular_user
+    sentry_token.owner = regular_user
+    database_credential.owner = regular_user
     for _ in temp_db_instance_helper(
         Bot(
             reddit_app=reddit_app,
-            sentry_token=sentryToken,
-            database_credential=databaseCredential,
+            sentry_token=sentry_token,
+            database_credential=database_credential,
             owner=regular_user,
             **test_data
         )
@@ -28,17 +28,17 @@ def regularUserBot(
 
 
 @pytest.fixture()
-def adminUserBot(
-    temp_db_instance_helper, admin_user, reddit_app, sentryToken, databaseCredential
+def admin_user_bot(
+    temp_db_instance_helper, admin_user, reddit_app, sentry_token, database_credential
 ):
     reddit_app.owner = admin_user
-    sentryToken.owner = admin_user
-    databaseCredential.owner = admin_user
+    sentry_token.owner = admin_user
+    database_credential.owner = admin_user
     for _ in temp_db_instance_helper(
         Bot(
             reddit_app=reddit_app,
-            sentry_token=sentryToken,
-            database_credential=databaseCredential,
+            sentry_token=sentry_token,
+            database_credential=database_credential,
             owner=admin_user,
             **test_data
         )
@@ -47,17 +47,21 @@ def adminUserBot(
 
 
 @pytest.fixture()
-def internalUserBot(
-    temp_db_instance_helper, internal_user, reddit_app, sentryToken, databaseCredential
+def internal_user_bot(
+    temp_db_instance_helper,
+    internal_user,
+    reddit_app,
+    sentry_token,
+    database_credential,
 ):
     reddit_app.owner = internal_user
-    sentryToken.owner = internal_user
-    databaseCredential.owner = internal_user
+    sentry_token.owner = internal_user
+    database_credential.owner = internal_user
     for _ in temp_db_instance_helper(
         Bot(
             reddit_app=reddit_app,
-            sentry_token=sentryToken,
-            database_credential=databaseCredential,
+            sentry_token=sentry_token,
+            database_credential=database_credential,
             owner=internal_user,
             **test_data
         )
@@ -65,7 +69,7 @@ def internalUserBot(
         yield _
 
 
-redditAppTestData = {
+reddit_app_test_data = {
     "app_name": "reddit_app",
     "app_description": "app_description",
     "client_id": "client_id",
@@ -75,7 +79,7 @@ redditAppTestData = {
     "redirect_uri": "https://credmgr.jesassn.org/oauth2/reddit_callback",
 }
 
-redditAppTestData2 = {
+reddit_app_test_data2 = {
     "app_name": "reddit_app2",
     "app_description": "app_description",
     "client_id": "client_id2",
@@ -85,12 +89,12 @@ redditAppTestData2 = {
     "redirect_uri": "https://credmgr.jesassn.org/oauth2/reddit_callback",
 }
 
-sentryTokenTestData = {
+sentry_token_test_data = {
     "app_name": "sentry_token",
     "dsn": "https://12345@sentry.jesassn.org/1",
 }
 
-databaseCredentialTestData = {
+database_credential_test_data = {
     "app_name": "database_credential",
     "database_flavor": "postgres",
     "database_host": "localhost",
@@ -112,30 +116,30 @@ databaseCredentialTestData = {
 @pytest.fixture()
 def reddit_app(temp_db_instance_helper, regular_user):
     for _ in temp_db_instance_helper(
-        RedditApp(owner=regular_user, **redditAppTestData)
+        RedditApp(owner=regular_user, **reddit_app_test_data)
     ):
         yield _
 
 
 @pytest.fixture()
-def redditApp2(temp_db_instance_helper, regular_user):
+def reddit_app2(temp_db_instance_helper, regular_user):
     for _ in temp_db_instance_helper(
-        RedditApp(owner=regular_user, **redditAppTestData2)
+        RedditApp(owner=regular_user, **reddit_app_test_data2)
     ):
         yield _
 
 
 @pytest.fixture()
-def sentryToken(temp_db_instance_helper, regular_user):
+def sentry_token(temp_db_instance_helper, regular_user):
     for _ in temp_db_instance_helper(
-        SentryToken(owner=regular_user, **sentryTokenTestData)
+        SentryToken(owner=regular_user, **sentry_token_test_data)
     ):
         yield _
 
 
 @pytest.fixture()
-def databaseCredential(temp_db_instance_helper, regular_user):
+def database_credential(temp_db_instance_helper, regular_user):
     for _ in temp_db_instance_helper(
-        DatabaseCredential(owner=regular_user, **databaseCredentialTestData)
+        DatabaseCredential(owner=regular_user, **database_credential_test_data)
     ):
         yield _

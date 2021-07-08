@@ -43,19 +43,19 @@ class HiddenFieldWithToggle(BooleanField):
         super().__init__(*args, **kwargs)
 
     def __call__(self, **kwargs):
-        hiddenObject = kwargs.pop("hiddenObject")
-        targetFields = kwargs.pop("forFields")
-        shownObject = kwargs.pop("shownObject", "")
-        hideFields = kwargs.pop("hideFields", [])
+        hidden_object = kwargs.pop("hidden_object")
+        target_fields = kwargs.pop("for_fields")
+        shown_object = kwargs.pop("shown_object", "")
+        hide_fields = kwargs.pop("hide_fields", [])
         fields = []
-        for field in targetFields:
+        for field in target_fields:
             fields.append(
                 f"""
                     var {field.id} = $('#{field.id}');
                     {field.id}.prop('required', checked);
                     """
             )
-        for field in hideFields:
+        for field in hide_fields:
             fields.append(
                 f"""
                     var {field.id} = $('#{field.id}');
@@ -63,10 +63,10 @@ class HiddenFieldWithToggle(BooleanField):
                     """
             )
         fields = "\n".join(fields)
-        if shownObject:
-            shownObject = f"""
-                    var shownGroup = $('#{shownObject}');
-                    shownGroup.prop('hidden', checked);
+        if shown_object:
+            shown_object = f"""
+                    var shown_group = $('#{shown_object}');
+                    shown_group.prop('hidden', checked);
                     """
         return HTMLString(
             f"""
@@ -74,14 +74,14 @@ class HiddenFieldWithToggle(BooleanField):
         <script>
             $("#{self.id}").click(function () {{
                 var checked = $('#{self.id}').prop('checked');
-                var group = $('#{hiddenObject}');
+                var group = $('#{hidden_object}');
                 var {self.id}_checked = 'n'
                 if (checked) {{
                     {self.id}_checked = 'y'
                 }};
                 this.value = {self.id}_checked
                 group.prop('hidden', !checked);
-                {shownObject}
+                {shown_object}
                 {fields}
         }});
         </script>"""
@@ -89,8 +89,8 @@ class HiddenFieldWithToggle(BooleanField):
 
 
 class ModelSelectField(QuerySelectField):
-    def __init__(self, *, queryKwargs={}, **kwargs):
-        self.queryKwargs = queryKwargs
+    def __init__(self, *, query_kwargs={}, **kwargs):
+        self.query_kwargs = query_kwargs
         super().__init__(**kwargs)
 
     def _get_object_list(self):
@@ -98,7 +98,7 @@ class ModelSelectField(QuerySelectField):
             query = (
                 self.query
                 if self.query is not None
-                else self.query_factory(**self.queryKwargs)
+                else self.query_factory(**self.query_kwargs)
             )
             get_pk = self.get_pk
             self._object_list = list((text_type(get_pk(obj)), obj) for obj in query)
@@ -114,10 +114,10 @@ def owners(current_user):
         return User.query.filter_by(internal=False)
 
 
-def checkModelOwner(owner):
+def check_model_owner(owner):
     if request.method == "POST" and (current_user.is_admin or current_user.is_internal):
-        ownerId = int(request.form.get("owner", current_user.id))
-        owner = User.query.get(ownerId)
+        owner_id = int(request.form.get("owner", current_user.id))
+        owner = User.query.get(owner_id)
     elif request.path.startswith("/bots/"):
         owner = request.view_args["bot"].owner
     elif request.path.startswith("/user_verifications/"):
@@ -126,5 +126,5 @@ def checkModelOwner(owner):
 
 
 def reddit_apps(owner):
-    owner = checkModelOwner(owner)
+    owner = check_model_owner(owner)
     return owner.reddit_apps.filter_by(enabled=True)

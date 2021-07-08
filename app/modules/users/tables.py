@@ -30,9 +30,9 @@ class UserTable(BaseTable):
         )
         self.add_column("API Tokens", ObjectCountCol("API Tokens", "api_tokens"))
         self.add_column("Active", BoolIconColumn("Active", "is_active"))
-        # self.add_column('Created By', CreatedBy('Created By', attr_list=['createdBy', 'username'], tooltip=lambda item: f"Created at: {item.updated.astimezone().strftime('%m/%d/%Y %I:%M:%S %p %Z')}"))
+        # self.add_column('Created By', CreatedBy('Created By', attr_list=['created_by', 'username'], tooltip=lambda item: f"Created at: {item.updated.astimezone().strftime('%m/%d/%Y %I:%M:%S %p %Z')}"))
         # https://getbootstrap.com/docs/4.4/components/tooltips/#markup
-        self.add_column("Created By", OwnerCol("Created By", "createdBy.username"))
+        self.add_column("Created By", OwnerCol("Created By", "_created_by.username"))
         self.add_column("Active", BoolIconColumn("Active", "is_active"))
         self.add_column("Admin", BoolIconColumn("Admin", "is_admin"))
 

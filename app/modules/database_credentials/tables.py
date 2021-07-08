@@ -10,7 +10,7 @@ from app.extensions.frontend.tables import (
 
 
 class DatabaseCredentialTable(BaseTable):
-    _formFields = [
+    _form_fields = [
         "app_name",
         "database_flavor",
         "database_host",

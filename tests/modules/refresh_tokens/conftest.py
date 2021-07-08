@@ -24,30 +24,30 @@ def env_default(key):
     return os.environ.get(f"test_{key}", f"placeholder_{key}")
 
 
-def filterAccessToken(interaction, current_cassette):  # pragma: no cover
+def filter_access_token(interaction, current_cassette):  # pragma: no cover
     response = interaction.data["response"]
     body = response["body"]["string"]
     try:
-        accessToken = json.loads(body)["access_token"]
+        access_token = json.loads(body)["access_token"]
     except (KeyError, TypeError, ValueError):
         return
-    accessTokenPlaceholder = betamax.cassette.cassette.Placeholder(
-        placeholder="<ACCESS_TOKEN>", replace=accessToken
+    access_token_placeholder = betamax.cassette.cassette.Placeholder(
+        placeholder="<ACCESS_TOKEN>", replace=access_token
     )
-    current_cassette.placeholders.append(accessTokenPlaceholder)
+    current_cassette.placeholders.append(access_token_placeholder)
 
 
-def filterRefreshToken(interaction, current_cassette):  # pragma: no cover
+def filter_refresh_token(interaction, current_cassette):  # pragma: no cover
     response = interaction.data["response"]
     body = response["body"]["string"]
     try:
-        refreshToken = json.loads(body)["refresh_token"]
+        refresh_token = json.loads(body)["refresh_token"]
     except (KeyError, TypeError, ValueError):
         return
-    refreshTokenPlaceholder = betamax.cassette.cassette.Placeholder(
-        placeholder="<REFRESH_TOKEN>", replace=refreshToken
+    refresh_token_placeholder = betamax.cassette.cassette.Placeholder(
+        placeholder="<REFRESH_TOKEN>", replace=refresh_token
     )
-    current_cassette.placeholders.append(refreshTokenPlaceholder)
+    current_cassette.placeholders.append(refresh_token_placeholder)
 
 
 os.environ["praw_check_for_updates"] = "False"
@@ -75,8 +75,8 @@ betamax.Betamax.register_serializer(pretty_json.PrettyJSONSerializer)
 with betamax.Betamax.configure() as config:
     config.cassette_library_dir = f"{os.path.dirname(__file__)}/cassettes"
     config.default_cassette_options["serialize_with"] = "prettyjson"
-    config.before_record(callback=filterAccessToken)
-    config.before_record(callback=filterRefreshToken)
+    config.before_record(callback=filter_access_token)
+    config.before_record(callback=filter_refresh_token)
     for key, value in placeholders.items():
         config.define_cassette_placeholder(f"<{key.upper()}>", value)
 
@@ -149,11 +149,11 @@ test_data = {
 
 
 @pytest.fixture()
-def regularUserRefreshToken(temp_db_instance_helper, reddit_app, regular_user):
+def regular_user_refresh_token(temp_db_instance_helper, reddit_app, regular_user):
     reddit_app.owner = regular_user
     for _ in temp_db_instance_helper(
         RefreshToken(
-            redditor="regularRedditor",
+            redditor="regular_redditor",
             refresh_token="regular",
             reddit_app=reddit_app,
             owner=regular_user,
@@ -163,11 +163,11 @@ def regularUserRefreshToken(temp_db_instance_helper, reddit_app, regular_user):
 
 
 @pytest.fixture()
-def adminUserRefreshToken(temp_db_instance_helper, reddit_app, admin_user):
+def admin_user_refresh_token(temp_db_instance_helper, reddit_app, admin_user):
     reddit_app.owner = admin_user
     for _ in temp_db_instance_helper(
         RefreshToken(
-            redditor="adminRedditor",
+            redditor="admin_redditor",
             refresh_token="admin",
             reddit_app=reddit_app,
             owner=admin_user,
@@ -177,11 +177,11 @@ def adminUserRefreshToken(temp_db_instance_helper, reddit_app, admin_user):
 
 
 @pytest.fixture()
-def internalUserRefreshToken(temp_db_instance_helper, reddit_app, internal_user):
+def internal_user_refresh_token(temp_db_instance_helper, reddit_app, internal_user):
     reddit_app.owner = internal_user
     for _ in temp_db_instance_helper(
         RefreshToken(
-            redditor="internalRedditor",
+            redditor="internal_redditor",
             refresh_token="internal",
             reddit_app=reddit_app,
             owner=internal_user,
@@ -190,7 +190,7 @@ def internalUserRefreshToken(temp_db_instance_helper, reddit_app, internal_user)
         yield _
 
 
-redditAppData = {
+reddit_app_data = {
     "app_description": "app_description",
     "client_id": "client_id",
     "client_secret": "client_secret",
@@ -204,14 +204,14 @@ redditAppData = {
 def reddit_app(temp_db_instance_helper, regular_user):
     for _ in temp_db_instance_helper(
         RedditApp(
-            app_name="regular_user_reddit_app", owner=regular_user, **redditAppData
+            app_name="regular_user_reddit_app", owner=regular_user, **reddit_app_data
         )
     ):
         yield _
 
 
 @pytest.fixture()
-def regularUserUserVerification(temp_db_instance_helper, regular_user, reddit_app):
+def regular_user_user_verification(temp_db_instance_helper, regular_user, reddit_app):
     for _ in temp_db_instance_helper(
         UserVerification(
             reddit_app=reddit_app, owner=regular_user, user_id="123456789012345678"

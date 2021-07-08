@@ -10,4 +10,4 @@ def init_app(app, **kwargs):
 
     api_v1.add_namespace(resources.api)
     app.url_map.converters["RefreshToken"] = converters.RefreshTokenConverter
-    app.register_blueprint(views.refreshTokensBlueprint)
+    app.register_blueprint(views.refresh_tokens_blueprint)

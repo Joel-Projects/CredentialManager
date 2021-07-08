@@ -2,140 +2,148 @@ import pytest
 
 from app.modules.api_tokens.models import ApiToken
 from tests.params import labels, users
-from tests.responseStatuses import assert202, assert403
+from tests.response_statuses import assert202, assert403
 from tests.utils import (
-    assertMessageFlashed,
-    assertRenderedTemplate,
+    assert_message_flashed,
+    assert_rendered_template,
     captured_templates,
-    changeOwner,
+    change_owner,
 )
 
-apiTokens = [
-    pytest.lazy_fixture("adminUserApiToken"),
-    pytest.lazy_fixture("internalUserApiToken"),
-    pytest.lazy_fixture("regularUserApiToken"),
+api_tokens = [
+    pytest.lazy_fixture("admin_user_api_token"),
+    pytest.lazy_fixture("internal_user_api_token"),
+    pytest.lazy_fixture("regular_user_api_token"),
 ]
-apiTokenLabels = [
+api_token_labels = [
     "admin_user_api_token",
     "internal_user_api_token",
     "regular_user_api_token",
 ]
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-@pytest.mark.parametrize("apiToken", apiTokens, ids=apiTokenLabels)
-def test_api_token_detail_edit_for_other_user(flask_app_client, loginAs, apiToken):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+@pytest.mark.parametrize("api_token", api_tokens, ids=api_token_labels)
+def test_api_token_detail_edit_for_other_user(flask_app_client, login_as, api_token):
     data = {
-        "itemType": "api_tokens",
-        "itemId": f"{apiToken.id}",
-        "name": "newName",
-        "token": apiToken.token,
+        "item_type": "api_tokens",
+        "item_id": f"{api_token.id}",
+        "name": "new_name",
+        "token": api_token.token,
         "enabled": "y",
     }
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/api_tokens/{apiToken.id}",
+            f"/api_tokens/{api_token.id}",
             content_type="application/x-www-form-urlencoded",
             data=data,
         )
-        if apiToken.owner.is_internal and not loginAs.is_internal:
+        if api_token.owner.is_internal and not login_as.is_internal:
             assert403(response, templates)
-            modifiedApiToken = ApiToken.query.filter_by(id=apiToken.id).first()
-            assert modifiedApiToken == apiToken
-        elif loginAs.is_admin or loginAs.is_internal:
+            modified_api_token = ApiToken.query.filter_by(id=api_token.id).first()
+            assert modified_api_token == api_token
+        elif login_as.is_admin or login_as.is_internal:
             assert202(response)
-            assertRenderedTemplate(templates, "edit_api_token.html")
-            assertMessageFlashed(
-                templates, "API Token 'newName' saved successfully!", "success"
+            assert_rendered_template(templates, "edit_api_token.html")
+            assert_message_flashed(
+                templates, "API Token 'new_name' saved successfully!", "success"
             )
-            modifiedApiToken = ApiToken.query.filter_by(id=apiToken.id).first()
-            assert modifiedApiToken.name == "newName"
-            assert modifiedApiToken.token == apiToken.token
+            modified_api_token = ApiToken.query.filter_by(id=api_token.id).first()
+            assert modified_api_token.name == "new_name"
+            assert modified_api_token.token == api_token.token
         else:
             assert403(response, templates)
-            assert apiToken == ApiToken.query.filter_by(id=apiToken.id).first()
+            assert api_token == ApiToken.query.filter_by(id=api_token.id).first()
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_api_token_detail_edit(flask_app_client, loginAs, regularUserApiToken):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+def test_api_token_detail_edit(flask_app_client, login_as, regular_user_api_token):
     data = {
-        "itemType": "api_tokens",
-        "itemId": f"{regularUserApiToken.id}",
-        "name": "newName",
-        "token": regularUserApiToken.token,
+        "item_type": "api_tokens",
+        "item_id": f"{regular_user_api_token.id}",
+        "name": "new_name",
+        "token": regular_user_api_token.token,
         "enabled": "",
     }
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/api_tokens/{regularUserApiToken.id}",
+            f"/api_tokens/{regular_user_api_token.id}",
             content_type="application/x-www-form-urlencoded",
             data=data,
         )
-        if loginAs.is_admin or loginAs.is_internal:
+        if login_as.is_admin or login_as.is_internal:
             assert202(response)
-            assertRenderedTemplate(templates, "edit_api_token.html")
-            assertMessageFlashed(
-                templates, "API Token 'newName' saved successfully!", "success"
+            assert_rendered_template(templates, "edit_api_token.html")
+            assert_message_flashed(
+                templates, "API Token 'new_name' saved successfully!", "success"
             )
-            modifiedApiToken = ApiToken.query.filter_by(
-                id=regularUserApiToken.id
+            modified_api_token = ApiToken.query.filter_by(
+                id=regular_user_api_token.id
             ).first()
-            assert modifiedApiToken.name == "newName"
+            assert modified_api_token.name == "new_name"
         else:
             assert403(response, templates)
             assert (
-                regularUserApiToken
-                == ApiToken.query.filter_by(id=regularUserApiToken.id).first()
+                regular_user_api_token
+                == ApiToken.query.filter_by(id=regular_user_api_token.id).first()
             )
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_api_token_detail_edit_self(flask_app_client, db, loginAs, regularUserApiToken):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+def test_api_token_detail_edit_self(
+    flask_app_client, db, login_as, regular_user_api_token
+):
     data = {
-        "itemType": "api_tokens",
-        "itemId": f"{regularUserApiToken.id}",
-        "name": "newName",
-        "token": regularUserApiToken.token,
+        "item_type": "api_tokens",
+        "item_id": f"{regular_user_api_token.id}",
+        "name": "new_name",
+        "token": regular_user_api_token.token,
         "enabled": "",
     }
-    regularUserApiToken = changeOwner(db, loginAs, regularUserApiToken)
+    regular_user_api_token = change_owner(db, login_as, regular_user_api_token)
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/api_tokens/{regularUserApiToken.id}", data=data
+            f"/api_tokens/{regular_user_api_token.id}", data=data
         )
         assert202(response)
-        assertRenderedTemplate(templates, "edit_api_token.html")
-        assertMessageFlashed(
-            templates, "API Token 'newName' saved successfully!", "success"
+        assert_rendered_template(templates, "edit_api_token.html")
+        assert_message_flashed(
+            templates, "API Token 'new_name' saved successfully!", "success"
         )
-        modifiedApiToken = ApiToken.query.filter_by(id=regularUserApiToken.id).first()
-        assert not modifiedApiToken.enabled
-        assert modifiedApiToken.name == "newName"
+        modified_api_token = ApiToken.query.filter_by(
+            id=regular_user_api_token.id
+        ).first()
+        assert not modified_api_token.enabled
+        assert modified_api_token.name == "new_name"
 
 
 def test_api_token_detail_conflicting_name(
-    flask_app_client, db, regularUserInstance, regularUserApiToken, adminUserApiToken
+    flask_app_client,
+    db,
+    regular_user_instance,
+    regular_user_api_token,
+    admin_user_api_token,
 ):
-    original = changeOwner(db, regularUserInstance, adminUserApiToken)
+    original = change_owner(db, regular_user_instance, admin_user_api_token)
     original.name = "original"
-    toBeModified = changeOwner(db, regularUserInstance, regularUserApiToken)
+    to_be_modified = change_owner(db, regular_user_instance, regular_user_api_token)
     db.session.merge(original)
     data = {
-        "itemType": "api_tokens",
-        "itemId": toBeModified.id,
+        "item_type": "api_tokens",
+        "item_id": to_be_modified.id,
         "name": "original",
-        "token": toBeModified.token,
+        "token": to_be_modified.token,
         "enabled": "",
     }
     with captured_templates(flask_app_client.application) as templates:
-        response = flask_app_client.post(f"/api_tokens/{toBeModified.id}", json=data)
+        response = flask_app_client.post(f"/api_tokens/{to_be_modified.id}", json=data)
         assert response.status_code == 422
         assert response.mimetype == "text/html"
-        assertRenderedTemplate(templates, "edit_api_token.html")
+        assert_rendered_template(templates, "edit_api_token.html")
         assert (
             templates["templates"][0][1]["form"].errors["name"][0] == "Already exists."
         )
         assert (
-            regularUserApiToken
-            == ApiToken.query.filter_by(id=regularUserApiToken.id).first()
+            regular_user_api_token
+            == ApiToken.query.filter_by(id=regular_user_api_token.id).first()
         )

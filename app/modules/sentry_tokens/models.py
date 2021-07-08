@@ -7,14 +7,14 @@ class SentryToken(db.Model, Timestamp, InfoAttrs, StrName):
         super().__init__(*args, **kwargs)
 
     __tablename__ = "sentry_tokens"
-    _displayNamePlural = "Sentry Tokens"
-    _nameAttr = "app_name"
-    _enabledAttr = "enabled"
+    _display_name_plural = "Sentry Tokens"
+    _name_attr = "app_name"
+    _enabled_attr = "enabled"
 
-    _infoAttrs = {
+    _info_attrs = {
         "id": "Sentry Token ID",
         "owner": "Owner",
-        "botsUsingApp": "Bots using this",
+        "bots_using_app": "Bots using this",
         "created": "Created at",
         "updated": "Last updated at",
     }
@@ -34,7 +34,7 @@ class SentryToken(db.Model, Timestamp, InfoAttrs, StrName):
     )
     owner = db.relationship("User", backref=db.backref(__tablename__, lazy="dynamic"))
 
-    uniqueConstraint = db.UniqueConstraint(app_name, owner_id)
+    unique_constraint = db.UniqueConstraint(app_name, owner_id)
 
     def check_owner(self, user):
         if self.owner.is_internal:
@@ -42,7 +42,7 @@ class SentryToken(db.Model, Timestamp, InfoAttrs, StrName):
         return self.owner == user
 
     @property
-    def botsUsingApp(self):
+    def bots_using_app(self):
         from app.modules.bots.models import Bot
 
         return Bot.query.filter_by(sentry_token=self).count()

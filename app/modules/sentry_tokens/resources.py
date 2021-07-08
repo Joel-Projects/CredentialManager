@@ -6,12 +6,12 @@ from flask_restplus._http import HTTPStatus
 from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
 
-from .. import getViewableItems
+from .. import get_viewable_items
 from ..users import permissions
 from ..users.models import User
 from . import parameters, schemas
 from .models import SentryToken, db
-from .sentryRequestor import SentryRequestor
+from .sentry_requestor import SentryRequestor
 
 log = logging.getLogger(__name__)
 api = Namespace("sentry_tokens", description="Sentry Token Management")
@@ -36,8 +36,8 @@ class SentryTokens(Resource):
 
         Only Admins can specify ``owner`` to see Sentry Tokens for other users. Regular users will see their own Sentry Tokens.
         """
-        sentryTokens = getViewableItems(args, SentryToken)
-        return sentryTokens.offset(args["offset"]).limit(args["limit"])
+        sentry_tokens = get_viewable_items(args, SentryToken)
+        return sentry_tokens.offset(args["offset"]).limit(args["limit"])
 
     @api.parameters(parameters.CreateSentryTokenParameters())
     @api.response(schemas.DetailedSentryTokenSchema())
@@ -62,7 +62,7 @@ class SentryTokens(Resource):
 @api.route("/<int:sentry_token_id>")
 @api.login_required()
 @api.response(code=HTTPStatus.NOT_FOUND, description="Sentry Token not found.")
-@api.resolveObjectToModel(SentryToken, "sentry_token")
+@api.resolve_object_to_model(SentryToken, "sentry_token")
 class SentryTokenByID(Resource):
     """
     Manipulations with a specific Sentry Token.
@@ -73,7 +73,7 @@ class SentryTokenByID(Resource):
         permissions.OwnerRolePermission,
         kwargs_on_request=lambda kwargs: {"obj": kwargs["sentry_token"]},
     )
-    @api.restrictEnabled(lambda kwargs: kwargs["sentry_token"])
+    @api.restrict_enabled(lambda kwargs: kwargs["sentry_token"])
     @api.response(schemas.DetailedSentryTokenSchema())
     def get(self, sentry_token):
         """

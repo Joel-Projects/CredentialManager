@@ -45,15 +45,15 @@ class DatabaseCredentialForm(ModelForm):
         ]
 
     if current_user:  # pragma: no cover
-        databaseFlavorDefault = current_user.getDefault("database_flavor")
-        databaseHostDefault = current_user.getDefault("database_host")
-        sshHostDefault = current_user.getDefault("ssh_host")
-        sshUserDefault = current_user.getDefault("ssh_user")
+        database_flavor_default = current_user.get_default("database_flavor")
+        database_host_default = current_user.get_default("database_host")
+        ssh_host_default = current_user.get_default("ssh_host")
+        ssh_user_default = current_user.get_default("ssh_user")
     else:
-        databaseFlavorDefault = DatabaseCredential.database_flavor.default.arg
-        databaseHostDefault = DatabaseCredential.database_host.default.arg
-        sshHostDefault = ""
-        sshUserDefault = ""
+        database_flavor_default = DatabaseCredential.database_flavor.default.arg
+        database_host_default = DatabaseCredential.database_host.default.arg
+        ssh_host_default = ""
+        ssh_user_default = ""
     app_name = StringField(
         "Name",
         validators=[
@@ -65,25 +65,25 @@ class DatabaseCredentialForm(ModelForm):
     database_flavor = StringField(
         "Database Flavor",
         validators=[InputRequired()],
-        default=databaseFlavorDefault,
+        default=database_flavor_default,
         description=DatabaseCredential.database_flavor.info["description"],
     )
     database_host = StringField(
         "Database Host",
         validators=[InputRequired()],
-        default=databaseHostDefault,
+        default=database_host_default,
         description=DatabaseCredential.database_host.info["description"],
     )
     ssh_host = StringField(
         "SSH Host",
         validators=[Optional()],
-        default=sshHostDefault,
+        default=ssh_host_default,
         description=DatabaseCredential.ssh_host.info["description"],
     )
     ssh_username = StringField(
         "SSH Username",
         validators=[Optional()],
-        default=sshUserDefault,
+        default=ssh_user_default,
         description=DatabaseCredential.ssh_username.info["description"],
     )
 
@@ -94,7 +94,7 @@ class DatabaseCredentialForm(ModelForm):
 
     owner = ModelSelectField(
         query_factory=owners,
-        queryKwargs={"current_user": current_user},
+        query_kwargs={"current_user": current_user},
         default=current_user,
         description=DatabaseCredential.owner_id.info["description"],
     )

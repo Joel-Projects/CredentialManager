@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Credential Manager - Edit Sentry Token - {{ sentry_token.app_name }}{% endblock %}
-{% block breadCrumbs %}
+{% block bread_crumbs %}
     <!--suppress HtmlUnknownTarget -->
     {% if user and (current_user.is_admin or current_user.is_internal or sentry_token.check_owner(current_user)) %}
         <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
@@ -11,7 +11,7 @@
     {% endif %}
     <li class="breadcrumb-item"><a href="/sentry_tokens/{{ sentry_token.id }}">{{ sentry_token.app_name }}</a></li>
 {% endblock %}
-{% block activeItem %}active item{% endblock %}
+{% block active_item %}active item{% endblock %}
 {% block content %}
     <!--suppress ALL -->
     <script src="{{ url_for('sentry_tokens.static', filename='js/edit_sentry_token.js') }}"></script>
@@ -23,21 +23,21 @@
                 <div class="jumbotron">
                     <h4>Sentry Token Info</h4>
                     <hr style="border-top: 1px solid">
-                    {% for attr, displayName in sentry_token._infoAttrs.items() %}
+                    {% for attr, display_name in sentry_token._info_attrs.items() %}
                         {% if attr == 'owner' and not sentry_token.check_owner(current_user) and (current_user.is_admin or current_user.is_internal) %}
-                            <strong>{{ displayName }}:</strong><br><a href="/u/{{ sentry_token.getInfoAttr(attr).username }}">{{ sentry_token.getInfoAttr(attr).username }}</a><br><br>
-                        {% elif sentry_token.getInfoAttr(attr).__class__.__name__ == 'datetime' %}
-                            <strong>{{ displayName }}:</strong><br><a>{{ moment(sentry_token.getInfoAttr(attr)).format(' MM/DD/YYYY, h:mm:ss a') }}</a><br><br>
+                            <strong>{{ display_name }}:</strong><br><a href="/u/{{ sentry_token.get_info_attr(attr).username }}">{{ sentry_token.get_info_attr(attr).username }}</a><br><br>
+                        {% elif sentry_token.get_info_attr(attr).__class__.__name__ == 'datetime' %}
+                            <strong>{{ display_name }}:</strong><br><a>{{ moment(sentry_token.get_info_attr(attr)).format(' MM/DD/YYYY, h:mm:ss a') }}</a><br><br>
                         {% else %}
-                            <strong>{{ displayName }}:</strong><br><a>{{ sentry_token.getInfoAttr(attr) }}</a><br><br>
+                            <strong>{{ display_name }}:</strong><br><a>{{ sentry_token.get_info_attr(attr) }}</a><br><br>
                         {% endif %}
                     {% endfor %}
                 </div>
             </div>
             <div class="col-md-6">
-                <form id="editSentryTokenForm" method="post" onsubmit="doneSave('save', this)">
-                    <input id="itemType" name="itemType" type="hidden" value="{{ sentry_token.__tablename__ }}">
-                    <input id="itemId" name="itemId" type="hidden" value="{{ sentry_token.id }}">
+                <form id="edit_sentry_tokenForm" method="post" onsubmit="done_save('save', this)">
+                    <input id="item_type" name="item_type" type="hidden" value="{{ sentry_token.__tablename__ }}">
+                    <input id="item_id" name="item_id" type="hidden" value="{{ sentry_token.id }}">
                     <input id="token" name="token" type="hidden" value="{{ sentry_token.token }}">
                     <div class="form-group" hidden>
                         {{ form.owner.label }}
@@ -46,37 +46,37 @@
                     <div class="form-group">
                         {{ form.app_name.label }}
                         {% if form.app_name.errors %}
-                            {{ form.app_name(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)") }}
+                            {{ form.app_name(size=16, class_="form-control is-invalid", onkeypress="clear_invalid_state(this)") }}
                             {% for error in form.app_name.errors %}
-                                <div class="invalid-feedback" id="sentryTokenFeedback">{{ error }}</div>
+                                <div class="invalid-feedback" id="sentry_tokenFeedback">{{ error }}</div>
                             {% endfor %}
                         {% else %}
-                            {{ form.app_name(size=16, class_="form-control", onkeypress="clearInvalidState(this)") }}
+                            {{ form.app_name(size=16, class_="form-control", onkeypress="clear_invalid_state(this)") }}
                         {% endif %}
                     </div>
                     <div class="form-group">
                         {{ form.dsn.label }}
                         {% if form.dsn.errors %}
-                            {{ form.dsn(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)") }}
+                            {{ form.dsn(size=16, class_="form-control is-invalid", onkeypress="clear_invalid_state(this)") }}
                             {% for error in form.dsn.errors %}
-                                <div class="invalid-feedback" id="sentryTokenFeedback">{{ error }}</div>
+                                <div class="invalid-feedback" id="sentry_tokenFeedback">{{ error }}</div>
                             {% endfor %}
                         {% else %}
-                            {{ form.dsn(size=16, class_="form-control", onkeypress="clearInvalidState(this)") }}
+                            {{ form.dsn(size=16, class_="form-control", onkeypress="clear_invalid_state(this)") }}
                         {% endif %}
                     </div>
                     <div class="form-group">
                         <div class="custom-control custom-switch">
                             {{ form.enabled(default=sentry_token.enabled, class_="custom-control-input") }}
                             {{ form.enabled.label(class_='custom-control-label') }}
-                            <small id="enableHelp" class="form-text text-muted">Enables this Sentry Token to be used</small>
+                            <small id="enable_help" class="form-text text-muted">Enables this Sentry Token to be used</small>
                         </div>
                     </div>
                     <div class="form-group">
-                        <button class="btn btn-primary" type="submit" name="save" onclick="saveItem(this)" id="save" value="save">Save</button>
+                        <button class="btn btn-primary" type="submit" name="save" onclick="save_item(this)" id="save" value="save">Save</button>
                     </div>
                 </form>
-                <button class="btn btn-danger" id="delete" data-target="#confirmationModal" onclick="showDeleteModal('{{ sentry_token.app_name }}', 'sentry_tokens', {{ sentry_token.id }})" data-toggle="modal">Delete</button>
+                <button class="btn btn-danger" id="delete" data-target="#confirmation_modal" onclick="show_delete_modal('{{ sentry_token.app_name }}', 'sentry_tokens', {{ sentry_token.id }})" data-toggle="modal">Delete</button>
             </div>
         </div>
     </div>

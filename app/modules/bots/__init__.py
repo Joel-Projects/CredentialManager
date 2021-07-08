@@ -10,4 +10,4 @@ def init_app(app, **kwargs):
 
     api_v1.add_namespace(resources.api)
     app.url_map.converters["Bot"] = converters.BotConverter
-    app.register_blueprint(views.botsBlueprint)
+    app.register_blueprint(views.bots_blueprint)

@@ -27,8 +27,8 @@ def test_api_tokens_options_authorized(
     expected_allowed_methods,
     flask_app_client,
     regular_user,
-    regularUserApiToken,
-    adminUserApiToken,
+    regular_user_api_token,
+    admin_user_api_token,
 ):
     with flask_app_client.login(regular_user):
         response = flask_app_client.options(path)

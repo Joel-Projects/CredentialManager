@@ -8,7 +8,7 @@ from tests import utils
 
 @pytest.fixture()
 def flask_app():
-    app = create_app(flaskConfigName="testing")
+    app = create_app(flask_config_name="testing")
     from app.extensions import db
 
     with app.app_context():
@@ -69,7 +69,7 @@ def patch_user_password_scheme():
 @pytest.fixture()
 def regular_user(temp_db_instance_helper, patch_user_password_scheme):
     for item in temp_db_instance_helper(
-        utils.generateUserInstance(username="regular_user")
+        utils.generate_user_instance(username="regular_user")
     ):
         yield item
 
@@ -77,7 +77,7 @@ def regular_user(temp_db_instance_helper, patch_user_password_scheme):
 @pytest.fixture()
 def admin_user(temp_db_instance_helper, patch_user_password_scheme):
     for item in temp_db_instance_helper(
-        utils.generateUserInstance(username="admin_user", is_admin=True)
+        utils.generate_user_instance(username="admin_user", is_admin=True)
     ):
         yield item
 
@@ -85,7 +85,7 @@ def admin_user(temp_db_instance_helper, patch_user_password_scheme):
 @pytest.fixture()
 def internal_user(temp_db_instance_helper, patch_user_password_scheme):
     for item in temp_db_instance_helper(
-        utils.generateUserInstance(
+        utils.generate_user_instance(
             username="internal_user",
             is_regular_user=False,
             is_admin=False,
@@ -96,42 +96,42 @@ def internal_user(temp_db_instance_helper, patch_user_password_scheme):
 
 
 @pytest.fixture()
-def userInstance(patch_user_password_scheme, temp_db_instance_helper):
-    for _userInstance in temp_db_instance_helper(
-        utils.generateUserInstance(username="username", password="password")
+def user_instance(patch_user_password_scheme, temp_db_instance_helper):
+    for _user_instance in temp_db_instance_helper(
+        utils.generate_user_instance(username="username", password="password")
     ):
-        user_id = _userInstance.id
-        _userInstance.get_id = lambda: user_id
-        return _userInstance
+        user_id = _user_instance.id
+        _user_instance.get_id = lambda: user_id
+        return _user_instance
 
 
 @pytest.fixture()
-def regularUserInstance(flask_app, userInstance):
+def regular_user_instance(flask_app, user_instance):
     with flask_app.test_request_context("/"):
-        login_user(userInstance)
+        login_user(user_instance)
         yield current_user
         logout_user()
 
 
 @pytest.fixture()
-def adminUserInstance(flask_app, userInstance):
+def admin_user_instance(flask_app, user_instance):
     with flask_app.test_request_context("/"):
-        login_user(userInstance)
+        login_user(user_instance)
         current_user.is_admin = True
         yield current_user
         logout_user()
 
 
 @pytest.fixture()
-def internalUserInstance(flask_app, userInstance):
+def internal_user_instance(flask_app, user_instance):
     with flask_app.test_request_context("/"):
-        login_user(userInstance)
+        login_user(user_instance)
         current_user.is_internal = True
         yield current_user
         logout_user()
 
 
 @pytest.fixture()
-def anonymousUserInstance(flask_app):
+def anonymous_user_instance(flask_app):
     with flask_app.test_request_context("/"):
         yield current_user

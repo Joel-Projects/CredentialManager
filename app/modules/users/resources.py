@@ -74,7 +74,7 @@ class Users(Resource):
 @api.route("/<int:user_id>")
 @api.login_required()
 @api.response(code=HTTPStatus.NOT_FOUND, description="User not found.")
-@api.resolveObjectToModel(User, "user")
+@api.resolve_object_to_model(User, "user")
 class UserByID(Resource):
     """
     Manipulations with a specific user.
@@ -137,7 +137,7 @@ class UserByID(Resource):
 @api.route("/<int:user_id>/apps")
 @api.login_required()
 @api.response(code=HTTPStatus.NOT_FOUND, description="User not found.")
-@api.resolveObjectToModel(User, "user")
+@api.resolve_object_to_model(User, "user")
 class AppsByUserID(Resource):
     """
     Returns all apps owned by a specific user.

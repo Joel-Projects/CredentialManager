@@ -2,9 +2,9 @@ from app.modules.database_credentials.models import DatabaseCredential
 
 
 def test_database_credential_check_owner(
-    regular_user, admin_user, regularUserDatabaseCredential
+    regular_user, admin_user, regular_user_database_credential
 ):
-    databaseCredential = DatabaseCredential.query.first()
-    assert databaseCredential.check_owner(regular_user)
-    assert not databaseCredential.check_owner(admin_user)
-    assert not databaseCredential.check_owner(None)
+    database_credential = DatabaseCredential.query.first()
+    assert database_credential.check_owner(regular_user)
+    assert not database_credential.check_owner(admin_user)
+    assert not database_credential.check_owner(None)

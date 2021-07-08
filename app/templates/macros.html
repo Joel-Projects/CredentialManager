@@ -1,37 +1,37 @@
-{% macro textField(form, fieldName) %}
+{% macro text_field(form, field_name) %}
     <div class="form-group">
-        {{ form[fieldName].label }}
+        {{ form[field_name].label }}
         {#        {% if user %}#}
-        {#            {% set user_agent = user.getDefault(fieldName) %}#}
+        {#            {% set user_agent = user.get_default(field_name) %}#}
         {#        {% else %}#}
-        {#            {% set user_agent = current_user.getDefault(fieldName) %}#}
+        {#            {% set user_agent = current_user.get_default(field_name) %}#}
         {#        {% endif %}#}
-        {% if form[fieldName].errors %}
-            {{ form[fieldName](size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
-            {% for error in form[fieldName].errors %}
-                <div class="invalid-feedback" id="{{ fieldName }}Feedback">{{ error }}</div>
+        {% if form[field_name].errors %}
+            {{ form[field_name](size=16, class_="form-control is-invalid", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
+            {% for error in form[field_name].errors %}
+                <div class="invalid-feedback" id="{{ field_name }}Feedback">{{ error }}</div>
             {% endfor %}
         {% else %}
-            {{ form[fieldName](size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+            {{ form[field_name](size=16, class_="form-control", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
         {% endif %}
-        {% if form[fieldName].description %}
-            <small id="{{ form[fieldName].id }}Help" class="form-text text-muted">{{ form[fieldName].description }}</small>
+        {% if form[field_name].description %}
+            <small id="{{ form[field_name].id }}Help" class="form-text text-muted">{{ form[field_name].description }}</small>
         {% endif %}
     </div>
 {% endmacro %}
-{% macro formRow(form, fields) %}
+{% macro form_row(form, fields) %}
     <div class="form-group">
         <div class="form-row">
             {% for field in fields %}
                 <div class="col">
                     {{ form[field].label }}
                     {% if form[field].errors %}
-                        {{ form[field](size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                        {{ form[field](size=16, class_="form-control is-invalid", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
                         {% for error in form[field].errors %}
                             <div class="invalid-feedback" id="{{ field }}Feedback">{{ error }}</div>
                         {% endfor %}
                     {% else %}
-                        {{ form[field](size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                        {{ form[field](size=16, class_="form-control", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
                     {% endif %}
                     {% if form[field].description %}
                         <small id="{{ form[field].id }}Help" class="form-text text-muted">{{ form[field].description }}</small>
@@ -41,7 +41,7 @@
         </div>
     </div>
 {% endmacro %}
-{% macro renderPaginator(paginator, endpoint) %}
+{% macro render_paginator(paginator, endpoint) %}
     <div class=paginator>
         {%- for page in paginator.iter_pages() %}
             {% if page %}

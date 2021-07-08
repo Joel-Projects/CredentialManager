@@ -22,12 +22,12 @@ class RefreshTokenTable(BaseTable):
         )
         self.add_column("Reddit App", BaseCol("Reddit App", "reddit_app"))
         self.add_column("Issued At", DatetimeColumn("Issued", attr="issued_at"))
-        showOld = kwargs.pop("showOld", False)
-        if showOld:  # pragma: no cover
+        show_old = kwargs.pop("show_old", False)
+        if show_old:  # pragma: no cover
             self.add_column("Current", BoolIconColumn("Current", "valid"))
         else:
             self._cols.pop("Current", None)
 
         if current_user.is_admin or current_user.is_internal:
             self.add_column("Owner", OwnerCol("Owner", attr_list=["owner", "username"]))
-        super().__init__(items, canBeDisabled=False, editable=False, *args, **kwargs)
+        super().__init__(items, can_be_disabled=False, editable=False, *args, **kwargs)

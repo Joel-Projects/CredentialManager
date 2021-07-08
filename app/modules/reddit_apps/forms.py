@@ -36,9 +36,9 @@ class RedditAppForm(ModelForm):
         ]
 
     if current_user:
-        userAgentDefault = current_user.getDefault("user_agent")  # pragma: no cover
+        user_agent_default = current_user.get_default("user_agent")  # pragma: no cover
     else:
-        userAgentDefault = ""
+        user_agent_default = ""
 
     client_id = StringField(
         "Client ID",
@@ -48,7 +48,7 @@ class RedditAppForm(ModelForm):
     user_agent = TextAreaFieldWithDefault(
         "User Agent",
         validators=[InputRequired()],
-        default=userAgentDefault,
+        default=user_agent_default,
         description=RedditApp.user_agent.info["description"],
     )
     redirect_uri = StringField(
@@ -59,7 +59,7 @@ class RedditAppForm(ModelForm):
     )
     owner = ModelSelectField(
         query_factory=owners,
-        queryKwargs={"current_user": current_user},
+        query_kwargs={"current_user": current_user},
         default=current_user,
         description=RedditApp.owner_id.info["description"],
     )

@@ -14,7 +14,7 @@ class ListDatabaseCredentialsParameters(PaginationParameters, ValidateOwner):
     class Meta:
         model = DatabaseCredential
 
-    invalidOwnerMessage = "You can only query your own {}."
+    invalid_owner_message = "You can only query your own {}."
 
 
 class CreateDatabaseCredentialParameters(
@@ -78,7 +78,7 @@ class CreateDatabaseCredentialParameters(
         fields = schemas.DetailedDatabaseCredentialSchema.Meta.fields + ("owner_id",)
 
     @validates("app_name")
-    def validateName(self, data):
+    def validate_name(self, data):
         if len(data) < 3:
             raise ValidationError("Name must be greater than 3 characters long.")
 

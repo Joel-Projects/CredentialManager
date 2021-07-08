@@ -6,7 +6,7 @@ from flask_restplus._http import HTTPStatus
 from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
 
-from .. import getViewableItems
+from .. import get_viewable_items
 from ..reddit_apps.models import RedditApp
 from ..users import permissions
 from . import parameters, schemas
@@ -34,14 +34,14 @@ class RefreshTokens(Resource):
 
         Only Admins can specify ``owner_id`` to see Refresh Tokens for other users' Reddit Apps. Regular users will see their own Reddit Apps' Refresh Tokens.
         """
-        refreshTokens = getViewableItems(args, RefreshToken)
-        return refreshTokens.offset(args["offset"]).limit(args["limit"])
+        refresh_tokens = get_viewable_items(args, RefreshToken)
+        return refresh_tokens.offset(args["offset"]).limit(args["limit"])
 
 
 @api.route("/<int:refresh_token_id>")
 @api.login_required()
 @api.response(code=HTTPStatus.NOT_FOUND, description="Refresh Token not found.")
-@api.resolveObjectToModel(RefreshToken, "refresh_token")
+@api.resolve_object_to_model(RefreshToken, "refresh_token")
 class RefreshTokenByID(Resource):
     """
     Manipulations with a specific Refresh Token.
@@ -112,10 +112,10 @@ class GetRefreshTokenByRedditor(Resource):
         Only Admins can see Refresh Tokens for other users' Reddit Apps. Regular users will see their own Reddit Apps' Refresh Tokens.
         """
         reddit_app = RedditApp.query.get_or_404(args["reddit_app_id"])
-        refreshTokens = RefreshToken.query
-        refreshToken = refreshTokens.filter_by(
+        refresh_tokens = RefreshToken.query
+        refresh_token = refresh_tokens.filter_by(
             redditor=args["redditor"], reddit_app_id=reddit_app.id, revoked=False
         )
-        return refreshToken.first_or_404(
+        return refresh_token.first_or_404(
             f'Redditor {args["redditor"]!r} does not exist.'
         )

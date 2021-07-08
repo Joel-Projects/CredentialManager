@@ -4,29 +4,29 @@ from tests import utils
 
 
 @pytest.fixture()
-def userInstanceDeactivated(patch_user_password_scheme, temp_db_instance_helper):
-    for _userInstance in temp_db_instance_helper(
-        utils.generateUserInstance(
-            username="usernameDeactivated", password="password", is_active=False
+def user_instance_deactivated(patch_user_password_scheme, temp_db_instance_helper):
+    for _user_instance in temp_db_instance_helper(
+        utils.generate_user_instance(
+            username="username_deactivated", password="password", is_active=False
         )
     ):
-        user_id = _userInstance.id
-        _userInstance.get_id = lambda: user_id
-        return _userInstance
+        user_id = _user_instance.id
+        _user_instance.get_id = lambda: user_id
+        return _user_instance
 
 
 @pytest.fixture()
-def regularUserInstanceDeactivated(userInstanceDeactivated):
-    yield userInstanceDeactivated
+def regular_user_instance_deactivated(user_instance_deactivated):
+    yield user_instance_deactivated
 
 
 @pytest.fixture()
-def adminUserInstanceDeactivated(userInstanceDeactivated):
-    userInstanceDeactivated.is_admin = True
-    yield userInstanceDeactivated
+def admin_user_instance_deactivated(user_instance_deactivated):
+    user_instance_deactivated.is_admin = True
+    yield user_instance_deactivated
 
 
 @pytest.fixture()
-def internalUserInstanceDeactivated(userInstanceDeactivated):
-    userInstanceDeactivated.is_internal = True
-    yield userInstanceDeactivated
+def internal_user_instance_deactivated(user_instance_deactivated):
+    user_instance_deactivated.is_internal = True
+    yield user_instance_deactivated

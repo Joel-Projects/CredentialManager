@@ -7,10 +7,10 @@ from .models import DatabaseCredential
 
 class DatabaseCredentialConverter(BaseConverter):
     def to_python(self, value):
-        databaseCredential = DatabaseCredential.query.filter(
+        database_credential = DatabaseCredential.query.filter(
             DatabaseCredential.id == value
         ).first()
-        if databaseCredential:
-            return databaseCredential
+        if database_credential:
+            return database_credential
         else:
             abort(404)

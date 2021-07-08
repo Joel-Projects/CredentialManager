@@ -13,12 +13,12 @@
                 {#        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>#}
                 <h1 class="h1 mb-3 font-weight-normal">Credential Manager</h1>
                 <div class="form-group">
-                    <label for="inputUsername" class="sr-only">Username</label>
-                    <input type="text" id="inputUsername" name="username" class="form-control mb-1" placeholder="Username" required="" autofocus="" {% if username %} value="{{ username }}"{% endif %}>
+                    <label for="input_username" class="sr-only">Username</label>
+                    <input type="text" id="input_username" name="username" class="form-control mb-1" placeholder="Username" required="" autofocus="" {% if username %} value="{{ username }}"{% endif %}>
                 </div>
                 <div class="form-group">
-                    <label for="inputPassword" class="sr-only">Password</label>
-                    <input type="password" id="inputPassword" name="password" class="form-control mb-2" placeholder="Password" required="" {% if password %} value="{{ password }}"{% endif %}>
+                    <label for="input_password" class="sr-only">Password</label>
+                    <input type="password" id="input_password" name="password" class="form-control mb-2" placeholder="Password" required="" {% if password %} value="{{ password }}"{% endif %}>
                 </div>
                 <button class="btn btn-lg btn-primary btn-block" type="submit">Create User</button>
             </form>
@@ -87,16 +87,16 @@
         stats.domElement.style.left = '0px';
         stats.domElement.style.top = '0px';
         document.body.appendChild(stats.domElement);
-        count_particles = document.querySelector('.js-count-particles');
+        count_particles = document.query_selector('.js-count-particles');
         update = function () {
             stats.begin();
             stats.end();
             if (window.pJSDom[0].pJS.particles && window.pJSDom[0].pJS.particles.array) {
                 count_particles.innerText = window.pJSDom[0].pJS.particles.array.length;
             }
-            requestAnimationFrame(update);
+            request_animation_frame(update);
         };
-        requestAnimationFrame(update);
+        request_animation_frame(update);
     </script>
     </body>
 {% endblock %}

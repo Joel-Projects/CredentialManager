@@ -2,38 +2,38 @@ import pytest
 
 from app.modules.user_verifications.models import UserVerification
 from tests.params import labels, users
-from tests.responseStatuses import assert202, assert403
+from tests.response_statuses import assert202, assert403
 from tests.utils import (
-    assertMessageFlashed,
-    assertModified,
-    assertRenderedTemplate,
+    assert_message_flashed,
+    assert_modified,
+    assert_rendered_template,
     captured_templates,
-    changeOwner,
+    change_owner,
 )
 
-userVerifications = [
-    pytest.lazy_fixture("adminUserUserVerification"),
-    pytest.lazy_fixture("internalUserUserVerification"),
-    pytest.lazy_fixture("regularUserUserVerification"),
+user_verifications = [
+    pytest.lazy_fixture("admin_user_user_verification"),
+    pytest.lazy_fixture("internal_user_user_verification"),
+    pytest.lazy_fixture("regular_user_user_verification"),
 ]
-userVerificationLabels = [
+user_verification_labels = [
     "admin_user_user_verification+reddit_app",
     "internal_user_user_verification+reddit_app",
     "regular_user_user_verification+reddit_app",
 ]
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 @pytest.mark.parametrize(
-    "userVerification", userVerifications, ids=userVerificationLabels
+    "user_verification", user_verifications, ids=user_verification_labels
 )
 def test_user_verification_detail_edit_for_other_user(
-    flask_app_client, loginAs, userVerification, reddit_app
+    flask_app_client, login_as, user_verification, reddit_app
 ):
-    reddit_app.owner = loginAs
+    reddit_app.owner = login_as
     data = {
-        "itemType": "user_verifications",
-        "itemId": f"{userVerification.id}",
+        "item_type": "user_verifications",
+        "item_id": f"{user_verification.id}",
         "reddit_app": f"{reddit_app.id}",
         "enabled": "y",
         "user_id": "123456789012345679",
@@ -41,57 +41,57 @@ def test_user_verification_detail_edit_for_other_user(
     }
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/user_verifications/{userVerification.id}",
+            f"/user_verifications/{user_verification.id}",
             content_type="application/x-www-form-urlencoded",
             data=data,
         )
-        if loginAs.is_internal:
+        if login_as.is_internal:
             assert202(response)
-            assertRenderedTemplate(templates, "edit_user_verification.html")
-            assertMessageFlashed(
+            assert_rendered_template(templates, "edit_user_verification.html")
+            assert_message_flashed(
                 templates,
                 "User Verification for User ID 123456789012345679 saved successfully!",
                 "success",
             )
-            modifiedUserVerification = UserVerification.query.filter_by(
-                id=userVerification.id
+            modified_user_verification = UserVerification.query.filter_by(
+                id=user_verification.id
             ).first()
-            assertModified(data, modifiedUserVerification)
-        elif loginAs.is_admin:
-            if reddit_app.owner.is_internal or userVerification.owner.is_internal:
+            assert_modified(data, modified_user_verification)
+        elif login_as.is_admin:
+            if reddit_app.owner.is_internal or user_verification.owner.is_internal:
                 assert403(response, templates)
-                modifiedUserVerification = UserVerification.query.filter_by(
-                    id=userVerification.id
+                modified_user_verification = UserVerification.query.filter_by(
+                    id=user_verification.id
                 ).first()
-                assert modifiedUserVerification == userVerification
+                assert modified_user_verification == user_verification
             else:
                 assert202(response)
-                assertRenderedTemplate(templates, "edit_user_verification.html")
-                assertMessageFlashed(
+                assert_rendered_template(templates, "edit_user_verification.html")
+                assert_message_flashed(
                     templates,
                     "User Verification for User ID 123456789012345679 saved successfully!",
                     "success",
                 )
-                modifiedUserVerification = UserVerification.query.filter_by(
-                    id=userVerification.id
+                modified_user_verification = UserVerification.query.filter_by(
+                    id=user_verification.id
                 ).first()
-                assertModified(data, modifiedUserVerification)
+                assert_modified(data, modified_user_verification)
         else:
             assert403(response, templates)
-            modifiedUserVerification = UserVerification.query.filter_by(
-                id=userVerification.id
+            modified_user_verification = UserVerification.query.filter_by(
+                id=user_verification.id
             ).first()
-            assert modifiedUserVerification == userVerification
+            assert modified_user_verification == user_verification
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 def test_user_verification_detail_edit(
-    flask_app_client, loginAs, regularUserUserVerification, reddit_app
+    flask_app_client, login_as, regular_user_user_verification, reddit_app
 ):
-    reddit_app.owner = loginAs
+    reddit_app.owner = login_as
     data = {
-        "itemType": "user_verifications",
-        "itemId": f"{regularUserUserVerification.id}",
+        "item_type": "user_verifications",
+        "item_id": f"{regular_user_user_verification.id}",
         "reddit_app": f"{reddit_app.id}",
         "enabled": "y",
         "user_id": "123456789012345679",
@@ -99,93 +99,97 @@ def test_user_verification_detail_edit(
     }
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/user_verifications/{regularUserUserVerification.id}",
+            f"/user_verifications/{regular_user_user_verification.id}",
             content_type="application/x-www-form-urlencoded",
             data=data,
         )
-        if loginAs.is_admin or loginAs.is_internal:
+        if login_as.is_admin or login_as.is_internal:
             assert202(response)
-            assertRenderedTemplate(templates, "edit_user_verification.html")
-            assertMessageFlashed(
+            assert_rendered_template(templates, "edit_user_verification.html")
+            assert_message_flashed(
                 templates,
                 "User Verification for User ID 123456789012345679 saved successfully!",
                 "success",
             )
-            modifiedUserVerification = UserVerification.query.filter_by(
-                id=regularUserUserVerification.id
+            modified_user_verification = UserVerification.query.filter_by(
+                id=regular_user_user_verification.id
             ).first()
-            assertModified(data, modifiedUserVerification)
+            assert_modified(data, modified_user_verification)
 
         else:
             assert403(response, templates)
-            modifiedUserVerification = UserVerification.query.filter_by(
-                id=regularUserUserVerification.id
+            modified_user_verification = UserVerification.query.filter_by(
+                id=regular_user_user_verification.id
             ).first()
-            assert modifiedUserVerification == regularUserUserVerification
+            assert modified_user_verification == regular_user_user_verification
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 def test_user_verification_detail_edit_self(
-    flask_app_client, db, loginAs, regularUserUserVerification, reddit_app
+    flask_app_client, db, login_as, regular_user_user_verification, reddit_app
 ):
-    reddit_app.owner = loginAs
+    reddit_app.owner = login_as
     data = {
-        "itemType": "user_verifications",
-        "itemId": f"{regularUserUserVerification.id}",
+        "item_type": "user_verifications",
+        "item_id": f"{regular_user_user_verification.id}",
         "reddit_app": f"{reddit_app.id}",
         "enabled": "y",
         "user_id": "123456789012345679",
         "redditor": "redditor",
     }
-    regularUserUserVerification = changeOwner(db, loginAs, regularUserUserVerification)
+    regular_user_user_verification = change_owner(
+        db, login_as, regular_user_user_verification
+    )
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/user_verifications/{regularUserUserVerification.id}", data=data
+            f"/user_verifications/{regular_user_user_verification.id}", data=data
         )
         assert202(response)
-        assertRenderedTemplate(templates, "edit_user_verification.html")
-        assertMessageFlashed(
+        assert_rendered_template(templates, "edit_user_verification.html")
+        assert_message_flashed(
             templates,
             "User Verification for User ID 123456789012345679 saved successfully!",
             "success",
         )
-        modifiedUserVerification = UserVerification.query.filter_by(
-            id=regularUserUserVerification.id
+        modified_user_verification = UserVerification.query.filter_by(
+            id=regular_user_user_verification.id
         ).first()
-        assertModified(data, modifiedUserVerification)
+        assert_modified(data, modified_user_verification)
 
 
 def test_user_verification_detail_conflicting_user_id(
     flask_app_client,
     db,
-    regularUserInstance,
-    regularUserUserVerification,
-    adminUserUserVerification,
+    regular_user_instance,
+    regular_user_user_verification,
+    admin_user_user_verification,
 ):
-    original = changeOwner(db, regularUserInstance, adminUserUserVerification)
+    original = change_owner(db, regular_user_instance, admin_user_user_verification)
     original.user_id = "123456789012345679"
     db.session.merge(original)
-    toBeModified = changeOwner(db, regularUserInstance, regularUserUserVerification)
-    db.session.merge(toBeModified)
+    to_be_modified = change_owner(
+        db, regular_user_instance, regular_user_user_verification
+    )
+    db.session.merge(to_be_modified)
     data = {
-        "itemType": "user_verifications",
-        "itemId": f"{regularUserUserVerification.id}",
+        "item_type": "user_verifications",
+        "item_id": f"{regular_user_user_verification.id}",
         "enabled": "y",
         "user_id": "123456789012345679",
         "redditor": "redditor",
     }
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/user_verifications/{toBeModified.id}", json=data
+            f"/user_verifications/{to_be_modified.id}", json=data
         )
         assert response.status_code == 422
         assert response.mimetype == "text/html"
-        assertRenderedTemplate(templates, "edit_user_verification.html")
+        assert_rendered_template(templates, "edit_user_verification.html")
         assert (
             templates["templates"][0][1]["form"].errors["user_id"][0]
             == "Already exists."
         )
-        modifiedUserVerification = UserVerification.query.filter_by(
-            id=toBeModified.id
+        modified_user_verification = UserVerification.query.filter_by(
+            id=to_be_modified.id
         ).first()
-        assert modifiedUserVerification.user_id == toBeModified.user_id
+        assert modified_user_verification.user_id == to_be_modified.user_id

@@ -1,4 +1,4 @@
-from tests.utils import assertRenderedTemplate
+from tests.utils import assert_rendered_template
 
 
 def assert200(response):
@@ -24,7 +24,7 @@ def assert401(response):
 def assert403(response, templates):
     assert response.status_code == 403
     assert response.mimetype == "text/html"
-    assertRenderedTemplate(templates, "errors/403.html")
+    assert_rendered_template(templates, "errors/403.html")
 
 
 def assert403Create(response):
@@ -35,7 +35,7 @@ def assert403Create(response):
 def assert404(response, templates):
     assert response.status_code == 404
     assert response.mimetype == "text/html"
-    assertRenderedTemplate(templates, "errors/404.html")
+    assert_rendered_template(templates, "errors/404.html")
 
 
 def assert422(response):

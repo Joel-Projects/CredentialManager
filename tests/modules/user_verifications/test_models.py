@@ -2,9 +2,9 @@ from app.modules.user_verifications.models import UserVerification
 
 
 def test_user_verification_check_owner(
-    regular_user, admin_user, regularUserUserVerification
+    regular_user, admin_user, regular_user_user_verification
 ):
-    userVerification = UserVerification.query.first()
-    assert userVerification.check_owner(regular_user)
-    assert not userVerification.check_owner(admin_user)
-    assert not userVerification.check_owner(None)
+    user_verification = UserVerification.query.first()
+    assert user_verification.check_owner(regular_user)
+    assert not user_verification.check_owner(admin_user)
+    assert not user_verification.check_owner(None)

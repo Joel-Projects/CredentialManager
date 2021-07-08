@@ -50,8 +50,8 @@ var Select2Cascade = (function (window, $) {
 })(window, $);
 $(document).ready(function () {
     let sentryTeam = $('#sentry_team')
-    let addSentryTokenModal = $('#addSentryTokenModal');
-    new Select2Cascade($('#sentry_organization'), sentryTeam, '/api/v1/sentry_tokens/sentry_organizations/:parentId:/teams', {theme: 'bootstrap4', dropdownParent: addSentryTokenModal}, 'Select an Organization', 'Select a Team');
+    let add_sentry_token_modal = $('#add_sentry_token_modal');
+    new Select2Cascade($('#sentry_organization'), sentryTeam, '/api/v1/sentry_tokens/sentry_organizations/:parentId:/teams', {theme: 'bootstrap4', dropdownParent: add_sentry_token_modal}, 'Select an Organization', 'Select a Team');
     $('#sentry_platform').select2({
         data: [
             {
@@ -394,12 +394,12 @@ $(document).ready(function () {
         placeholder: 'Select a platform',
         templateResult: formatPlatform,
         templateSelection: formatPlatform,
-        dropdownParent: addSentryTokenModal
+        dropdownParent: add_sentry_token_modal
     });
     sentryTeam.select2({
         theme: 'bootstrap4',
         placeholder: 'Select an organization first',
         disabled: true,
-        dropdownParent: addSentryTokenModal
+        dropdownParent: add_sentry_token_modal
     });
 });

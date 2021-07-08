@@ -14,7 +14,7 @@ class ListRedditAppsParameters(PaginationParameters, ValidateOwner):
     class Meta:
         model = RedditApp
 
-    invalidOwnerMessage = "You can only query your own {}."
+    invalid_owner_message = "You can only query your own {}."
 
 
 class CreateRedditAppParameters(
@@ -44,12 +44,12 @@ class CreateRedditAppParameters(
     )
 
     @validates("app_name")
-    def validateName(self, data):
+    def validate_name(self, data):
         if len(data) < 3:
             raise ValidationError("Name must be greater than 3 characters long.")
 
     @validates("app_type")
-    def validateAppType(self, data):
+    def validate_app_type(self, data):
         if not data.lower() in ["web", "installed", "script"]:
             raise ValidationError(
                 "App type is not valid. Valid types are: 'web', 'installed'. or 'script'"

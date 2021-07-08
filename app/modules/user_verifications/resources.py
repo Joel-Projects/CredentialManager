@@ -6,7 +6,7 @@ from flask_restplus._http import HTTPStatus
 from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
 
-from .. import getViewableItems
+from .. import get_viewable_items
 from ..reddit_apps.models import RedditApp
 from ..users import permissions
 from ..users.models import User
@@ -36,8 +36,8 @@ class UserVerifications(Resource):
 
         Only Admins can specify ``owner`` to see User Verifications for other users. Regular users will see their own User Verifications.
         """
-        userVerifications = getViewableItems(args, UserVerification)
-        return userVerifications.offset(args["offset"]).limit(args["limit"])
+        user_verifications = get_viewable_items(args, UserVerification)
+        return user_verifications.offset(args["offset"]).limit(args["limit"])
 
     @api.parameters(parameters.CreateUserVerificationParameters())
     @api.response(schemas.DetailedUserVerificationSchema())
@@ -73,7 +73,7 @@ class UserVerifications(Resource):
 @api.route("/<int:user_verification_id>")
 @api.login_required()
 @api.response(code=HTTPStatus.NOT_FOUND, description="User Verification not found.")
-@api.resolveObjectToModel(UserVerification, "user_verification")
+@api.resolve_object_to_model(UserVerification, "user_verification")
 class UserVerificationByID(Resource):
     """
     Manipulations with a specific User Verification.
@@ -84,7 +84,7 @@ class UserVerificationByID(Resource):
         permissions.OwnerRolePermission,
         kwargs_on_request=lambda kwargs: {"obj": kwargs["user_verification"]},
     )
-    @api.restrictEnabled(lambda kwargs: kwargs["user_verification"])
+    @api.restrict_enabled(lambda kwargs: kwargs["user_verification"])
     @api.response(schemas.DetailedUserVerificationSchema())
     def get(self, user_verification):
         """
@@ -153,17 +153,17 @@ class GetUserVerificationByUserID(Resource):
                 args["reddit_app_id"], "Reddit App not found"
             )
             if reddit_app.enabled:
-                userVerification = UserVerification.query.filter(
+                user_verification = UserVerification.query.filter(
                     UserVerification.user_id == args["user_id"],
                     UserVerification.reddit_app == reddit_app,
                 ).first_or_404()
         else:
-            userVerification = UserVerification.query.filter(
+            user_verification = UserVerification.query.filter(
                 UserVerification.user_id == args["user_id"]
             ).first_or_404()
-        if not userVerification.enabled:
+        if not user_verification.enabled:
             http_exceptions.abort(
                 code=HTTPStatus.FAILED_DEPENDENCY,
                 message="Requested object is disabled",
             )
-        return userVerification
+        return user_verification

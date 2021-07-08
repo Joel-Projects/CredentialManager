@@ -7,7 +7,7 @@ from flask import Blueprint, render_template, request
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
-from ...extensions import db, paginateArgs, verifyEditable
+from ...extensions import db, paginate_args, verify_editable
 from ..reddit_apps.models import RedditApp
 from ..user_verifications.models import UserVerification
 from ..users.models import User
@@ -17,7 +17,7 @@ from .tables import RefreshTokenTable
 
 log = logging.getLogger(__name__)
 
-refreshTokensBlueprint = Blueprint(
+refresh_tokens_blueprint = Blueprint(
     "refresh_tokens",
     __name__,
     template_folder="./templates",
@@ -26,50 +26,50 @@ refreshTokensBlueprint = Blueprint(
 )
 
 
-@refreshTokensBlueprint.route("/refresh_tokens", methods=["GET", "POST"])
+@refresh_tokens_blueprint.route("/refresh_tokens", methods=["GET", "POST"])
 @login_required
-@paginateArgs(RefreshToken)
-def refresh_tokens(page, perPage, orderBy, sort_columns, sort_directions):
-    showOld = request.args.get("showOld", "false").lower() == "true"
+@paginate_args(RefreshToken)
+def refresh_tokens(page, per_page, order_by, sort_columns, sort_directions):
+    show_old = request.args.get("show_old", "false").lower() == "true"
     if current_user.is_internal:
         query = RefreshToken.query
     elif current_user.is_admin:
         query = RefreshToken.query.filter(RefreshToken.owner.has(internal=False))
     else:
         query = current_user.refresh_tokens
-    if not orderBy:
-        orderBy = [RefreshToken.redditor.asc()]
+    if not order_by:
+        order_by = [RefreshToken.redditor.asc()]
     if "reddit_app" in sort_columns:
         query = query.outerjoin(RedditApp)
     if "owner" in sort_columns:
         query = query.outerjoin(User)
-    paginator = query.order_by(*orderBy).paginate(page, perPage, error_out=False)
+    paginator = query.order_by(*order_by).paginate(page, per_page, error_out=False)
     table = RefreshTokenTable(
         paginator.items,
         sort_columns=sort_columns,
         sort_directions=sort_directions,
-        showOld=showOld,
+        show_old=show_old,
     )
     form = RefreshTokenForm()
     return render_template(
         "refresh_tokens.html",
-        refresh_tokensTable=table,
-        refresh_tokensForm=form,
+        refresh_tokens_table=table,
+        refresh_tokens_form=form,
         paginator=paginator,
         route="refresh_tokens.refresh_tokens",
-        perPage=perPage,
-        showOld=showOld,
+        per_page=per_page,
+        show_old=show_old,
     )
 
 
-@refreshTokensBlueprint.route("/refresh_tokens/<RefreshToken:refresh_token>/")
+@refresh_tokens_blueprint.route("/refresh_tokens/<RefreshToken:refresh_token>/")
 @login_required
-@verifyEditable("refresh_token")
-def editRefreshToken(refresh_token):
+@verify_editable("refresh_token")
+def edit_refresh_token(refresh_token):
     return render_template("edit_refresh_token.html", refresh_token=refresh_token)
 
 
-@refreshTokensBlueprint.route("/oauth2/reddit_callback")
+@refresh_tokens_blueprint.route("/oauth2/reddit_callback")
 def reddit_callback():
     state = request.args.get("state", "")
     code = request.args.get("code")
@@ -79,10 +79,10 @@ def reddit_callback():
     try:
         now = datetime.now(timezone.utc)
         now.replace(tzinfo=timezone.utc)
-        refreshToken = None
-        reddit_app, user_id = RedditApp().getAppFromState(state)
+        refresh_token = None
+        reddit_app, user_id = RedditApp().get_app_from_state(state)
         if reddit_app:
-            reddit = reddit_app.redditInstance
+            reddit = reddit_app.reddit_instance
             token = reddit.auth.authorize(code)
             redditor = reddit.user.me().name
             if token:
@@ -94,7 +94,7 @@ def reddit_callback():
                 ).first()
                 if existing:  # pragma: no cover
                     existing.revoke()
-                refreshToken = RefreshToken(
+                refresh_token = RefreshToken(
                     reddit_app=reddit_app,
                     redditor=redditor,
                     refresh_token=token,
@@ -103,54 +103,54 @@ def reddit_callback():
                     owner=reddit_app.owner,
                 )
                 with db.session.begin():
-                    db.session.add(refreshToken)
+                    db.session.add(refresh_token)
             if user_id:
-                userVerification = UserVerification.query.filter_by(
+                user_verification = UserVerification.query.filter_by(
                     user_id=user_id
                 ).first()
-                if userVerification and userVerification.reddit_app == reddit_app:
-                    userVerification.redditor = redditor
-                    userVerification.verified_at = now
+                if user_verification and user_verification.reddit_app == reddit_app:
+                    user_verification.redditor = redditor
+                    user_verification.verified_at = now
                 with db.session.begin():
-                    db.session.merge(userVerification)
-                if userVerification.extra_data:
-                    if "sioux_bot" in userVerification.extra_data:  # pragma: no cover
+                    db.session.merge(user_verification)
+                if user_verification.extra_data:
+                    if "sioux_bot" in user_verification.extra_data:  # pragma: no cover
                         webhook = os.getenv("SIOUX_BOT_WEBHOOK")
                         if webhook:
                             requests.post(webhook, data={"content": f".done {user_id}"})
-                    elif "webhook" in userVerification.extra_data:  # pragma: no cover
-                        if isinstance(userVerification.extra_data["webhook"], dict):
+                    elif "webhook" in user_verification.extra_data:  # pragma: no cover
+                        if isinstance(user_verification.extra_data["webhook"], dict):
                             if {"prefix", "command", "url"} == set(
-                                userVerification.extra_data["webhook"]
+                                user_verification.extra_data["webhook"]
                             ):
-                                prefix = userVerification.extra_data["webhook"][
+                                prefix = user_verification.extra_data["webhook"][
                                     "prefix"
                                 ]
-                                command = userVerification.extra_data["webhook"][
+                                command = user_verification.extra_data["webhook"][
                                     "command"
                                 ]
-                                webhook = userVerification.extra_data["webhook"]["url"]
+                                webhook = user_verification.extra_data["webhook"]["url"]
                                 requests.post(
                                     webhook,
                                     data={"content": f"{prefix}{command} {user_id}"},
                                 )
-                        elif isinstance(userVerification.extra_data["webhook"], str):
+                        elif isinstance(user_verification.extra_data["webhook"], str):
                             requests.post(
-                                userVerification.extra_data["webhook"],
+                                user_verification.extra_data["webhook"],
                                 data={"content": user_id},
                             )
-            if refreshToken:
-                appName = refreshToken.reddit_app.app_name
+            if refresh_token:
+                app_name = refresh_token.reddit_app.app_name
                 header = f"Reddit Authorization Complete"
             else:
-                appName = reddit_app.app_name
+                app_name = reddit_app.app_name
                 header = f"Reddit Verification Complete"
             return render_template(
                 "oauth_result.html",
                 success=True,
                 header=header,
                 user=redditor,
-                message=f', your Reddit account has been {("verified", "authenticated")[bool(refreshToken)]} with {appName!r} successfully!',
+                message=f', your Reddit account has been {("verified", "authenticated")[bool(refresh_token)]} with {app_name!r} successfully!',
             )
     except Exception as error:  # pragma: no cover
         log.error(error)

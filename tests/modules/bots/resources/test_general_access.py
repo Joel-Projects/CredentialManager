@@ -11,6 +11,6 @@ import pytest
         ("DELETE", "/api/v1/bots/1"),
     ),
 )
-def test_unauthorized_access(method, path, flask_app_client, regularUserBot):
+def test_unauthorized_access(method, path, flask_app_client, regular_user_bot):
     response = flask_app_client.open(method=method, path=path)
     assert response.status_code == 401

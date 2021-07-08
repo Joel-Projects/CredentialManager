@@ -11,13 +11,13 @@ data = [
     },
     {
         "op": "copy",
-        "fromPath": "/is_active",
+        "from_path": "/is_active",
         "path": "/is_admin",
     },
 ]
 
 
-def test_patch_operations(flask_app_client, adminUserInstance, regular_user, db):
+def test_patch_operations(flask_app_client, admin_user_instance, regular_user, db):
     flask_app_client.patch(
         f"/api/v1/users/{regular_user.id}",
         content_type="application/json",
@@ -27,7 +27,7 @@ def test_patch_operations(flask_app_client, adminUserInstance, regular_user, db)
     assert regular_user.is_admin
 
 
-def test_bad_patch_bad_path(flask_app_client, adminUserInstance, regular_user, db):
+def test_bad_patch_bad_path(flask_app_client, admin_user_instance, regular_user, db):
     response = flask_app_client.patch(
         f"/api/v1/users/{regular_user.id}",
         content_type="application/json",
@@ -53,12 +53,12 @@ def test_bad_patch_bad_path(flask_app_client, adminUserInstance, regular_user, d
                 },
             )
         ],
-        oldItem=regular_user,
+        old_item=regular_user,
         action="patch",
     )
 
 
-def test_bad_patch_bad_field(flask_app_client, adminUserInstance, regular_user, db):
+def test_bad_patch_bad_field(flask_app_client, admin_user_instance, regular_user, db):
     response = flask_app_client.patch(
         f"/api/v1/users/{regular_user.id}",
         content_type="application/json",
@@ -84,6 +84,6 @@ def test_bad_patch_bad_field(flask_app_client, adminUserInstance, regular_user, 
                 },
             )
         ],
-        oldItem=regular_user,
+        old_item=regular_user,
         action="patch",
     )

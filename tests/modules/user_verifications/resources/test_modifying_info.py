@@ -5,7 +5,7 @@ import pytest
 from app.modules.user_verifications.models import UserVerification
 from app.modules.user_verifications.schemas import DetailedUserVerificationSchema
 from tests.params import labels, users
-from tests.utils import assert403, assert409, assert422, assertSuccess
+from tests.utils import assert403, assert409, assert422, assert_success
 
 data = [
     {
@@ -21,20 +21,20 @@ data = [
 ]
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 def test_modifying_user_verification(
-    flask_app_client, regularUserUserVerification, loginAs
+    flask_app_client, regular_user_user_verification, login_as
 ):
     response = flask_app_client.patch(
-        f"/api/v1/user_verifications/{regularUserUserVerification.id}",
+        f"/api/v1/user_verifications/{regular_user_user_verification.id}",
         content_type="application/json",
         data=json.dumps(data),
     )
 
-    if loginAs.is_admin or loginAs.is_internal:
-        assertSuccess(
+    if login_as.is_admin or login_as.is_internal:
+        assert_success(
             response,
-            regularUserUserVerification.owner,
+            regular_user_user_verification.owner,
             UserVerification,
             DetailedUserVerificationSchema,
         )
@@ -44,30 +44,33 @@ def test_modifying_user_verification(
             UserVerification,
             action="patch",
             internal=True,
-            oldItem=regularUserUserVerification,
+            old_item=regular_user_user_verification,
         )
 
 
 def test_modifying_user_verification_by_self(
-    flask_app_client, regularUserInstance, regularUserUserVerification
+    flask_app_client, regular_user_instance, regular_user_user_verification
 ):
-    regularUserUserVerification.owner = regularUserInstance
+    regular_user_user_verification.owner = regular_user_instance
     response = flask_app_client.patch(
-        f"/api/v1/user_verifications/{regularUserUserVerification.id}",
+        f"/api/v1/user_verifications/{regular_user_user_verification.id}",
         content_type="application/json",
         data=json.dumps(data),
     )
-    assertSuccess(
-        response, regularUserInstance, UserVerification, DetailedUserVerificationSchema
+    assert_success(
+        response,
+        regular_user_instance,
+        UserVerification,
+        DetailedUserVerificationSchema,
     )
 
 
 def test_modifying_user_verification_info_with_invalid_format_must_fail(
-    flask_app_client, regularUserInstance, regularUserUserVerification
+    flask_app_client, regular_user_instance, regular_user_user_verification
 ):
-    regularUserUserVerification.owner = regularUserInstance
+    regular_user_user_verification.owner = regular_user_instance
     response = flask_app_client.patch(
-        f"/api/v1/user_verifications/{regularUserUserVerification.id}",
+        f"/api/v1/user_verifications/{regular_user_user_verification.id}",
         content_type="application/json",
         data=json.dumps(
             [
@@ -88,28 +91,28 @@ def test_modifying_user_verification_info_with_invalid_format_must_fail(
         response,
         UserVerification,
         [("1", {"_schema": ["value is required"]})],
-        oldItem=regularUserUserVerification,
+        old_item=regular_user_user_verification,
         action="patch",
     )
 
 
 def test_modifying_user_verification_info_with_conflict_data_must_fail(
     flask_app_client,
-    regularUserInstance,
-    regularUserUserVerification,
-    adminUserUserVerification,
+    regular_user_instance,
+    regular_user_user_verification,
+    admin_user_user_verification,
 ):
-    regularUserUserVerification.owner = regularUserInstance
-    adminUserUserVerification.owner = regularUserInstance
+    regular_user_user_verification.owner = regular_user_instance
+    admin_user_user_verification.owner = regular_user_instance
     response = flask_app_client.patch(
-        f"/api/v1/user_verifications/{regularUserUserVerification.id}",
+        f"/api/v1/user_verifications/{regular_user_user_verification.id}",
         content_type="application/json",
         data=json.dumps(
             [
                 {
                     "op": "replace",
                     "path": "/user_id",
-                    "value": adminUserUserVerification.user_id,
+                    "value": admin_user_user_verification.user_id,
                 }
             ]
         ),
@@ -119,8 +122,8 @@ def test_modifying_user_verification_info_with_conflict_data_must_fail(
         response,
         UserVerification,
         "Failed to update User Verification details.",
-        loginAs=regularUserInstance,
-        messageAttrs=[("1", {"_schema": ["value is required"]})],
-        oldItem=regularUserUserVerification,
+        login_as=regular_user_instance,
+        message_attrs=[("1", {"_schema": ["value is required"]})],
+        old_item=regular_user_user_verification,
         action="patch",
     )

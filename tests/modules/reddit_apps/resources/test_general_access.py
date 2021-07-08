@@ -11,6 +11,6 @@ import pytest
         ("DELETE", "/api/v1/reddit_apps/1"),
     ),
 )
-def test_unauthorized_access(method, path, flask_app_client, regularUserRedditApp):
+def test_unauthorized_access(method, path, flask_app_client, regular_user_reddit_app):
     response = flask_app_client.open(method=method, path=path)
     assert response.status_code == 401

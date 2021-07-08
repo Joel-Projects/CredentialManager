@@ -23,8 +23,8 @@ class BaseSentryTokenSchema(ModelSchema):
         dump_only = (SentryToken.id.key, "resource_type")
         load_only = (SentryToken.enabled.key,)
 
-    _resourceType = Meta.model.__name__
-    resource_type = base_fields.String(default=_resourceType)
+    _resource_type = Meta.model.__name__
+    resource_type = base_fields.String(default=_resource_type)
 
 
 class DetailedSentryTokenSchema(BaseSentryTokenSchema):

@@ -48,7 +48,7 @@ def timestamp_before_update(mapper, connection, target):
 
 
 class InfoAttrs(object):
-    def getInfoAttr(self, path):
+    def get_info_attr(self, path):
         try:
             attr = operator.attrgetter(path)(self)
             if callable(attr):
@@ -60,7 +60,7 @@ class InfoAttrs(object):
 
 class StrName(object):
     def __str__(self):
-        return getattr(self, self._nameAttr)
+        return getattr(self, self._name_attr)
 
 
 class QueryProperty(object):

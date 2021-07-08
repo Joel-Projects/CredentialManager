@@ -1,0 +1,103 @@
+{% import 'macros.html' as macros %}
+<div class="container">
+    <div class="table-responsive">
+        {{ reddit_apps_table }}
+    </div>
+    <div class="row">
+        <div class="col">
+            <button class="btn btn-primary" id="create_reddit_app" data-toggle="modal" data-target="#create_reddit_appModal">Create Reddit App</button>
+        </div>
+        {% include 'paginator.html' %}
+    </div>
+    <div class="modal fade" id="create_reddit_appModal" tabindex="-1" role="dialog" aria-labelledby="create_reddit_appModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="create_reddit_appModalLabel">Create Reddit App</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <form id="create_reddit_appForm" method="post" resource="{% if user %}/u/{{ user.username }}{% endif %}/reddit_apps">
+                        {{ reddit_apps_form.hidden_tag() }}
+                        {% for field_name in reddit_apps_form.Meta.fields %}
+                            {% if field_name.__class__.__name__ == 'list' %}
+                                {{ macros.form_row(reddit_apps_form, field_name) }}
+                            {% elif field_name == 'app_type' %}
+                                <div class="form-group">
+                                    {{ reddit_apps_form[field_name].label }}
+                                    {{ reddit_apps_form[field_name](class_="custom-select") }}
+                                    <small id="{{ reddit_apps_form[field_name].id }}Help" class="form-text text-muted">{{ reddit_apps_form[field_name].description }}</small>
+                                </div>
+                            {% elif field_name == 'enabled' %}
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        {{ reddit_apps_form[field_name](checked=True, class_="custom-control-input") }}
+                                        {{ reddit_apps_form[field_name].label(class_='custom-control-label') }}
+                                        <small id="{{ reddit_apps_form[field_name].id }}Help" class="form-text text-muted">{{ reddit_apps_form[field_name].description }}</small>
+                                    </div>
+                                </div>
+                            {% elif field_name == 'redirect_uri' %}
+                                <div class="form-group">
+                                    {{ reddit_apps_form[field_name].label }}
+                                    {% if user %}
+                                        {% set redirect_uri = user.get_default('redirect_uri') %}
+                                    {% else %}
+                                        {% set redirect_uri = current_user.get_default('redirect_uri') %}
+                                    {% endif %}
+                                    {% if reddit_apps_form[field_name].errors %}
+                                        {{ reddit_apps_form[field_name](value=redirect_uri, size=16, class_="form-control is-invalid", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
+                                        {% for error in reddit_apps_form[field_name].errors %}
+                                            <div class="invalid-feedback" id="{{ field_name }}Feedback">{{ error }}</div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ reddit_apps_form[field_name](value=redirect_uri, size=16, class_="form-control", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
+                                    {% endif %}
+                                    <small id="{{ reddit_apps_form[field_name].id }}Help" class="form-text text-muted">{{ reddit_apps_form[field_name].description }}</small>
+                                </div>
+                            {% elif field_name == 'user_agent' %}
+                                <div class="form-group">
+                                    {{ reddit_apps_form[field_name].label }}
+                                    {% if user %}
+                                        {% set user_agent = user.get_default('user_agent') %}
+                                    {% else %}
+                                        {% set user_agent = current_user.get_default('user_agent') %}
+                                    {% endif %}
+                                    {% if reddit_apps_form[field_name].errors %}
+                                        {{ reddit_apps_form[field_name](value=user_agent, size=16, class_="form-control is-invalid", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
+                                        {% for error in reddit_apps_form[field_name].errors %}
+                                            <div class="invalid-feedback" id="{{ field_name }}Feedback">{{ error }}</div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ reddit_apps_form[field_name](value=user_agent, size=16, class_="form-control", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
+                                    {% endif %}
+                                    <small id="{{ reddit_apps_form[field_name].id }}Help" class="form-text text-muted">{{ reddit_apps_form[field_name].description }}</small>
+                                </div>
+                            {% else %}
+                                {{ macros.text_field(reddit_apps_form, field_name) }}
+                            {% endif %}
+                        {% endfor %}
+                        <div class="form-group" {% if not current_user.is_admin and not current_user.is_internal %}hidden{% endif %}>
+                            {{ reddit_apps_form.owner.label }}
+                            {{ reddit_apps_form.owner(class_="custom-select", default=user or current_user) }}
+                            <small id="{{ reddit_apps_form.owner.id }}Help" class="form-text text-muted">{{ reddit_apps_form.owner.description }}</small>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>
+                            {#                            <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="reddit_app_create_new">Add and New</button>#}
+                            <button type="submit" name="submit" tabindex="0" class="btn btn-primary" onclick="create_item(this, 'create_reddit_appForm', '{% if user %}/u/{{ user.username }}{% endif %}/reddit_apps')" id="reddit_app_create">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if enable_tablesorter %}
+        <script>
+            $("#reddit_apps_table").tablesorter({
+                theme: "bootstrap",
+                cancelSelection: false,
+                sortReset: true
+            });
+        </script>
+    {% endif %}
+</div>

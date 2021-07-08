@@ -3,8 +3,8 @@ import logging
 from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
 
-from ...extensions import db, paginateArgs, verifyEditable
-from .. import getPaginator
+from ...extensions import db, paginate_args, verify_editable
+from .. import get_paginator
 from ..users.models import User
 from .parameters import PatchRedditAppDetailsParameters
 from .resources import api
@@ -14,7 +14,7 @@ from .forms import RedditAppForm
 from .models import RedditApp
 from .tables import RedditAppTable
 
-redditAppsBlueprint = Blueprint(
+reddit_apps_blueprint = Blueprint(
     "reddit_apps",
     __name__,
     template_folder="./templates",
@@ -23,10 +23,10 @@ redditAppsBlueprint = Blueprint(
 )
 
 
-@redditAppsBlueprint.route("/reddit_apps", methods=["GET", "POST"])
+@reddit_apps_blueprint.route("/reddit_apps", methods=["GET", "POST"])
 @login_required
-@paginateArgs(RedditApp)
-def reddit_apps(page, perPage, orderBy, sort_columns, sort_directions):
+@paginate_args(RedditApp)
+def reddit_apps(page, per_page, order_by, sort_columns, sort_directions):
     code = 200
     form = RedditAppForm()
     if request.method == "POST":
@@ -50,7 +50,7 @@ def reddit_apps(page, perPage, orderBy, sort_columns, sort_directions):
             db.session.add(reddit_app)
         else:
             return jsonify(status="error", errors=form.errors), code
-    paginator = getPaginator(RedditApp, page, perPage, orderBy, sort_columns)
+    paginator = get_paginator(RedditApp, page, per_page, order_by, sort_columns)
     table = RedditAppTable(
         paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
     )
@@ -58,41 +58,41 @@ def reddit_apps(page, perPage, orderBy, sort_columns, sort_directions):
     return (
         render_template(
             "reddit_apps.html",
-            reddit_appsTable=table,
-            reddit_appsForm=form,
+            reddit_apps_table=table,
+            reddit_apps_form=form,
             paginator=paginator,
             route="reddit_apps.reddit_apps",
-            perPage=perPage,
+            per_page=per_page,
         ),
         code,
     )
 
 
-@redditAppsBlueprint.route(
+@reddit_apps_blueprint.route(
     "/reddit_apps/<RedditApp:reddit_app>/", methods=["GET", "POST"]
 )
 @login_required
-@verifyEditable("reddit_app")
-def editRedditApp(reddit_app):
+@verify_editable("reddit_app")
+def edit_reddit_app(reddit_app):
     form = RedditAppForm(obj=reddit_app)
     code = 200
     if request.method == "POST":
         if form.validate_on_submit():
-            itemsToUpdate = []
+            items_to_update = []
             for item in PatchRedditAppDetailsParameters.fields:
                 if (
                     getattr(form, item, None) is not None
                     and getattr(reddit_app, item) != getattr(form, item).data
                 ):
-                    itemsToUpdate.append(
+                    items_to_update.append(
                         {
                             "op": "replace",
                             "path": f"/{item}",
                             "value": getattr(form, item).data,
                         }
                     )
-            if itemsToUpdate:
-                for item in itemsToUpdate:
+            if items_to_update:
+                for item in items_to_update:
                     PatchRedditAppDetailsParameters().validate_patch_structure(item)
                 try:
                     with api.commit_or_abort(
@@ -100,7 +100,7 @@ def editRedditApp(reddit_app):
                         default_error_message="Failed to update Reddit App details.",
                     ):
                         PatchRedditAppDetailsParameters.perform_patch(
-                            itemsToUpdate, reddit_app
+                            items_to_update, reddit_app
                         )
                         db.session.merge(reddit_app)
                         code = 202

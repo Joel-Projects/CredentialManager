@@ -21,22 +21,22 @@ data = [
 ]
 
 
-def assertCorrectStructure(response):
+def assert_correct_structure(response):
     assert response.content_type == "application/json"
     assert isinstance(response.json, dict)
     assert set(response.json.keys()) >= {"status", "message"}
 
 
-def assertSuccess(db, regularUserInstance, response, saved_default_settings):
+def assert_success(db, regular_user_instance, response, saved_default_settings):
     assert response.status_code == 200
     assert response.content_type == "application/json"
     assert isinstance(response.json, dict)
     assert set(response.json.keys()) >= {"id", "username"}
-    assert response.json["id"] == regularUserInstance.id
+    assert response.json["id"] == regular_user_instance.id
     assert "password" not in response.json.keys()
     user1_instance = User.query.get(response.json["id"])
-    assert user1_instance.username == regularUserInstance.username
-    assert user1_instance.defaultSettings == {
+    assert user1_instance.username == regular_user_instance.username
+    assert user1_instance.default_settings == {
         "database_flavor": "postgres",
         "database_host": "localhost",
     }
@@ -48,10 +48,10 @@ def assertSuccess(db, regularUserInstance, response, saved_default_settings):
         db.session.merge(user1_instance)
 
 
-def test_modifying_user_info_by_owner(flask_app_client, regularUserInstance, db):
-    saved_default_settings = regularUserInstance.default_settings
+def test_modifying_user_info_by_owner(flask_app_client, regular_user_instance, db):
+    saved_default_settings = regular_user_instance.default_settings
     response = flask_app_client.patch(
-        f"/api/v1/users/{regularUserInstance.id}",
+        f"/api/v1/users/{regular_user_instance.id}",
         content_type="application/json",
         data=json.dumps(
             [
@@ -67,11 +67,11 @@ def test_modifying_user_info_by_owner(flask_app_client, regularUserInstance, db)
         ),
     )
 
-    assertSuccess(db, regularUserInstance, response, saved_default_settings)
+    assert_success(db, regular_user_instance, response, saved_default_settings)
 
 
 def test_modifying_user_info_by_admin(
-    flask_app_client, adminUserInstance, regular_user, db
+    flask_app_client, admin_user_instance, regular_user, db
 ):
     saved_default_settings = regular_user.default_settings
     response = flask_app_client.patch(
@@ -80,11 +80,11 @@ def test_modifying_user_info_by_admin(
         data=json.dumps(data),
     )
 
-    assertSuccess(db, regular_user, response, saved_default_settings)
+    assert_success(db, regular_user, response, saved_default_settings)
 
 
 def test_modifying_user_info_admin_fields_by_not_admin(
-    flask_app_client, regularUserInstance, db
+    flask_app_client, regular_user_instance, db
 ):
     data = [
         {
@@ -94,33 +94,33 @@ def test_modifying_user_info_admin_fields_by_not_admin(
         }
     ]
     response = flask_app_client.patch(
-        f"/api/v1/users/{regularUserInstance.id}",
+        f"/api/v1/users/{regular_user_instance.id}",
         content_type="application/json",
         data=json.dumps(data),
     )
 
     assert response.status_code == 403
-    assertCorrectStructure(response)
+    assert_correct_structure(response)
 
 
 def test_modifying_user_info_admin_fields_by_not_admin(
-    flask_app_client, regularUserInstance, db
+    flask_app_client, regular_user_instance, db
 ):
     response = flask_app_client.patch(
-        f"/api/v1/users/{regularUserInstance.id}",
+        f"/api/v1/users/{regular_user_instance.id}",
         content_type="application/json",
         data=json.dumps(data),
     )
 
     assert response.status_code == 406
-    assertCorrectStructure(response)
+    assert_correct_structure(response)
 
 
 def test_modifying_user_info_with_invalid_format_must_fail(
-    flask_app_client, regularUserInstance
+    flask_app_client, regular_user_instance
 ):
     response = flask_app_client.patch(
-        f"/api/v1/users/{regularUserInstance.id}",
+        f"/api/v1/users/{regular_user_instance.id}",
         content_type="application/json",
         data=json.dumps(
             [
@@ -138,14 +138,14 @@ def test_modifying_user_info_with_invalid_format_must_fail(
     )
 
     assert response.status_code == 422
-    assertCorrectStructure(response)
+    assert_correct_structure(response)
 
 
 def test_modifying_user_info_with_conflict_data_must_fail(
-    flask_app_client, admin_user, regularUserInstance
+    flask_app_client, admin_user, regular_user_instance
 ):
     response = flask_app_client.patch(
-        f"/api/v1/users/{regularUserInstance.id}",
+        f"/api/v1/users/{regular_user_instance.id}",
         content_type="application/json",
         data=json.dumps(
             [{"op": "replace", "path": "/username", "value": admin_user.username}]
@@ -153,4 +153,4 @@ def test_modifying_user_info_with_conflict_data_must_fail(
     )
 
     assert response.status_code == 409
-    assertCorrectStructure(response)
+    assert_correct_structure(response)

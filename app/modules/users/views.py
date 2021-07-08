@@ -6,7 +6,7 @@ from flask_login import current_user, login_required
 from sqlalchemy import or_
 from unflatten import unflatten
 
-from ...extensions import ModelForm, db, paginateArgs, requiresAdmin, verifyEditable
+from ...extensions import ModelForm, db, paginate_args, requires_admin, verify_editable
 from ...extensions.api import abort
 from .. import get_model
 from ..api_tokens.forms import ApiTokenForm
@@ -38,7 +38,7 @@ from .tables import UserTable
 
 log = logging.getLogger(__name__)
 
-usersBlueprint = Blueprint(
+users_blueprint = Blueprint(
     "users",
     __name__,
     template_folder="./templates",
@@ -47,11 +47,11 @@ usersBlueprint = Blueprint(
 )
 
 
-@usersBlueprint.route("/users", methods=["GET", "POST"])
+@users_blueprint.route("/users", methods=["GET", "POST"])
 @login_required
-@requiresAdmin
-@paginateArgs(User)
-def users(page, perPage, orderBy, sort_columns, sort_directions):
+@requires_admin
+@paginate_args(User)
+def users(page, per_page, order_by, sort_columns, sort_directions):
     form = UserForm()
     code = 200
     if request.method == "POST":
@@ -71,8 +71,8 @@ def users(page, perPage, orderBy, sort_columns, sort_directions):
             # code = 422
             return jsonify(status="error", errors=form.errors), code
 
-    if not orderBy:
-        orderBy = [User.id.asc()]
+    if not order_by:
+        order_by = [User.id.asc()]
     if current_user.is_internal:
         query = User.query
     elif current_user.is_admin:
@@ -82,32 +82,32 @@ def users(page, perPage, orderBy, sort_columns, sort_directions):
     for column in sort_columns:
         if get_model(column):
             query = query.outerjoin(get_model(column))
-    paginator = query.order_by(*orderBy).paginate(page, perPage, error_out=False)
+    paginator = query.order_by(*order_by).paginate(page, per_page, error_out=False)
     table = UserTable(
         paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
     )
     return (
         render_template(
             "users.html",
-            usersTable=table,
-            usersForm=form,
+            users_table=table,
+            users_form=form,
             paginator=paginator,
             route="users.users",
-            perPage=perPage,
+            per_page=per_page,
         ),
         code,
     )
 
 
-@usersBlueprint.route("/u/<User:user>/", methods=["GET", "POST"])
-@usersBlueprint.route(
+@users_blueprint.route("/u/<User:user>/", methods=["GET", "POST"])
+@users_blueprint.route(
     "/profile", methods=["GET", "POST"], defaults={"user": current_user}
 )
 @login_required
-@verifyEditable("user")
-def editUser(user):
+@verify_editable("user")
+def edit_user(user):
     kwargs = {}
-    showOld = request.args.get("showOld", "False") == "True"
+    show_old = request.args.get("show_old", "False") == "True"
 
     items = {
         "bots": "Bot",
@@ -120,26 +120,26 @@ def editUser(user):
     }
     for item, model_name in items.items():
         locals()[item] = getattr(user, item).all()
-        kwargs[f"{item}Table"] = globals()[f"{model_name}Table"](
+        kwargs[f"{item}_table"] = globals()[f"{model_name}Table"](
             locals()[item],
             allow_sort=False,
             route_kwargs=dict(
-                endpoint="users.editUser",
+                endpoint="users.edit_user",
                 user=user,
                 item=item,
                 _anchor=item,
             ),
         )
-        kwargs[f"{item}Form"] = globals()[f"{model_name}Form"]()
+        kwargs[f"{item}_form"] = globals()[f"{model_name}Form"]()
 
     form = EditUserForm(obj=user)
-    newUsername = None
-    newDefaultSettings = user.default_settings
+    new_username = None
+    new_default_settings = user.default_settings
     code = 200
     if request.method == "POST":
         if form.validate_on_submit():
-            itemsToUpdate = []
-            unflattenedForm = unflatten(
+            items_to_update = []
+            unflattened_form = unflatten(
                 dict(
                     [
                         (
@@ -153,47 +153,47 @@ def editUser(user):
                     ]
                 )
             )
-            defaultSettings = {}
-            if "root" in unflattenedForm:
-                defaultSettings = {
-                    item["setting"]: item["value"] for item in unflattenedForm["root"]
+            default_settings = {}
+            if "root" in unflattened_form:
+                default_settings = {
+                    item["setting"]: item["value"] for item in unflattened_form["root"]
                 }
-            if user.default_settings != defaultSettings:
-                itemsToUpdate.append(
+            if user.default_settings != default_settings:
+                items_to_update.append(
                     {
                         "op": "replace",
                         "path": f"/default_settings",
-                        "value": defaultSettings,
+                        "value": default_settings,
                     }
                 )
-                newDefaultSettings = defaultSettings
+                new_default_settings = default_settings
             else:
-                newDefaultSettings = user.default_settings
+                new_default_settings = user.default_settings
             for item in PatchUserDetailsParameters.fields:
                 if (
                     getattr(form, item, None) is not None
                     and getattr(user, item) != getattr(form, item).data
                 ):
                     if item == "username":
-                        newUsername = getattr(form, item).data
-                    if item == "password" and not form.updatePassword.data:
+                        new_username = getattr(form, item).data
+                    if item == "password" and not form.update_password.data:
                         continue
-                    itemsToUpdate.append(
+                    items_to_update.append(
                         {
                             "op": "replace",
                             "path": f"/{item}",
                             "value": getattr(form, item).data,
                         }
                     )
-            if itemsToUpdate:
-                for item in itemsToUpdate:
+            if items_to_update:
+                for item in items_to_update:
                     PatchUserDetailsParameters().validate_patch_structure(item)
                 try:
                     with api.commit_or_abort(
                         db.session,
                         default_error_message="Failed to update User details.",
                     ):
-                        PatchUserDetailsParameters.perform_patch(itemsToUpdate, user)
+                        PatchUserDetailsParameters.perform_patch(items_to_update, user)
                         db.session.merge(user)
                         code = 202
                         flash(f"User {user.username!r} saved successfully!", "success")
@@ -201,34 +201,34 @@ def editUser(user):
                     log.exception(error)
                     code = 400
                     flash(f"Failed to update User {user.username!r}", "error")
-            if newUsername:
+            if new_username:
                 if request.path == "/profile":
-                    newPath = "/profile"
+                    new_path = "/profile"
                 else:
-                    newPath = f"{newUsername}"
-                return redirect(newPath), 202
+                    new_path = f"{new_username}"
+                return redirect(new_path), 202
         else:
             code = 422
     for key, value in kwargs.items():
         if isinstance(value, ModelForm):
             if "owner" in value:
                 value.owner.data = user or current_user
-            for defaultSetting, settingValue in user.default_settings.items():
-                if defaultSetting in value.data:
-                    getattr(value, defaultSetting).data = settingValue
+            for default_setting, setting_value in user.default_settings.items():
+                if default_setting in value.data:
+                    getattr(value, default_setting).data = setting_value
     return (
         render_template(
             "edit_user.html",
             user=user,
-            usersForm=form,
+            users_form=form,
             enable_tablesorter=True,
-            defaultSettings=json.dumps(
+            default_settings=json.dumps(
                 [
                     {"Setting": key, "Default Value": value}
-                    for key, value in newDefaultSettings.items()
+                    for key, value in new_default_settings.items()
                 ]
             ),
-            showOld=showOld,
+            show_old=show_old,
             **kwargs,
         ),
         code,
@@ -236,13 +236,13 @@ def editUser(user):
 
 
 # noinspection PyUnresolvedReferences
-@usersBlueprint.route("/u/<User:user>/<item>/", methods=["GET", "POST"])
-@usersBlueprint.route(
+@users_blueprint.route("/u/<User:user>/<item>/", methods=["GET", "POST"])
+@users_blueprint.route(
     "/profile/<item>/", methods=["GET", "POST"], defaults={"user": current_user}
 )
 @login_required
-def itemsPerUser(user, item):
-    validItems = {
+def items_per_user(user, item):
+    valid_items = {
         "bots": [BotTable, BotForm, Bot],
         "reddit_apps": [RedditAppTable, RedditAppForm, RedditApp],
         "sentry_tokens": [SentryTokenTable, SentryTokenForm, SentryToken],
@@ -260,13 +260,13 @@ def itemsPerUser(user, item):
         ],
     }
     item = item.lower()
-    if not item in validItems:
+    if not item in valid_items:
         abort(404)
     items = getattr(user, item).all()
 
-    table = validItems[item][0](items, allow_sort=False)
-    Model = validItems[item][2]
-    form = validItems[item][1]()
+    table = valid_items[item][0](items, allow_sort=False)
+    Model = valid_items[item][2]
+    form = valid_items[item][1]()
     code = 200
     if request.method == "POST":
         if form.validate_on_submit():
@@ -278,19 +278,19 @@ def itemsPerUser(user, item):
                     requestor = SentryRequestor(current_user.sentry_auth_token)
                     response = requestor.post(
                         f"/api/0/teams/{data['sentry_organization']}/{data['sentry_team']}/projects/",
-                        itemName="project",
+                        item_name="project",
                         json={"name": data["app_name"]},
                     )
                     if hasattr(response, "slug"):
                         keys = requestor.get(
                             f"/api/0/projects/{data['sentry_organization']}/{response.slug}/keys/",
-                            itemName="key",
+                            item_name="key",
                         )
                         sentrydsn = keys[0].dsn.public
                         if data["sentry_platform"]:
                             requestor.put(
                                 f"/api/0/projects/{data['sentry_organization']}/{response.slug}/",
-                                itemName="project",
+                                item_name="project",
                                 json={"platform": data["sentry_platform"]},
                             )
                         data["dsn"] = sentrydsn
@@ -313,14 +313,14 @@ def itemsPerUser(user, item):
                 model.token = model.generate_token(length)
             db.session.add(model)
             items = getattr(user, item).all()
-            table = validItems[item][0](items)
+            table = valid_items[item][0](items)
             code = 201
         else:
             code = 422
             return jsonify(status="error", errors=form.errors), code
     kwargs = {
-        f"{item}Table": table,
-        f"{item}Form": form,
+        f"{item}_table": table,
+        f"{item}_form": form,
     }
     return (
         render_template(f"{item}.html", enable_tablesorter=True, user=user, **kwargs),

@@ -24,18 +24,20 @@ class PaginationParameters(Parameters):
     )
 
 
-def validateOwnerExists(user_id: int) -> User:
+def validate_owner_exists(user_id: int) -> User:
     return User.query.get(user_id)
 
 
 class ValidateOwner(Parameters):
     owner_id_attr = "owner_id"
 
-    invalidOwnerMessage = "You don't have the permission to create {} for other users."
+    invalid_owner_message = (
+        "You don't have the permission to create {} for other users."
+    )
 
     @validates(owner_id_attr)
-    def validateOwnerId(self, data):
-        item = validateOwnerExists(data)
+    def validate_owner_id(self, data):
+        item = validate_owner_exists(data)
         if item:
             if item.is_internal:  # pragma: no cover
                 permissions.InternalRolePermission().__enter__()
@@ -44,7 +46,9 @@ class ValidateOwner(Parameters):
             ):
                 raise http_exceptions.abort(
                     HTTPStatus.FORBIDDEN,
-                    self.invalidOwnerMessage.format(self.Meta.model._displayNamePlural),
+                    self.invalid_owner_message.format(
+                        self.Meta.model._display_name_plural
+                    ),
                 )
         else:
             raise ValidationError("That user doesn't exist")

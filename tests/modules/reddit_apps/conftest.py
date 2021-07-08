@@ -15,7 +15,7 @@ test_data = {
 
 
 @pytest.fixture()
-def regularUserRedditApp(temp_db_instance_helper, regular_user):
+def regular_user_reddit_app(temp_db_instance_helper, regular_user):
     for _ in temp_db_instance_helper(
         RedditApp(app_name="regular_user_reddit_app", owner=regular_user, **test_data)
     ):
@@ -23,7 +23,7 @@ def regularUserRedditApp(temp_db_instance_helper, regular_user):
 
 
 @pytest.fixture()
-def adminUserRedditApp(temp_db_instance_helper, admin_user):
+def admin_user_reddit_app(temp_db_instance_helper, admin_user):
     for _ in temp_db_instance_helper(
         RedditApp(app_name="admin_user_reddit_app", owner=admin_user, **test_data)
     ):
@@ -31,14 +31,14 @@ def adminUserRedditApp(temp_db_instance_helper, admin_user):
 
 
 @pytest.fixture()
-def internalUserRedditApp(temp_db_instance_helper, internal_user):
+def internal_user_reddit_app(temp_db_instance_helper, internal_user):
     for _ in temp_db_instance_helper(
         RedditApp(app_name="internal_user_reddit_app", owner=internal_user, **test_data)
     ):
         yield _
 
 
-refreshTokenData = {
+refresh_token_data = {
     "redditor": "redditor",
     "refresh_token": "refresh_token",
     "scopes": [
@@ -75,24 +75,24 @@ refreshTokenData = {
 
 
 @pytest.fixture()
-def regularUserRefreshToken(
-    regularUserRedditApp, temp_db_instance_helper, regular_user
+def regular_user_refresh_token(
+    regular_user_reddit_app, temp_db_instance_helper, regular_user
 ):
     for _ in temp_db_instance_helper(
         RefreshToken(
-            reddit_app=regularUserRedditApp, owner=regular_user, **refreshTokenData
+            reddit_app=regular_user_reddit_app, owner=regular_user, **refresh_token_data
         )
     ):
         yield _
 
 
 @pytest.fixture()
-def regularUserUserVerification(
-    temp_db_instance_helper, regular_user, regularUserRedditApp
+def regular_user_user_verification(
+    temp_db_instance_helper, regular_user, regular_user_reddit_app
 ):
     for _ in temp_db_instance_helper(
         UserVerification(
-            reddit_app=regularUserRedditApp,
+            reddit_app=regular_user_reddit_app,
             owner=regular_user,
             user_id="123456789012345678",
         )

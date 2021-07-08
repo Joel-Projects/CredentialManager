@@ -18,23 +18,23 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         super().__init__(*args, **kwargs)
 
     __tablename__ = "reddit_apps"
-    _displayNamePlural = "Reddit Apps"
-    _nameAttr = "app_name"
-    _enabledAttr = "enabled"
-    _infoAttrs = {
+    _display_name_plural = "Reddit Apps"
+    _name_attr = "app_name"
+    _enabled_attr = "enabled"
+    _info_attrs = {
         "id": "Reddit App ID",
         "app_type": "App Type",
         "owner": "Owner",
         "state": "State",
-        "botsUsingApp": "Bots using this",
-        "refreshTokens": "Refresh Tokens",
+        "bots_using_app": "Bots using this",
+        "refresh_tokens_count": "Refresh Tokens",
         "created": "Created at",
         "updated": "Last updated at",
     }
 
     __table_args__ = {"schema": BaseConfig.SCHEMA_NAME}
 
-    redditAppTypes = [
+    reddit_app_types = [
         ("web", "Web App"),
         ("installed", "Installed App"),
         ("script", "Personal Use Script"),
@@ -70,7 +70,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         },
     )
     app_type = db.Column(
-        ChoiceType(redditAppTypes),
+        ChoiceType(reddit_app_types),
         nullable=False,
         info={
             "label": "App Type",
@@ -100,23 +100,23 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
     )
     owner = db.relationship("User", backref=db.backref(__tablename__, lazy="dynamic"))
     state = db.Column(db.String)
-    uniqueConstraint = db.UniqueConstraint(client_id, owner_id)
+    unique_constraint = db.UniqueConstraint(client_id, owner_id)
 
     def check_owner(self, user):
         return self.owner == user
 
     @property
-    def refreshTokens(self):
+    def refresh_tokens_count(self):
         return len(self.refresh_tokens)
 
     @property
-    def botsUsingApp(self):
+    def bots_using_app(self):
         from app.modules.bots.models import Bot
 
         return Bot.query.filter_by(reddit_app=self).count()
 
-    def genAuthUrl(self, scopes, duration, user_verification=None):
-        reddit = self.redditInstance
+    def gen_auth_url(self, scopes, duration, user_verification=None):
+        reddit = self.reddit_instance
         state = self.state
         if user_verification:
             state = base64.urlsafe_b64encode(
@@ -125,7 +125,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         return reddit.auth.url(scopes, state, duration)
 
     @classmethod
-    def getAppFromState(cls, state):
+    def get_app_from_state(cls, state):
         user_id = None
         try:
             if state:
@@ -140,7 +140,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
             log.exception(error)
         return result, user_id
 
-    def getRefreshToken(self, redditor):
+    def get_refresh_token(self, redditor):
         if current_user.is_admin or current_user.is_internal:
             tokens = [
                 i
@@ -158,13 +158,13 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         return None
 
     @property
-    def redditInstance(self) -> praw.Reddit.__class__:
-        redditKwargs = ["client_id", "client_secret", "user_agent", "redirect_uri"]
-        reddit = praw.Reddit(**{key: getattr(self, key) for key in redditKwargs})
+    def reddit_instance(self) -> praw.Reddit.__class__:
+        reddit_kwargs = ["client_id", "client_secret", "user_agent", "redirect_uri"]
+        reddit = praw.Reddit(**{key: getattr(self, key) for key in reddit_kwargs})
         return reddit
 
 
 @listens_for(RedditApp, "before_insert")
 @listens_for(RedditApp, "before_update")
-def updateState(mapper, connect, target):
+def update_state(mapper, connect, target):
     target.state = hashlib.sha256(target.client_id.encode()).digest().hex()

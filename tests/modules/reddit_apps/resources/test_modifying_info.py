@@ -6,13 +6,13 @@ import pytest
 from app.modules.reddit_apps.models import RedditApp
 from app.modules.reddit_apps.schemas import DetailedRedditAppSchema
 from tests.params import labels, users
-from tests.utils import assert403, assert409, assert422, assertSuccess
+from tests.utils import assert403, assert409, assert422, assert_success
 
 data = [
     {
         "op": "replace",
         "path": "/app_name",
-        "value": "newName",
+        "value": "new_name",
     },
     {
         "op": "replace",
@@ -22,17 +22,17 @@ data = [
 ]
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_modifying_reddit_app(flask_app_client, regularUserRedditApp, loginAs):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+def test_modifying_reddit_app(flask_app_client, regular_user_reddit_app, login_as):
     response = flask_app_client.patch(
-        f"/api/v1/reddit_apps/{regularUserRedditApp.id}",
+        f"/api/v1/reddit_apps/{regular_user_reddit_app.id}",
         content_type="application/json",
         data=json.dumps(data),
     )
 
-    if loginAs.is_admin or loginAs.is_internal:
-        assertSuccess(
-            response, regularUserRedditApp.owner, RedditApp, DetailedRedditAppSchema
+    if login_as.is_admin or login_as.is_internal:
+        assert_success(
+            response, regular_user_reddit_app.owner, RedditApp, DetailedRedditAppSchema
         )
     else:
         assert403(
@@ -40,28 +40,28 @@ def test_modifying_reddit_app(flask_app_client, regularUserRedditApp, loginAs):
             RedditApp,
             action="patch",
             internal=True,
-            oldItem=regularUserRedditApp,
+            old_item=regular_user_reddit_app,
         )
 
 
 def test_modifying_reddit_app_by_self(
-    flask_app_client, regularUserInstance, regularUserRedditApp
+    flask_app_client, regular_user_instance, regular_user_reddit_app
 ):
-    regularUserRedditApp.owner = regularUserInstance
+    regular_user_reddit_app.owner = regular_user_instance
     response = flask_app_client.patch(
-        f"/api/v1/reddit_apps/{regularUserRedditApp.id}",
+        f"/api/v1/reddit_apps/{regular_user_reddit_app.id}",
         content_type="application/json",
         data=json.dumps(data),
     )
-    assertSuccess(response, regularUserInstance, RedditApp, DetailedRedditAppSchema)
+    assert_success(response, regular_user_instance, RedditApp, DetailedRedditAppSchema)
 
 
 def test_modifying_reddit_app_info_with_invalid_format_must_fail(
-    flask_app_client, regularUserInstance, regularUserRedditApp
+    flask_app_client, regular_user_instance, regular_user_reddit_app
 ):
-    regularUserRedditApp.owner = regularUserInstance
+    regular_user_reddit_app.owner = regular_user_instance
     response = flask_app_client.patch(
-        f"/api/v1/reddit_apps/{regularUserInstance.id}",
+        f"/api/v1/reddit_apps/{regular_user_instance.id}",
         content_type="application/json",
         data=json.dumps(
             [
@@ -82,26 +82,29 @@ def test_modifying_reddit_app_info_with_invalid_format_must_fail(
         response,
         RedditApp,
         [("1", {"_schema": ["value is required"]})],
-        oldItem=regularUserRedditApp,
+        old_item=regular_user_reddit_app,
         action="patch",
     )
 
 
 def test_modifying_reddit_app_info_with_conflict_data_must_fail(
-    flask_app_client, regularUserInstance, regularUserRedditApp, adminUserRedditApp
+    flask_app_client,
+    regular_user_instance,
+    regular_user_reddit_app,
+    admin_user_reddit_app,
 ):
-    regularUserRedditApp.owner = regularUserInstance
-    adminUserRedditApp.client_id = "client_idOld"
-    adminUserRedditApp.owner = regularUserInstance
+    regular_user_reddit_app.owner = regular_user_instance
+    admin_user_reddit_app.client_id = "client_id_old"
+    admin_user_reddit_app.owner = regular_user_instance
     response = flask_app_client.patch(
-        f"/api/v1/reddit_apps/{regularUserRedditApp.id}",
+        f"/api/v1/reddit_apps/{regular_user_reddit_app.id}",
         content_type="application/json",
         data=json.dumps(
             [
                 {
                     "op": "replace",
                     "path": "/client_id",
-                    "value": adminUserRedditApp.client_id,
+                    "value": admin_user_reddit_app.client_id,
                 }
             ]
         ),
@@ -111,8 +114,8 @@ def test_modifying_reddit_app_info_with_conflict_data_must_fail(
         response,
         RedditApp,
         "Failed to update Reddit App details.",
-        loginAs=regularUserInstance,
-        messageAttrs=[("1", {"_schema": ["value is required"]})],
-        oldItem=regularUserRedditApp,
+        login_as=regular_user_instance,
+        message_attrs=[("1", {"_schema": ["value is required"]})],
+        old_item=regular_user_reddit_app,
         action="patch",
     )

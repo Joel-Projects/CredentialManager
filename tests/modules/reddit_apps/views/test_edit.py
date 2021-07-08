@@ -2,38 +2,38 @@ import pytest
 
 from app.modules.reddit_apps.models import RedditApp
 from tests.params import labels, users
-from tests.responseStatuses import assert202, assert403
+from tests.response_statuses import assert202, assert403
 from tests.utils import (
-    assertMessageFlashed,
-    assertModified,
-    assertRenderedTemplate,
+    assert_message_flashed,
+    assert_modified,
+    assert_rendered_template,
     captured_templates,
-    changeOwner,
+    change_owner,
 )
 
-redditApps = [
-    pytest.lazy_fixture("adminUserRedditApp"),
-    pytest.lazy_fixture("internalUserRedditApp"),
-    pytest.lazy_fixture("regularUserRedditApp"),
+reddit_apps = [
+    pytest.lazy_fixture("admin_user_reddit_app"),
+    pytest.lazy_fixture("internal_user_reddit_app"),
+    pytest.lazy_fixture("regular_user_reddit_app"),
 ]
-redditAppLabels = [
+reddit_app_labels = [
     "admin_user_reddit_app",
     "internal_user_reddit_app",
     "regular_user_reddit_app",
 ]
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-@pytest.mark.parametrize("reddit_app", redditApps, ids=redditAppLabels)
-def test_reddit_app_detail_edit_for_other_user(flask_app_client, loginAs, reddit_app):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+@pytest.mark.parametrize("reddit_app", reddit_apps, ids=reddit_app_labels)
+def test_reddit_app_detail_edit_for_other_user(flask_app_client, login_as, reddit_app):
     data = {
-        "itemType": "reddit_apps",
-        "itemId": f"{reddit_app.id}",
+        "item_type": "reddit_apps",
+        "item_id": f"{reddit_app.id}",
         "enabled": "y",
-        "app_name": "newName",
-        "client_id": "client_idNew",
-        "client_secret": "client_secretNew",
-        "user_agent": "user_agentNew",
+        "app_name": "new_name",
+        "client_id": "client_id_new",
+        "client_secret": "client_secret_new",
+        "user_agent": "user_agent_new",
         "app_type": "script",
     }
     with captured_templates(flask_app_client.application) as templates:
@@ -42,117 +42,121 @@ def test_reddit_app_detail_edit_for_other_user(flask_app_client, loginAs, reddit
             content_type="application/x-www-form-urlencoded",
             data=data,
         )
-        if reddit_app.owner.is_internal and not loginAs.is_internal:
+        if reddit_app.owner.is_internal and not login_as.is_internal:
             assert403(response, templates)
-            modifiedRedditApp = RedditApp.query.filter_by(id=reddit_app.id).first()
-            assert modifiedRedditApp == reddit_app
-        elif loginAs.is_admin or loginAs.is_internal:
+            modified_reddit_app = RedditApp.query.filter_by(id=reddit_app.id).first()
+            assert modified_reddit_app == reddit_app
+        elif login_as.is_admin or login_as.is_internal:
             assert202(response)
-            assertRenderedTemplate(templates, "edit_reddit_app.html")
-            assertMessageFlashed(
-                templates, "Reddit App 'newName' saved successfully!", "success"
+            assert_rendered_template(templates, "edit_reddit_app.html")
+            assert_message_flashed(
+                templates, "Reddit App 'new_name' saved successfully!", "success"
             )
-            modifiedRedditApp = RedditApp.query.filter_by(id=reddit_app.id).first()
-            assertModified(data, modifiedRedditApp)
+            modified_reddit_app = RedditApp.query.filter_by(id=reddit_app.id).first()
+            assert_modified(data, modified_reddit_app)
         else:
             assert403(response, templates)
-            modifiedRedditApp = RedditApp.query.filter_by(id=reddit_app.id).first()
-            assert modifiedRedditApp == reddit_app
+            modified_reddit_app = RedditApp.query.filter_by(id=reddit_app.id).first()
+            assert modified_reddit_app == reddit_app
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_reddit_app_detail_edit(flask_app_client, loginAs, regularUserRedditApp):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+def test_reddit_app_detail_edit(flask_app_client, login_as, regular_user_reddit_app):
     data = {
-        "itemType": "reddit_apps",
-        "itemId": f"{regularUserRedditApp.id}",
+        "item_type": "reddit_apps",
+        "item_id": f"{regular_user_reddit_app.id}",
         "enabled": "y",
-        "app_name": "newName",
-        "client_id": "client_idNew",
-        "client_secret": "client_secretNew",
-        "user_agent": "user_agentNew",
+        "app_name": "new_name",
+        "client_id": "client_id_new",
+        "client_secret": "client_secret_new",
+        "user_agent": "user_agent_new",
         "app_type": "script",
     }
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/reddit_apps/{regularUserRedditApp.id}",
+            f"/reddit_apps/{regular_user_reddit_app.id}",
             content_type="application/x-www-form-urlencoded",
             data=data,
         )
-        if loginAs.is_admin or loginAs.is_internal:
+        if login_as.is_admin or login_as.is_internal:
             assert202(response)
-            assertRenderedTemplate(templates, "edit_reddit_app.html")
-            assertMessageFlashed(
-                templates, "Reddit App 'newName' saved successfully!", "success"
+            assert_rendered_template(templates, "edit_reddit_app.html")
+            assert_message_flashed(
+                templates, "Reddit App 'new_name' saved successfully!", "success"
             )
-            modifiedRedditApp = RedditApp.query.filter_by(
-                id=regularUserRedditApp.id
+            modified_reddit_app = RedditApp.query.filter_by(
+                id=regular_user_reddit_app.id
             ).first()
-            assertModified(data, modifiedRedditApp)
+            assert_modified(data, modified_reddit_app)
 
         else:
             assert403(response, templates)
-            modifiedRedditApp = RedditApp.query.filter_by(
-                id=regularUserRedditApp.id
+            modified_reddit_app = RedditApp.query.filter_by(
+                id=regular_user_reddit_app.id
             ).first()
-            assert modifiedRedditApp == regularUserRedditApp
+            assert modified_reddit_app == regular_user_reddit_app
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 def test_reddit_app_detail_edit_self(
-    flask_app_client, db, loginAs, regularUserRedditApp
+    flask_app_client, db, login_as, regular_user_reddit_app
 ):
     data = {
-        "itemType": "reddit_apps",
-        "itemId": f"{regularUserRedditApp.id}",
+        "item_type": "reddit_apps",
+        "item_id": f"{regular_user_reddit_app.id}",
         "enabled": "",
-        "app_name": "newName",
-        "client_id": "client_idNew",
-        "client_secret": "client_secretNew",
-        "user_agent": "user_agentNew",
+        "app_name": "new_name",
+        "client_id": "client_id_new",
+        "client_secret": "client_secret_new",
+        "user_agent": "user_agent_new",
         "app_type": "script",
     }
-    regularUserRedditApp = changeOwner(db, loginAs, regularUserRedditApp)
+    regular_user_reddit_app = change_owner(db, login_as, regular_user_reddit_app)
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/reddit_apps/{regularUserRedditApp.id}", data=data
+            f"/reddit_apps/{regular_user_reddit_app.id}", data=data
         )
         assert202(response)
-        assertRenderedTemplate(templates, "edit_reddit_app.html")
-        assertMessageFlashed(
-            templates, "Reddit App 'newName' saved successfully!", "success"
+        assert_rendered_template(templates, "edit_reddit_app.html")
+        assert_message_flashed(
+            templates, "Reddit App 'new_name' saved successfully!", "success"
         )
-        modifiedRedditApp = RedditApp.query.filter_by(
-            id=regularUserRedditApp.id
+        modified_reddit_app = RedditApp.query.filter_by(
+            id=regular_user_reddit_app.id
         ).first()
-        assertModified(data, modifiedRedditApp)
+        assert_modified(data, modified_reddit_app)
 
 
 def test_reddit_app_detail_conflicting_client_id(
-    flask_app_client, db, regularUserInstance, regularUserRedditApp, adminUserRedditApp
+    flask_app_client,
+    db,
+    regular_user_instance,
+    regular_user_reddit_app,
+    admin_user_reddit_app,
 ):
-    original = changeOwner(db, regularUserInstance, adminUserRedditApp)
-    original.client_id = "client_idNew"
+    original = change_owner(db, regular_user_instance, admin_user_reddit_app)
+    original.client_id = "client_id_new"
     db.session.merge(original)
-    toBeModified = changeOwner(db, regularUserInstance, regularUserRedditApp)
-    db.session.merge(toBeModified)
+    to_be_modified = change_owner(db, regular_user_instance, regular_user_reddit_app)
+    db.session.merge(to_be_modified)
     data = {
-        "itemType": "reddit_apps",
-        "itemId": toBeModified.id,
+        "item_type": "reddit_apps",
+        "item_id": to_be_modified.id,
         "enabled": "y",
         "app_name": "original",
-        "client_id": "client_idNew",
-        "client_secret": "client_secretNew",
-        "user_agent": "user_agentNew",
+        "client_id": "client_id_new",
+        "client_secret": "client_secret_new",
+        "user_agent": "user_agent_new",
         "app_type": "script",
     }
     with captured_templates(flask_app_client.application) as templates:
-        response = flask_app_client.post(f"/reddit_apps/{toBeModified.id}", json=data)
+        response = flask_app_client.post(f"/reddit_apps/{to_be_modified.id}", json=data)
         assert response.status_code == 422
         assert response.mimetype == "text/html"
-        assertRenderedTemplate(templates, "edit_reddit_app.html")
+        assert_rendered_template(templates, "edit_reddit_app.html")
         assert (
             templates["templates"][0][1]["form"].errors["client_id"][0]
             == "Already exists."
         )
-        modifiedRedditApp = RedditApp.query.filter_by(id=toBeModified.id).first()
-        assert modifiedRedditApp.app_name == toBeModified.app_name
+        modified_reddit_app = RedditApp.query.filter_by(id=to_be_modified.id).first()
+        assert modified_reddit_app.app_name == to_be_modified.app_name

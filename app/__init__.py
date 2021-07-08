@@ -12,7 +12,7 @@ config_name_mapper = {
 }
 
 
-def create_app(flaskConfigName=None, **kwargs):
+def create_app(flask_config_name=None, **kwargs):
     # This is a workaround for Alpine Linux (musl libc) quirk:
     # https://github.com/docker-library/python/issues/211
     import threading
@@ -21,20 +21,20 @@ def create_app(flaskConfigName=None, **kwargs):
 
     app = Flask(__name__, **kwargs)
 
-    envFlaskConfigName = os.getenv("FLASK_CONFIG")
-    if not envFlaskConfigName and flaskConfigName is None:
-        flaskConfigName = "local"
-    elif flaskConfigName is None:
-        flaskConfigName = envFlaskConfigName
+    env_flask_config_name = os.getenv("FLASK_CONFIG")
+    if not env_flask_config_name and flask_config_name is None:
+        flask_config_name = "local"
+    elif flask_config_name is None:
+        flask_config_name = env_flask_config_name
     else:
-        if envFlaskConfigName:
+        if env_flask_config_name:
             assert (
-                envFlaskConfigName == flaskConfigName
-            ), f"FLASK_CONFIG environment variable ({envFlaskConfigName!r}) and flaskConfigName argument ({flaskConfigName!r}) are both set and are not the same."
+                env_flask_config_name == flask_config_name
+            ), f"FLASK_CONFIG environment variable ({env_flask_config_name!r}) and flask_config_name argument ({flask_config_name!r}) are both set and are not the same."
     try:
-        app.config.from_object(config_name_mapper[flaskConfigName])
+        app.config.from_object(config_name_mapper[flask_config_name])
     except ImportError:
-        if flaskConfigName == "local":
+        if flask_config_name == "local":
             app.logger.error(
                 'You have to have `local_config.py` or `local_config/__init__.py` in order to use the default "local" Flask Config. Alternatively, you may set `FLASK_CONFIG` environment variable to one of the following options: development, production, testing.'
             )

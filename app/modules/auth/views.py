@@ -33,7 +33,7 @@ def login():
                 login_user(user, remember=remember, fresh=False)
                 return redirect(url_for("main.dash"))
             elif not user:
-                return failLogin(password, username)
+                return fail_login(password, username)
             elif not user.is_active:
                 flash("Your account is disabled.", "error")
                 return (
@@ -41,7 +41,7 @@ def login():
                     403,
                 )
             else:  # pragma: no cover
-                return failLogin(password, username)
+                return fail_login(password, username)
         except Exception as error:  # pragma: no cover
             log.exception(error)
             flash("Login failed.")
@@ -63,16 +63,16 @@ def initial_user():
             user.is_active = True
             user.is_regular_user = True
             db.session.add(user)
-            newUser = User.query.first()
-            if newUser:
+            new_user = User.query.first()
+            if new_user:
                 log.info(f"Created user: '{user.username}' successfully!")
-                login_user(newUser)
+                login_user(new_user)
             return redirect(url_for("main.dash"))
         return render_template("create_initial_user.html"), 200
     abort(404)
 
 
-def failLogin(password, username):
+def fail_login(password, username):
     flash("Please check your login details and try again.", "error")
     return render_template("login.html", username=username, password=password), 403
 

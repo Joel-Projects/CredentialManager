@@ -4,8 +4,8 @@ from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
 from wtforms import BooleanField
 
-from ...extensions import db, paginateArgs, verifyEditable
-from .. import getPaginator
+from ...extensions import db, paginate_args, verify_editable
+from .. import get_paginator
 from ..users.models import User
 from .forms import ApiTokenForm, EditApiTokenForm
 from .models import ApiToken
@@ -15,7 +15,7 @@ from .tables import ApiTokenTable
 
 log = logging.getLogger(__name__)
 
-apiTokensBlueprint = Blueprint(
+api_tokens_blueprint = Blueprint(
     "api_tokens",
     __name__,
     template_folder="./templates",
@@ -24,10 +24,10 @@ apiTokensBlueprint = Blueprint(
 )
 
 
-@apiTokensBlueprint.route("/api_tokens", methods=["GET", "POST"])
+@api_tokens_blueprint.route("/api_tokens", methods=["GET", "POST"])
 @login_required
-@paginateArgs(ApiToken)
-def api_tokens(page, perPage, orderBy, sort_columns, sort_directions):
+@paginate_args(ApiToken)
+def api_tokens(page, per_page, order_by, sort_columns, sort_directions):
     form = ApiTokenForm()
     code = 200
     if request.method == "POST":
@@ -45,50 +45,52 @@ def api_tokens(page, perPage, orderBy, sort_columns, sort_directions):
             code = 201
             data = {key: value for key, value in form.data.items() if value is not None}
             data["token"] = ApiToken.generate_token(data["length"])
-            apiToken = ApiToken(**data)
-            db.session.add(apiToken)
+            api_token = ApiToken(**data)
+            db.session.add(api_token)
         else:
             return jsonify(status="error", errors=form.errors), code
-    paginator = getPaginator(ApiToken, page, perPage, orderBy, sort_columns)
+    paginator = get_paginator(ApiToken, page, per_page, order_by, sort_columns)
     table = ApiTokenTable(
         paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
     )
     return (
         render_template(
             "api_tokens.html",
-            api_tokensTable=table,
-            api_tokensForm=form,
+            api_tokens_table=table,
+            api_tokens_form=form,
             paginator=paginator,
             route="api_tokens.api_tokens",
-            perPage=perPage,
+            per_page=per_page,
         ),
         code,
     )
 
 
-@apiTokensBlueprint.route("/api_tokens/<ApiToken:api_token>/", methods=["GET", "POST"])
+@api_tokens_blueprint.route(
+    "/api_tokens/<ApiToken:api_token>/", methods=["GET", "POST"]
+)
 @login_required
-@verifyEditable("api_token")
-def editApiToken(api_token):
+@verify_editable("api_token")
+def edit_api_token(api_token):
     form = EditApiTokenForm(obj=api_token)
     code = 200
     if request.method == "POST":
         if form.validate_on_submit():
-            itemsToUpdate = []
+            items_to_update = []
             for item in PatchApiTokenDetailsParameters.fields:
                 if (
                     getattr(form, item, None) is not None
                     and getattr(api_token, item) != getattr(form, item).data
                 ):
-                    itemsToUpdate.append(
+                    items_to_update.append(
                         {
                             "op": "replace",
                             "path": f"/{item}",
                             "value": getattr(form, item).data,
                         }
                     )
-            if itemsToUpdate:
-                for item in itemsToUpdate:
+            if items_to_update:
+                for item in items_to_update:
                     PatchApiTokenDetailsParameters().validate_patch_structure(item)
                 try:
                     with api.commit_or_abort(
@@ -96,7 +98,7 @@ def editApiToken(api_token):
                         default_error_message="Failed to update API Token details.",
                     ):
                         PatchApiTokenDetailsParameters.perform_patch(
-                            itemsToUpdate, api_token
+                            items_to_update, api_token
                         )
                         db.session.merge(api_token)
                         code = 202

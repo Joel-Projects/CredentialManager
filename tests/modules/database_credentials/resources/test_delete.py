@@ -2,49 +2,49 @@ import pytest
 
 from app.modules.database_credentials.models import DatabaseCredential
 from tests.params import labels, users
-from tests.utils import assert403, assertSuccess
+from tests.utils import assert403, assert_success
 
-databaseCredentialsToDelete = [
-    pytest.lazy_fixture("adminUserDatabaseCredential"),
-    pytest.lazy_fixture("internalUserDatabaseCredential"),
-    pytest.lazy_fixture("regularUserDatabaseCredential"),
+database_credentials_to_delete = [
+    pytest.lazy_fixture("admin_user_database_credential"),
+    pytest.lazy_fixture("internal_user_database_credential"),
+    pytest.lazy_fixture("regular_user_database_credential"),
 ]
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_deleting_user(flask_app_client, loginAs, regularUserDatabaseCredential):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+def test_deleting_user(flask_app_client, login_as, regular_user_database_credential):
     response = flask_app_client.delete(
-        f"/api/v1/database_credentials/{regularUserDatabaseCredential.id}"
+        f"/api/v1/database_credentials/{regular_user_database_credential.id}"
     )
 
-    if loginAs.is_admin or loginAs.is_internal:
-        assertSuccess(
+    if login_as.is_admin or login_as.is_internal:
+        assert_success(
             response,
             None,
             DatabaseCredential,
             None,
-            deleteItemId=regularUserDatabaseCredential.id,
+            delete_item_id=regular_user_database_credential.id,
         )
     else:
         assert403(
             response,
             DatabaseCredential,
-            oldItem=regularUserDatabaseCredential,
+            old_item=regular_user_database_credential,
             internal=True,
             action="deleted",
         )
 
 
 def test_deleting_self(
-    flask_app_client, adminUserInstance, regularUserDatabaseCredential
+    flask_app_client, admin_user_instance, regular_user_database_credential
 ):
     response = flask_app_client.delete(
-        f"/api/v1/database_credentials/{regularUserDatabaseCredential.id}"
+        f"/api/v1/database_credentials/{regular_user_database_credential.id}"
     )
-    assertSuccess(
+    assert_success(
         response,
         None,
         DatabaseCredential,
         None,
-        deleteItemId=regularUserDatabaseCredential.id,
+        delete_item_id=regular_user_database_credential.id,
     )

@@ -27,8 +27,8 @@ def test_sentry_tokens_options_authorized(
     expected_allowed_methods,
     flask_app_client,
     regular_user,
-    regularUserSentryToken,
-    adminUserSentryToken,
+    regular_user_sentry_token,
+    admin_user_sentry_token,
 ):
     with flask_app_client.login(regular_user):
         response = flask_app_client.options(path)

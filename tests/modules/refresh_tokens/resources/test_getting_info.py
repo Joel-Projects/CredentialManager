@@ -2,144 +2,147 @@ import pytest
 
 from tests.params import labels, users
 
-contentType = "application/json"
+content_type = "application/json"
 
 
-def assertContent(response):
-    assert response.content_type == contentType
+def assert_content(response):
+    assert response.content_type == content_type
     assert set(response.json.keys()) >= {"status", "message"}
 
 
 def assert403(response):
     assert response.status_code == 403
-    assertContent(response)
+    assert_content(response)
 
 
 def test_getting_list_of_refresh_tokens_by_anonymous_user(flask_app_client):
     response = flask_app_client.get("/api/v1/refresh_tokens/")
 
     assert response.status_code == 401
-    assertContent(response)
+    assert_content(response)
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 def test_getting_list_of_refresh_tokens(
     flask_app_client,
-    loginAs,
-    regularUserRefreshToken,
-    adminUserRefreshToken,
-    internalUserRefreshToken,
+    login_as,
+    regular_user_refresh_token,
+    admin_user_refresh_token,
+    internal_user_refresh_token,
 ):
-    if not (loginAs.is_admin and loginAs.is_internal):
-        regularUserRefreshToken.owner = loginAs
+    if not (login_as.is_admin and login_as.is_internal):
+        regular_user_refresh_token.owner = login_as
     response = flask_app_client.get("/api/v1/refresh_tokens/")
 
     assert response.status_code == 200
-    assert response.content_type == contentType
+    assert response.content_type == content_type
     assert isinstance(response.json, list)
-    if not (loginAs.is_admin or loginAs.is_internal):
+    if not (login_as.is_admin or login_as.is_internal):
         assert len(response.json) == 1
-    elif loginAs.is_internal:
+    elif login_as.is_internal:
         assert len(response.json) == 3
     else:
         assert len(response.json) == 2
     assert set(response.json[0].keys()) >= {"id", "redditor", "refresh_token"}
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 def test_getting_list_of_refresh_tokens_owner_id(
-    flask_app_client, loginAs, regularUserRefreshToken, adminUserRefreshToken
+    flask_app_client, login_as, regular_user_refresh_token, admin_user_refresh_token
 ):
 
     response = flask_app_client.get("/api/v1/refresh_tokens/?owner_id=2")
-    if not (loginAs.is_admin or loginAs.is_internal):
+    if not (login_as.is_admin or login_as.is_internal):
         assert403(response)
     else:
         assert response.status_code == 200
-        assert response.content_type == contentType
+        assert response.content_type == content_type
         assert isinstance(response.json, list)
         assert len(response.json) == 1
         assert set(response.json[0].keys()) >= {"id", "redditor", "refresh_token"}
-        assert response.json[0]["redditor"] == regularUserRefreshToken.redditor
+        assert response.json[0]["redditor"] == regular_user_refresh_token.redditor
         assert (
-            response.json[0]["refresh_token"] == regularUserRefreshToken.refresh_token
+            response.json[0]["refresh_token"]
+            == regular_user_refresh_token.refresh_token
         )
 
 
 def test_getting_refresh_token_info_by_unauthorized_user_must_fail(
-    flask_app_client, regularUserInstance, regularUserRefreshToken
+    flask_app_client, regular_user_instance, regular_user_refresh_token
 ):
     response = flask_app_client.get(
-        f"/api/v1/refresh_tokens/{regularUserRefreshToken.id}"
+        f"/api/v1/refresh_tokens/{regular_user_refresh_token.id}"
     )
 
     assert403(response)
 
 
-def assertSuccess(token, response):
+def assert_success(token, response):
     assert response.status_code == 200
-    assert response.content_type == contentType
+    assert response.content_type == content_type
     assert set(response.json.keys()) >= {"id", "redditor", "refresh_token"}
     assert response.json["id"] == token.id
     assert response.json["redditor"] == token.redditor
     assert response.json["refresh_token"] == token.refresh_token
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_getting_refresh_token_info(flask_app_client, loginAs, regularUserRefreshToken):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+def test_getting_refresh_token_info(
+    flask_app_client, login_as, regular_user_refresh_token
+):
     response = flask_app_client.get(
-        f"/api/v1/refresh_tokens/{regularUserRefreshToken.id}"
+        f"/api/v1/refresh_tokens/{regular_user_refresh_token.id}"
     )
 
-    if loginAs.is_admin or loginAs.is_internal:
-        assertSuccess(regularUserRefreshToken, response)
+    if login_as.is_admin or login_as.is_internal:
+        assert_success(regular_user_refresh_token, response)
     else:
         assert403(response)
 
 
-refreshTokens = [
-    pytest.lazy_fixture("adminUserRefreshToken"),
-    pytest.lazy_fixture("internalUserRefreshToken"),
-    pytest.lazy_fixture("regularUserRefreshToken"),
+refresh_tokens = [
+    pytest.lazy_fixture("admin_user_refresh_token"),
+    pytest.lazy_fixture("internal_user_refresh_token"),
+    pytest.lazy_fixture("regular_user_refresh_token"),
 ]
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-@pytest.mark.parametrize("refreshToken", refreshTokens)
+@pytest.mark.parametrize("login_as", users, ids=labels)
+@pytest.mark.parametrize("refresh_token", refresh_tokens)
 def test_getting_refresh_token_info_by_redditor(
-    flask_app_client, loginAs, refreshToken
+    flask_app_client, login_as, refresh_token
 ):
     response = flask_app_client.post(
         f"/api/v1/refresh_tokens/by_redditor",
         data={
-            "reddit_app_id": refreshToken.reddit_app.id,
-            "redditor": refreshToken.redditor,
+            "reddit_app_id": refresh_token.reddit_app.id,
+            "redditor": refresh_token.redditor,
         },
     )
 
-    if loginAs.is_internal or loginAs == refreshToken.owner:
-        assertSuccess(refreshToken, response)
-    elif loginAs.is_admin:
-        if refreshToken.owner.is_internal:
+    if login_as.is_internal or login_as == refresh_token.owner:
+        assert_success(refresh_token, response)
+    elif login_as.is_admin:
+        if refresh_token.owner.is_internal:
             assert403(response)
         else:
-            assertSuccess(refreshToken, response)
+            assert_success(refresh_token, response)
     else:
         assert403(response)
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 def test_getting_refresh_token_info_by_redditor_by_self(
-    flask_app_client, loginAs, regularUserRefreshToken
+    flask_app_client, login_as, regular_user_refresh_token
 ):
-    regularUserRefreshToken.owner = loginAs
-    regularUserRefreshToken.reddit_app.owner = loginAs
+    regular_user_refresh_token.owner = login_as
+    regular_user_refresh_token.reddit_app.owner = login_as
     response = flask_app_client.post(
         f"/api/v1/refresh_tokens/by_redditor",
         data={
-            "reddit_app_id": regularUserRefreshToken.reddit_app.id,
-            "redditor": regularUserRefreshToken.redditor,
+            "reddit_app_id": regular_user_refresh_token.reddit_app.id,
+            "redditor": regular_user_refresh_token.redditor,
         },
     )
 
-    assertSuccess(regularUserRefreshToken, response)
+    assert_success(regular_user_refresh_token, response)

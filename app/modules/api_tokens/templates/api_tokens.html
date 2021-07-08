@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Credential Manager - API Tokens{% endblock %}
-{% block breadCrumbs %}
+{% block bread_crumbs %}
     {% if request.full_path.startswith('/profile') %}
         <li class="breadcrumb-item"><a href=/profile>Profile</a></li>
     {% elif user %}
@@ -12,6 +12,6 @@
 {% block content %}
     <body>
     <script src="{{ url_for('api_tokens.static', filename='js/api_tokens.js') }}"></script>
-    {% include 'api_tokensTable.html' %}
+    {% include 'api_tokens_table.html' %}
     </body>
 {% endblock %}

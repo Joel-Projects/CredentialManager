@@ -3,8 +3,8 @@ import logging
 from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
 
-from ...extensions import db, paginateArgs, verifyEditable
-from .. import getPaginator
+from ...extensions import db, paginate_args, verify_editable
+from .. import get_paginator
 from ..users.models import User
 from .parameters import PatchDatabaseCredentialDetailsParameters
 from .resources import api
@@ -25,8 +25,8 @@ DatabaseCredentialsBlueprint = Blueprint(
 
 @DatabaseCredentialsBlueprint.route("/database_credentials", methods=["GET", "POST"])
 @login_required
-@paginateArgs(DatabaseCredential)
-def database_credentials(page, perPage, orderBy, sort_columns, sort_directions):
+@paginate_args(DatabaseCredential)
+def database_credentials(page, per_page, order_by, sort_columns, sort_directions):
     form = DatabaseCredentialForm()
     code = 200
     if request.method == "POST":
@@ -43,11 +43,13 @@ def database_credentials(page, perPage, orderBy, sort_columns, sort_directions):
                     )
             code = 201
             data = {key: value for key, value in form.data.items() if value is not None}
-            databaseCredential = DatabaseCredential(**data)
-            db.session.add(databaseCredential)
+            database_credential = DatabaseCredential(**data)
+            db.session.add(database_credential)
         else:
             return jsonify(status="error", errors=form.errors), code
-    paginator = getPaginator(DatabaseCredential, page, perPage, orderBy, sort_columns)
+    paginator = get_paginator(
+        DatabaseCredential, page, per_page, order_by, sort_columns
+    )
     table = DatabaseCredentialTable(
         paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
     )
@@ -55,10 +57,10 @@ def database_credentials(page, perPage, orderBy, sort_columns, sort_directions):
     return (
         render_template(
             "database_credentials.html",
-            database_credentialsTable=table,
-            database_credentialsForm=form,
+            database_credentials_table=table,
+            database_credentials_form=form,
             paginator=paginator,
-            perPage=perPage,
+            per_page=per_page,
             route="database_credentials.database_credentials",
         ),
         code,
@@ -70,27 +72,27 @@ def database_credentials(page, perPage, orderBy, sort_columns, sort_directions):
     methods=["GET", "POST"],
 )
 @login_required
-@verifyEditable("database_credential")
-def editDatabaseCredential(database_credential):
+@verify_editable("database_credential")
+def edit_database_credential(database_credential):
     code = 200
     form = DatabaseCredentialForm(obj=database_credential)
     if request.method == "POST":
         if form.validate_on_submit():
-            itemsToUpdate = []
+            items_to_update = []
             for item in PatchDatabaseCredentialDetailsParameters.fields:
                 if (
                     getattr(form, item, None) is not None
                     and getattr(database_credential, item) != getattr(form, item).data
                 ):
-                    itemsToUpdate.append(
+                    items_to_update.append(
                         {
                             "op": "replace",
                             "path": f"/{item}",
                             "value": getattr(form, item).data,
                         }
                     )
-            if itemsToUpdate:
-                for item in itemsToUpdate:
+            if items_to_update:
+                for item in items_to_update:
                     PatchDatabaseCredentialDetailsParameters().validate_patch_structure(
                         item
                     )
@@ -100,7 +102,7 @@ def editDatabaseCredential(database_credential):
                         default_error_message="Failed to update Database Credentials details.",
                     ):
                         PatchDatabaseCredentialDetailsParameters.perform_patch(
-                            itemsToUpdate, database_credential
+                            items_to_update, database_credential
                         )
                         db.session.merge(database_credential)
                         code = 202

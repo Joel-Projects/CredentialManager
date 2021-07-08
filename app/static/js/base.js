@@ -30,7 +30,7 @@ $(function () {
     });
 });
 
-function saveItem(button) {
+function save_item(button) {
     $(`#${button.id}`).disabled = true;
     $(`#${button.id}`).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>Saving...');
 };
@@ -47,7 +47,7 @@ function doneLoading(button, buttonText) {
 };
 
 
-function doneSave(id, form) {
+function done_save(id, form) {
     $(`#${id}`).prop('disabled', false);
     $(`#${id}`).prop('class', 'btn btn-primary');
     $(`#${id}`).html('Save');
@@ -115,19 +115,19 @@ $(function () {
     });
 });
 
-function toggleItem(itemType, id, name, nameAttr, enabledAttr) {
-    var elem = document.getElementById(`${itemType}_${id}_toggle`);
+function toggle_item(item_type, id, name, nameAttr, enabledAttr) {
+    var elem = document.getElementById(`${item_type}_${id}_toggle`);
     var enable = elem.textContent === "Enable";
     $.ajax({
         data: JSON.stringify([{"op": "replace", "path": `/${enabledAttr}`, "value": enable}]),
         type: 'PATCH',
-        url: `/api/v1/${itemType}/${id}`,
-        contentType: 'application/json',
+        url: `/api/v1/${item_type}/${id}`,
+        content_type: 'application/json',
         dataType: 'json'
     })
         .done(function notify(data) {
-            var elem = document.getElementById(`${itemType}_${id}_toggle`);
-            var icon = document.getElementById(`${itemType}_${id}_icon`);
+            var elem = document.getElementById(`${item_type}_${id}_toggle`);
+            var icon = document.getElementById(`${item_type}_${id}_icon`);
             if (data.status == 422) {
                 popNotification('error', data.message);
             } else {
@@ -150,7 +150,7 @@ function toggleItem(itemType, id, name, nameAttr, enabledAttr) {
         });
 }
 
-function createItem(button, form, resource, additonal = false, editor) {
+function create_item(button, form, resource, additonal = false, editor) {
     event.preventDefault();
     triggerLoading(button, 'Creating')
     var data = {};
@@ -198,7 +198,7 @@ function createItem(button, form, resource, additonal = false, editor) {
 }
 
 
-function clearInvalidState(textBox) {
+function clear_invalid_state(textBox) {
     textBox.classList.remove("is-invalid")
     $(`#${textBox.id}Feedback`).remove();
 }
@@ -210,16 +210,16 @@ function resetForm(formId, focusElement, focus) {
     }
 }
 
-function showTableItemDeleteModal(name, item_type, item_id, row_id) {
+function show_table_item_delete_modal(name, item_type, item_id, row_id) {
     document.getElementById('delete-modal-body').innerHTML = `Are you <strong>sure</strong> you want to delete "${name}"?`;
-    document.getElementById('delete-modal-footer').innerHTML = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteTableItem(${item_type}_table, '${name}', '${item_type}', ${item_id}, ${row_id})" data-dismiss="modal" id="deleteConfirm">Delete "${name}"</button>`;
-    $(`#confirmationModal`).modal('show')
+    document.getElementById('delete-modal-footer').innerHTML = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteTableItem(${item_type}_table, '${name}', '${item_type}', ${item_id}, ${row_id})" data-dismiss="modal" id="delete_confirm">Delete "${name}"</button>`;
+    $(`#confirmation_modal`).modal('show')
 }
 
-function showDeleteModal(name, item_type, item_id) {
+function show_delete_modal(name, item_type, item_id) {
     document.getElementById('delete-modal-body').innerHTML = `Are you <strong>sure</strong> you want to delete "${name}"?`;
-    document.getElementById('delete-modal-footer').innerHTML = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteItem('${name}', '${item_type}', ${item_id})" data-dismiss="modal" id="deleteConfirm">Delete "${name}"</button>`;
-    $(`#confirmationModal`).modal('show')
+    document.getElementById('delete-modal-footer').innerHTML = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteItem('${name}', '${item_type}', ${item_id})" data-dismiss="modal" id="delete_confirm">Delete "${name}"</button>`;
+    $(`#confirmation_modal`).modal('show')
 }
 
 function copy(that) {
@@ -234,7 +234,7 @@ function copy(that) {
     });
 }
 
-function invalidateField(field) {
+function invalidate_field(field) {
     field.classList.add('is-invalid')
 }
 

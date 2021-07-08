@@ -32,7 +32,7 @@ bootstrap = Bootstrap()
 
 from flask_debugtoolbar import DebugToolbarExtension
 
-debugToolBar = DebugToolbarExtension()
+debug_tool_bar = DebugToolbarExtension()
 
 from flask_moment import Moment
 
@@ -43,11 +43,11 @@ from flask_cors import CORS
 cross_origin_resource_sharing = CORS()
 
 from . import api
-from .frontend.decorators import paginateArgs, requiresAdmin, verifyEditable
-from .frontend.errors import notFoundError, unauthorizedError
+from .frontend.decorators import paginate_args, requires_admin, verify_editable
+from .frontend.errors import not_found_error, unauthorized_error
 from .frontend.forms import ModelForm
 
-foreignKeyKwargs = dict(ondelete="SET NULL", onupdate="CASCADE")
+foreign_key_kwargs = dict(ondelete="SET NULL", onupdate="CASCADE")
 log = getLogger(__name__)
 
 
@@ -66,12 +66,12 @@ def init_app(app):
         moment,
     ]
     if int(os.getenv("FLASK_DEBUG", "0")):  # pragma: no cover
-        extensions.append(debugToolBar)
+        extensions.append(debug_tool_bar)
     for extension in extensions:
         extension.init_app(app)
 
-    app.register_error_handler(403, unauthorizedError)
-    app.register_error_handler(404, notFoundError)
+    app.register_error_handler(403, unauthorized_error)
+    app.register_error_handler(404, not_found_error)
     try:
         with db.get_engine(app=app).connect() as sql:  # pragma: no cover
             schema_name = BaseConfig.SCHEMA_NAME

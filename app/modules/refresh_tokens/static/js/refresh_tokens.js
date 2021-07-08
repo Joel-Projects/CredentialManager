@@ -1,6 +1,6 @@
 $(document).ready(function () {
     $("#all").change(function () {
-        $("#scopesGroup *").filter(':input').each(function () {
+        $("#scopes_group *").filter(':input').each(function () {
             let check = $("#all")[0].checked
             if (this.name !== 'identity') {
                 this.checked = check;
@@ -27,7 +27,7 @@ $(document).ready(function () {
                 }
             });
     })
-    $("#createRefreshTokenForm *").filter(':input').change(function () {
+    $("#create_refresh_token_form *").filter(':input').change(function () {
         let app_id = parseInt($('#reddit_app_id').val())
         let verification_id = parseInt($('#user_verification_id').val())
 
@@ -35,7 +35,7 @@ $(document).ready(function () {
         let permanent = $('#duration_permanent')[0]
         let temporary = $('#duration_temporary')[0]
         const scopes = [];
-        $("#createRefreshTokenForm *").filter(':input').each(function () {
+        $("#create_refresh_token_form *").filter(':input').each(function () {
             if (this.id !== 'all' && this.type == 'checkbox') {
                 if (this.checked) {
                     scopes.push(this.id)
@@ -62,7 +62,7 @@ $(document).ready(function () {
                 data: data
             })
                 .done(function (data) {
-                    $('#authUrl').val(data.auth_url)
+                    $('#auth_url').val(data.auth_url)
                 })
         }
     })

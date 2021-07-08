@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Credential Manager - Users{% endblock %}
-{% block breadCrumbs %}
+{% block bread_crumbs %}
     <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
 {% endblock %}
 {% block content %}
@@ -8,68 +8,68 @@
     <script src="{{ url_for('users.static', filename='js/users.js') }}"></script>
     <div class="container">
         <div class="table-responsive">
-            {{ usersTable }}
+            {{ users_table }}
             <div class="container">
                 <div class="row">
                     <div class="col">
-                        <button class="btn btn-primary" id="addUser" data-toggle="modal" data-target="#newUserModal">Add User</button>
+                        <button class="btn btn-primary" id="add_user" data-toggle="modal" data-target="#new_userModal">Add User</button>
                     </div>
                     {% include 'paginator.html' %}
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" id="newUserModal" tabindex="-1" role="dialog" aria-labelledby="newUserModalLabel">
+    <div class="modal fade" id="new_userModal" tabindex="-1" role="dialog" aria-labelledby="new_userModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="newUserModalLabel">Add User</h5>
+                    <h5 class="modal-title" id="new_userModalLabel">Add User</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
-                    <form id="createUserForm" method="post" resource="/users">
+                    <form id="create_user_form" method="post" resource="/users">
                         <div class="form-group">
-                            {{ usersForm.username.label }}
-                            {% if usersForm.username.errors %}
-                                {{ usersForm.username(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
-                                {% for error in usersForm.username.errors %}
-                                    <div class="invalid-feedback" id="usernameFeedback">{{ error }}</div>
+                            {{ users_form.username.label }}
+                            {% if users_form.username.errors %}
+                                {{ users_form.username(size=16, class_="form-control is-invalid", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
+                                {% for error in users_form.username.errors %}
+                                    <div class="invalid-feedback" id="username_feedback">{{ error }}</div>
                                 {% endfor %}
                             {% else %}
-                                {{ usersForm.username(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                {{ users_form.username(size=16, class_="form-control", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
                             {% endif %}
                         </div>
                         <div class="form-group">
-                            {{ usersForm.reddit_username.label }}
-                            {% if usersForm.reddit_username.errors %}
-                                {{ usersForm.reddit_username(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
-                                {% for error in usersForm.reddit_username.errors %}
-                                    <div class="invalid-feedback" id="reddit_usernameFeedback">{{ error }}</div>
+                            {{ users_form.reddit_username.label }}
+                            {% if users_form.reddit_username.errors %}
+                                {{ users_form.reddit_username(size=16, class_="form-control is-invalid", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
+                                {% for error in users_form.reddit_username.errors %}
+                                    <div class="invalid-feedback" id="reddit_username_feedback">{{ error }}</div>
                                 {% endfor %}
                             {% else %}
-                                {{ usersForm.reddit_username(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                {{ users_form.reddit_username(size=16, class_="form-control", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
                             {% endif %}
                         </div>
                         <div class="form-group">
-                            {{ usersForm.sentry_auth_token.label }}
-                            {% if usersForm.sentry_auth_token.errors %}
-                                {{ usersForm.sentry_auth_token(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
-                                {% for error in usersForm.sentry_auth_token.errors %}
+                            {{ users_form.sentry_auth_token.label }}
+                            {% if users_form.sentry_auth_token.errors %}
+                                {{ users_form.sentry_auth_token(size=16, class_="form-control is-invalid", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
+                                {% for error in users_form.sentry_auth_token.errors %}
                                     <div class="invalid-feedback" id="sentry_auth_tokenFeedback">{{ error }}</div>
                                 {% endfor %}
                             {% else %}
-                                {{ usersForm.sentry_auth_token(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                {{ users_form.sentry_auth_token(size=16, class_="form-control", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
                             {% endif %}
                         </div>
                         <div class="form-group">
-                            {{ usersForm.password.label }}
-                            {% if usersForm.password.errors %}
-                                {{ usersForm.password(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
-                                {% for error in usersForm.password.errors %}
-                                    <div class="invalid-feedback" id="passwordFeedback">{{ error }}</div>
+                            {{ users_form.password.label }}
+                            {% if users_form.password.errors %}
+                                {{ users_form.password(size=16, class_="form-control is-invalid", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
+                                {% for error in users_form.password.errors %}
+                                    <div class="invalid-feedback" id="password_feedback">{{ error }}</div>
                                 {% endfor %}
                             {% else %}
-                                {{ usersForm.password(size=16, class_="form-control", onkeypress="clearInvalidState(this)", oninvalid="invalidateField(this)") }}
+                                {{ users_form.password(size=16, class_="form-control", onkeypress="clear_invalid_state(this)", oninvalid="invalidate_field(this)") }}
                             {% endif %}
                         </div>
                         <div class="form-group">
@@ -87,7 +87,7 @@
                                     "type": "array",
                                     "format": "table",
                                     "title": null,
-                                    "uniqueItems": true,
+                                    "unique_items": true,
                                     "items": {
                                         "type": "object",
                                         "title": "Setting",
@@ -120,33 +120,33 @@
                         <br>
                         <div class="form-group">
                             <div class="custom-control custom-switch">
-                                {{ usersForm.is_admin(value='n', class_="custom-control-input") }}
-                                {{ usersForm.is_admin.label(class_='custom-control-label') }}
+                                {{ users_form.is_admin(value='n', class_="custom-control-input") }}
+                                {{ users_form.is_admin.label(class_='custom-control-label') }}
                             </div>
                         </div>
                         {% if current_user.is_internal %}
                             <div class="form-group">
                                 <div class="custom-control custom-switch">
-                                    {{ usersForm.is_internal(value='n', class_="custom-control-input") }}
-                                    {{ usersForm.is_internal.label(class_='custom-control-label') }}
+                                    {{ users_form.is_internal(value='n', class_="custom-control-input") }}
+                                    {{ users_form.is_internal.label(class_='custom-control-label') }}
                                 </div>
                             </div>
                             <div class="form-group">
                                 <div class="custom-control custom-switch">
-                                    {{ usersForm.is_regular_user(value='n', class_="custom-control-input") }}
-                                    {{ usersForm.is_regular_user.label(class_='custom-control-label') }}
+                                    {{ users_form.is_regular_user(value='n', class_="custom-control-input") }}
+                                    {{ users_form.is_regular_user.label(class_='custom-control-label') }}
                                 </div>
                             </div>
                         {% endif %}
                         <div class="form-group">
                             <div class="custom-control custom-switch">
-                                {{ usersForm.is_active(value='y', class_="custom-control-input") }}
-                                {{ usersForm.is_active.label(class_='custom-control-label') }}
+                                {{ users_form.is_active(value='y', class_="custom-control-input") }}
+                                {{ users_form.is_active.label(class_='custom-control-label') }}
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <button type="submit" name="submit" class="btn btn-primary" id="userCreate" onclick="createItem(this, 'createUserForm', '/users', false, editor)">Create</button>
+                            <button type="submit" name="submit" class="btn btn-primary" id="user_create" onclick="create_item(this, 'create_user_form', '/users', false, editor)">Create</button>
 
                         </div>
                     </form>

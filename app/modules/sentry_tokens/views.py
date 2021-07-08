@@ -5,19 +5,19 @@ from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
 from wtforms import BooleanField
 
-from ...extensions import db, paginateArgs, verifyEditable
-from .. import getPaginator
+from ...extensions import db, paginate_args, verify_editable
+from .. import get_paginator
 from ..users.models import User
 from .parameters import PatchSentryTokenDetailsParameters
 from .resources import api
-from .sentryRequestor import SentryRequestor
+from .sentry_requestor import SentryRequestor
 
 log = logging.getLogger(__name__)
 from .forms import EditSentryTokenForm, SentryTokenForm
 from .models import SentryToken
 from .tables import SentryTokenTable
 
-sentryTokensBlueprint = Blueprint(
+sentry_tokens_blueprint = Blueprint(
     "sentry_tokens",
     __name__,
     template_folder="./templates",
@@ -26,10 +26,10 @@ sentryTokensBlueprint = Blueprint(
 )
 
 
-@sentryTokensBlueprint.route("/sentry_tokens", methods=["GET", "POST"])
+@sentry_tokens_blueprint.route("/sentry_tokens", methods=["GET", "POST"])
 @login_required
-@paginateArgs(SentryToken)
-def sentry_tokens(page, perPage, orderBy, sort_columns, sort_directions):
+@paginate_args(SentryToken)
+def sentry_tokens(page, per_page, order_by, sort_columns, sort_directions):
     code = 200
     form = SentryTokenForm()
     requestor = SentryRequestor(current_user.sentry_auth_token)
@@ -50,19 +50,19 @@ def sentry_tokens(page, perPage, orderBy, sort_columns, sort_directions):
                 if form.sentry_organization.data and form.sentry_team.data:
                     response = requestor.post(
                         f"/api/0/teams/{form.sentry_organization.data}/{form.sentry_team.data}/projects/",
-                        itemName="project",
+                        item_name="project",
                         json={"name": form.app_name.data},
                     )
                     if hasattr(response, "slug"):
                         keys = requestor.get(
                             f"/api/0/projects/{form.sentry_organization.data}/{response.slug}/keys/",
-                            itemName="key",
+                            item_name="key",
                         )
                         sentrydsn = keys[0].dsn.public
                         if form.sentry_platform.data:
                             requestor.put(
                                 f"/api/0/projects/{form.sentry_organization.data}/{response.slug}/",
-                                itemName="project",
+                                item_name="project",
                                 json={"platform": form.sentry_platform.data},
                             )
                     else:
@@ -81,11 +81,11 @@ def sentry_tokens(page, perPage, orderBy, sort_columns, sort_directions):
             data.pop("sentry_organization")
             data.pop("sentry_team")
             data.pop("sentry_platform")
-            sentryToken = SentryToken(**data)
-            db.session.add(sentryToken)
+            sentry_token = SentryToken(**data)
+            db.session.add(sentry_token)
         else:
             return jsonify(status="error", errors=form.errors)
-    paginator = getPaginator(SentryToken, page, perPage, orderBy, sort_columns)
+    paginator = get_paginator(SentryToken, page, per_page, order_by, sort_columns)
     if current_user.sentry_auth_token:
         response = requestor.get(
             "/api/0/organizations/", "organization", params={"member": True}
@@ -98,41 +98,41 @@ def sentry_tokens(page, perPage, orderBy, sort_columns, sort_directions):
     return (
         render_template(
             "sentry_tokens.html",
-            sentry_tokensTable=table,
-            sentry_tokensForm=form,
+            sentry_tokens_table=table,
+            sentry_tokens_form=form,
             paginator=paginator,
             route="sentry_tokens.sentry_tokens",
-            perPage=perPage,
+            per_page=per_page,
         ),
         code,
     )
 
 
-@sentryTokensBlueprint.route(
+@sentry_tokens_blueprint.route(
     "/sentry_tokens/<SentryToken:sentry_token>/", methods=["GET", "POST"]
 )
 @login_required
-@verifyEditable("sentry_token")
-def editSentryToken(sentry_token):
+@verify_editable("sentry_token")
+def edit_sentry_token(sentry_token):
     form = EditSentryTokenForm(obj=sentry_token)
     code = 200
     if request.method == "POST":
         if form.validate_on_submit():
-            itemsToUpdate = []
+            items_to_update = []
             for item in PatchSentryTokenDetailsParameters.fields:
                 if (
                     getattr(form, item, None) is not None
                     and getattr(sentry_token, item) != getattr(form, item).data
                 ):
-                    itemsToUpdate.append(
+                    items_to_update.append(
                         {
                             "op": "replace",
                             "path": f"/{item}",
                             "value": getattr(form, item).data,
                         }
                     )
-            if itemsToUpdate:
-                for item in itemsToUpdate:
+            if items_to_update:
+                for item in items_to_update:
                     PatchSentryTokenDetailsParameters().validate_patch_structure(item)
                 try:
                     with api.commit_or_abort(
@@ -140,7 +140,7 @@ def editSentryToken(sentry_token):
                         default_error_message="Failed to update Sentry Token details.",
                     ):
                         PatchSentryTokenDetailsParameters.perform_patch(
-                            itemsToUpdate, sentry_token
+                            items_to_update, sentry_token
                         )
                         db.session.merge(sentry_token)
                         code = 202
@@ -164,12 +164,12 @@ def editSentryToken(sentry_token):
 
 
 #
-# @sentryTokensBlueprint.route('/setup')
+# @sentry_tokens_blueprint.route('/setup')
 # def sentry_callback():
 #     code = request.args.get('code')
-#     installationId = request.args.get('installationId')
+#     installation_id = request.args.get('installation_id')
 #
-#     url = f'https://sentry.jesassn.org/api/0/sentry-app-installations/{installationId}/authorizations/'
+#     url = f'https://sentry.jesassn.org/api/0/sentry-app-installations/{installation_id}/authorizations/'
 #
 #     payload = {
 #         'grant_type': 'authorization_code',
@@ -181,23 +181,23 @@ def editSentryToken(sentry_token):
 #     data = response.json()
 #
 #     token = data['token']
-#     refresh_token = data['refreshToken']
+#     refresh_token = data['refresh_token']
 #     data.pop('scopes')
-#     data['expiresAt'] = datetime.fromisoformat(data['expiresAt'].strip('Z')).replace(tzinfo=timezone.utc).astimezone()
-#     data['dateCreated'] = datetime.fromisoformat(data['dateCreated'].strip('Z')).replace(tzinfo=timezone.utc).astimezone()
-#     data['installationId'] = installationId
+#     data['expires_at'] = datetime.fromisoformat(data['expires_at'].strip('Z')).replace(tzinfo=timezone.utc).astimezone()
+#     data['date_created'] = datetime.fromisoformat(data['date_created'].strip('Z')).replace(tzinfo=timezone.utc).astimezone()
+#     data['installation_id'] = installation_id
 #     requestor = SentryRequestor(token)
 #     organizations = requestor.get('/api/0/organizations/')
 #     with api.commit_or_abort(db.session, default_error_message='Failed to update Sentry Token details.'):
-#         sentryInstanceToken = SentryRefreshToken(**data)
-#         db.session.merge(sentryInstanceToken)
-#     sentryInstanceToken._refresh('https://sentry.jesassn.org')
+#         sentry_instance_token = SentryRefreshToken(**data)
+#         db.session.merge(sentry_instance_token)
+#     sentry_instance_token._refresh('https://sentry.jesassn.org')
 #     return redirect('https://sentry.jesassn.org/settings/')
 #
-# @sentryTokensBlueprint.route('/webhook', methods=['POST'])
+# @sentry_tokens_blueprint.route('/webhook', methods=['POST'])
 # def sentry_webhook():
 #     code = request.args.get('code')
-#     install_id = request.args.get('installationId')
+#     install_id = request.args.get('installation_id')
 #
 #     url = f'https://sentry.jesassn.org/api/0/sentry-app-installations/{install_id}/authorizations/'
 #
@@ -212,9 +212,9 @@ def editSentryToken(sentry_token):
 #     data = response.json()
 #
 #     token = data['token']
-#     refresh_token = data['refreshToken']
+#     refresh_token = data['refresh_token']
 #     with api.commit_or_abort(db.session, default_error_message='Failed to update Sentry Token details.'):
-#         sentryInstanceToken = SentryRefreshToken(**data)
-#         db.session.merge(sentryInstanceToken)
+#         sentry_instance_token = SentryRefreshToken(**data)
+#         db.session.merge(sentry_instance_token)
 #
 #     return redirect('https://sentry.jesassn.org/settings/')

@@ -3,40 +3,40 @@
     <div class="container">
         <form>
             <div class="custom-control custom-switch">
-                <input {% if showOld %} checked {% endif %}class="custom-control-input" id="showInvlalid" onclick='window.location.assign(`?showOld={{ not showOld }}${window.location.hash}`)' type="checkbox">
-                <label class="custom-control-label" for="showInvlalid">Show All</label>
-                <small id="invalidDisplayHelp" class="form-text text-muted">Check this to display old tokens</small>
+                <input {% if show_old %} checked {% endif %}class="custom-control-input" id="show_invlalid" onclick='window.location.assign(`?show_old={{ not show_old }}${window.location.hash}`)' type="checkbox">
+                <label class="custom-control-label" for="show_invlalid">Show All</label>
+                <small id="invalid_display_help" class="form-text text-muted">Check this to display old tokens</small>
             </div>
         </form>
     </div>
     <div class="table-responsive">
-        {{ refresh_tokensTable }}
+        {{ refresh_tokens_table }}
     </div>
     <div class="row">
         <div class="col">
-            <button class="btn btn-primary" id="generateRefreshToken" data-toggle="collapse" data-target="#generateTokenCollapse" aria-expanded="false" aria-controls="generateTokenCollapse">Generate Auth Url</button>
+            <button class="btn btn-primary" id="generate_refresh_token" data-toggle="collapse" data-target="#generate_token_collapse" aria-expanded="false" aria-controls="generate_token_collapse">Generate Auth Url</button>
         </div>
         {% include 'paginator.html' %}
     </div>
-    <div class="collapse" id="generateTokenCollapse">
+    <div class="collapse" id="generate_token_collapse">
         <h5 class="card-title">Generate Auth Url</h5>
         <div class="card card-body">
-            <form id="createRefreshTokenForm">
-                {{ refresh_tokensForm.hidden_tag() }}
+            <form id="create_refresh_token_form">
+                {{ refresh_tokens_form.hidden_tag() }}
                 <div class="form-group" {% if not current_user.is_admin and not current_user.is_internal %}hidden{% endif %}>
-                    {{ refresh_tokensForm.owner.label }}
-                    {{ refresh_tokensForm.owner(class_="custom-select", default=user or current_user) }}
-                    <small id="{{ refresh_tokensForm.owner.id }}Help" class="form-text text-muted">{{ refresh_tokensForm.owner.description }}</small>
+                    {{ refresh_tokens_form.owner.label }}
+                    {{ refresh_tokens_form.owner(class_="custom-select", default=user or current_user) }}
+                    <small id="{{ refresh_tokens_form.owner.id }}Help" class="form-text text-muted">{{ refresh_tokens_form.owner.description }}</small>
                 </div>
                 <div class="form-group">
-                    {{ refresh_tokensForm.reddit_app_id.label }}
-                    {{ refresh_tokensForm.reddit_app_id(class_="custom-select") }}
-                    <small id="reddit_app_idHelp" class="form-text text-muted">{{ refresh_tokensForm.reddit_app_id.description }}</small>
+                    {{ refresh_tokens_form.reddit_app_id.label }}
+                    {{ refresh_tokens_form.reddit_app_id(class_="custom-select") }}
+                    <small id="reddit_app_idHelp" class="form-text text-muted">{{ refresh_tokens_form.reddit_app_id.description }}</small>
                 </div>
                 <div class="form-group">
-                    {{ refresh_tokensForm.user_verification_id.label }}
-                    {{ refresh_tokensForm.user_verification_id(class_="custom-select") }}
-                    <small id="user_verification_idHelp" class="form-text text-muted">{{ refresh_tokensForm.user_verification_id.description }}</small>
+                    {{ refresh_tokens_form.user_verification_id.label }}
+                    {{ refresh_tokens_form.user_verification_id(class_="custom-select") }}
+                    <small id="user_verification_idHelp" class="form-text text-muted">{{ refresh_tokens_form.user_verification_id.description }}</small>
                 </div>
                 <div class="form-group">
                     <div class="form-check">
@@ -52,34 +52,34 @@
                 </div>
                 <div class="form-group">
                     <div class="custom-control custom-switch">
-                        {{ refresh_tokensForm.all(class_="custom-control-input") }}
-                        {{ refresh_tokensForm.all.label(class_="custom-control-label") }}
-                        <small id="allHelp" class="form-text text-muted">{{ refresh_tokensForm.all.description }}</small>
+                        {{ refresh_tokens_form.all(class_="custom-control-input") }}
+                        {{ refresh_tokens_form.all.label(class_="custom-control-label") }}
+                        <small id="all_help" class="form-text text-muted">{{ refresh_tokens_form.all.description }}</small>
                     </div>
                 </div>
-                <div class="form-group" id="scopesGroup">
-                    {% for scope in refresh_tokensForm.Meta.chunks %}
+                <div class="form-group" id="scopes_group">
+                    {% for scope in refresh_tokens_form.Meta.chunks %}
                         <div class="form-row">
                             {% for id, name, description in scope %}
 
                                 <div class="col">
                                     <div class="custom-control-inline custom-switch">
-                                        {{ refresh_tokensForm[id](class_="custom-control-input", **[{}, {'disabled': True}][id == 'identity']) }}
-                                        {{ refresh_tokensForm[id].label(class_="custom-control-label") }}
+                                        {{ refresh_tokens_form[id](class_="custom-control-input", **[{}, {'disabled': True}][id == 'identity']) }}
+                                        {{ refresh_tokens_form[id].label(class_="custom-control-label") }}
                                     </div>
-                                    <small id="{{ id }}Help" class="form-text text-muted">{{ refresh_tokensForm[id].description }}</small>
+                                    <small id="{{ id }}Help" class="form-text text-muted">{{ refresh_tokens_form[id].description }}</small>
                                 </div>
                             {% endfor %}
                         </div>
                     {% endfor %}
                 </div>
                 <div class="modal-footer">
-                    <label class="form-check-label" for="authUrl">Auth Url</label>
+                    <label class="form-check-label" for="auth_url">Auth Url</label>
                     <div style="text-align:center">
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control" id="authUrl" style="background-color: grey;color: lightgray" readonly="" value="" aria-describedby="copyBox">
+                            <input type="text" class="form-control" id="auth_url" style="background-color: grey;color: lightgray" readonly="" value="" aria-describedby="copy_box">
                             <div class="input-group-append">
-                                <button class="input-group-text btn-dark" type="button" onclick="copy(this)" id="copyBox"><a class="fas fa-clipboard"></a></button>
+                                <button class="input-group-text btn-dark" type="button" onclick="copy(this)" id="copy_box"><a class="fas fa-clipboard"></a></button>
                             </div>
                         </div>
                     </div>

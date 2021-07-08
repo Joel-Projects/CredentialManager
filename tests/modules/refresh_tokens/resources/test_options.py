@@ -27,8 +27,8 @@ def test_refresh_tokens_options_authorized(
     expected_allowed_methods,
     flask_app_client,
     regular_user,
-    regularUserRefreshToken,
-    adminUserRefreshToken,
+    regular_user_refresh_token,
+    admin_user_refresh_token,
 ):
     with flask_app_client.login(regular_user):
         response = flask_app_client.options(path)

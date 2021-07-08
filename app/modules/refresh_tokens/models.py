@@ -15,9 +15,9 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
         super().__init__(*args, **kwargs)
 
     __tablename__ = "refresh_tokens"
-    _displayNamePlural = "Refresh Tokens"
-    _nameAttr = "redditor"
-    _infoAttrs = {
+    _display_name_plural = "Refresh Tokens"
+    _name_attr = "redditor"
+    _info_attrs = {
         "id": "Refresh Token ID",
         "reddit_app": "Reddit App",
         "redditor": "Redditor",
@@ -28,18 +28,18 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
         "revoked_at": "Revoked at",
         "updated": "Last updated at",
     }
-    scopeJSON = None
+    scope_json = None
     try:
         response = requests.get(
             "https://www.reddit.com/api/v1/scopes.json",
             headers={"User-Agent": "python:flask scope checker by u/Lil_SpazJoekp"},
         )
-        scopeJSON = response.json()
+        scope_json = response.json()
     except Exception as error:  # pragma: no cover
         log.exception(error)
-    if not scopeJSON:
+    if not scope_json:
         with open("scopes.json", "r") as f:  # pragma: no cover
-            scopeJSON = json.load(f)
+            scope_json = json.load(f)
 
     __table_args__ = {"schema": BaseConfig.SCHEMA_NAME}
 
@@ -84,7 +84,7 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
         nullable=False,
     )
 
-    uniqueConstraint = db.Index(
+    unique_constraint = db.Index(
         "only_one_active_token",
         reddit_app_id,
         redditor,
@@ -109,9 +109,9 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
         return not self.revoked
 
     @property
-    def chunkScopes(self):
+    def chunk_scopes(self):
         scopes = [
             (scope, scope in self.scopes, value["description"])
-            for scope, value in self.scopeJSON.items()
+            for scope, value in self.scope_json.items()
         ]
         return [scopes[x : x + 4] for x in range(0, len(scopes), 4)]

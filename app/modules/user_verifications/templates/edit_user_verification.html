@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import 'macros.html' as macros %}
 {% block title %}Credential Manager - Edit User Verification{% if user_verification.redditor %} - {{ user_verification.redditor }}{% else %} - {{ user_verification.user_id }}{% endif %}{% endblock %}
-{% block breadCrumbs %}
+{% block bread_crumbs %}
     <!--suppress HtmlUnknownTarget -->
     {% if user and (current_user.is_admin or current_user.is_internal or user_verification.check_owner(current_user)) %}
         <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
@@ -12,7 +12,7 @@
     {% endif %}
     <li class="breadcrumb-item"><a href="/user_verifications/{{ user_verification.id }}">{{ user_verification.user_id }}{% if user_verification.redditor %} - {{ user_verification.redditor }}{% endif %}</a></li>
 {% endblock %}
-{% block activeItem %}active item{% endblock %}
+{% block active_item %}active item{% endblock %}
 {% block content %}
     <!--suppress ALL -->
     <script src="{{ url_for('user_verifications.static', filename='js/edit_user_verifications.js') }}"></script>
@@ -24,41 +24,41 @@
                 <div class="jumbotron">
                     <h4>User Verification Info</h4>
                     <hr style="border-top: 1px solid">
-                    {% for attr, displayName in user_verification._infoAttrs.items() %}
+                    {% for attr, display_name in user_verification._info_attrs.items() %}
                         {% if attr == 'owner' and not user_verification.check_owner(current_user) and (current_user.is_admin or current_user.is_internal) %}
-                            <strong>{{ displayName }}:</strong><br><a href="/u/{{ user_verification.getInfoAttr(attr).username }}">{{ user_verification.getInfoAttr(attr).username }}</a><br><br>
-                        {% elif user_verification.getInfoAttr(attr).__class__.__name__ == 'datetime' %}
-                            <strong>{{ displayName }}:</strong><br><a>{{ moment(user_verification.getInfoAttr(attr)).format(' MM/DD/YYYY, h:mm:ss a') }}</a><br><br>
+                            <strong>{{ display_name }}:</strong><br><a href="/u/{{ user_verification.get_info_attr(attr).username }}">{{ user_verification.get_info_attr(attr).username }}</a><br><br>
+                        {% elif user_verification.get_info_attr(attr).__class__.__name__ == 'datetime' %}
+                            <strong>{{ display_name }}:</strong><br><a>{{ moment(user_verification.get_info_attr(attr)).format(' MM/DD/YYYY, h:mm:ss a') }}</a><br><br>
                         {% else %}
-                            <strong>{{ displayName }}:</strong><br><a>{{ user_verification.getInfoAttr(attr) }}</a><br><br>
+                            <strong>{{ display_name }}:</strong><br><a>{{ user_verification.get_info_attr(attr) }}</a><br><br>
                         {% endif %}
                     {% endfor %}
                 </div>
             </div>
             <div class="col-md-6">
-                <form id="editUserVerificationForm" method="post" onsubmit="doneSave('save', this)">
+                <form id="edit_user_verificationForm" method="post" onsubmit="done_save('save', this)">
                     {{ form.hidden_tag() }}
-                    <input id="itemType" name="itemType" type="hidden" value="{{ user_verification.__tablename__ }}">
-                    <input id="itemId" name="itemId" type="hidden" value="{{ user_verification.id }}">
+                    <input id="item_type" name="item_type" type="hidden" value="{{ user_verification.__tablename__ }}">
+                    <input id="item_id" name="item_id" type="hidden" value="{{ user_verification.id }}">
                     <div class="form-group" hidden>
                         {{ form.owner.label }}
                         {{ form.owner(class_="custom-select", default=user_verification.owner, readonly=True) }}
                     </div>
-                    {% for fieldName in ['user_id', 'redditor', 'extra_data'] %}
-                        {{ macros.textField(form, fieldName) }}
+                    {% for field_name in ['user_id', 'redditor', 'extra_data'] %}
+                        {{ macros.text_field(form, field_name) }}
                     {% endfor %}
                     <div class="form-group">
                         <div class="custom-control custom-switch">
                             {{ form.enabled(default=user_verification.enabled, class_="custom-control-input") }}
                             {{ form.enabled.label(class_='custom-control-label') }}
-                            <small id="enableHelp" class="form-text text-muted">Enables this User Verification to be used</small>
+                            <small id="enable_help" class="form-text text-muted">Enables this User Verification to be used</small>
                         </div>
                     </div>
                     <div class="form-group">
-                        <button class="btn btn-primary" type="submit" name="save" onclick="saveItem(this)" id="save" value="save">Save</button>
+                        <button class="btn btn-primary" type="submit" name="save" onclick="save_item(this)" id="save" value="save">Save</button>
                     </div>
                 </form>
-                <button class="btn btn-danger" id="delete" data-target="#confirmationModal" onclick="showDeleteModal('{{ user_verification.user_id }}', 'user_verifications', {{ user_verification.id }})" data-toggle="modal">Delete</button>
+                <button class="btn btn-danger" id="delete" data-target="#confirmation_modal" onclick="show_delete_modal('{{ user_verification.user_id }}', 'user_verifications', {{ user_verification.id }})" data-toggle="modal">Delete</button>
             </div>
         </div>
     </div>

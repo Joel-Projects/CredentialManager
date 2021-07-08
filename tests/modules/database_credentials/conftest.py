@@ -21,7 +21,7 @@ data = {
 
 
 @pytest.fixture()
-def regularUserDatabaseCredential(temp_db_instance_helper, regular_user):
+def regular_user_database_credential(temp_db_instance_helper, regular_user):
     for _ in temp_db_instance_helper(
         DatabaseCredential(
             app_name="regular_user_database_credential", owner=regular_user, **data
@@ -31,7 +31,7 @@ def regularUserDatabaseCredential(temp_db_instance_helper, regular_user):
 
 
 @pytest.fixture()
-def adminUserDatabaseCredential(temp_db_instance_helper, admin_user):
+def admin_user_database_credential(temp_db_instance_helper, admin_user):
     for _ in temp_db_instance_helper(
         DatabaseCredential(
             app_name="admin_user_database_credential", owner=admin_user, **data
@@ -41,7 +41,7 @@ def adminUserDatabaseCredential(temp_db_instance_helper, admin_user):
 
 
 @pytest.fixture()
-def internalUserDatabaseCredential(temp_db_instance_helper, internal_user):
+def internal_user_database_credential(temp_db_instance_helper, internal_user):
     for _ in temp_db_instance_helper(
         DatabaseCredential(
             app_name="internal_user_database_credential", owner=internal_user, **data

@@ -11,7 +11,7 @@ from flask_restplus._http import HTTPStatus
 from app.extensions.api import Namespace
 from flask_restplus_patched import Resource
 
-from .. import getViewableItems
+from .. import get_viewable_items
 from ..users import permissions
 from ..users.models import User
 from . import parameters, schemas
@@ -40,8 +40,8 @@ class DatabaseCredentials(Resource):
 
         Only Admins can specify ``owner`` to see Database Credentials for other users. Regular users will see their own Database Credentials.
         """
-        databaseCredentials = getViewableItems(args, DatabaseCredential)
-        return databaseCredentials.offset(args["offset"]).limit(args["limit"])
+        database_credentials = get_viewable_items(args, DatabaseCredential)
+        return database_credentials.offset(args["offset"]).limit(args["limit"])
 
     @api.parameters(parameters.CreateDatabaseCredentialParameters())
     @api.response(schemas.DetailedDatabaseCredentialSchema())
@@ -67,7 +67,7 @@ class DatabaseCredentials(Resource):
 @api.route("/<int:database_credential_id>")
 @api.login_required()
 @api.response(code=HTTPStatus.NOT_FOUND, description="Database Credential not found.")
-@api.resolveObjectToModel(DatabaseCredential, "database_credential")
+@api.resolve_object_to_model(DatabaseCredential, "database_credential")
 class DatabaseCredentialByID(Resource):
     """
     Manipulations with a specific Database Credential.
@@ -78,7 +78,7 @@ class DatabaseCredentialByID(Resource):
         permissions.OwnerRolePermission,
         kwargs_on_request=lambda kwargs: {"obj": kwargs["database_credential"]},
     )
-    @api.restrictEnabled(lambda kwargs: kwargs["database_credential"])
+    @api.restrict_enabled(lambda kwargs: kwargs["database_credential"])
     @api.response(schemas.DetailedDatabaseCredentialSchema())
     def get(self, database_credential):
         """

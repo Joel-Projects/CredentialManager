@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Credential Manager - Sentry Tokens{% endblock %}
-{% block breadCrumbs %}
+{% block bread_crumbs %}
     {% if request.full_path.startswith('/profile') %}
         <li class="breadcrumb-item"><a href=/profile>Profile</a></li>
     {% elif user %}
@@ -20,5 +20,5 @@
     </style>
     <body>
     <script src="{{ url_for('sentry_tokens.static', filename='js/sentry_tokens.js') }}"></script>
-    {% include 'sentry_tokensTable.html' %}
+    {% include 'sentry_tokens_table.html' %}
 {% endblock %}

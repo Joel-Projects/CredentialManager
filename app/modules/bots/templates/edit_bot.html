@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Credential Manager - Edit Bot - {{ bot.app_name }}{% endblock %}
-{% block breadCrumbs %}
+{% block bread_crumbs %}
     <!--suppress HtmlUnknownTarget -->
     {% if user and (current_user.is_admin or current_user.is_internal or bot.check_owner(current_user)) %}
         <li class="breadcrumb-item"><a href={{ url_for('users.users') }}>Users</a></li>
@@ -11,7 +11,7 @@
     {% endif %}
     <li class="breadcrumb-item"><a href="/bots/{{ bot.id }}">{{ bot.app_name }}</a></li>
 {% endblock %}
-{% block activeItem %}active item{% endblock %}
+{% block active_item %}active item{% endblock %}
 {% block content %}
     <!--suppress ALL -->
     <script src="{{ url_for('bots.static', filename='js/edit_bot.js') }}"></script>
@@ -23,15 +23,15 @@
                 <div class="jumbotron">
                     <h4>Bot Info</h4>
                     <hr style="border-top: 1px solid">
-                    {% for attr, displayName in bot._infoAttrs.items() %}
-                        <strong>{{ displayName }}:</strong>
+                    {% for attr, display_name in bot._info_attrs.items() %}
+                        <strong>{{ display_name }}:</strong>
                         <br>
                         {% if attr == 'owner' and not bot.check_owner(current_user) and (current_user.is_admin or current_user.is_internal) %}
-                            <a href="/u/{{ bot.getInfoAttr(attr).username }}">{{ bot.getInfoAttr(attr).username }}</a>
-                        {% elif bot.getInfoAttr(attr).__class__.__name__ == 'datetime' %}
-                            <a>{{ moment(bot.getInfoAttr(attr)).format(' MM/DD/YYYY, h:mm:ss a') }}</a>
+                            <a href="/u/{{ bot.get_info_attr(attr).username }}">{{ bot.get_info_attr(attr).username }}</a>
+                        {% elif bot.get_info_attr(attr).__class__.__name__ == 'datetime' %}
+                            <a>{{ moment(bot.get_info_attr(attr)).format(' MM/DD/YYYY, h:mm:ss a') }}</a>
                         {% else %}
-                            <a>{{ bot.getInfoAttr(attr) }}</a>
+                            <a>{{ bot.get_info_attr(attr) }}</a>
                         {% endif %}
                         <br>
                         <br>
@@ -39,10 +39,10 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <form id="editBotForm" method="post" onsubmit="doneSave('save', this)">
+                <form id="edit_bot_form" method="post" onsubmit="done_save('save', this)">
                     {{ form.hidden_tag() }}
-                    <input id="itemType" name="itemType" type="hidden" value="{{ bot.__tablename__ }}">
-                    <input id="itemId" name="itemId" type="hidden" value="{{ bot.id }}">
+                    <input id="item_type" name="item_type" type="hidden" value="{{ bot.__tablename__ }}">
+                    <input id="item_id" name="item_id" type="hidden" value="{{ bot.id }}">
                     <div class="form-group" hidden>
                         {{ form.owner.label }}
                         {{ form.owner(class_="custom-select", default=bot.owner, readonly=True) }}
@@ -50,12 +50,12 @@
                     <div class="form-group">
                         {{ form.app_name.label }}
                         {% if form.app_name.errors %}
-                            {{ form.app_name(size=16, class_="form-control is-invalid", onkeypress="clearInvalidState(this)") }}
+                            {{ form.app_name(size=16, class_="form-control is-invalid", onkeypress="clear_invalid_state(this)") }}
                             {% for error in form.app_name.errors %}
-                                <div class="invalid-feedback" id="botFeedback">{{ error }}</div>
+                                <div class="invalid-feedback" id="bot_feedback">{{ error }}</div>
                             {% endfor %}
                         {% else %}
-                            {{ form.app_name(size=16, class_="form-control", onkeypress="clearInvalidState(this)") }}
+                            {{ form.app_name(size=16, class_="form-control", onkeypress="clear_invalid_state(this)") }}
                         {% endif %}
                     </div>
                     <div class="form-group">
@@ -74,14 +74,14 @@
                         <div class="custom-control custom-switch">
                             {{ form.enabled(default=bot.enabled, class_="custom-control-input") }}
                             {{ form.enabled.label(class_='custom-control-label') }}
-                            <small id="enableHelp" class="form-text text-muted">Enables this Bot to be used</small>
+                            <small id="enable_help" class="form-text text-muted">Enables this Bot to be used</small>
                         </div>
                     </div>
                     <div class="form-group">
-                        <button class="btn btn-primary" type="submit" name="save" onclick="saveItem(this)" id="save" value="save">Save</button>
+                        <button class="btn btn-primary" type="submit" name="save" onclick="save_item(this)" id="save" value="save">Save</button>
                     </div>
                 </form>
-                <button class="btn btn-danger" id="delete" data-target="#confirmationModal" onclick="showDeleteModal('{{ bot.app_name }}', 'bots', {{ bot.id }})" data-toggle="modal">Delete</button>
+                <button class="btn btn-danger" id="delete" data-target="#confirmation_modal" onclick="show_delete_modal('{{ bot.app_name }}', 'bots', {{ bot.id }})" data-toggle="modal">Delete</button>
             </div>
         </div>
     </div>

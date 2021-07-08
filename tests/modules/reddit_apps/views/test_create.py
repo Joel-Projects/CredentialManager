@@ -2,8 +2,8 @@ import pytest
 
 from app.modules.reddit_apps.models import RedditApp
 from tests.params import labels, users
-from tests.responseStatuses import assert201, assert403Create, assert422
-from tests.utils import assertCreated, assertRenderedTemplate, captured_templates
+from tests.response_statuses import assert201, assert403Create, assert422
+from tests.utils import assert_created, assert_rendered_template, captured_templates
 
 data = {
     "app_name": "reddit_app",
@@ -14,20 +14,20 @@ data = {
 }
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_create_reddit_app(flask_app_client, loginAs):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+def test_create_reddit_app(flask_app_client, login_as):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
             "/reddit_apps", content_type="application/x-www-form-urlencoded", data=data
         )
         assert201(response)
-        assertRenderedTemplate(templates, "reddit_apps.html")
+        assert_rendered_template(templates, "reddit_apps.html")
         reddit_app = RedditApp.query.filter_by(app_name="reddit_app").first()
-        assertCreated(reddit_app, data)
+        assert_created(reddit_app, data)
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_create_reddit_app_profile(flask_app_client, loginAs):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+def test_create_reddit_app_profile(flask_app_client, login_as):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
             f"/profile/reddit_apps",
@@ -35,24 +35,24 @@ def test_create_reddit_app_profile(flask_app_client, loginAs):
             data=data,
         )
         assert201(response)
-        assertRenderedTemplate(templates, "reddit_apps.html")
+        assert_rendered_template(templates, "reddit_apps.html")
         reddit_app = RedditApp.query.filter_by(app_name="reddit_app").first()
-        assertCreated(reddit_app, data)
+        assert_created(reddit_app, data)
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_create_reddit_app_other_user(flask_app_client, loginAs, regular_user):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+def test_create_reddit_app_other_user(flask_app_client, login_as, regular_user):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
             "/reddit_apps",
             content_type="application/x-www-form-urlencoded",
             data={"owner": regular_user.id, **data},
         )
-        if loginAs.is_admin or loginAs.is_internal:
+        if login_as.is_admin or login_as.is_internal:
             assert201(response)
-            assertRenderedTemplate(templates, "reddit_apps.html")
+            assert_rendered_template(templates, "reddit_apps.html")
             reddit_app = RedditApp.query.filter_by(app_name="reddit_app").first()
-            assertCreated(reddit_app, data)
+            assert_created(reddit_app, data)
             assert reddit_app.owner == regular_user
         else:
             assert403Create(response)
@@ -60,7 +60,7 @@ def test_create_reddit_app_other_user(flask_app_client, loginAs, regular_user):
             assert reddit_app is None
 
 
-def test_create_reddit_app_bad_params(flask_app_client, regularUserInstance):
+def test_create_reddit_app_bad_params(flask_app_client, regular_user_instance):
     with captured_templates(flask_app_client.application) as templates:
         data = {"dsn": "invalid_url", "app_name": "reddit_app"}
         response = flask_app_client.post(
@@ -72,7 +72,7 @@ def test_create_reddit_app_bad_params(flask_app_client, regularUserInstance):
         assert reddit_app is None
 
 
-def test_create_reddit_app_bad_params_profile(flask_app_client, regularUserInstance):
+def test_create_reddit_app_bad_params_profile(flask_app_client, regular_user_instance):
     with captured_templates(flask_app_client.application) as templates:
         data = {"dsn": "invalid_url", "app_name": "reddit_app"}
         response = flask_app_client.post(

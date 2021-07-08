@@ -4,12 +4,12 @@ import pytest
 
 from app.modules.users.models import User
 from tests.params import labels, users
-from tests.responseStatuses import assert201, assert403
-from tests.utils import assertRenderedTemplate, captured_templates
+from tests.response_statuses import assert201, assert403
+from tests.utils import assert_rendered_template, captured_templates
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_create_user(flask_app_client, loginAs):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+def test_create_user(flask_app_client, login_as):
     with captured_templates(flask_app_client.application) as templates:
         data = {
             "is_admin": True,
@@ -26,9 +26,9 @@ def test_create_user(flask_app_client, loginAs):
         response = flask_app_client.post(
             "/users", content_type="application/x-www-form-urlencoded", data=data
         )
-        if loginAs.is_admin or loginAs.is_internal:
+        if login_as.is_admin or login_as.is_internal:
             assert201(response)
-            assertRenderedTemplate(templates, "users.html")
+            assert_rendered_template(templates, "users.html")
             user = User.query.filter_by(username="test").first()
             assert user is not None
         else:
@@ -37,7 +37,7 @@ def test_create_user(flask_app_client, loginAs):
             assert user is None
 
 
-def test_create_user_bad_params(flask_app_client, adminUserInstance):
+def test_create_user_bad_params(flask_app_client, admin_user_instance):
     with captured_templates(flask_app_client.application) as templates:
         data = {
             "is_admin": True,

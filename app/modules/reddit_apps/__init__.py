@@ -10,4 +10,4 @@ def init_app(app, **kwargs):
 
     api_v1.add_namespace(resources.api)
     app.url_map.converters["RedditApp"] = converters.RedditAppConverter
-    app.register_blueprint(views.redditAppsBlueprint)
+    app.register_blueprint(views.reddit_apps_blueprint)

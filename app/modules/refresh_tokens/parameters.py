@@ -18,7 +18,7 @@ class ListRefreshTokensParameters(PaginationParameters, ValidateOwner):
     class Meta:
         model = RefreshToken
 
-    invalidOwnerMessage = "You can only query your own {}."
+    invalid_owner_message = "You can only query your own {}."
 
 
 class GetRefreshTokenByRedditor(PostFormParameters):
@@ -30,7 +30,7 @@ class GetRefreshTokenByRedditor(PostFormParameters):
     )
 
     @validates("reddit_app_id")
-    def validateRedditApp(self, data):
+    def validate_reddit_app(self, data):
         from ..reddit_apps.models import RedditApp
 
         reddit_app = RedditApp.query.get_or_404(data)

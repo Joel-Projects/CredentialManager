@@ -16,8 +16,8 @@ class BaseApiTokenSchema(ModelSchema):
         fields = (ApiToken.id.key, ApiToken.name.key, "resource_type")
         dump_only = (ApiToken.id.key, "resource_type")
 
-    _resourceType = Meta.model.__name__
-    resource_type = base_fields.String(default=_resourceType)
+    _resource_type = Meta.model.__name__
+    resource_type = base_fields.String(default=_resource_type)
 
 
 class DetailedApiTokenSchema(BaseApiTokenSchema):

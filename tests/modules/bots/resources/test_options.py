@@ -27,8 +27,8 @@ def test_bots_options_authorized(
     expected_allowed_methods,
     flask_app_client,
     regular_user,
-    regularUserBot,
-    adminUserBot,
+    regular_user_bot,
+    admin_user_bot,
 ):
     with flask_app_client.login(regular_user):
         response = flask_app_client.options(path)

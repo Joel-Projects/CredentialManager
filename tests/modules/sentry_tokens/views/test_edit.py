@@ -2,152 +2,164 @@ import pytest
 
 from app.modules.sentry_tokens.models import SentryToken
 from tests.params import labels, users
-from tests.responseStatuses import assert202, assert403
+from tests.response_statuses import assert202, assert403
 from tests.utils import (
-    assertMessageFlashed,
-    assertRenderedTemplate,
+    assert_message_flashed,
+    assert_rendered_template,
     captured_templates,
-    changeOwner,
+    change_owner,
 )
 
-sentryTokens = [
-    pytest.lazy_fixture("adminUserSentryToken"),
-    pytest.lazy_fixture("internalUserSentryToken"),
-    pytest.lazy_fixture("regularUserSentryToken"),
+sentry_tokens = [
+    pytest.lazy_fixture("admin_user_sentry_token"),
+    pytest.lazy_fixture("internal_user_sentry_token"),
+    pytest.lazy_fixture("regular_user_sentry_token"),
 ]
-sentryTokenLabels = [
+sentry_token_labels = [
     "admin_user_sentry_token",
     "internal_user_sentry_token",
     "regular_user_sentry_token",
 ]
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-@pytest.mark.parametrize("sentryToken", sentryTokens, ids=sentryTokenLabels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
+@pytest.mark.parametrize("sentry_token", sentry_tokens, ids=sentry_token_labels)
 def test_sentry_token_detail_edit_for_other_user(
-    flask_app_client, loginAs, sentryToken
+    flask_app_client, login_as, sentry_token
 ):
     data = {
-        "itemType": "sentry_tokens",
-        "itemId": f"{sentryToken.id}",
+        "item_type": "sentry_tokens",
+        "item_id": f"{sentry_token.id}",
         "enabled": "n",
-        "app_name": "newName",
+        "app_name": "new_name",
         "dsn": "https://new@sentry.jesassn.org/1",
     }
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/sentry_tokens/{sentryToken.id}",
+            f"/sentry_tokens/{sentry_token.id}",
             content_type="application/x-www-form-urlencoded",
             data=data,
         )
-        if sentryToken.owner.is_internal and not loginAs.is_internal:
+        if sentry_token.owner.is_internal and not login_as.is_internal:
             assert403(response, templates)
-            modifiedSentryToken = SentryToken.query.filter_by(id=sentryToken.id).first()
-            assert modifiedSentryToken == sentryToken
-        elif loginAs.is_admin or loginAs.is_internal:
+            modified_sentry_token = SentryToken.query.filter_by(
+                id=sentry_token.id
+            ).first()
+            assert modified_sentry_token == sentry_token
+        elif login_as.is_admin or login_as.is_internal:
             assert202(response)
-            assertRenderedTemplate(templates, "edit_sentry_token.html")
-            assertMessageFlashed(
-                templates, "Sentry Token 'newName' saved successfully!", "success"
+            assert_rendered_template(templates, "edit_sentry_token.html")
+            assert_message_flashed(
+                templates, "Sentry Token 'new_name' saved successfully!", "success"
             )
-            modifiedSentryToken = SentryToken.query.filter_by(id=sentryToken.id).first()
-            assert modifiedSentryToken.app_name == "newName"
-            assert modifiedSentryToken.dsn == "https://new@sentry.jesassn.org/1"
-            assert modifiedSentryToken.enabled
+            modified_sentry_token = SentryToken.query.filter_by(
+                id=sentry_token.id
+            ).first()
+            assert modified_sentry_token.app_name == "new_name"
+            assert modified_sentry_token.dsn == "https://new@sentry.jesassn.org/1"
+            assert modified_sentry_token.enabled
         else:
             assert403(response, templates)
-            modifiedSentryToken = SentryToken.query.filter_by(id=sentryToken.id).first()
-            assert modifiedSentryToken == sentryToken
+            modified_sentry_token = SentryToken.query.filter_by(
+                id=sentry_token.id
+            ).first()
+            assert modified_sentry_token == sentry_token
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
-def test_sentry_token_detail_edit(flask_app_client, loginAs, regularUserSentryToken):
+@pytest.mark.parametrize("login_as", users, ids=labels)
+def test_sentry_token_detail_edit(
+    flask_app_client, login_as, regular_user_sentry_token
+):
     data = {
-        "itemType": "sentry_tokens",
-        "itemId": f"{regularUserSentryToken.id}",
+        "item_type": "sentry_tokens",
+        "item_id": f"{regular_user_sentry_token.id}",
         "enabled": "n",
-        "app_name": "newName",
+        "app_name": "new_name",
         "dsn": "https://new@sentry.jesassn.org/1",
     }
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/sentry_tokens/{regularUserSentryToken.id}",
+            f"/sentry_tokens/{regular_user_sentry_token.id}",
             content_type="application/x-www-form-urlencoded",
             data=data,
         )
-        if loginAs.is_admin or loginAs.is_internal:
+        if login_as.is_admin or login_as.is_internal:
             assert202(response)
-            assertRenderedTemplate(templates, "edit_sentry_token.html")
-            assertMessageFlashed(
-                templates, "Sentry Token 'newName' saved successfully!", "success"
+            assert_rendered_template(templates, "edit_sentry_token.html")
+            assert_message_flashed(
+                templates, "Sentry Token 'new_name' saved successfully!", "success"
             )
-            modifiedSentryToken = SentryToken.query.filter_by(
-                id=regularUserSentryToken.id
+            modified_sentry_token = SentryToken.query.filter_by(
+                id=regular_user_sentry_token.id
             ).first()
-            assert modifiedSentryToken == regularUserSentryToken
+            assert modified_sentry_token == regular_user_sentry_token
         else:
             assert403(response, templates)
-            modifiedSentryToken = SentryToken.query.filter_by(
-                id=regularUserSentryToken.id
+            modified_sentry_token = SentryToken.query.filter_by(
+                id=regular_user_sentry_token.id
             ).first()
-            assert modifiedSentryToken == regularUserSentryToken
+            assert modified_sentry_token == regular_user_sentry_token
 
 
-@pytest.mark.parametrize("loginAs", users, ids=labels)
+@pytest.mark.parametrize("login_as", users, ids=labels)
 def test_sentry_token_detail_edit_self(
-    flask_app_client, db, loginAs, regularUserSentryToken
+    flask_app_client, db, login_as, regular_user_sentry_token
 ):
     data = {
-        "itemType": "sentry_tokens",
-        "itemId": f"{regularUserSentryToken.id}",
+        "item_type": "sentry_tokens",
+        "item_id": f"{regular_user_sentry_token.id}",
         "enabled": "",
-        "app_name": "newName",
+        "app_name": "new_name",
         "dsn": "https://new@sentry.jesassn.org/1",
     }
-    regularUserSentryToken = changeOwner(db, loginAs, regularUserSentryToken)
+    regular_user_sentry_token = change_owner(db, login_as, regular_user_sentry_token)
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
-            f"/sentry_tokens/{regularUserSentryToken.id}", data=data
+            f"/sentry_tokens/{regular_user_sentry_token.id}", data=data
         )
         assert202(response)
-        assertRenderedTemplate(templates, "edit_sentry_token.html")
-        assertMessageFlashed(
-            templates, "Sentry Token 'newName' saved successfully!", "success"
+        assert_rendered_template(templates, "edit_sentry_token.html")
+        assert_message_flashed(
+            templates, "Sentry Token 'new_name' saved successfully!", "success"
         )
-        modifiedSentryToken = SentryToken.query.filter_by(
-            id=regularUserSentryToken.id
+        modified_sentry_token = SentryToken.query.filter_by(
+            id=regular_user_sentry_token.id
         ).first()
-        assert not modifiedSentryToken.enabled
-        assert modifiedSentryToken.app_name == "newName"
-        assert modifiedSentryToken.dsn == "https://new@sentry.jesassn.org/1"
+        assert not modified_sentry_token.enabled
+        assert modified_sentry_token.app_name == "new_name"
+        assert modified_sentry_token.dsn == "https://new@sentry.jesassn.org/1"
 
 
 def test_sentry_token_detail_conflicting_app_name(
     flask_app_client,
     db,
-    regularUserInstance,
-    regularUserSentryToken,
-    adminUserSentryToken,
+    regular_user_instance,
+    regular_user_sentry_token,
+    admin_user_sentry_token,
 ):
-    original = changeOwner(db, regularUserInstance, adminUserSentryToken)
+    original = change_owner(db, regular_user_instance, admin_user_sentry_token)
     original.app_name = "original"
-    toBeModified = changeOwner(db, regularUserInstance, regularUserSentryToken)
+    to_be_modified = change_owner(db, regular_user_instance, regular_user_sentry_token)
     db.session.merge(original)
     data = {
-        "itemType": "sentry_tokens",
-        "itemId": toBeModified.id,
+        "item_type": "sentry_tokens",
+        "item_id": to_be_modified.id,
         "enabled": "n",
         "app_name": "original",
         "dsn": "https://new@sentry.jesassn.org/1",
     }
     with captured_templates(flask_app_client.application) as templates:
-        response = flask_app_client.post(f"/sentry_tokens/{toBeModified.id}", json=data)
+        response = flask_app_client.post(
+            f"/sentry_tokens/{to_be_modified.id}", json=data
+        )
         assert response.status_code == 422
         assert response.mimetype == "text/html"
-        assertRenderedTemplate(templates, "edit_sentry_token.html")
+        assert_rendered_template(templates, "edit_sentry_token.html")
         assert (
             templates["templates"][0][1]["form"].errors["app_name"][0]
             == "Already exists."
         )
-        modifiedSentryToken = SentryToken.query.filter_by(id=toBeModified.id).first()
-        assert modifiedSentryToken.app_name == toBeModified.app_name
+        modified_sentry_token = SentryToken.query.filter_by(
+            id=to_be_modified.id
+        ).first()
+        assert modified_sentry_token.app_name == to_be_modified.app_name

@@ -6,7 +6,7 @@ from flask_restplus._http import HTTPStatus
 from app.extensions.api import Namespace, http_exceptions
 from flask_restplus_patched import Resource
 
-from .. import getViewableItems
+from .. import get_viewable_items
 from ..users import permissions
 from ..users.models import User
 from . import parameters, schemas
@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 api = Namespace("bots", description="Bot Management")
 
 
-def verifyEnabledApps(bot):
+def verify_enabled_apps(bot):
     query = Bot.query
     if not (current_user.is_admin or current_user.is_internal):
         query = Bot.query.filter(Bot.owner == current_user)
@@ -50,7 +50,7 @@ class Bots(Resource):
 
         Only Admins can specify ``owner`` to see Bots for other users. Regular users will see their own Bots.
         """
-        bots = getViewableItems(args, Bot)
+        bots = get_viewable_items(args, Bot)
         return bots.offset(args["offset"]).limit(args["limit"])
 
     @api.parameters(parameters.CreateBotParameters())
@@ -76,7 +76,7 @@ class Bots(Resource):
 @api.route("/<int:bot_id>")
 @api.login_required()
 @api.response(code=HTTPStatus.NOT_FOUND, description="Bot not found.")
-@api.resolveObjectToModel(Bot, "bot")
+@api.resolve_object_to_model(Bot, "bot")
 class BotByID(Resource):
     """
     Manipulations with a specific Bot.
@@ -87,13 +87,13 @@ class BotByID(Resource):
         permissions.OwnerRolePermission,
         kwargs_on_request=lambda kwargs: {"obj": kwargs["bot"]},
     )
-    @api.restrictEnabled(lambda kwargs: kwargs["bot"])
+    @api.restrict_enabled(lambda kwargs: kwargs["bot"])
     @api.response(schemas.DetailedBotSchema())
     def get(self, bot):
         """
         Get Bot details by ID.
         """
-        return verifyEnabledApps(bot)
+        return verify_enabled_apps(bot)
 
     @api.login_required()
     @api.permission_required(
@@ -142,10 +142,10 @@ class GetBotByName(Resource):
 
     @api.parameters(parameters.GetBotByName())
     @api.response(schemas.DetailedBotSchema())
-    @api.resolveObjectToModel(Bot, "bot", "app_name")
-    @api.restrictEnabled(lambda kwargs: kwargs["bot"])
+    @api.resolve_object_to_model(Bot, "bot", "app_name")
+    @api.restrict_enabled(lambda kwargs: kwargs["bot"])
     def post(self, bot):
         """
         Get Bot by name.
         """
-        return verifyEnabledApps(bot)
+        return verify_enabled_apps(bot)
