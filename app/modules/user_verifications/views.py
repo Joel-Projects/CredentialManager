@@ -64,7 +64,7 @@ def user_verifications(page, per_page, order_by, sort_columns, sort_directions):
             "user_verifications.html",
             user_verifications_table=table,
             user_verifications_form=form,
-            user_verification_paginator=paginator,
+            paginator=paginator,
             route="user_verifications.user_verifications",
             per_page=per_page,
         ),
