@@ -29,8 +29,8 @@ stages:
 variables:
     GITLAB_BUILD_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
     GITLAB_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
-    AZURE_BUILD_IMAGE: credmgr.azurecr.io:$CI_COMMIT_REF_SLUG
-    AZURE_RELEASE_IMAGE: credmgr.azurecr.io:latest
+    AZURE_BUILD_IMAGE: credmgr.azurecr.io/jes/credentialmanager:$CI_COMMIT_REF_SLUG
+    AZURE_RELEASE_IMAGE: credmgr.azurecr.io/jes/credentialmanager:latest
 
 build:
     stage: build
