@@ -40,8 +40,6 @@ build:
         - docker push $CONTAINER_RELEASE_IMAGE
 
         - docker login credmgr.azurecr.io -u credmgr -p $AZURE_REGISTRY_PASSWORD
-        - docker pull $CONTAINER_RELEASE_IMAGE || true
-        - docker build --cache-from $CONTAINER_RELEASE_IMAGE -t $CONTAINER_BUILD_IMAGE -t $CONTAINER_RELEASE_IMAGE .
         - docker push $CONTAINER_BUILD_IMAGE
         - docker push $CONTAINER_RELEASE_IMAGE
     only:
