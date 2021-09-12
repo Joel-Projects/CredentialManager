@@ -27,21 +27,23 @@ stages:
     - sentry_release
 
 variables:
-    CONTAINER_BUILD_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-    CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
+    GITLAB_BUILD_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    GITLAB_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
+    AZURE_BUILD_IMAGE: credmgr.azurecr.io:$CI_COMMIT_REF_SLUG
+    AZURE_RELEASE_IMAGE: credmgr.azurecr.io:latest
 
 build:
     stage: build
     script:
         - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
-        - docker pull $CONTAINER_RELEASE_IMAGE || true
-        - docker build --cache-from $CONTAINER_RELEASE_IMAGE -t $CONTAINER_BUILD_IMAGE -t $CONTAINER_RELEASE_IMAGE .
-        - docker push $CONTAINER_BUILD_IMAGE
-        - docker push $CONTAINER_RELEASE_IMAGE
+        - docker pull $GITLAB_RELEASE_IMAGE || true
+        - docker build --cache-from $GITLAB_RELEASE_IMAGE -t $GITLAB_BUILD_IMAGE -t $GITLAB_RELEASE_IMAGE .
+        - docker push $GITLAB_BUILD_IMAGE
+        - docker push $GITLAB_RELEASE_IMAGE
 
         - docker login credmgr.azurecr.io -u credmgr -p $AZURE_REGISTRY_PASSWORD
-        - docker push $CONTAINER_BUILD_IMAGE
-        - docker push $CONTAINER_RELEASE_IMAGE
+        - docker push $AZURE_BUILD_IMAGE
+        - docker push $AZURE_RELEASE_IMAGE
     only:
         - master
         - tags
