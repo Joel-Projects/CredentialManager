@@ -42,6 +42,10 @@ build:
         - docker push $GITLAB_RELEASE_IMAGE
 
         - docker login credmgr.azurecr.io -u credmgr -p $AZURE_REGISTRY_PASSWORD
+        - echo $GITLAB_BUILD_IMAGE
+        - echo $GITLAB_RELEASE_IMAGE
+        - echo $AZURE_BUILD_IMAGE
+        - echo $AZURE_RELEASE_IMAGE
         - docker push $AZURE_BUILD_IMAGE
         - docker push $AZURE_RELEASE_IMAGE
     only:
