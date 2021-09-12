@@ -67,8 +67,6 @@ test:pytest3.9:
     image: python:3.9
     <<: *testSetup
 
-
-
 publish:release:
     image: getsentry/sentry-cli
     stage: sentry_release
