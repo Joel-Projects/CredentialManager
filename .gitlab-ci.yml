@@ -29,25 +29,15 @@ stages:
 variables:
     GITLAB_BUILD_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
     GITLAB_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
-    AZURE_BUILD_IMAGE: credmgr.azurecr.io/jes/credentialmanager:$CI_COMMIT_REF_SLUG
-    AZURE_RELEASE_IMAGE: credmgr.azurecr.io/jes/credentialmanager:latest
 
 build:
     stage: build
     script:
         - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
         - docker pull $GITLAB_RELEASE_IMAGE || true
-        - docker build --cache-from $GITLAB_RELEASE_IMAGE -t $GITLAB_BUILD_IMAGE -t $GITLAB_RELEASE_IMAGE -t $AZURE_BUILD_IMAGE -t $AZURE_RELEASE_IMAGE  .
+        - docker build --cache-from $GITLAB_RELEASE_IMAGE -t $GITLAB_BUILD_IMAGE -t $GITLAB_RELEASE_IMAGE .
         - docker push $GITLAB_BUILD_IMAGE
         - docker push $GITLAB_RELEASE_IMAGE
-
-        - docker login credmgr.azurecr.io -u credmgr -p $AZURE_REGISTRY_PASSWORD
-        - echo $GITLAB_BUILD_IMAGE
-        - echo $GITLAB_RELEASE_IMAGE
-        - echo $AZURE_BUILD_IMAGE
-        - echo $AZURE_RELEASE_IMAGE
-        - docker push $AZURE_BUILD_IMAGE
-        - docker push $AZURE_RELEASE_IMAGE
     only:
         - master
         - tags
