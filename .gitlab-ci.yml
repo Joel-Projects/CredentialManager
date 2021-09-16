@@ -33,7 +33,7 @@ variables:
 build:
     stage: build
     script:
-        - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+        - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN reg.gitlab.jesassn.org
         - docker pull $GITLAB_RELEASE_IMAGE || true
         - docker build --cache-from $GITLAB_RELEASE_IMAGE -t $GITLAB_BUILD_IMAGE -t $GITLAB_RELEASE_IMAGE .
         - docker push $GITLAB_BUILD_IMAGE
