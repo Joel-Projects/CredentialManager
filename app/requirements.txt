@@ -1,4 +1,4 @@
-Flask
+Flask<2
 MarkupSafe<2
 flask-restplus>=0.11.0,<0.13
 Flask-Table
@@ -22,7 +22,7 @@ flask_bootstrap4
 flask_debugtoolbar
 Flask-Moment
 gunicorn[gevent]
-jinja2
+jinja2<3,>=2.10.1
 praw
 sentry-sdk[flask]
 passlib[bcrypt]
@@ -33,3 +33,4 @@ unflatten
 colorlog
 
 black
+cloudflare

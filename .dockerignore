@@ -1,10 +1,11 @@
+.coveragerc
 .dockerignore
+.env*
 .git*
 .pytest_cache
 .venv
-__pycache__
-clients
-deploy
 Dockerfile
-example.db
+__pycache__
+pytest.ini
+test.py
 tests
