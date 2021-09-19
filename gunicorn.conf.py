@@ -10,7 +10,7 @@ if not HOSTNAME:
     exit(1)
 
 accesslog = "-"
-bind = ":443"
+bind = "0.0.0.0:443"
 certfile = f"/etc/letsencrypt/live/{HOSTNAME}/fullchain.pem"
 keyfile = f"/etc/letsencrypt/live/{HOSTNAME}/privkey.pem"
 timeout = 3605
