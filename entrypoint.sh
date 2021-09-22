@@ -22,14 +22,12 @@ fi
 
 chmod 600 $APP_HOME/cloudflare.ini
 chown letsencrypt:letsencrypt $APP_HOME/cloudflare.ini
+
 echo "05 5,17 * * * /usr/bin/certbot renew -q
 " | gosu letsencrypt crontab -
 service cron start
-gosu letsencrypt certbot certonly -n \
-  --agree-tos \
-  --dns-cloudflare \
-  --dns-cloudflare-credentials $APP_HOME/cloudflare.ini \
-  -d $HOSTNAME \
-  -m $CERTBOT_EMAIL
+
+
+certbot certonly -n --agree-tos --nginx --dns-cloudflare-credentials $APP_HOME/cloudflare.ini -d $HOSTNAME -m $CERTBOT_EMAIL
 
 gosu app gunicorn
