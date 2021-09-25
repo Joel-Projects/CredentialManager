@@ -31,7 +31,7 @@ COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 
 RUN pip install --upgrade pip && \
-    pip install --no-cache /wheels/* \
+    pip install --no-cache /wheels/*
 
 COPY ./app $APP_HOME/app
 COPY ./config.py $APP_HOME/config.py
