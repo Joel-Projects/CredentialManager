@@ -25,30 +25,23 @@ RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends software-properties-common bash cron nano netcat
-#    add-apt-repository ppa:certbot/certbot && \
+    apt-get install -y --no-install-recommends bash nano
 
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 
 RUN pip install --upgrade pip && \
-    pip install --no-cache /wheels/*
+    pip install --no-cache /wheels/* \
 
-#COPY ./entrypoint.sh $APP_HOME/entrypoint.sh
 COPY ./app $APP_HOME/app
 COPY ./config.py $APP_HOME/config.py
 COPY ./gunicorn.conf.py $APP_HOME/gunicorn.conf.py
 COPY ./flask_restplus_patched $APP_HOME/flask_restplus_patched
-#COPY ./credmgr.jesassn.org.conf /etc/nginx/sites-enabled/credmgr
-
-RUN #mkdir /var/lib/letsencrypt /var/log/letsencrypt
 
 RUN chown -R app:app $APP_HOME
-#    chown -R letsencrypt:letsencrypt /etc/letsencrypt /var/lib/letsencrypt /var/log/letsencrypt && \
-#    chmod +x $APP_HOME/entrypoint.sh
 
 EXPOSE 5000
-#VOLUME /etc/letsencrypt
 
-#ENTRYPOINT ["/home/app/credmgr/entrypoint.sh"]
-RUN ["gunicorn"]
+USER app
+
+CMD ["gunicorn"]
