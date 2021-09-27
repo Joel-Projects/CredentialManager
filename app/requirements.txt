@@ -21,7 +21,7 @@ Flask-WTF
 flask_bootstrap4
 flask_debugtoolbar
 Flask-Moment
-gunicorn[gevent]
+gunicorn[eventlet]
 jinja2<3,>=2.10.1
 praw
 sentry-sdk[flask]
