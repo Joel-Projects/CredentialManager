@@ -5,6 +5,7 @@ import sqlalchemy
 from flask_sqlalchemy import SQLAlchemy as BaseSQLAlchemy
 from flask_sqlalchemy import _QueryProperty
 from sqlalchemy import Column, DateTime
+from sqlalchemy import inspect
 
 
 class AlembicDatabaseMigrationConfig(object):
@@ -44,8 +45,10 @@ class Timestamp(object):
 # noinspection PyUnresolvedReferences
 @sqlalchemy.event.listens_for(Timestamp, "before_update", propagate=True)
 def timestamp_before_update(mapper, connection, target):
+    if target.__tablename__ == 'api_tokens':
+        if inspect(target).attrs.last_used.history.has_changes():
+            return
     target.updated = datetime.astimezone(datetime.utcnow())
-
 
 class InfoAttrs(object):
     def get_info_attr(self, path):
