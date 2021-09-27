@@ -29,6 +29,7 @@ passlib[bcrypt]
 Flask-Login
 permission
 psycopg2-binary
+psycogreen
 unflatten
 colorlog
 
