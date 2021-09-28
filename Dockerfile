@@ -14,6 +14,7 @@ FROM python:3.9-slim-buster
 
 ENV HOME=/home/app
 ENV APP_HOME=$HOME/credmgr
+ENV FLASK_CONFIG production
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV TZ America/Chicago
