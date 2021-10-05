@@ -57,4 +57,5 @@ def create_app(flask_config_name=None, **kwargs):
     modules.init_app(app)
     db = extensions.db
     db.create_all(app=app)
+    app.logger.info("app initialized")
     return app
