@@ -17,7 +17,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV TZ America/Chicago
 
-RUN mkdir /home/app/credmgr
+RUN mkdir -p /home/app/credmgr
 WORKDIR /home/app/credmgr
 
 RUN apt-get update && \
