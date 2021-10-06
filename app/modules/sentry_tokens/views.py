@@ -82,7 +82,10 @@ def sentry_tokens(page, per_page, order_by, sort_columns, sort_directions):
             data.pop("sentry_team")
             data.pop("sentry_platform")
             sentry_token = SentryToken(**data)
-            db.session.add(sentry_token)
+            with api.commit_or_abort(
+                db.session, default_error_message="Failed to create a new Sentry Token."
+            ):
+                db.session.add(sentry_token)
         else:
             return jsonify(status="error", errors=form.errors)
     paginator = get_paginator(SentryToken, page, per_page, order_by, sort_columns)

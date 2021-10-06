@@ -46,7 +46,8 @@ def api_tokens(page, per_page, order_by, sort_columns, sort_directions):
             data = {key: value for key, value in form.data.items() if value is not None}
             data["token"] = ApiToken.generate_token(data["length"])
             api_token = ApiToken(**data)
-            db.session.add(api_token)
+            with api.commit_or_abort(db.session, default_error_message="Failed to create API Token."):
+                db.session.add(api_token)
         else:
             return jsonify(status="error", errors=form.errors), code
     paginator = get_paginator(ApiToken, page, per_page, order_by, sort_columns)

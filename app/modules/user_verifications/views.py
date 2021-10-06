@@ -51,7 +51,10 @@ def user_verifications(page, per_page, order_by, sort_columns, sort_directions):
                 data["extra_data"] = json.loads(form.data["extra_data"])
 
             user_verification = UserVerification(**data)
-            db.session.add(user_verification)
+            with api.commit_or_abort(
+                db.session, default_error_message="Failed to create a new User Verification."
+            ):
+                db.session.add(user_verification)
         else:
             return jsonify(status="error", errors=form.errors), code
     paginator = get_paginator(UserVerification, page, per_page, order_by, sort_columns)

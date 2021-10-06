@@ -45,7 +45,10 @@ def bots(page, per_page, order_by, sort_columns, sort_directions):
             code = 201
             data = {key: value for key, value in form.data.items() if value is not None}
             bot = Bot(**data)
-            db.session.add(bot)
+            with api.commit_or_abort(
+                db.session, default_error_message="Failed to create a new Bot."
+            ):
+                db.session.add(bot)
         else:
             return jsonify(status="error", errors=form.errors), code
     paginator = get_paginator(Bot, page, per_page, order_by, sort_columns)

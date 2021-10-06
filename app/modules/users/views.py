@@ -65,7 +65,10 @@ def users(page, per_page, order_by, sort_columns, sort_directions):
             user = User(**data)
             user.created_by = current_user.id
             user.updated_by = current_user.id
-            db.session.add(user)
+            with api.commit_or_abort(
+                db.session, default_error_message="Failed to create a new User."
+            ):
+                db.session.add(user)
             code = 201
         else:
             # code = 422
@@ -311,7 +314,10 @@ def items_per_user(user, item):
             model = Model(owner_id=data["owner"].id, **data)
             if item == "api_tokens":
                 model.token = model.generate_token(length)
-            db.session.add(model)
+            with api.commit_or_abort(
+                db.session, default_error_message=f"Failed to create a new {' '.join(item[:-1].split('_')).title()}."
+            ):
+                db.session.add(model)
             items = getattr(user, item).all()
             table = valid_items[item][0](items)
             code = 201
