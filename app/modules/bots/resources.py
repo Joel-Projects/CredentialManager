@@ -93,6 +93,7 @@ class BotByID(Resource):
         """
         Get Bot details by ID.
         """
+        log.info("bot fetch begin")
         return verify_enabled_apps(bot)
 
     @api.login_required()

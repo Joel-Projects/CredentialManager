@@ -8,18 +8,6 @@ from sqlalchemy import Column, DateTime
 from sqlalchemy import inspect
 
 
-class AlembicDatabaseMigrationConfig(object):
-    """
-    Helper config holder that provides missing functions of Flask-Alembic
-    package since we use custom invoke tasks instead.
-    """
-
-    def __init__(self, database, directory="migrations", **kwargs):
-        self.db = database
-        self.directory = directory
-        self.configure_args = kwargs
-
-
 class SQLAlchemy(BaseSQLAlchemy):
     def __init__(self, *args, **kwargs):
         if "session_options" not in kwargs:

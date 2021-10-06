@@ -13,11 +13,6 @@ config_name_mapper = {
 
 
 def create_app(flask_config_name=None, **kwargs):
-    # This is a workaround for Alpine Linux (musl libc) quirk:
-    # https://github.com/docker-library/python/issues/211
-    import threading
-
-    threading.stack_size(2 * 1024 * 1024)
 
     app = Flask(__name__, **kwargs)
 

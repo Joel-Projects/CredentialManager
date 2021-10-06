@@ -19,9 +19,6 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV TZ America/Chicago
 
-RUN addgroup --system app && \
-    adduser --system --group app
-
 RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
@@ -39,10 +36,6 @@ COPY ./config.py $APP_HOME/config.py
 COPY ./gunicorn.conf.py $APP_HOME/gunicorn.conf.py
 COPY ./flask_restplus_patched $APP_HOME/flask_restplus_patched
 
-RUN chown -R app:app $APP_HOME
-
 EXPOSE 5000
-
-USER app
 
 CMD ["gunicorn"]
