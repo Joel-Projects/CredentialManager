@@ -12,15 +12,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc && \
 
 FROM python:3.9-slim-buster
 
-ENV HOME=/home/app
-ENV APP_HOME=$HOME/credmgr
 ENV FLASK_CONFIG production
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV TZ America/Chicago
 
-RUN mkdir $APP_HOME
-WORKDIR $APP_HOME
+RUN mkdir /home/app/credmgr
+WORKDIR /home/app/credmgr
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends bash nano
@@ -31,10 +29,10 @@ COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install --upgrade pip && \
     pip install --no-cache /wheels/*
 
-COPY ./app $APP_HOME/app
-COPY ./config.py $APP_HOME/config.py
-COPY ./gunicorn.conf.py $APP_HOME/gunicorn.conf.py
-COPY ./flask_restplus_patched $APP_HOME/flask_restplus_patched
+COPY ./app /home/app/credmgr/app
+COPY ./config.py /home/app/credmgr/config.py
+COPY ./gunicorn.conf.py /home/app/credmgr/gunicorn.conf.py
+COPY ./flask_restplus_patched /home/app/credmgr/flask_restplus_patched
 
 EXPOSE 5000
 
