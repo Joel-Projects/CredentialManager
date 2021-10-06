@@ -19,7 +19,11 @@ class BaseConfig(object):
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
-    SQLALCHEMY_ENGINE_OPTIONS = {"pool_use_lifo": True, "pool_pre_ping": True, "echo_pool": "debug"}
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_use_lifo": True,
+        "pool_pre_ping": True,
+        "echo_pool": "debug",
+    }
     SQLALCHEMY_ECHO = True
     DEBUG = False
     ERROR_404_HELP = False

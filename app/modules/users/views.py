@@ -315,7 +315,8 @@ def items_per_user(user, item):
             if item == "api_tokens":
                 model.token = model.generate_token(length)
             with api.commit_or_abort(
-                db.session, default_error_message=f"Failed to create a new {' '.join(item[:-1].split('_')).title()}."
+                db.session,
+                default_error_message=f"Failed to create a new {' '.join(item[:-1].split('_')).title()}.",
             ):
                 db.session.add(model)
             items = getattr(user, item).all()
