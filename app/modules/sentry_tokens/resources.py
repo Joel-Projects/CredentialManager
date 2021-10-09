@@ -52,9 +52,7 @@ class SentryTokens(Resource):
         args.owner = current_user
         if args.owner_id:
             args.owner = User.query.get(args.owner_id)
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to create a new Sentry Token."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to create a new Sentry Token."):
             db.session.add(args)
         return args
 
@@ -93,9 +91,7 @@ class SentryTokenByID(Resource):
         """
         Delete a Sentry Token by ID.
         """
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to delete Sentry Token."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to delete Sentry Token."):
             db.session.delete(sentry_token)
         return None
 
@@ -111,12 +107,8 @@ class SentryTokenByID(Resource):
         """
         Patch sentry_token details by ID.
         """
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to update Sentry Token details."
-        ):
-            parameters.PatchSentryTokenDetailsParameters.perform_patch(
-                args, sentry_token
-            )
+        with api.commit_or_abort(db.session, default_error_message="Failed to update Sentry Token details."):
+            parameters.PatchSentryTokenDetailsParameters.perform_patch(args, sentry_token)
             db.session.merge(sentry_token)
         return sentry_token
 
@@ -137,9 +129,7 @@ class SentryOrganizations(Resource):
             requestor = SentryRequestor(current_user.sentry_auth_token)
             response = [
                 (i.slug, i.name)
-                for i in requestor.get(
-                    "/api/0/organizations/", "organization", params={"member": True}
-                )
+                for i in requestor.get("/api/0/organizations/", "organization", params={"member": True})
             ]
         return response
 
@@ -158,10 +148,5 @@ class SentryOrganization(Resource):
         response = []
         if current_user.sentry_auth_token:
             requestor = SentryRequestor(current_user.sentry_auth_token)
-            response = [
-                (i.slug, i.name)
-                for i in requestor.get(
-                    f"/api/0/organizations/{org_slug}/teams/", "team"
-                )
-            ]
+            response = [(i.slug, i.name) for i in requestor.get(f"/api/0/organizations/{org_slug}/teams/", "team")]
         return response

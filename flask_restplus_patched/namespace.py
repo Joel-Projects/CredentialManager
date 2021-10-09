@@ -77,16 +77,12 @@ class Namespace(OriginalNamespace):
         """
         Model registration decorator.
         """
-        if isinstance(
-            model, (flask_marshmallow.Schema, flask_marshmallow.base_fields.FieldABC)
-        ):
+        if isinstance(model, (flask_marshmallow.Schema, flask_marshmallow.base_fields.FieldABC)):
             name = name or model.__class__.__name__
             api_model = Model(name, model, mask=mask)
             api_model.__apidoc__ = kwargs
             return self.add_model(name, api_model)
-        return super(Namespace, self).model(
-            name=name, model=model, **kwargs
-        )  # pragma: no cover
+        return super(Namespace, self).model(name=name, model=model, **kwargs)  # pragma: no cover
 
     def _build_doc(self, cls, doc):  # pragma: no cover
         if doc is False:
@@ -117,9 +113,7 @@ class Namespace(OriginalNamespace):
                 parameters.context["in"] = _locations
 
             return self.doc(params=parameters)(
-                self.response(code=HTTPStatus.UNPROCESSABLE_ENTITY)(
-                    self.WEBARGS_PARSER.use_args(parameters)(func)
-                )
+                self.response(code=HTTPStatus.UNPROCESSABLE_ENTITY)(self.WEBARGS_PARSER.use_args(parameters)(func))
             )
 
         return decorator
@@ -153,9 +147,7 @@ class Namespace(OriginalNamespace):
         if model is None and code not in {HTTPStatus.ACCEPTED, HTTPStatus.NO_CONTENT}:
             if code.value not in http_exceptions.default_exceptions:  # pragma: no cover
                 raise ValueError(f"`model` parameter is required for code {code}")
-            model = self.model(
-                name=f"HTTPError{code}", model=DefaultHTTPErrorSchema(http_code=code)
-            )
+            model = self.model(name=f"HTTPError{code}", model=DefaultHTTPErrorSchema(http_code=code))
         if description is None:
             description = code.description
 
@@ -172,9 +164,7 @@ class Namespace(OriginalNamespace):
 
                 if response is None:
                     if model is not None:  # pragma: no cover
-                        raise ValueError(
-                            f"Response cannot not be None with HTTP status {code}"
-                        )
+                        raise ValueError(f"Response cannot not be None with HTTP status {code}")
                     return flask.Response(status=code)
                 elif isinstance(response, flask.Response) or model is None:
                     return response
@@ -201,9 +191,7 @@ class Namespace(OriginalNamespace):
                 func_or_class._apply_decorator_to_methods(response_serializer_decorator)
                 decorated_func_or_class = func_or_class
             else:
-                decorated_func_or_class = wraps(func_or_class)(
-                    response_serializer_decorator(func_or_class)
-                )
+                decorated_func_or_class = wraps(func_or_class)(response_serializer_decorator(func_or_class))
 
             if model is None:
                 api_model = None
@@ -225,9 +213,7 @@ class Namespace(OriginalNamespace):
         def wrapper(self, *args, **kwargs):
             if "Access-Control-Request-Method" in flask.request.headers:
                 response = flask.Response(status=HTTPStatus.OK)
-                response.headers["Access-Control-Allow-Methods"] = ", ".join(
-                    self.methods
-                )
+                response.headers["Access-Control-Allow-Methods"] = ", ".join(self.methods)
                 return response
             return func(self, *args, **kwargs)
 
@@ -238,9 +224,7 @@ class Namespace(OriginalNamespace):
 
         def wrapper(cls):
             if "OPTIONS" in cls.methods:
-                cls.options = self.preflight_options_handler(
-                    self.response(code=HTTPStatus.NO_CONTENT)(cls.options)
-                )
+                cls.options = self.preflight_options_handler(self.response(code=HTTPStatus.NO_CONTENT)(cls.options))
             return base_wrapper(cls)
 
         return wrapper

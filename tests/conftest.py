@@ -68,17 +68,13 @@ def patch_user_password_scheme():
 
 @pytest.fixture()
 def regular_user(temp_db_instance_helper, patch_user_password_scheme):
-    for item in temp_db_instance_helper(
-        utils.generate_user_instance(username="regular_user")
-    ):
+    for item in temp_db_instance_helper(utils.generate_user_instance(username="regular_user")):
         yield item
 
 
 @pytest.fixture()
 def admin_user(temp_db_instance_helper, patch_user_password_scheme):
-    for item in temp_db_instance_helper(
-        utils.generate_user_instance(username="admin_user", is_admin=True)
-    ):
+    for item in temp_db_instance_helper(utils.generate_user_instance(username="admin_user", is_admin=True)):
         yield item
 
 

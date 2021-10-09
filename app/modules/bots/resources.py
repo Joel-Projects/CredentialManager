@@ -66,9 +66,7 @@ class Bots(Resource):
         args.owner = current_user
         if args.owner_id:
             args.owner = User.query.get(args.owner_id)
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to create a new Bot."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to create a new Bot."):
             db.session.add(args)
         return args
 
@@ -107,9 +105,7 @@ class BotByID(Resource):
         """
         Delete a Bot by ID.
         """
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to delete Bot."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to delete Bot."):
             db.session.delete(bot)
         return None
 
@@ -125,9 +121,7 @@ class BotByID(Resource):
         """
         Patch bot details by ID.
         """
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to update Bot details."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to update Bot details."):
             parameters.PatchBotDetailsParameters.perform_patch(args, bot)
             db.session.merge(bot)
         return bot

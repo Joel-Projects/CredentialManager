@@ -40,9 +40,7 @@ class WriteAccessPermission(Permission):
     """
 
     def rule(self):
-        return (
-            rules.InternalRoleRule() | rules.AdminRoleRule() | rules.WriteAccessRule()
-        )
+        return rules.InternalRoleRule() | rules.AdminRoleRule() | rules.WriteAccessRule()
 
 
 class RolePermission(Permission):
@@ -91,9 +89,7 @@ class AdminRolePermission(PasswordRequiredPermissionMixin, RolePermission):
         super(AdminRolePermission, self).__init__(**kwargs)
 
     def rule(self):
-        return rules.InternalRoleRule() | (
-            rules.AdminRoleRule(obj=self._obj) & super(AdminRolePermission, self).rule()
-        )
+        return rules.InternalRoleRule() | (rules.AdminRoleRule(obj=self._obj) & super(AdminRolePermission, self).rule())
 
 
 class InternalRolePermission(RolePermission):

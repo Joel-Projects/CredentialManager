@@ -13,14 +13,10 @@ reddit_apps_to_delete = [
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
 def test_deleting_user(flask_app_client, login_as, regular_user_reddit_app):
-    response = flask_app_client.delete(
-        f"/api/v1/reddit_apps/{regular_user_reddit_app.id}"
-    )
+    response = flask_app_client.delete(f"/api/v1/reddit_apps/{regular_user_reddit_app.id}")
 
     if login_as.is_admin or login_as.is_internal:
-        assert_success(
-            response, None, RedditApp, None, delete_item_id=regular_user_reddit_app.id
-        )
+        assert_success(response, None, RedditApp, None, delete_item_id=regular_user_reddit_app.id)
     else:
         assert403(
             response,
@@ -32,9 +28,5 @@ def test_deleting_user(flask_app_client, login_as, regular_user_reddit_app):
 
 
 def test_deleting_self(flask_app_client, admin_user_instance, regular_user_reddit_app):
-    response = flask_app_client.delete(
-        f"/api/v1/reddit_apps/{regular_user_reddit_app.id}"
-    )
-    assert_success(
-        response, None, RedditApp, None, delete_item_id=regular_user_reddit_app.id
-    )
+    response = flask_app_client.delete(f"/api/v1/reddit_apps/{regular_user_reddit_app.id}")
+    assert_success(response, None, RedditApp, None, delete_item_id=regular_user_reddit_app.id)

@@ -88,9 +88,7 @@ class DatabaseCredentialForm(ModelForm):
     )
 
     use_ssh = HiddenFieldWithToggle("Use SSH?", default=False, render_kw={"value": ""})
-    use_ssh_key = HiddenFieldWithToggle(
-        "Use SSH key?", default=False, render_kw={"value": ""}
-    )
+    use_ssh_key = HiddenFieldWithToggle("Use SSH key?", default=False, render_kw={"value": ""})
 
     owner = ModelSelectField(
         query_factory=owners,

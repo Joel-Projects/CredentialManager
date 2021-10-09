@@ -13,9 +13,7 @@ database_credentials_to_delete = [
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
 def test_deleting_user(flask_app_client, login_as, regular_user_database_credential):
-    response = flask_app_client.delete(
-        f"/api/v1/database_credentials/{regular_user_database_credential.id}"
-    )
+    response = flask_app_client.delete(f"/api/v1/database_credentials/{regular_user_database_credential.id}")
 
     if login_as.is_admin or login_as.is_internal:
         assert_success(
@@ -35,12 +33,8 @@ def test_deleting_user(flask_app_client, login_as, regular_user_database_credent
         )
 
 
-def test_deleting_self(
-    flask_app_client, admin_user_instance, regular_user_database_credential
-):
-    response = flask_app_client.delete(
-        f"/api/v1/database_credentials/{regular_user_database_credential.id}"
-    )
+def test_deleting_self(flask_app_client, admin_user_instance, regular_user_database_credential):
+    response = flask_app_client.delete(f"/api/v1/database_credentials/{regular_user_database_credential.id}")
     assert_success(
         response,
         None,

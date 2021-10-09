@@ -46,16 +46,12 @@ def api_tokens(page, per_page, order_by, sort_columns, sort_directions):
             data = {key: value for key, value in form.data.items() if value is not None}
             data["token"] = ApiToken.generate_token(data["length"])
             api_token = ApiToken(**data)
-            with api.commit_or_abort(
-                db.session, default_error_message="Failed to create API Token."
-            ):
+            with api.commit_or_abort(db.session, default_error_message="Failed to create API Token."):
                 db.session.add(api_token)
         else:
             return jsonify(status="error", errors=form.errors), code
     paginator = get_paginator(ApiToken, page, per_page, order_by, sort_columns)
-    table = ApiTokenTable(
-        paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
-    )
+    table = ApiTokenTable(paginator.items, sort_columns=sort_columns, sort_directions=sort_directions)
     return (
         render_template(
             "api_tokens.html",
@@ -69,9 +65,7 @@ def api_tokens(page, per_page, order_by, sort_columns, sort_directions):
     )
 
 
-@api_tokens_blueprint.route(
-    "/api_tokens/<ApiToken:api_token>/", methods=["GET", "POST"]
-)
+@api_tokens_blueprint.route("/api_tokens/<ApiToken:api_token>/", methods=["GET", "POST"])
 @login_required
 @verify_editable("api_token")
 def edit_api_token(api_token):
@@ -81,10 +75,7 @@ def edit_api_token(api_token):
         if form.validate_on_submit():
             items_to_update = []
             for item in PatchApiTokenDetailsParameters.fields:
-                if (
-                    getattr(form, item, None) is not None
-                    and getattr(api_token, item) != getattr(form, item).data
-                ):
+                if getattr(form, item, None) is not None and getattr(api_token, item) != getattr(form, item).data:
                     items_to_update.append(
                         {
                             "op": "replace",
@@ -100,9 +91,7 @@ def edit_api_token(api_token):
                         db.session,
                         default_error_message="Failed to update API Token details.",
                     ):
-                        PatchApiTokenDetailsParameters.perform_patch(
-                            items_to_update, api_token
-                        )
+                        PatchApiTokenDetailsParameters.perform_patch(items_to_update, api_token)
                         db.session.merge(api_token)
                         code = 202
                         flash(

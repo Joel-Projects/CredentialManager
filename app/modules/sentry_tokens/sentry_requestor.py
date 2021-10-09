@@ -22,19 +22,14 @@ class SentryResponse(object):
                 if regex.match(value):
                     self.__setattr__(
                         key,
-                        datetime.fromisoformat(value.strip("Z"))
-                        .replace(tzinfo=timezone.utc)
-                        .astimezone(),
+                        datetime.fromisoformat(value.strip("Z")).replace(tzinfo=timezone.utc).astimezone(),
                     )
                 else:
                     self.__setattr__(key, value)
             elif isinstance(value, list):
                 self.__setattr__(
                     key,
-                    [
-                        SentryResponse(i, key) if isinstance(i, dict) else i
-                        for i in value
-                    ],
+                    [SentryResponse(i, key) if isinstance(i, dict) else i for i in value],
                 )
 
     def __repr__(self):
@@ -58,12 +53,8 @@ class SentryRequestor(object):
         self.session = requests.Session()
         self.session.auth = SentryAuthHeader(self.token)
 
-    def _request(
-        self, method, url, item_name=None, params=None, data=None, json=None, raw=False
-    ):
-        response = self.session.request(
-            method, f"{self.endpoint}{url}", params=params, data=data, json=json
-        )
+    def _request(self, method, url, item_name=None, params=None, data=None, json=None, raw=False):
+        response = self.session.request(method, f"{self.endpoint}{url}", params=params, data=data, json=json)
         response_data = response.json()
         if "error" in response_data:
             raise SentryRequestorError(response_data["error"])
@@ -78,14 +69,10 @@ class SentryRequestor(object):
         return self._request("GET", url, params=params, item_name=item_name, raw=raw)
 
     def post(self, url, item_name=None, data=None, json=None, raw=False, **kwargs):
-        return self._request(
-            "POST", url, data=data, json=json, item_name=item_name, raw=raw, **kwargs
-        )
+        return self._request("POST", url, data=data, json=json, item_name=item_name, raw=raw, **kwargs)
 
     def put(self, url, item_name=None, data=None, json=None, raw=False, **kwargs):
-        return self._request(
-            "PUT", url, data=data, json=json, item_name=item_name, raw=raw, **kwargs
-        )
+        return self._request("PUT", url, data=data, json=json, item_name=item_name, raw=raw, **kwargs)
 
     def delete(self, url, params=None, raw=False):
         return self._request("DELETE", url, params=params, raw=raw)

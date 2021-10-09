@@ -40,8 +40,6 @@ class Api(OriginalApi):
 def handle_validation_error(err):  # pragma: no cover
     exc = err.data["exc"]
     return (
-        jsonify(
-            {"status": HTTPStatus.UNPROCESSABLE_ENTITY.value, "message": exc.messages}
-        ),
+        jsonify({"status": HTTPStatus.UNPROCESSABLE_ENTITY.value, "message": exc.messages}),
         HTTPStatus.UNPROCESSABLE_ENTITY.value,
     )

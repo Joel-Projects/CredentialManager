@@ -52,20 +52,14 @@ class Namespace(BaseNamespace):
             return self.resolve_object(
                 object_arg_name,
                 resolver=lambda kwargs: model.query.get_or_404(
-                    [
-                        kwargs.pop(identity_arg_name)
-                        for identity_arg_name in identity_arg_names
-                    ]
+                    [kwargs.pop(identity_arg_name) for identity_arg_name in identity_arg_names]
                 ),
             )
         else:
             return self.resolve_object_args(
                 object_arg_name,
                 resolver=lambda kwargs: model.query.filter_by(
-                    **{
-                        identity_arg_name: kwargs.pop(identity_arg_name)
-                        for identity_arg_name in identity_arg_names
-                    }
+                    **{identity_arg_name: kwargs.pop(identity_arg_name) for identity_arg_name in identity_arg_names}
                 ).first_or_404(),
             )
 
@@ -86,9 +80,7 @@ class Namespace(BaseNamespace):
         #     return
         return super(Namespace, self).model(name=name, model=model, **kwargs)
 
-    def login_required(
-        self, locations=("headers",), allowed_auth_methods=["api_token", "basic"]
-    ):
+    def login_required(self, locations=("headers",), allowed_auth_methods=["api_token", "basic"]):
         def decorator(func_or_class):
 
             if isinstance(func_or_class, type):
@@ -101,9 +93,7 @@ class Namespace(BaseNamespace):
             if getattr(func, "_role_permission_applied", False):
                 protected_func = func
             else:
-                protected_func = self.permission_required(
-                    permissions.ActiveUserRolePermission()
-                )(func)
+                protected_func = self.permission_required(permissions.ActiveUserRolePermission())(func)
 
             return self.doc(security=allowed_auth_methods)(
                 self.response(
@@ -218,22 +208,15 @@ class Namespace(BaseNamespace):
                         return wrapper
 
                 protected_func = _permission_decorator(func)
-                self._register_access_restriction_decorator(
-                    protected_func, _permission_decorator
-                )
+                self._register_access_restriction_decorator(protected_func, _permission_decorator)
             if isinstance(permission, permissions.RolePermission) or (
-                isinstance(permission, type)
-                and issubclass(permission, permissions.RolePermission)
+                isinstance(permission, type) and issubclass(permission, permissions.RolePermission)
             ):
                 protected_func._role_permission_applied = True
 
             permission_description = permission.__doc__.strip()
-            return self.doc(
-                description=f"**PERMISSIONS: {permission_description}**\n\n"
-            )(
-                self.response(
-                    code=HTTPStatus.FORBIDDEN.value, description=permission_description
-                )(protected_func)
+            return self.doc(description=f"**PERMISSIONS: {permission_description}**\n\n")(
+                self.response(code=HTTPStatus.FORBIDDEN.value, description=permission_description)(protected_func)
             )
 
         return decorator
@@ -262,12 +245,8 @@ class Namespace(BaseNamespace):
 
             parameters = PaginationParameters()
 
-        if not all(
-            mandatory in parameters.declared_fields for mandatory in ("limit", "offset")
-        ):  # pragma: no cover
-            raise AttributeError(
-                "`limit` and `offset` fields must be in Parameter passed to `paginate()`"
-            )
+        if not all(mandatory in parameters.declared_fields for mandatory in ("limit", "offset")):  # pragma: no cover
+            raise AttributeError("`limit` and `offset` fields must be in Parameter passed to `paginate()`")
 
         def decorator(func):
             @wraps(func)
@@ -275,9 +254,7 @@ class Namespace(BaseNamespace):
                 queryset = func(self_, parameters_args, *args, **kwargs)
                 total_count = queryset.count()
                 return (
-                    queryset.offset(parameters_args["offset"]).limit(
-                        parameters_args["limit"]
-                    ),
+                    queryset.offset(parameters_args["offset"]).limit(parameters_args["limit"]),
                     HTTPStatus.OK,
                     {"X-Total-Count": total_count},
                 )
@@ -299,9 +276,7 @@ class Namespace(BaseNamespace):
                 yield
         except ValueError as exception:  # pragma: no cover
             log.info(f"Database transaction was rolled back due to: {exception!r}")
-            http_exceptions.abort(
-                code=HTTPStatus.CONFLICT, message=str(exception), **kwargs
-            )
+            http_exceptions.abort(code=HTTPStatus.CONFLICT, message=str(exception), **kwargs)
         except sqlalchemy.exc.IntegrityError as exception:
             log.info(f"Database transaction was rolled back due to: {exception!r}")
             keys, values = tuple(
@@ -312,6 +287,4 @@ class Namespace(BaseNamespace):
             )
             kwargs["error"] = "already exists"
             kwargs["items"] = {key: value for key, value in zip(keys, values)}
-            http_exceptions.abort(
-                code=HTTPStatus.CONFLICT, message=default_error_message, **kwargs
-            )
+            http_exceptions.abort(code=HTTPStatus.CONFLICT, message=default_error_message, **kwargs)

@@ -13,7 +13,5 @@ def init_app(app, **kwargs):
     from . import converters, models, resources, views
 
     api_v1.add_namespace(resources.api)
-    app.url_map.converters[
-        "DatabaseCredential"
-    ] = converters.DatabaseCredentialConverter
+    app.url_map.converters["DatabaseCredential"] = converters.DatabaseCredentialConverter
     app.register_blueprint(views.DatabaseCredentialsBlueprint)

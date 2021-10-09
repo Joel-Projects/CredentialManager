@@ -31,18 +31,12 @@ def test_creating_reddit_app_for_self(flask_app_client, regular_user_instance):
     assert_success(response, regular_user_instance, RedditApp, DetailedRedditAppSchema)
 
 
-def test_creating_reddit_app_for_self_with_owner(
-    flask_app_client, regular_user_instance
-):
-    response = flask_app_client.post(
-        path, data={"owner_id": regular_user_instance.id, **data}
-    )
+def test_creating_reddit_app_for_self_with_owner(flask_app_client, regular_user_instance):
+    response = flask_app_client.post(path, data={"owner_id": regular_user_instance.id, **data})
     assert_success(response, regular_user_instance, RedditApp, DetailedRedditAppSchema)
 
 
-def test_creating_reddit_app_auth_url(
-    db, flask_app_client, regular_user_instance, regular_user_reddit_app
-):
+def test_creating_reddit_app_auth_url(db, flask_app_client, regular_user_instance, regular_user_reddit_app):
     regular_user_reddit_app.owner = regular_user_instance
     scopes = ["identity", "read", "privatemessages"]
     response = flask_app_client.post(
@@ -114,9 +108,7 @@ def test_creating_reddit_app_with_bad_app_type(flask_app_client, login_as):
         message_attrs=[
             (
                 "app_type",
-                [
-                    "App type is not valid. Valid types are: 'web', 'installed'. or 'script'"
-                ],
+                ["App type is not valid. Valid types are: 'web', 'installed'. or 'script'"],
             )
         ],
     )

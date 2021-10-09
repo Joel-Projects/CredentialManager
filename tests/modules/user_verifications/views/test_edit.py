@@ -24,12 +24,8 @@ user_verification_labels = [
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
-@pytest.mark.parametrize(
-    "user_verification", user_verifications, ids=user_verification_labels
-)
-def test_user_verification_detail_edit_for_other_user(
-    flask_app_client, login_as, user_verification, reddit_app
-):
+@pytest.mark.parametrize("user_verification", user_verifications, ids=user_verification_labels)
+def test_user_verification_detail_edit_for_other_user(flask_app_client, login_as, user_verification, reddit_app):
     reddit_app.owner = login_as
     data = {
         "item_type": "user_verifications",
@@ -53,16 +49,12 @@ def test_user_verification_detail_edit_for_other_user(
                 "User Verification for User ID 123456789012345679 saved successfully!",
                 "success",
             )
-            modified_user_verification = UserVerification.query.filter_by(
-                id=user_verification.id
-            ).first()
+            modified_user_verification = UserVerification.query.filter_by(id=user_verification.id).first()
             assert_modified(data, modified_user_verification)
         elif login_as.is_admin:
             if reddit_app.owner.is_internal or user_verification.owner.is_internal:
                 assert403(response, templates)
-                modified_user_verification = UserVerification.query.filter_by(
-                    id=user_verification.id
-                ).first()
+                modified_user_verification = UserVerification.query.filter_by(id=user_verification.id).first()
                 assert modified_user_verification == user_verification
             else:
                 assert202(response)
@@ -72,22 +64,16 @@ def test_user_verification_detail_edit_for_other_user(
                     "User Verification for User ID 123456789012345679 saved successfully!",
                     "success",
                 )
-                modified_user_verification = UserVerification.query.filter_by(
-                    id=user_verification.id
-                ).first()
+                modified_user_verification = UserVerification.query.filter_by(id=user_verification.id).first()
                 assert_modified(data, modified_user_verification)
         else:
             assert403(response, templates)
-            modified_user_verification = UserVerification.query.filter_by(
-                id=user_verification.id
-            ).first()
+            modified_user_verification = UserVerification.query.filter_by(id=user_verification.id).first()
             assert modified_user_verification == user_verification
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
-def test_user_verification_detail_edit(
-    flask_app_client, login_as, regular_user_user_verification, reddit_app
-):
+def test_user_verification_detail_edit(flask_app_client, login_as, regular_user_user_verification, reddit_app):
     reddit_app.owner = login_as
     data = {
         "item_type": "user_verifications",
@@ -111,23 +97,17 @@ def test_user_verification_detail_edit(
                 "User Verification for User ID 123456789012345679 saved successfully!",
                 "success",
             )
-            modified_user_verification = UserVerification.query.filter_by(
-                id=regular_user_user_verification.id
-            ).first()
+            modified_user_verification = UserVerification.query.filter_by(id=regular_user_user_verification.id).first()
             assert_modified(data, modified_user_verification)
 
         else:
             assert403(response, templates)
-            modified_user_verification = UserVerification.query.filter_by(
-                id=regular_user_user_verification.id
-            ).first()
+            modified_user_verification = UserVerification.query.filter_by(id=regular_user_user_verification.id).first()
             assert modified_user_verification == regular_user_user_verification
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
-def test_user_verification_detail_edit_self(
-    flask_app_client, db, login_as, regular_user_user_verification, reddit_app
-):
+def test_user_verification_detail_edit_self(flask_app_client, db, login_as, regular_user_user_verification, reddit_app):
     reddit_app.owner = login_as
     data = {
         "item_type": "user_verifications",
@@ -137,13 +117,9 @@ def test_user_verification_detail_edit_self(
         "user_id": "123456789012345679",
         "redditor": "redditor",
     }
-    regular_user_user_verification = change_owner(
-        db, login_as, regular_user_user_verification
-    )
+    regular_user_user_verification = change_owner(db, login_as, regular_user_user_verification)
     with captured_templates(flask_app_client.application) as templates:
-        response = flask_app_client.post(
-            f"/user_verifications/{regular_user_user_verification.id}", data=data
-        )
+        response = flask_app_client.post(f"/user_verifications/{regular_user_user_verification.id}", data=data)
         assert202(response)
         assert_rendered_template(templates, "edit_user_verification.html")
         assert_message_flashed(
@@ -151,9 +127,7 @@ def test_user_verification_detail_edit_self(
             "User Verification for User ID 123456789012345679 saved successfully!",
             "success",
         )
-        modified_user_verification = UserVerification.query.filter_by(
-            id=regular_user_user_verification.id
-        ).first()
+        modified_user_verification = UserVerification.query.filter_by(id=regular_user_user_verification.id).first()
         assert_modified(data, modified_user_verification)
 
 
@@ -167,9 +141,7 @@ def test_user_verification_detail_conflicting_user_id(
     original = change_owner(db, regular_user_instance, admin_user_user_verification)
     original.user_id = "123456789012345679"
     db.session.merge(original)
-    to_be_modified = change_owner(
-        db, regular_user_instance, regular_user_user_verification
-    )
+    to_be_modified = change_owner(db, regular_user_instance, regular_user_user_verification)
     db.session.merge(to_be_modified)
     data = {
         "item_type": "user_verifications",
@@ -179,17 +151,10 @@ def test_user_verification_detail_conflicting_user_id(
         "redditor": "redditor",
     }
     with captured_templates(flask_app_client.application) as templates:
-        response = flask_app_client.post(
-            f"/user_verifications/{to_be_modified.id}", json=data
-        )
+        response = flask_app_client.post(f"/user_verifications/{to_be_modified.id}", json=data)
         assert response.status_code == 422
         assert response.mimetype == "text/html"
         assert_rendered_template(templates, "edit_user_verification.html")
-        assert (
-            templates["templates"][0][1]["form"].errors["user_id"][0]
-            == "Already exists."
-        )
-        modified_user_verification = UserVerification.query.filter_by(
-            id=to_be_modified.id
-        ).first()
+        assert templates["templates"][0][1]["form"].errors["user_id"][0] == "Already exists."
+        modified_user_verification = UserVerification.query.filter_by(id=to_be_modified.id).first()
         assert modified_user_verification.user_id == to_be_modified.user_id

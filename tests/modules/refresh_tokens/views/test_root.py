@@ -32,8 +32,6 @@ def test_root_user_page(flask_app_client, login_as, regular_user):
 @pytest.mark.parametrize("login_as", users, ids=labels)
 def test_root_show_all(flask_app_client, login_as, regular_user):
     with captured_templates(flask_app_client.application) as templates:
-        response = flask_app_client.get(
-            f"/u/{regular_user}/refresh_tokens?show_old=true"
-        )
+        response = flask_app_client.get(f"/u/{regular_user}/refresh_tokens?show_old=true")
         assert200(response)
         assert_rendered_template(templates, "refresh_tokens.html")

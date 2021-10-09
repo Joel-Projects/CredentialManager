@@ -1,12 +1,6 @@
 from flask_login import current_user
 
-from app.extensions.frontend.tables import (
-    BaseCol,
-    BaseTable,
-    BoolIconColumn,
-    DatetimeColumn,
-    OwnerCol,
-)
+from app.extensions.frontend.tables import BaseCol, BaseTable, BoolIconColumn, DatetimeColumn, OwnerCol
 
 
 class SentryTokenTable(BaseTable):

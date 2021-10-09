@@ -1,13 +1,6 @@
 from flask_login import current_user
 
-from app.extensions.frontend.tables import (
-    AppNameCol,
-    BaseCol,
-    BaseTable,
-    BoolIconColumn,
-    DatetimeColumn,
-    OwnerCol,
-)
+from app.extensions.frontend.tables import AppNameCol, BaseCol, BaseTable, BoolIconColumn, DatetimeColumn, OwnerCol
 
 
 class BotTable(BaseTable):
@@ -21,18 +14,14 @@ class BotTable(BaseTable):
             "Name",
             BaseCol("Name", "app_name", td_html_attrs={"style": "text-align:left"}),
         )
-        self.add_column(
-            "Reddit App", AppNameCol("Reddit App", attr_list=["reddit_app", "app_name"])
-        )
+        self.add_column("Reddit App", AppNameCol("Reddit App", attr_list=["reddit_app", "app_name"]))
         self.add_column(
             "Sentry Token",
             AppNameCol("Sentry Token", attr_list=["sentry_token", "app_name"]),
         )
         self.add_column(
             "Database Credentials",
-            AppNameCol(
-                "Database Credential", attr_list=["database_credential", "app_name"]
-            ),
+            AppNameCol("Database Credential", attr_list=["database_credential", "app_name"]),
         )
         self.add_column("Created", DatetimeColumn("Created", attr="created"))
         self.add_column("Enabled", BoolIconColumn("Enabled", "enabled"))

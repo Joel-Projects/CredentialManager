@@ -47,12 +47,8 @@ def database_credentials(page, per_page, order_by, sort_columns, sort_directions
             db.session.add(database_credential)
         else:
             return jsonify(status="error", errors=form.errors), code
-    paginator = get_paginator(
-        DatabaseCredential, page, per_page, order_by, sort_columns
-    )
-    table = DatabaseCredentialTable(
-        paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
-    )
+    paginator = get_paginator(DatabaseCredential, page, per_page, order_by, sort_columns)
+    table = DatabaseCredentialTable(paginator.items, sort_columns=sort_columns, sort_directions=sort_directions)
     form = DatabaseCredentialForm()
     return (
         render_template(
@@ -93,17 +89,13 @@ def edit_database_credential(database_credential):
                     )
             if items_to_update:
                 for item in items_to_update:
-                    PatchDatabaseCredentialDetailsParameters().validate_patch_structure(
-                        item
-                    )
+                    PatchDatabaseCredentialDetailsParameters().validate_patch_structure(item)
                 try:
                     with api.commit_or_abort(
                         db.session,
                         default_error_message="Failed to update Database Credentials details.",
                     ):
-                        PatchDatabaseCredentialDetailsParameters.perform_patch(
-                            items_to_update, database_credential
-                        )
+                        PatchDatabaseCredentialDetailsParameters.perform_patch(items_to_update, database_credential)
                         db.session.merge(database_credential)
                         code = 202
                         flash(

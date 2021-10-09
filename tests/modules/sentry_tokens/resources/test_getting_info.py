@@ -35,20 +35,14 @@ def test_getting_list_of_sentry_tokens_by_authorized_user(
 def test_getting_sentry_token_info_by_unauthorized_user_must_fail(
     flask_app_client, regular_user_instance, regular_user_sentry_token
 ):
-    response = flask_app_client.get(
-        f"/api/v1/sentry_tokens/{regular_user_sentry_token.id}"
-    )
+    response = flask_app_client.get(f"/api/v1/sentry_tokens/{regular_user_sentry_token.id}")
 
     assert403(response)
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
-def test_getting_sentry_token_info(
-    flask_app_client, login_as, regular_user_sentry_token
-):
-    response = flask_app_client.get(
-        f"/api/v1/sentry_tokens/{regular_user_sentry_token.id}"
-    )
+def test_getting_sentry_token_info(flask_app_client, login_as, regular_user_sentry_token):
+    response = flask_app_client.get(f"/api/v1/sentry_tokens/{regular_user_sentry_token.id}")
 
     if login_as.is_admin or login_as.is_internal:
         assert response.status_code == 200

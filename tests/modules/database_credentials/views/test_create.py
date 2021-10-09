@@ -34,9 +34,7 @@ def test_create_database_credential(flask_app_client, login_as):
         )
         assert201(response)
         assert_rendered_template(templates, "database_credentials.html")
-        database_credential = DatabaseCredential.query.filter_by(
-            app_name="database_credential"
-        ).first()
+        database_credential = DatabaseCredential.query.filter_by(app_name="database_credential").first()
         assert_created(database_credential, data)
 
 
@@ -50,17 +48,13 @@ def test_create_database_credential_profile(flask_app_client, login_as):
         )
         assert201(response)
         assert_rendered_template(templates, "database_credentials.html")
-        database_credential = DatabaseCredential.query.filter_by(
-            app_name="database_credential"
-        ).first()
+        database_credential = DatabaseCredential.query.filter_by(app_name="database_credential").first()
         assert database_credential is not None
         assert database_credential.id == 1
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
-def test_create_database_credential_other_user(
-    flask_app_client, login_as, regular_user
-):
+def test_create_database_credential_other_user(flask_app_client, login_as, regular_user):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post(
             "/database_credentials",
@@ -70,17 +64,13 @@ def test_create_database_credential_other_user(
         if login_as.is_admin or login_as.is_internal:
             assert201(response)
             assert_rendered_template(templates, "database_credentials.html")
-            database_credential = DatabaseCredential.query.filter_by(
-                app_name="database_credential"
-            ).first()
+            database_credential = DatabaseCredential.query.filter_by(app_name="database_credential").first()
             assert database_credential is not None
             assert database_credential.id == 1
             assert database_credential.owner == regular_user
         else:
             assert403Create(response)
-            database_credential = DatabaseCredential.query.filter_by(
-                app_name="database_credential"
-            ).first()
+            database_credential = DatabaseCredential.query.filter_by(app_name="database_credential").first()
             assert database_credential is None
 
 
@@ -93,15 +83,11 @@ def test_create_database_credential_bad_params(flask_app_client, regular_user_in
     )
     assert response.status_code == 200
     assert response.mimetype == "application/json"
-    database_credential = DatabaseCredential.query.filter_by(
-        app_name="database_credential"
-    ).first()
+    database_credential = DatabaseCredential.query.filter_by(app_name="database_credential").first()
     assert database_credential is None
 
 
-def test_create_database_credential_bad_params_profile(
-    flask_app_client, regular_user_instance
-):
+def test_create_database_credential_bad_params_profile(flask_app_client, regular_user_instance):
     data["app_name"] = "da"
     response = flask_app_client.post(
         "/profile/database_credentials",
@@ -109,7 +95,5 @@ def test_create_database_credential_bad_params_profile(
         data=data,
     )
     assert422(response)
-    database_credential = DatabaseCredential.query.filter_by(
-        app_name="database_credential"
-    ).first()
+    database_credential = DatabaseCredential.query.filter_by(app_name="database_credential").first()
     assert database_credential is None

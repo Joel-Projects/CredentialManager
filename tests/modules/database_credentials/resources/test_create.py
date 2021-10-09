@@ -30,9 +30,7 @@ def test_creating_database_credential(flask_app_client, login_as, regular_user):
     response = flask_app_client.post(path, data={"owner_id": regular_user.id, **data})
 
     if login_as.is_admin or login_as.is_internal:
-        assert_success(
-            response, regular_user, DatabaseCredential, DetailedDatabaseCredentialSchema
-        )
+        assert_success(response, regular_user, DatabaseCredential, DetailedDatabaseCredentialSchema)
     else:
         assert403(response, DatabaseCredential, action="create")
 
@@ -48,12 +46,8 @@ def test_creating_database_credential_for_self(flask_app_client, regular_user_in
     )
 
 
-def test_creating_database_credential_for_self_with_owner(
-    flask_app_client, regular_user_instance
-):
-    response = flask_app_client.post(
-        path, data={"owner_id": regular_user_instance.id, **data}
-    )
+def test_creating_database_credential_for_self_with_owner(flask_app_client, regular_user_instance):
+    response = flask_app_client.post(path, data={"owner_id": regular_user_instance.id, **data})
 
     assert_success(
         response,

@@ -48,9 +48,7 @@ class DatabaseCredential(db.Model, Timestamp, InfoAttrs, StrName):
             "description": "Port to use to connect to the database. Defaults to '5432'.",
         },
     )
-    database_username = db.Column(
-        db.String, nullable=False, info={"label": "Database Username"}
-    )
+    database_username = db.Column(db.String, nullable=False, info={"label": "Database Username"})
     database_password = db.Column(db.String, info={"label": "Database Password"})
     database = db.Column(
         db.String,
@@ -102,9 +100,7 @@ class DatabaseCredential(db.Model, Timestamp, InfoAttrs, StrName):
             "description": "Check this to use a SSH key to connect to the database server.",
         },
     )
-    private_key = db.Column(
-        db.Text, info={"label": "Private Key", "description": "SSH private key."}
-    )
+    private_key = db.Column(db.Text, info={"label": "Private Key", "description": "SSH private key."})
     private_key_passphrase = db.Column(
         db.String,
         info={
@@ -115,9 +111,7 @@ class DatabaseCredential(db.Model, Timestamp, InfoAttrs, StrName):
     enabled = db.Column(db.Boolean, default=True, info={"label": "Enable?"})
     owner_id = db.Column(
         db.Integer,
-        db.ForeignKey(
-            f"{BaseConfig.SCHEMA_NAME}.users.id", ondelete="CASCADE", onupdate="CASCADE"
-        ),
+        db.ForeignKey(f"{BaseConfig.SCHEMA_NAME}.users.id", ondelete="CASCADE", onupdate="CASCADE"),
         info={"label": "Owner", "description": "Owner of the Database Credential"},
     )
     owner = db.relationship("User", backref=db.backref(__tablename__, lazy="dynamic"))

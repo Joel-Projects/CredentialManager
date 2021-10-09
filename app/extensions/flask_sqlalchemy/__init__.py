@@ -4,8 +4,7 @@ from datetime import datetime
 import sqlalchemy
 from flask_sqlalchemy import SQLAlchemy as BaseSQLAlchemy
 from flask_sqlalchemy import _QueryProperty
-from sqlalchemy import Column, DateTime
-from sqlalchemy import inspect
+from sqlalchemy import Column, DateTime, inspect
 
 
 class SQLAlchemy(BaseSQLAlchemy):
@@ -22,12 +21,8 @@ class SQLAlchemy(BaseSQLAlchemy):
 
 
 class Timestamp(object):
-    created = Column(
-        DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False
-    )
-    updated = Column(
-        DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False
-    )
+    created = Column(DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False)
+    updated = Column(DateTime(True), default=datetime.astimezone(datetime.utcnow()), nullable=False)
 
 
 # noinspection PyUnresolvedReferences

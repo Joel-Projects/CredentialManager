@@ -70,9 +70,7 @@ def test_modifying_user_info_by_owner(flask_app_client, regular_user_instance, d
     assert_success(db, regular_user_instance, response, saved_default_settings)
 
 
-def test_modifying_user_info_by_admin(
-    flask_app_client, admin_user_instance, regular_user, db
-):
+def test_modifying_user_info_by_admin(flask_app_client, admin_user_instance, regular_user, db):
     saved_default_settings = regular_user.default_settings
     response = flask_app_client.patch(
         f"/api/v1/users/{regular_user.id}",
@@ -83,9 +81,7 @@ def test_modifying_user_info_by_admin(
     assert_success(db, regular_user, response, saved_default_settings)
 
 
-def test_modifying_user_info_admin_fields_by_not_admin(
-    flask_app_client, regular_user_instance, db
-):
+def test_modifying_user_info_admin_fields_by_not_admin(flask_app_client, regular_user_instance, db):
     data = [
         {
             "op": "replace",
@@ -103,9 +99,7 @@ def test_modifying_user_info_admin_fields_by_not_admin(
     assert_correct_structure(response)
 
 
-def test_modifying_user_info_admin_fields_by_not_admin(
-    flask_app_client, regular_user_instance, db
-):
+def test_modifying_user_info_admin_fields_by_not_admin(flask_app_client, regular_user_instance, db):
     response = flask_app_client.patch(
         f"/api/v1/users/{regular_user_instance.id}",
         content_type="application/json",
@@ -116,9 +110,7 @@ def test_modifying_user_info_admin_fields_by_not_admin(
     assert_correct_structure(response)
 
 
-def test_modifying_user_info_with_invalid_format_must_fail(
-    flask_app_client, regular_user_instance
-):
+def test_modifying_user_info_with_invalid_format_must_fail(flask_app_client, regular_user_instance):
     response = flask_app_client.patch(
         f"/api/v1/users/{regular_user_instance.id}",
         content_type="application/json",
@@ -141,15 +133,11 @@ def test_modifying_user_info_with_invalid_format_must_fail(
     assert_correct_structure(response)
 
 
-def test_modifying_user_info_with_conflict_data_must_fail(
-    flask_app_client, admin_user, regular_user_instance
-):
+def test_modifying_user_info_with_conflict_data_must_fail(flask_app_client, admin_user, regular_user_instance):
     response = flask_app_client.patch(
         f"/api/v1/users/{regular_user_instance.id}",
         content_type="application/json",
-        data=json.dumps(
-            [{"op": "replace", "path": "/username", "value": admin_user.username}]
-        ),
+        data=json.dumps([{"op": "replace", "path": "/username", "value": admin_user.username}]),
     )
 
     assert response.status_code == 409

@@ -31,9 +31,7 @@ class DefaultHTTPErrorSchema(Schema):
 class Model(OriginalModel):
     def __init__(self, name, model, **kwargs):
         # XXX: Wrapping with __schema__ is not a very elegant solution.
-        if not hasattr(model, "__schema__") and not (
-            isinstance(model, list) and "__schema__" in model[0]
-        ):
+        if not hasattr(model, "__schema__") and not (isinstance(model, list) and "__schema__" in model[0]):
             model = {"__schema__": model}
         super(Model, self).__init__(name, model, **kwargs)
 
@@ -42,8 +40,6 @@ class Model(OriginalModel):
         schema = self["__schema__"]
         if isinstance(schema, flask_marshmallow.Schema):
             return fields2jsonschema(schema.fields)
-        elif isinstance(
-            schema, flask_marshmallow.base_fields.FieldABC
-        ):  # pragma: no cover
+        elif isinstance(schema, flask_marshmallow.base_fields.FieldABC):  # pragma: no cover
             return field2property(schema)  # pragma: no cover
         raise NotImplementedError()  # pragma: no cover

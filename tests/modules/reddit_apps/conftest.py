@@ -16,25 +16,19 @@ test_data = {
 
 @pytest.fixture()
 def regular_user_reddit_app(temp_db_instance_helper, regular_user):
-    for _ in temp_db_instance_helper(
-        RedditApp(app_name="regular_user_reddit_app", owner=regular_user, **test_data)
-    ):
+    for _ in temp_db_instance_helper(RedditApp(app_name="regular_user_reddit_app", owner=regular_user, **test_data)):
         yield _
 
 
 @pytest.fixture()
 def admin_user_reddit_app(temp_db_instance_helper, admin_user):
-    for _ in temp_db_instance_helper(
-        RedditApp(app_name="admin_user_reddit_app", owner=admin_user, **test_data)
-    ):
+    for _ in temp_db_instance_helper(RedditApp(app_name="admin_user_reddit_app", owner=admin_user, **test_data)):
         yield _
 
 
 @pytest.fixture()
 def internal_user_reddit_app(temp_db_instance_helper, internal_user):
-    for _ in temp_db_instance_helper(
-        RedditApp(app_name="internal_user_reddit_app", owner=internal_user, **test_data)
-    ):
+    for _ in temp_db_instance_helper(RedditApp(app_name="internal_user_reddit_app", owner=internal_user, **test_data)):
         yield _
 
 
@@ -75,21 +69,15 @@ refresh_token_data = {
 
 
 @pytest.fixture()
-def regular_user_refresh_token(
-    regular_user_reddit_app, temp_db_instance_helper, regular_user
-):
+def regular_user_refresh_token(regular_user_reddit_app, temp_db_instance_helper, regular_user):
     for _ in temp_db_instance_helper(
-        RefreshToken(
-            reddit_app=regular_user_reddit_app, owner=regular_user, **refresh_token_data
-        )
+        RefreshToken(reddit_app=regular_user_reddit_app, owner=regular_user, **refresh_token_data)
     ):
         yield _
 
 
 @pytest.fixture()
-def regular_user_user_verification(
-    temp_db_instance_helper, regular_user, regular_user_reddit_app
-):
+def regular_user_user_verification(temp_db_instance_helper, regular_user, regular_user_reddit_app):
     for _ in temp_db_instance_helper(
         UserVerification(
             reddit_app=regular_user_reddit_app,

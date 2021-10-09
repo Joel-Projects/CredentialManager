@@ -1,11 +1,7 @@
 import pytest
 
 from app.modules.users.models import User
-from tests.utils import (
-    assert_message_flashed,
-    assert_rendered_template,
-    captured_templates,
-)
+from tests.utils import assert_message_flashed, assert_rendered_template, captured_templates
 
 users = [
     pytest.lazy_fixture("admin_user_deactivated"),
@@ -17,14 +13,10 @@ labels = ["as_admin_user", "as_internal_user", "as_regular_user"]
 
 def test_login_bad_credentials(flask_app_client, regular_user):
     with captured_templates(flask_app_client.application) as templates:
-        response = flask_app_client.post(
-            "/login", data={"username": "username", "password": "password"}
-        )
+        response = flask_app_client.post("/login", data={"username": "username", "password": "password"})
         assert response.status_code == 403
         assert_rendered_template(templates, "login.html")
-        assert_message_flashed(
-            templates, "Please check your login details and try again.", "error"
-        )
+        assert_message_flashed(templates, "Please check your login details and try again.", "error")
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)

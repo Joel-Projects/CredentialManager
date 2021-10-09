@@ -22,9 +22,7 @@ def test_getting_list_of_bots_by_anonymous_user(flask_app_client):
     assert_content(response)
 
 
-def test_getting_list_of_bots_by_authorized_user(
-    flask_app_client, regular_user, regular_user_bot, admin_user_bot
-):
+def test_getting_list_of_bots_by_authorized_user(flask_app_client, regular_user, regular_user_bot, admin_user_bot):
     with flask_app_client.login(regular_user):
         response = flask_app_client.get("/api/v1/bots/")
 
@@ -36,9 +34,7 @@ def test_getting_list_of_bots_by_authorized_user(
     assert response.json[0]["app_name"] == regular_user_bot.app_name
 
 
-def test_getting_bot_info_by_unauthorized_user_must_fail(
-    flask_app_client, regular_user_instance, regular_user_bot
-):
+def test_getting_bot_info_by_unauthorized_user_must_fail(flask_app_client, regular_user_instance, regular_user_bot):
     response = flask_app_client.get(f"/api/v1/bots/{regular_user_bot.id}")
 
     assert403(response)
@@ -82,9 +78,7 @@ def test_getting_bot_info_disabled_apps(flask_app_client, login_as, regular_user
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
 def test_getting_bot_info_by_name(flask_app_client, login_as, regular_user_bot):
-    response = flask_app_client.post(
-        f"/api/v1/bots/by_name", data={"app_name": regular_user_bot.app_name}
-    )
+    response = flask_app_client.post(f"/api/v1/bots/by_name", data={"app_name": regular_user_bot.app_name})
 
     if login_as.is_admin or login_as.is_internal:
         assert response.status_code == 200

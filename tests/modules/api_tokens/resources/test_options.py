@@ -37,15 +37,8 @@ def test_api_tokens_options_authorized(
     assert set(response.headers["Allow"].split(", ")) == expected_allowed_methods
 
 
-@pytest.mark.parametrize(
-    "path,expected_allowed_methods", (("/api/v1/api_tokens/", {"GET", "OPTIONS"}),)
-)
+@pytest.mark.parametrize("path,expected_allowed_methods", (("/api/v1/api_tokens/", {"GET", "OPTIONS"}),))
 def test_preflight_options_request(path, expected_allowed_methods, flask_app_client):
-    response = flask_app_client.open(
-        method="OPTIONS", path=path, headers={"Access-Control-Request-Method": "post"}
-    )
+    response = flask_app_client.open(method="OPTIONS", path=path, headers={"Access-Control-Request-Method": "post"})
     assert response.status_code == 200
-    assert (
-        set(response.headers["Access-Control-Allow-Methods"].split(", "))
-        == expected_allowed_methods
-    )
+    assert set(response.headers["Access-Control-Allow-Methods"].split(", ")) == expected_allowed_methods

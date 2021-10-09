@@ -58,9 +58,7 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
 
     __table_args__ = {"schema": BaseConfig.SCHEMA_NAME}
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(
-        db.String(length=80), unique=True, nullable=False, info={"label": "Username"}
-    )
+    username = db.Column(db.String(length=80), unique=True, nullable=False, info={"label": "Username"})
     password = db.Column(
         column_types.PasswordType(max_length=128, schemes=("bcrypt",)),
         nullable=False,
@@ -166,5 +164,6 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
             abort(401, "API Token invalid or disabled")
         user = cls.query.filter_by(id=api_token.owner_id).first()
         if user:
-            api_token.last_used = datetime.now()
+            with db.session.begin():
+                api_token.last_used = datetime.now()
             return user

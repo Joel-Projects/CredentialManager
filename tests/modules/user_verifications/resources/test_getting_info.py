@@ -41,20 +41,14 @@ def test_getting_list_of_user_verifications_by_authorized_user(
 def test_getting_user_verification_info_by_unauthorized_user_must_fail(
     flask_app_client, regular_user_instance, regular_user_user_verification
 ):
-    response = flask_app_client.get(
-        f"/api/v1/user_verifications/{regular_user_user_verification.id}"
-    )
+    response = flask_app_client.get(f"/api/v1/user_verifications/{regular_user_user_verification.id}")
 
     assert403(response)
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
-def test_getting_user_verification_info(
-    flask_app_client, login_as, regular_user_user_verification
-):
-    response = flask_app_client.get(
-        f"/api/v1/user_verifications/{regular_user_user_verification.id}"
-    )
+def test_getting_user_verification_info(flask_app_client, login_as, regular_user_user_verification):
+    response = flask_app_client.get(f"/api/v1/user_verifications/{regular_user_user_verification.id}")
 
     if login_as.is_admin or login_as.is_internal:
         assert response.status_code == 200
@@ -66,9 +60,7 @@ def test_getting_user_verification_info(
         assert403(response)
 
 
-def test_getting_redditor_from_user_id(
-    flask_app_client, regular_user_instance, admin_user_user_verification
-):
+def test_getting_redditor_from_user_id(flask_app_client, regular_user_instance, admin_user_user_verification):
     response = flask_app_client.post(
         "/api/v1/user_verifications/get_redditor",
         data={"user_id": "123456789012345679"},
@@ -80,9 +72,7 @@ def test_getting_redditor_from_user_id(
     assert response.json["redditor"] == admin_user_user_verification.redditor
 
 
-def test_getting_redditor_from_user_id_disabled(
-    flask_app_client, regular_user_instance, admin_user_user_verification
-):
+def test_getting_redditor_from_user_id_disabled(flask_app_client, regular_user_instance, admin_user_user_verification):
     admin_user_user_verification.enabled = False
     response = flask_app_client.post(
         "/api/v1/user_verifications/get_redditor",
@@ -119,9 +109,7 @@ def test_getting_redditor_from_non_existant_redditor_with_bad_reddit_app(
     assert response.status_code == 404
 
 
-def test_getting_redditor_from_non_existant_user_id(
-    flask_app_client, regular_user_instance
-):
+def test_getting_redditor_from_non_existant_user_id(flask_app_client, regular_user_instance):
     response = flask_app_client.post(
         "/api/v1/user_verifications/get_redditor",
         data={"user_id": "123456789012345678"},

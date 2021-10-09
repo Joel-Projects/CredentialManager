@@ -17,9 +17,7 @@ data = {
 @pytest.mark.parametrize("login_as", users, ids=labels)
 def test_create_reddit_app(flask_app_client, login_as):
     with captured_templates(flask_app_client.application) as templates:
-        response = flask_app_client.post(
-            "/reddit_apps", content_type="application/x-www-form-urlencoded", data=data
-        )
+        response = flask_app_client.post("/reddit_apps", content_type="application/x-www-form-urlencoded", data=data)
         assert201(response)
         assert_rendered_template(templates, "reddit_apps.html")
         reddit_app = RedditApp.query.filter_by(app_name="reddit_app").first()
@@ -63,9 +61,7 @@ def test_create_reddit_app_other_user(flask_app_client, login_as, regular_user):
 def test_create_reddit_app_bad_params(flask_app_client, regular_user_instance):
     with captured_templates(flask_app_client.application) as templates:
         data = {"dsn": "invalid_url", "app_name": "reddit_app"}
-        response = flask_app_client.post(
-            "/reddit_apps", content_type="application/x-www-form-urlencoded", data=data
-        )
+        response = flask_app_client.post("/reddit_apps", content_type="application/x-www-form-urlencoded", data=data)
         assert response.status_code == 200
         assert response.mimetype == "application/json"
         reddit_app = RedditApp.query.filter_by(app_name="reddit_app").first()

@@ -68,9 +68,7 @@ def sentry_tokens(page, per_page, order_by, sort_columns, sort_directions):
                     else:
                         code = 400
                         return (
-                            jsonify(
-                                status="error", message="Failed to create Sentry token"
-                            ),
+                            jsonify(status="error", message="Failed to create Sentry token"),
                             code,
                         )
             code = 201
@@ -82,22 +80,16 @@ def sentry_tokens(page, per_page, order_by, sort_columns, sort_directions):
             data.pop("sentry_team")
             data.pop("sentry_platform")
             sentry_token = SentryToken(**data)
-            with api.commit_or_abort(
-                db.session, default_error_message="Failed to create a new Sentry Token."
-            ):
+            with api.commit_or_abort(db.session, default_error_message="Failed to create a new Sentry Token."):
                 db.session.add(sentry_token)
         else:
             return jsonify(status="error", errors=form.errors)
     paginator = get_paginator(SentryToken, page, per_page, order_by, sort_columns)
     if current_user.sentry_auth_token:
-        response = requestor.get(
-            "/api/0/organizations/", "organization", params={"member": True}
-        )
+        response = requestor.get("/api/0/organizations/", "organization", params={"member": True})
         organizations = [("", "")] + [(i.slug, i.name) for i in response]
         form.sentry_organization.choices = organizations
-    table = SentryTokenTable(
-        paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
-    )
+    table = SentryTokenTable(paginator.items, sort_columns=sort_columns, sort_directions=sort_directions)
     return (
         render_template(
             "sentry_tokens.html",
@@ -111,9 +103,7 @@ def sentry_tokens(page, per_page, order_by, sort_columns, sort_directions):
     )
 
 
-@sentry_tokens_blueprint.route(
-    "/sentry_tokens/<SentryToken:sentry_token>/", methods=["GET", "POST"]
-)
+@sentry_tokens_blueprint.route("/sentry_tokens/<SentryToken:sentry_token>/", methods=["GET", "POST"])
 @login_required
 @verify_editable("sentry_token")
 def edit_sentry_token(sentry_token):
@@ -123,10 +113,7 @@ def edit_sentry_token(sentry_token):
         if form.validate_on_submit():
             items_to_update = []
             for item in PatchSentryTokenDetailsParameters.fields:
-                if (
-                    getattr(form, item, None) is not None
-                    and getattr(sentry_token, item) != getattr(form, item).data
-                ):
+                if getattr(form, item, None) is not None and getattr(sentry_token, item) != getattr(form, item).data:
                     items_to_update.append(
                         {
                             "op": "replace",
@@ -142,9 +129,7 @@ def edit_sentry_token(sentry_token):
                         db.session,
                         default_error_message="Failed to update Sentry Token details.",
                     ):
-                        PatchSentryTokenDetailsParameters.perform_patch(
-                            items_to_update, sentry_token
-                        )
+                        PatchSentryTokenDetailsParameters.perform_patch(items_to_update, sentry_token)
                         db.session.merge(sentry_token)
                         code = 202
                         flash(

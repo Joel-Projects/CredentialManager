@@ -14,16 +14,12 @@ data = {
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
-def test_create_bot(
-    flask_app_client, login_as, reddit_app, sentry_token, database_credential
-):
+def test_create_bot(flask_app_client, login_as, reddit_app, sentry_token, database_credential):
     with captured_templates(flask_app_client.application) as templates:
         reddit_app.owner = login_as
         sentry_token.owner = login_as
         database_credential.owner = login_as
-        response = flask_app_client.post(
-            "/bots", content_type="application/x-www-form-urlencoded", data=data
-        )
+        response = flask_app_client.post("/bots", content_type="application/x-www-form-urlencoded", data=data)
         assert201(response)
         assert_rendered_template(templates, "bots.html")
         bot = Bot.query.filter_by(app_name="bot").first()
@@ -31,9 +27,7 @@ def test_create_bot(
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
-def test_create_bot_profile(
-    flask_app_client, login_as, reddit_app, sentry_token, database_credential
-):
+def test_create_bot_profile(flask_app_client, login_as, reddit_app, sentry_token, database_credential):
     with captured_templates(flask_app_client.application) as templates:
         reddit_app.owner = login_as
         sentry_token.owner = login_as

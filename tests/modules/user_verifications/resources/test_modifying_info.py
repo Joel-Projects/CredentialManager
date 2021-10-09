@@ -22,9 +22,7 @@ data = [
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
-def test_modifying_user_verification(
-    flask_app_client, regular_user_user_verification, login_as
-):
+def test_modifying_user_verification(flask_app_client, regular_user_user_verification, login_as):
     response = flask_app_client.patch(
         f"/api/v1/user_verifications/{regular_user_user_verification.id}",
         content_type="application/json",
@@ -48,9 +46,7 @@ def test_modifying_user_verification(
         )
 
 
-def test_modifying_user_verification_by_self(
-    flask_app_client, regular_user_instance, regular_user_user_verification
-):
+def test_modifying_user_verification_by_self(flask_app_client, regular_user_instance, regular_user_user_verification):
     regular_user_user_verification.owner = regular_user_instance
     response = flask_app_client.patch(
         f"/api/v1/user_verifications/{regular_user_user_verification.id}",

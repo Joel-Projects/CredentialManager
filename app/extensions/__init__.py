@@ -76,9 +76,7 @@ def init_app(app):
         with db.get_engine(app=app).connect() as sql:  # pragma: no cover
             schema_name = BaseConfig.SCHEMA_NAME
             results = sql.execute(
-                text(
-                    f"SELECT schema_name FROM information_schema.schemata WHERE schema_name=:schema_name;"
-                ),
+                text(f"SELECT schema_name FROM information_schema.schemata WHERE schema_name=:schema_name;"),
                 schema_name=schema_name,
             )
             if not results.fetchone():

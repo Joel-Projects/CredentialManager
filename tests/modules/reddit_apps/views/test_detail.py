@@ -17,9 +17,7 @@ def test_reddit_app_detail(flask_app_client, login_as, regular_user_reddit_app):
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
-def test_reddit_app_detail_self(
-    flask_app_client, db, login_as, regular_user_reddit_app
-):
+def test_reddit_app_detail_self(flask_app_client, db, login_as, regular_user_reddit_app):
     change_owner(db, login_as, regular_user_reddit_app)
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.get(f"/profile/reddit_apps")

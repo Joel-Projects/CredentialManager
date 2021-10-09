@@ -22,9 +22,7 @@ data = [
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
-def test_modifying_database_credential(
-    flask_app_client, regular_user_database_credential, login_as
-):
+def test_modifying_database_credential(flask_app_client, regular_user_database_credential, login_as):
     response = flask_app_client.patch(
         f"/api/v1/database_credentials/{regular_user_database_credential.id}",
         content_type="application/json",

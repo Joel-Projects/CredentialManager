@@ -29,9 +29,7 @@ class DatabaseCredentials(Resource):
     """
 
     @api.response(schemas.BaseDatabaseCredentialSchema(many=True))
-    @api.parameters(
-        parameters.ListDatabaseCredentialsParameters(), locations=("query",)
-    )
+    @api.parameters(parameters.ListDatabaseCredentialsParameters(), locations=("query",))
     def get(self, args):
         """
         List of Database Credentials.
@@ -97,9 +95,7 @@ class DatabaseCredentialByID(Resource):
         """
         Delete a Database Credential by ID.
         """
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to delete Database Credential."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to delete Database Credential."):
             db.session.delete(database_credential)
         return None
 
@@ -119,8 +115,6 @@ class DatabaseCredentialByID(Resource):
             db.session,
             default_error_message="Failed to update Database Credential details.",
         ):
-            parameters.PatchDatabaseCredentialDetailsParameters.perform_patch(
-                args, database_credential
-            )
+            parameters.PatchDatabaseCredentialDetailsParameters.perform_patch(args, database_credential)
             db.session.merge(database_credential)
         return database_credential

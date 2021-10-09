@@ -55,9 +55,7 @@ def test_modifying_api_token(flask_app_client, token, login_as):
         assert403(response, ApiToken, action="patch", internal=True, old_item=token)
 
 
-def test_modifying_api_token_by_self(
-    flask_app_client, regular_user_instance, regular_user_api_token
-):
+def test_modifying_api_token_by_self(flask_app_client, regular_user_instance, regular_user_api_token):
     regular_user_api_token.owner = regular_user_instance
     response = flask_app_client.patch(
         f"/api/v1/api_tokens/{regular_user_api_token.id}",
@@ -110,9 +108,7 @@ def test_modifying_api_token_info_with_conflict_data_must_fail(
     response = flask_app_client.patch(
         f"/api/v1/api_tokens/{regular_user_api_token.id}",
         content_type="application/json",
-        data=json.dumps(
-            [{"op": "replace", "path": "/name", "value": admin_user_api_token.name}]
-        ),
+        data=json.dumps([{"op": "replace", "path": "/name", "value": admin_user_api_token.name}]),
     )
 
     assert409(

@@ -25,10 +25,7 @@ def test_authorize(db, flask_app_client, reddit_app, mocker, reddit, recorder):
             new_token = RefreshToken.query.first()
             assert new_token.redditor == templates["templates"][0][1]["user"]
             assert templates["templates"][0][1]["user"] == "Lil_SpazJoekp"
-            assert (
-                templates["templates"][0][1]["header"]
-                == "Reddit Authorization Complete"
-            )
+            assert templates["templates"][0][1]["header"] == "Reddit Authorization Complete"
             assert templates["templates"][0][1]["success"]
 
 
@@ -53,9 +50,7 @@ def test_authorize_temp(db, flask_app_client, reddit_app, mocker, reddit, record
             new_token = RefreshToken.query.first()
             assert new_token is None
             assert templates["templates"][0][1]["user"] == "Lil_SpazJoekp"
-            assert (
-                templates["templates"][0][1]["header"] == "Reddit Verification Complete"
-            )
+            assert templates["templates"][0][1]["header"] == "Reddit Verification Complete"
             assert templates["templates"][0][1]["success"]
 
 
@@ -88,10 +83,7 @@ def test_authorize_exisiting(
             new_token = RefreshToken.query.filter_by(redditor="Lil_SpazJoekp").first()
             assert new_token.redditor == templates["templates"][0][1]["user"]
             assert templates["templates"][0][1]["user"] == "Lil_SpazJoekp"
-            assert (
-                templates["templates"][0][1]["header"]
-                == "Reddit Authorization Complete"
-            )
+            assert templates["templates"][0][1]["header"] == "Reddit Authorization Complete"
             assert templates["templates"][0][1]["success"]
 
 
@@ -114,9 +106,9 @@ def test_authorize_user_id(
         new_callable=mocker.PropertyMock,
         return_value=reddit,
     )
-    state = reddit_app.gen_auth_url(
-        ["identity"], "permanent", user_verification=regular_user_user_verification
-    ).split("state=")[1]
+    state = reddit_app.gen_auth_url(["identity"], "permanent", user_verification=regular_user_user_verification).split(
+        "state="
+    )[1]
     with recorder.use_cassette("RefreshTokens.test_authorize"):
         with captured_templates(flask_app_client.application) as templates:
             url = f"/oauth2/reddit_callback?state={state}&code={pytest.placeholders.auth_code}"

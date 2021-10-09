@@ -1,11 +1,6 @@
 from flask_login import current_user
 
-from app.extensions.frontend.tables import (
-    BaseTable,
-    BoolIconColumn,
-    ObjectCountCol,
-    OwnerCol,
-)
+from app.extensions.frontend.tables import BaseTable, BoolIconColumn, ObjectCountCol, OwnerCol
 
 
 class UserTable(BaseTable):
@@ -25,9 +20,7 @@ class UserTable(BaseTable):
             "Database Credentials",
             ObjectCountCol("Database Credentials", "database_credentials"),
         )
-        self.add_column(
-            "Sentry Tokens", ObjectCountCol("Sentry Tokens", "sentry_tokens")
-        )
+        self.add_column("Sentry Tokens", ObjectCountCol("Sentry Tokens", "sentry_tokens"))
         self.add_column("API Tokens", ObjectCountCol("API Tokens", "api_tokens"))
         self.add_column("Active", BoolIconColumn("Active", "is_active"))
         # self.add_column('Created By', CreatedBy('Created By', attr_list=['created_by', 'username'], tooltip=lambda item: f"Created at: {item.updated.astimezone().strftime('%m/%d/%Y %I:%M:%S %p %Z')}"))

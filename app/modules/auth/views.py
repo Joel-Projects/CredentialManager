@@ -1,15 +1,6 @@
 import logging
 
-from flask import (
-    Blueprint,
-    abort,
-    current_app,
-    flash,
-    redirect,
-    render_template,
-    request,
-    url_for,
-)
+from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_user, logout_user
 
 log = logging.getLogger(__name__)
@@ -26,14 +17,12 @@ def login():
         password = request.form.get("password")
         remember = True if request.form.get("remember") else False
         try:
-            user = User.query.filter(
-                User.username.ilike(request.form["username"])
-            ).first()
+            user = User.query.filter(User.username.ilike(request.form["username"])).first()
             if user and user.password == password and user.is_active:
-                login_user(user, remember=remember, fresh=False)
+                login_user(user, remember=remember)
                 return redirect(url_for("main.dash"))
             elif not user:
-                return fail_login(password, username)
+                return fail_login(username, password)
             elif not user.is_active:
                 flash("Your account is disabled.", "error")
                 return (
@@ -41,7 +30,7 @@ def login():
                     403,
                 )
             else:  # pragma: no cover
-                return fail_login(password, username)
+                return fail_login(username, password)
         except Exception as error:  # pragma: no cover
             log.exception(error)
             flash("Login failed.")
@@ -72,7 +61,7 @@ def initial_user():
     abort(404)
 
 
-def fail_login(password, username):
+def fail_login(username, password):
     flash("Please check your login details and try again.", "error")
     return render_template("login.html", username=username, password=password), 403
 

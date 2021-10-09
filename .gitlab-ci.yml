@@ -1,11 +1,25 @@
 image: docker:latest
 
-.testSetup: &testSetup
+.lint_setup: &lint_setup
+    stage: lint
+    allow_failure: false
+    image: python:latest
+    before_script:
+        - python -V  # Print out python version for debugging
+        - pip install virtualenv
+        - virtualenv venv
+        - source venv/bin/activate
+        - pip install -r lint-requirements.txt
+
+.test_setup: &test_setup
     stage: test
     allow_failure: true
     coverage: '/^TOTAL.*\s+(\d+\%)$/'
     services:
-        - postgres:latest
+        -   name: postgres:latest
+            alias: postgres
+            command:
+                - --max_connections=500
     variables:
         POSTGRES_DB: 'postgres_test'
         POSTGRES_USER: 'postgres'
@@ -13,6 +27,11 @@ image: docker:latest
         POSTGRES_HOST_AUTH_METHOD: 'trust'
         DATABASE_URI: 'postgresql://postgres:@postgres:5432/postgres_test'
         SCHEMA_NAME: 'public'
+    before_script:
+        - python -V  # Print out python version for debugging
+        - pip install virtualenv
+        - virtualenv venv
+        - source venv/bin/activate
     script:
         - pip install -r app/requirements.txt -r tests/requirements.txt
         - pytest --cov-report=term --cov=app tests
@@ -20,9 +39,12 @@ image: docker:latest
 services:
     - docker:dind
 
+include:
+    -   template: Container-Scanning.gitlab-ci.yml
+
 stages:
     - build
-    - release
+    - lint
     - test
     - sentry_release
 
@@ -42,29 +64,43 @@ build:
         - master
         - tags
 
-include:
-    -   template: Container-Scanning.gitlab-ci.yml
 
 test:pytest3.6:
+    <<: *test_setup
     image: python:3.6
-    <<: *testSetup
 
 test:pytest3.7:
+    <<: *test_setup
     image: python:3.7
-    <<: *testSetup
 
 test:pytest3.8:
+    <<: *test_setup
     image: python:3.8
-    <<: *testSetup
 
 test:pytest3.9:
+    <<: *test_setup
     image: python:3.9
-    <<: *testSetup
+
+test:pytest3.10:
+    <<: *test_setup
+    image: python:3.10
+
+
+black:
+    <<: *lint_setup
+    script:
+        - black --check .
+
+isort:
+    <<: *lint_setup
+    script:
+        - isort -c .
+
 
 publish:release:
     image: getsentry/sentry-cli
     stage: sentry_release
-    before_script: []
+    allow_failure: true
     variables:
         SENTRY_ORG: $CI_PROJECT_NAMESPACE
         SENTRY_URL: 'https://sentry.jesassn.org'

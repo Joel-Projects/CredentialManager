@@ -22,9 +22,7 @@ class Bot(db.Model, Timestamp, InfoAttrs, StrName):
 
     __table_args__ = {"schema": BaseConfig.SCHEMA_NAME}
     id = db.Column(db.Integer, primary_key=True)
-    app_name = db.Column(
-        db.String(length=50), nullable=False, info={"label": "Bot Name"}
-    )
+    app_name = db.Column(db.String(length=50), nullable=False, info={"label": "Bot Name"})
     reddit_app_id = db.Column(
         db.Integer,
         db.ForeignKey(f"{BaseConfig.SCHEMA_NAME}.reddit_apps.id", **foreign_key_kwargs),
@@ -37,9 +35,7 @@ class Bot(db.Model, Timestamp, InfoAttrs, StrName):
     )
     sentry_token_id = db.Column(
         db.Integer,
-        db.ForeignKey(
-            f"{BaseConfig.SCHEMA_NAME}.sentry_tokens.id", **foreign_key_kwargs
-        ),
+        db.ForeignKey(f"{BaseConfig.SCHEMA_NAME}.sentry_tokens.id", **foreign_key_kwargs),
         info={"label": "Sentry Token"},
     )
     sentry_token = db.relationship(
@@ -49,9 +45,7 @@ class Bot(db.Model, Timestamp, InfoAttrs, StrName):
     )
     database_credential_id = db.Column(
         db.Integer,
-        db.ForeignKey(
-            f"{BaseConfig.SCHEMA_NAME}.database_credentials.id", **foreign_key_kwargs
-        ),
+        db.ForeignKey(f"{BaseConfig.SCHEMA_NAME}.database_credentials.id", **foreign_key_kwargs),
         info={"label": "Database Credential"},
     )
     database_credential = db.relationship(
@@ -62,9 +56,7 @@ class Bot(db.Model, Timestamp, InfoAttrs, StrName):
     enabled = db.Column(db.Boolean, default=True, info={"label": "Enabled"})
     owner_id = db.Column(
         db.Integer,
-        db.ForeignKey(
-            f"{BaseConfig.SCHEMA_NAME}.users.id", ondelete="CASCADE", onupdate="CASCADE"
-        ),
+        db.ForeignKey(f"{BaseConfig.SCHEMA_NAME}.users.id", ondelete="CASCADE", onupdate="CASCADE"),
     )
     owner = db.relationship("User", backref=db.backref(__tablename__, lazy="dynamic"))
 

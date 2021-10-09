@@ -69,6 +69,4 @@ class Resource(OriginalResource):
                     continue
 
             allowed_methods.append(method_func.__name__.upper())
-        return flask.Response(
-            status=HTTPStatus.NO_CONTENT, headers={"Allow": ", ".join(allowed_methods)}
-        )
+        return flask.Response(status=HTTPStatus.NO_CONTENT, headers={"Allow": ", ".join(allowed_methods)})

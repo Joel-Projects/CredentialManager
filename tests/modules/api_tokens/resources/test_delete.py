@@ -12,9 +12,7 @@ def test_deleting_api_token(flask_app_client, login_as, regular_user_api_token):
     response = flask_app_client.delete(f"{path}/{regular_user_api_token.id}")
 
     if login_as.is_admin or login_as.is_internal:
-        assert_success(
-            response, None, ApiToken, None, delete_item_id=regular_user_api_token.id
-        )
+        assert_success(response, None, ApiToken, None, delete_item_id=regular_user_api_token.id)
     else:
         assert403(
             response,
@@ -25,12 +23,8 @@ def test_deleting_api_token(flask_app_client, login_as, regular_user_api_token):
         )
 
 
-def test_deleting_self(
-    flask_app_client, db, regular_user_instance, regular_user_api_token
-):
+def test_deleting_self(flask_app_client, db, regular_user_instance, regular_user_api_token):
     regular_user_api_token.owner = regular_user_instance
     db.session.merge(regular_user_api_token)
     response = flask_app_client.delete(f"{path}/{regular_user_api_token.id}")
-    assert_success(
-        response, None, ApiToken, None, delete_item_id=regular_user_api_token.id
-    )
+    assert_success(response, None, ApiToken, None, delete_item_id=regular_user_api_token.id)

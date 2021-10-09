@@ -31,9 +31,7 @@ def test_user_auth(user_instance):
         for _is_active in (False, True)
     ],
 )
-def test_user_static_roles_setting(
-    init_static_roles, is_internal, is_admin, is_regular_user, is_active, user_instance
-):
+def test_user_static_roles_setting(init_static_roles, is_internal, is_admin, is_regular_user, is_active, user_instance):
     """
     Static User Roles are saved as bit flags into one ``static_roles``
     integer field. Ideally, it would be better implemented as a custom field,
@@ -62,14 +60,9 @@ def test_user_static_roles_setting(
     else:
         user_instance.unset_static_role(user_instance.StaticRoles.ACTIVE)
 
-    assert (
-        user_instance.has_static_role(user_instance.StaticRoles.INTERNAL) is is_internal
-    )
+    assert user_instance.has_static_role(user_instance.StaticRoles.INTERNAL) is is_internal
     assert user_instance.has_static_role(user_instance.StaticRoles.ADMIN) is is_admin
-    assert (
-        user_instance.has_static_role(user_instance.StaticRoles.REGULAR_USER)
-        is is_regular_user
-    )
+    assert user_instance.has_static_role(user_instance.StaticRoles.REGULAR_USER) is is_regular_user
     assert user_instance.has_static_role(user_instance.StaticRoles.ACTIVE) is is_active
     assert user_instance.is_internal is is_internal
     assert user_instance.is_admin is is_admin

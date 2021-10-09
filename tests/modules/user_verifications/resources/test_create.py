@@ -10,17 +10,11 @@ data = {"user_id": 123456789012345678}
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
-def test_creating_user_verification(
-    flask_app_client, login_as, regular_user, reddit_app
-):
-    response = flask_app_client.post(
-        path, data={"owner_id": regular_user.id, "reddit_app_id": reddit_app.id, **data}
-    )
+def test_creating_user_verification(flask_app_client, login_as, regular_user, reddit_app):
+    response = flask_app_client.post(path, data={"owner_id": regular_user.id, "reddit_app_id": reddit_app.id, **data})
 
     if login_as.is_admin or login_as.is_internal:
-        assert_success(
-            response, regular_user, UserVerification, DetailedUserVerificationSchema
-        )
+        assert_success(response, regular_user, UserVerification, DetailedUserVerificationSchema)
     else:
         assert403(response, UserVerification, action="create")
 
@@ -40,26 +34,20 @@ def test_creating_user_verification_existing(
     )
 
     if login_as.is_admin or login_as.is_internal:
-        assert_success(
-            response, regular_user, UserVerification, DetailedUserVerificationSchema
-        )
+        assert_success(response, regular_user, UserVerification, DetailedUserVerificationSchema)
     else:
         assert403(response, UserVerification, action="create")
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
-def test_creating_user_verification_with_extra_data(
-    flask_app_client, login_as, reddit_app
-):
+def test_creating_user_verification_with_extra_data(flask_app_client, login_as, reddit_app):
     response = flask_app_client.post(
         path,
         data={"reddit_app_id": reddit_app.id, "extra_data": '{"key": "value"}', **data},
     )
 
     if login_as.is_admin or login_as.is_internal:
-        assert_success(
-            response, login_as, UserVerification, DetailedUserVerificationSchema
-        )
+        assert_success(response, login_as, UserVerification, DetailedUserVerificationSchema)
     else:
         assert422(
             response,
@@ -67,21 +55,15 @@ def test_creating_user_verification_with_extra_data(
             message_attrs=[
                 (
                     "reddit_app_id",
-                    [
-                        "You don't have the permission to create User Verifications with other users' Reddit Apps."
-                    ],
+                    ["You don't have the permission to create User Verifications with other users' Reddit Apps."],
                 )
             ],
         )
 
 
-def test_creating_user_verification_for_self(
-    flask_app_client, regular_user_instance, reddit_app
-):
+def test_creating_user_verification_for_self(flask_app_client, regular_user_instance, reddit_app):
     reddit_app.owner = regular_user_instance
-    response = flask_app_client.post(
-        path, data={"reddit_app_id": reddit_app.id, **data}
-    )
+    response = flask_app_client.post(path, data={"reddit_app_id": reddit_app.id, **data})
 
     assert_success(
         response,
@@ -91,9 +73,7 @@ def test_creating_user_verification_for_self(
     )
 
 
-def test_creating_user_verification_for_self_with_owner(
-    flask_app_client, regular_user_instance, reddit_app
-):
+def test_creating_user_verification_for_self_with_owner(flask_app_client, regular_user_instance, reddit_app):
     reddit_app.owner = regular_user_instance
     response = flask_app_client.post(
         path,

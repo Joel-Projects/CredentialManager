@@ -31,9 +31,7 @@ def test_modifying_reddit_app(flask_app_client, regular_user_reddit_app, login_a
     )
 
     if login_as.is_admin or login_as.is_internal:
-        assert_success(
-            response, regular_user_reddit_app.owner, RedditApp, DetailedRedditAppSchema
-        )
+        assert_success(response, regular_user_reddit_app.owner, RedditApp, DetailedRedditAppSchema)
     else:
         assert403(
             response,
@@ -44,9 +42,7 @@ def test_modifying_reddit_app(flask_app_client, regular_user_reddit_app, login_a
         )
 
 
-def test_modifying_reddit_app_by_self(
-    flask_app_client, regular_user_instance, regular_user_reddit_app
-):
+def test_modifying_reddit_app_by_self(flask_app_client, regular_user_instance, regular_user_reddit_app):
     regular_user_reddit_app.owner = regular_user_instance
     response = flask_app_client.patch(
         f"/api/v1/reddit_apps/{regular_user_reddit_app.id}",

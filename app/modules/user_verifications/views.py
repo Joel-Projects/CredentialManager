@@ -32,11 +32,7 @@ def user_verifications(page, per_page, order_by, sort_columns, sort_directions):
     form = UserVerificationForm()
     if request.method == "POST":
         if form.validate_on_submit():
-            if (
-                not current_user.is_admin
-                and not current_user.is_internal
-                and current_user.id != form.data["owner"].id
-            ):
+            if not current_user.is_admin and not current_user.is_internal and current_user.id != form.data["owner"].id:
                 code = 403
                 return (
                     jsonify(
@@ -59,9 +55,7 @@ def user_verifications(page, per_page, order_by, sort_columns, sort_directions):
         else:
             return jsonify(status="error", errors=form.errors), code
     paginator = get_paginator(UserVerification, page, per_page, order_by, sort_columns)
-    table = UserVerificationTable(
-        paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
-    )
+    table = UserVerificationTable(paginator.items, sort_columns=sort_columns, sort_directions=sort_directions)
     form = UserVerificationForm()
     return (
         render_template(
@@ -101,17 +95,13 @@ def edit_user_verification(user_verification):
                     )
             if items_to_update:
                 for item in items_to_update:
-                    PatchUserVerificationDetailsParameters().validate_patch_structure(
-                        item
-                    )
+                    PatchUserVerificationDetailsParameters().validate_patch_structure(item)
                 try:
                     with api.commit_or_abort(
                         db.session,
                         default_error_message="Failed to update User Verification details.",
                     ):
-                        PatchUserVerificationDetailsParameters.perform_patch(
-                            items_to_update, user_verification
-                        )
+                        PatchUserVerificationDetailsParameters.perform_patch(items_to_update, user_verification)
                         db.session.merge(user_verification)
                         code = 202
                         flash(

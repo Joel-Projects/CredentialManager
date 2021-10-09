@@ -25,9 +25,7 @@ bot_labels = [
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
 @pytest.mark.parametrize("bot", bots, ids=bot_labels)
-def test_bot_detail_edit_for_other_user(
-    flask_app_client, login_as, bot, reddit_app, sentry_token, database_credential
-):
+def test_bot_detail_edit_for_other_user(flask_app_client, login_as, bot, reddit_app, sentry_token, database_credential):
     data = {
         "item_type": "bots",
         "item_id": f"{bot.id}",
@@ -47,9 +45,7 @@ def test_bot_detail_edit_for_other_user(
         if login_as.is_internal:
             assert202(response)
             assert_rendered_template(templates, "edit_bot.html")
-            assert_message_flashed(
-                templates, "Bot 'new_name' saved successfully!", "success"
-            )
+            assert_message_flashed(templates, "Bot 'new_name' saved successfully!", "success")
             modified_bot = Bot.query.filter_by(id=bot.id).first()
             assert_modified(data, modified_bot)
         elif login_as.is_admin:
@@ -60,9 +56,7 @@ def test_bot_detail_edit_for_other_user(
             else:
                 assert202(response)
                 assert_rendered_template(templates, "edit_bot.html")
-                assert_message_flashed(
-                    templates, "Bot 'new_name' saved successfully!", "success"
-                )
+                assert_message_flashed(templates, "Bot 'new_name' saved successfully!", "success")
                 modified_bot = Bot.query.filter_by(id=bot.id).first()
                 assert_modified(data, modified_bot)
         else:
@@ -99,9 +93,7 @@ def test_bot_detail_edit(
         if login_as.is_admin or login_as.is_internal:
             assert202(response)
             assert_rendered_template(templates, "edit_bot.html")
-            assert_message_flashed(
-                templates, "Bot 'new_name' saved successfully!", "success"
-            )
+            assert_message_flashed(templates, "Bot 'new_name' saved successfully!", "success")
             modified_bot = Bot.query.filter_by(id=regular_user_bot.id).first()
             assert_modified(data, modified_bot)
 
@@ -138,9 +130,7 @@ def test_bot_detail_edit_self(
         response = flask_app_client.post(f"/bots/{regular_user_bot.id}", data=data)
         assert202(response)
         assert_rendered_template(templates, "edit_bot.html")
-        assert_message_flashed(
-            templates, "Bot 'new_name' saved successfully!", "success"
-        )
+        assert_message_flashed(templates, "Bot 'new_name' saved successfully!", "success")
         modified_bot = Bot.query.filter_by(id=regular_user_bot.id).first()
         assert_modified(data, modified_bot)
 
@@ -173,9 +163,6 @@ def test_bot_detail_conflicting_name(
         assert response.status_code == 422
         assert response.mimetype == "text/html"
         assert_rendered_template(templates, "edit_bot.html")
-        assert (
-            templates["templates"][0][1]["form"].errors["app_name"][0]
-            == "Already exists."
-        )
+        assert templates["templates"][0][1]["form"].errors["app_name"][0] == "Already exists."
         modified_bot = Bot.query.filter_by(id=to_be_modified.id).first()
         assert modified_bot.app_name == to_be_modified.app_name

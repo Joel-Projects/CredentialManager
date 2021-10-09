@@ -104,9 +104,7 @@ class UserVerificationByID(Resource):
         """
         Delete a User Verification by ID.
         """
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to delete User Verification."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to delete User Verification."):
             db.session.delete(user_verification)
         return None
 
@@ -126,9 +124,7 @@ class UserVerificationByID(Resource):
             db.session,
             default_error_message="Failed to update User Verification details.",
         ):
-            parameters.PatchUserVerificationDetailsParameters.perform_patch(
-                args, user_verification
-            )
+            parameters.PatchUserVerificationDetailsParameters.perform_patch(args, user_verification)
             db.session.merge(user_verification)
         return user_verification
 
@@ -149,9 +145,7 @@ class GetUserVerificationByUserID(Resource):
         Optionally filter by Reddit App ID
         """
         if "reddit_app_id" in args:
-            reddit_app = RedditApp.query.get_or_404(
-                args["reddit_app_id"], "Reddit App not found"
-            )
+            reddit_app = RedditApp.query.get_or_404(args["reddit_app_id"], "Reddit App not found")
             if reddit_app.enabled:
                 user_verification = UserVerification.query.filter(
                     UserVerification.user_id == args["user_id"],

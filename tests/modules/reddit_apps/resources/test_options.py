@@ -42,11 +42,6 @@ def test_reddit_apps_options_authorized(
     (("/api/v1/reddit_apps/", {"GET", "POST", "OPTIONS"}),),
 )
 def test_preflight_options_request(path, expected_allowed_methods, flask_app_client):
-    response = flask_app_client.open(
-        method="OPTIONS", path=path, headers={"Access-Control-Request-Method": "post"}
-    )
+    response = flask_app_client.open(method="OPTIONS", path=path, headers={"Access-Control-Request-Method": "post"})
     assert response.status_code == 200
-    assert (
-        set(response.headers["Access-Control-Allow-Methods"].split(", "))
-        == expected_allowed_methods
-    )
+    assert set(response.headers["Access-Control-Allow-Methods"].split(", ")) == expected_allowed_methods

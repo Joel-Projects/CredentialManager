@@ -31,9 +31,7 @@ def validate_owner_exists(user_id: int) -> User:
 class ValidateOwner(Parameters):
     owner_id_attr = "owner_id"
 
-    invalid_owner_message = (
-        "You don't have the permission to create {} for other users."
-    )
+    invalid_owner_message = "You don't have the permission to create {} for other users."
 
     @validates(owner_id_attr)
     def validate_owner_id(self, data):
@@ -41,14 +39,10 @@ class ValidateOwner(Parameters):
         if item:
             if item.is_internal:  # pragma: no cover
                 permissions.InternalRolePermission().__enter__()
-            if current_user.id != data and not (
-                current_user.is_admin or current_user.is_internal
-            ):
+            if current_user.id != data and not (current_user.is_admin or current_user.is_internal):
                 raise http_exceptions.abort(
                     HTTPStatus.FORBIDDEN,
-                    self.invalid_owner_message.format(
-                        self.Meta.model._display_name_plural
-                    ),
+                    self.invalid_owner_message.format(self.Meta.model._display_name_plural),
                 )
         else:
             raise ValidationError("That user doesn't exist")

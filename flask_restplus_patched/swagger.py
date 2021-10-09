@@ -15,9 +15,7 @@ class Swagger(OriginalSwagger):
             return []
         if isinstance(schema, list):  # pragma: no cover
             return schema
-        if isinstance(schema, dict) and all(
-            isinstance(field, dict) for field in schema.values()
-        ):
+        if isinstance(schema, dict) and all(isinstance(field, dict) for field in schema.values()):
             return list(schema.values())
 
         if "in" in schema.context and "json" in schema.context["in"]:
@@ -44,16 +42,12 @@ class Swagger(OriginalSwagger):
                 method_impl = method_impl.im_func
             elif hasattr(method_impl, "__func__"):  # pragma: no cover
                 method_impl = method_impl.__func__
-            method_doc = merge(
-                method_doc, getattr(method_impl, "__apidoc__", OrderedDict())
-            )
+            method_doc = merge(method_doc, getattr(method_impl, "__apidoc__", OrderedDict()))
             if method_doc is not False:
                 method_doc["docstring"] = parse_docstring(method_impl)
                 method_params = self.expected_params(method_doc)
                 method_params = merge(method_params, method_doc.get("params", {}))
-                inherited_params = OrderedDict(
-                    (k, v) for k, v in iteritems(params) if k in method_params
-                )
+                inherited_params = OrderedDict((k, v) for k, v in iteritems(params) if k in method_params)
                 method_doc["params"] = merge(inherited_params, method_params)
                 try:
                     for name, param in method_doc["params"].items():  # pragma: no cover
@@ -76,16 +70,11 @@ class Swagger(OriginalSwagger):
                 method_doc = doc.get(method)
                 if not method_doc:
                     continue
-                params = {
-                    (n, p.get("in", "query")): p
-                    for n, p in (method_doc["params"] or {}).items()
-                }
+                params = {(n, p.get("in", "query")): p for n, p in (method_doc["params"] or {}).items()}
                 for key in need_to_go_down:
                     if key not in params:
                         method_doc["params"][key[0]] = up_params[key]
-        doc["params"] = OrderedDict(
-            (k[0], p) for k, p in up_params.items() if k not in need_to_go_down
-        )
+        doc["params"] = OrderedDict((k[0], p) for k, p in up_params.items() if k not in need_to_go_down)
         return doc
 
     def extract_tags(self, api):

@@ -17,18 +17,12 @@ class ListRedditAppsParameters(PaginationParameters, ValidateOwner):
     invalid_owner_message = "You can only query your own {}."
 
 
-class CreateRedditAppParameters(
-    PostFormParameters, schemas.DetailedRedditAppSchema, ValidateOwner
-):
+class CreateRedditAppParameters(PostFormParameters, schemas.DetailedRedditAppSchema, ValidateOwner):
     app_name = base_fields.String(required=True, description="Name of the Reddit App")
     app_description = base_fields.String(description="Description of the Reddit App")
-    client_id = base_fields.String(
-        required=True, description="Client ID of the Reddit App"
-    )
+    client_id = base_fields.String(required=True, description="Client ID of the Reddit App")
     client_secret = base_fields.String(description="Client secret of the Reddit App")
-    user_agent = base_fields.String(
-        required=True, description="User agent used for requests to Reddit's API"
-    )
+    user_agent = base_fields.String(required=True, description="User agent used for requests to Reddit's API")
     app_type = base_fields.String(
         required=True,
         description="Type of the app. One of `web`, `installed`, or `script`",
@@ -39,9 +33,7 @@ class CreateRedditAppParameters(
         default="https://credmgr.jesassn.org/oauth2/reddit_callback",
     )
     enabled = base_fields.Boolean(default=True, description="Allows the app to be used")
-    owner_id = base_fields.Integer(
-        description="Owner of the app. Requires Admin to create for other users."
-    )
+    owner_id = base_fields.Integer(description="Owner of the app. Requires Admin to create for other users.")
 
     @validates("app_name")
     def validate_name(self, data):
@@ -51,9 +43,7 @@ class CreateRedditAppParameters(
     @validates("app_type")
     def validate_app_type(self, data):
         if not data.lower() in ["web", "installed", "script"]:
-            raise ValidationError(
-                "App type is not valid. Valid types are: 'web', 'installed'. or 'script'"
-            )
+            raise ValidationError("App type is not valid. Valid types are: 'web', 'installed'. or 'script'")
 
 
 class PatchRedditAppDetailsParameters(PatchJSONParameters):
@@ -93,6 +83,4 @@ class GenerateAuthUrlParameters(PostFormParameters):
 
 
 class GetRefreshTokenByRedditor(PostFormParameters):
-    redditor = base_fields.String(
-        required=True, description="Redditor the Refresh Token is for"
-    )
+    redditor = base_fields.String(required=True, description="Redditor the Refresh Token is for")

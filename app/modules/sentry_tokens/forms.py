@@ -77,9 +77,7 @@ class EditSentryTokenForm(ModelForm):
 
 
 class SentryTokenForm(EditSentryTokenForm):
-    create_sentry_app = HiddenFieldWithToggle(
-        "Create app on Sentry?", default=False, render_kw={"value": ""}
-    )
+    create_sentry_app = HiddenFieldWithToggle("Create app on Sentry?", default=False, render_kw={"value": ""})
     dsn = StringField(
         "DSN",
         validators=[
@@ -90,8 +88,6 @@ class SentryTokenForm(EditSentryTokenForm):
             ),
         ],
     )
-    sentry_organization = SelectField(
-        "Sentry Organization", validate_choice=False, default=""
-    )
+    sentry_organization = SelectField("Sentry Organization", validate_choice=False, default="")
     sentry_team = SelectField("Sentry Team", validate_choice=False, default="")
     sentry_platform = SelectField("App Platform", validate_choice=False, default="")

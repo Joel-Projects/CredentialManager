@@ -23,9 +23,7 @@ class DatetimeColumn(BaseCol):
     def td_format(self, content):
         if content:
             return str(
-                current_app.extensions["moment"](
-                    content.astimezone(timezone.utc)
-                ).format(" MM/DD/YYYY, h:mm:ss a")
+                current_app.extensions["moment"](content.astimezone(timezone.utc)).format(" MM/DD/YYYY, h:mm:ss a")
             )
         else:
             return "Never"
@@ -64,9 +62,7 @@ class ToolTipColumn(BaseCol):  # pragma: no cover
         self.tooltip = tooltip
 
     def td_contents(self, item, attr_list):
-        return self.td_format(
-            (self.from_attr_list(item, attr_list), item.id, self.tooltip)
-        )
+        return self.td_format((self.from_attr_list(item, attr_list), item.id, self.tooltip))
 
     def td_format(self, item):
         content, item_id, tooltip = item
@@ -88,9 +84,7 @@ class CreatedBy(BaseCol):  # pragma: no cover
         return out
 
     def td_contents(self, item, attr_list):
-        return self.td_format(
-            (self.from_attr_list(item, attr_list), item, self.tooltip(item))
-        )
+        return self.td_format((self.from_attr_list(item, attr_list), item, self.tooltip(item)))
 
     def td_format(self, item):
         content, item, tooltip = item
@@ -131,9 +125,7 @@ class AppNameCol(BaseCol):
 class ModifiedCol(BaseCol):
     def td(self, item, attr):
         content = self.td_contents(item, self.get_attr_list(attr))
-        return element(
-            "td", content=content, escape_content=False, attrs=self.td_html_attrs
-        )
+        return element("td", content=content, escape_content=False, attrs=self.td_html_attrs)
 
 
 class ObjectCountCol(BaseCol):
@@ -147,9 +139,7 @@ class ObjectCountCol(BaseCol):
 
 class DropdownActionColumn(ModifiedCol):
     def __init__(self, name, *args, toggle=True, **kwargs):
-        super(DropdownActionColumn, self).__init__(
-            name, allow_sort=False, *args, **kwargs
-        )
+        super(DropdownActionColumn, self).__init__(name, allow_sort=False, *args, **kwargs)
         self.toggle = toggle
 
     def td_contents(self, item, attr_list):
@@ -226,9 +216,7 @@ class BaseTable(Table):
             name = "Edit"
         else:
             name = "View"
-        self.add_column(
-            name, DropdownActionColumn(name, endpoint_attr, toggle=can_be_disabled)
-        )
+        self.add_column(name, DropdownActionColumn(name, endpoint_attr, toggle=can_be_disabled))
         hide_owner = kwargs.pop("hide_owner", False)
         if hide_owner:
             del self._cols["Owner"]
@@ -240,9 +228,7 @@ class BaseTable(Table):
             return None, None, Markup.escape(col.name)
 
         if col.sort_name in self.sort_columns:
-            sort_reverse = (
-                self.sort_directions[self.sort_columns.index(col.sort_name)] == "desc"
-            )
+            sort_reverse = self.sort_directions[self.sort_columns.index(col.sort_name)] == "desc"
             if sort_reverse:
                 sort_href = self.sort_url(col.sort_name, remove_sort=True)
                 sort_direction = "tablesorter-headerDesc"
@@ -277,9 +263,7 @@ class BaseTable(Table):
 
     def tr(self, item):
         content = "".join(c.td(item, attr) for attr, c in self._cols.items() if c.show)
-        return element(
-            "tr", attrs=self.get_tr_attrs(item), content=content, escape_content=False
-        )
+        return element("tr", attrs=self.get_tr_attrs(item), content=content, escape_content=False)
 
     def tbody(self):
         out = []

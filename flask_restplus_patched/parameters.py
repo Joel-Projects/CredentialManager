@@ -84,15 +84,9 @@ class PatchJSONParameters(Parameters):
             raise ValueError(f"{self.__class__.__name__}.PATH_CHOICES has to be set")
         # Make a copy of `validators` as otherwise we will modify the behavior
         # of all `marshmallow.Schema`-based classes
-        self.fields["op"].validators = self.fields["op"].validators + [
-            validate.OneOf(self.OPERATION_CHOICES)
-        ]
-        self.fields["path"].validators = self.fields["path"].validators + [
-            validate.OneOf(self.PATH_CHOICES)
-        ]
-        self.fields["from_path"].validators = self.fields["from_path"].validators + [
-            validate.OneOf(self.PATH_CHOICES)
-        ]
+        self.fields["op"].validators = self.fields["op"].validators + [validate.OneOf(self.OPERATION_CHOICES)]
+        self.fields["path"].validators = self.fields["path"].validators + [validate.OneOf(self.PATH_CHOICES)]
+        self.fields["from_path"].validators = self.fields["from_path"].validators + [validate.OneOf(self.PATH_CHOICES)]
 
     @validates_schema
     def validate_patch_structure(self, data):
@@ -125,9 +119,7 @@ class PatchJSONParameters(Parameters):
         """
         for operation in operations:
             if not cls._process_patch_operation(operation, obj=obj):  # pragma: no cover
-                log.info(
-                    f"{obj.__class__.__name__} patching has been stopped because of unknown operation {operation}"
-                )
+                log.info(f"{obj.__class__.__name__} patching has been stopped because of unknown operation {operation}")
                 raise ValidationError(
                     f"Failed to update {obj.__class__.__name__} details. Operation {operation} could not succeed."
                 )
@@ -182,9 +174,7 @@ class PatchJSONParameters(Parameters):
             processing_status (bool): True
         """
         if not hasattr(obj, field):
-            raise ValidationError(
-                f"Field '{field}' does not exist, so it cannot be patched"
-            )  # pragma: no cover
+            raise ValidationError(f"Field '{field}' does not exist, so it cannot be patched")  # pragma: no cover
         setattr(obj, field, value)
         return True
 
@@ -222,8 +212,6 @@ class PatchJSONParameters(Parameters):
         if path.startswith("/"):
             path = path[1:]  # pragma: no cover
         if not hasattr(obj, from_path) or not hasattr(obj, path):
-            raise ValidationError(
-                f"Field '{from_path}' does not exist, so it cannot be patched"
-            )  # pragma: no cover
+            raise ValidationError(f"Field '{from_path}' does not exist, so it cannot be patched")  # pragma: no cover
         setattr(obj, path, getattr(obj, from_path))
         return True

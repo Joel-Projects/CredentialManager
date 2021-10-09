@@ -11,8 +11,6 @@ import pytest
         ("DELETE", "/api/v1/database_credentials/1"),
     ),
 )
-def test_unauthorized_access(
-    method, path, flask_app_client, regular_user_database_credential
-):
+def test_unauthorized_access(method, path, flask_app_client, regular_user_database_credential):
     response = flask_app_client.open(method=method, path=path)
     assert response.status_code == 401

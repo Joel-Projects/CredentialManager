@@ -31,11 +31,7 @@ def reddit_apps(page, per_page, order_by, sort_columns, sort_directions):
     form = RedditAppForm()
     if request.method == "POST":
         if form.validate_on_submit():
-            if (
-                not current_user.is_admin
-                and not current_user.is_internal
-                and current_user != form.data["owner"]
-            ):
+            if not current_user.is_admin and not current_user.is_internal and current_user != form.data["owner"]:
                 code = 403
                 return (
                     jsonify(
@@ -51,9 +47,7 @@ def reddit_apps(page, per_page, order_by, sort_columns, sort_directions):
         else:
             return jsonify(status="error", errors=form.errors), code
     paginator = get_paginator(RedditApp, page, per_page, order_by, sort_columns)
-    table = RedditAppTable(
-        paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
-    )
+    table = RedditAppTable(paginator.items, sort_columns=sort_columns, sort_directions=sort_directions)
     form = RedditAppForm()
     return (
         render_template(
@@ -68,9 +62,7 @@ def reddit_apps(page, per_page, order_by, sort_columns, sort_directions):
     )
 
 
-@reddit_apps_blueprint.route(
-    "/reddit_apps/<RedditApp:reddit_app>/", methods=["GET", "POST"]
-)
+@reddit_apps_blueprint.route("/reddit_apps/<RedditApp:reddit_app>/", methods=["GET", "POST"])
 @login_required
 @verify_editable("reddit_app")
 def edit_reddit_app(reddit_app):
@@ -80,10 +72,7 @@ def edit_reddit_app(reddit_app):
         if form.validate_on_submit():
             items_to_update = []
             for item in PatchRedditAppDetailsParameters.fields:
-                if (
-                    getattr(form, item, None) is not None
-                    and getattr(reddit_app, item) != getattr(form, item).data
-                ):
+                if getattr(form, item, None) is not None and getattr(reddit_app, item) != getattr(form, item).data:
                     items_to_update.append(
                         {
                             "op": "replace",
@@ -99,9 +88,7 @@ def edit_reddit_app(reddit_app):
                         db.session,
                         default_error_message="Failed to update Reddit App details.",
                     ):
-                        PatchRedditAppDetailsParameters.perform_patch(
-                            items_to_update, reddit_app
-                        )
+                        PatchRedditAppDetailsParameters.perform_patch(items_to_update, reddit_app)
                         db.session.merge(reddit_app)
                         code = 202
                         flash(
@@ -111,9 +98,7 @@ def edit_reddit_app(reddit_app):
                 except Exception as error:  # pragma: no cover
                     log.exception(error)
                     code = 400
-                    flash(
-                        f"Failed to update Reddit App {reddit_app.app_name!r}", "error"
-                    )
+                    flash(f"Failed to update Reddit App {reddit_app.app_name!r}", "error")
         else:
             code = 422
     return (

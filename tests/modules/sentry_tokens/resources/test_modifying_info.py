@@ -46,9 +46,7 @@ def test_modifying_sentry_token(flask_app_client, regular_user_sentry_token, log
         )
 
 
-def test_modifying_sentry_token_by_self(
-    flask_app_client, regular_user_instance, regular_user_sentry_token
-):
+def test_modifying_sentry_token_by_self(flask_app_client, regular_user_instance, regular_user_sentry_token):
     regular_user_sentry_token.owner = regular_user_instance
     response = flask_app_client.patch(
         f"/api/v1/sentry_tokens/{regular_user_sentry_token.id}",

@@ -36,11 +36,7 @@ class RedditAppValidation(object):
 
     def __call__(self, form, field):
         if field.data:
-            if (
-                not current_user.is_admin
-                and not current_user.is_internal
-                and not field.data.owner == current_user
-            ):
+            if not current_user.is_admin and not current_user.is_internal and not field.data.owner == current_user:
                 raise ValidationError(self.message)
 
 

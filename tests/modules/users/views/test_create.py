@@ -19,13 +19,9 @@ def test_create_user(flask_app_client, login_as):
             "username": "test",
             "password": "test",
             "reddit_username": "test",
-            "default_settings": json.dumps(
-                [{"key": "database_flavor", "value": "test"}]
-            ),
+            "default_settings": json.dumps([{"key": "database_flavor", "value": "test"}]),
         }
-        response = flask_app_client.post(
-            "/users", content_type="application/x-www-form-urlencoded", data=data
-        )
+        response = flask_app_client.post("/users", content_type="application/x-www-form-urlencoded", data=data)
         if login_as.is_admin or login_as.is_internal:
             assert201(response)
             assert_rendered_template(templates, "users.html")
@@ -47,13 +43,9 @@ def test_create_user_bad_params(flask_app_client, admin_user_instance):
             "username": "test",
             "password": "",
             "reddit_username": "test",
-            "default_settings": json.dumps(
-                [{"key": "database_flavor", "value": "test"}]
-            ),
+            "default_settings": json.dumps([{"key": "database_flavor", "value": "test"}]),
         }
-        response = flask_app_client.post(
-            "/users", content_type="application/x-www-form-urlencoded", data=data
-        )
+        response = flask_app_client.post("/users", content_type="application/x-www-form-urlencoded", data=data)
         assert response.status_code == 200
         assert response.mimetype == "application/json"
         user = User.query.filter_by(username="test").first()

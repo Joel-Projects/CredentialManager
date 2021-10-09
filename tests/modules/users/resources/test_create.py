@@ -13,9 +13,7 @@ from tests.utils import assert401, assert403, assert409, assert_success
     ids=["create_internal_user", "create_admin_user", "create_regular_user"],
 )
 @pytest.mark.parametrize("login_as", users, ids=labels)
-def test_creating_user(
-    flask_app_client, is_internal, is_admin, is_regular_user, login_as: User
-):
+def test_creating_user(flask_app_client, is_internal, is_admin, is_regular_user, login_as: User):
     response = flask_app_client.post(
         "/api/v1/users/",
         data={
@@ -57,9 +55,7 @@ def test_creating_user(
         "as_deactivated_regular_user",
     ],
 )
-def test_creating_user_as_deactivated(
-    flask_app_client, is_internal, is_admin, is_regular_user, login_as: User
-):
+def test_creating_user_as_deactivated(flask_app_client, is_internal, is_admin, is_regular_user, login_as: User):
     with flask_app_client.login(login_as):
         response = flask_app_client.post(
             "/api/v1/users/",

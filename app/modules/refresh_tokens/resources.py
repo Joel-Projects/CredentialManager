@@ -69,9 +69,7 @@ class RefreshTokenByID(Resource):
         """
         Delete a Refresh Token by ID.
         """
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to delete Refresh Token."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to delete Refresh Token."):
             db.session.delete(refresh_token)
         return None
 
@@ -86,12 +84,8 @@ class RefreshTokenByID(Resource):
         """
         Patch refresh_token details by ID.
         """
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to update Refresh Token details."
-        ):
-            parameters.PatchRefreshTokenDetailsParameters.perform_patch(
-                args, refresh_token
-            )
+        with api.commit_or_abort(db.session, default_error_message="Failed to update Refresh Token details."):
+            parameters.PatchRefreshTokenDetailsParameters.perform_patch(args, refresh_token)
             db.session.merge(refresh_token)
         return refresh_token
 
@@ -113,9 +107,5 @@ class GetRefreshTokenByRedditor(Resource):
         """
         reddit_app = RedditApp.query.get_or_404(args["reddit_app_id"])
         refresh_tokens = RefreshToken.query
-        refresh_token = refresh_tokens.filter_by(
-            redditor=args["redditor"], reddit_app_id=reddit_app.id, revoked=False
-        )
-        return refresh_token.first_or_404(
-            f'Redditor {args["redditor"]!r} does not exist.'
-        )
+        refresh_token = refresh_tokens.filter_by(redditor=args["redditor"], reddit_app_id=reddit_app.id, revoked=False)
+        return refresh_token.first_or_404(f'Redditor {args["redditor"]!r} does not exist.')

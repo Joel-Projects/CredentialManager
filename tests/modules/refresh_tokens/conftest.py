@@ -31,9 +31,7 @@ def filter_access_token(interaction, current_cassette):  # pragma: no cover
         access_token = json.loads(body)["access_token"]
     except (KeyError, TypeError, ValueError):
         return
-    access_token_placeholder = betamax.cassette.cassette.Placeholder(
-        placeholder="<ACCESS_TOKEN>", replace=access_token
-    )
+    access_token_placeholder = betamax.cassette.cassette.Placeholder(placeholder="<ACCESS_TOKEN>", replace=access_token)
     current_cassette.placeholders.append(access_token_placeholder)
 
 
@@ -67,9 +65,7 @@ placeholders = {
     ]
 }
 
-placeholders["basic_auth"] = b64_string(
-    f'{placeholders["client_id"]}:{placeholders["client_secret"]}'
-)
+placeholders["basic_auth"] = b64_string(f'{placeholders["client_id"]}:{placeholders["client_secret"]}')
 
 betamax.Betamax.register_serializer(pretty_json.PrettyJSONSerializer)
 with betamax.Betamax.configure() as config:
@@ -203,9 +199,7 @@ reddit_app_data = {
 @pytest.fixture()
 def reddit_app(temp_db_instance_helper, regular_user):
     for _ in temp_db_instance_helper(
-        RedditApp(
-            app_name="regular_user_reddit_app", owner=regular_user, **reddit_app_data
-        )
+        RedditApp(app_name="regular_user_reddit_app", owner=regular_user, **reddit_app_data)
     ):
         yield _
 
@@ -213,8 +207,6 @@ def reddit_app(temp_db_instance_helper, regular_user):
 @pytest.fixture()
 def regular_user_user_verification(temp_db_instance_helper, regular_user, reddit_app):
     for _ in temp_db_instance_helper(
-        UserVerification(
-            reddit_app=reddit_app, owner=regular_user, user_id="123456789012345678"
-        )
+        UserVerification(reddit_app=reddit_app, owner=regular_user, user_id="123456789012345678")
     ):
         yield _

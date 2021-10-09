@@ -34,9 +34,7 @@ class ApiToken(db.Model, Timestamp, InfoAttrs):
     enabled = db.Column(db.Boolean, default=True, info={"label": "Enabled"})
     owner_id = db.Column(
         db.Integer,
-        db.ForeignKey(
-            f"{BaseConfig.SCHEMA_NAME}.users.id", ondelete="CASCADE", onupdate="CASCADE"
-        ),
+        db.ForeignKey(f"{BaseConfig.SCHEMA_NAME}.users.id", ondelete="CASCADE", onupdate="CASCADE"),
     )
     owner = db.relationship("User", backref=db.backref(__tablename__, lazy="dynamic"))
     last_used = db.Column(db.DateTime(True))
@@ -53,7 +51,5 @@ class ApiToken(db.Model, Timestamp, InfoAttrs):
         """gen_token = lambda: base64.b64encode(hashlib.sha256(str(random.getrandbits(256)).encode()).digest(), random.choice([b'rA', b'aZ', b'gQ', b'hH', b'hG', b'aR', b'DD'])).rstrip(b'==').decode()
         self.token = ''.join([''.join(list(i)) for i in zip(gen_token(), gen_token())])[:length]
         """
-        characters = (
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.-~"
-        )
+        characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.-~"
         return "".join(random.choice(characters) for _ in range(length))

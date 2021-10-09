@@ -38,20 +38,14 @@ def test_getting_list_of_database_credentials_by_authorized_user(
 def test_getting_database_credential_info_by_unauthorized_user_must_fail(
     flask_app_client, regular_user_instance, regular_user_database_credential
 ):
-    response = flask_app_client.get(
-        f"/api/v1/database_credentials/{regular_user_database_credential.id}"
-    )
+    response = flask_app_client.get(f"/api/v1/database_credentials/{regular_user_database_credential.id}")
 
     assert403(response)
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)
-def test_getting_database_credential_info(
-    flask_app_client, login_as, regular_user_database_credential
-):
-    response = flask_app_client.get(
-        f"/api/v1/database_credentials/{regular_user_database_credential.id}"
-    )
+def test_getting_database_credential_info(flask_app_client, login_as, regular_user_database_credential):
+    response = flask_app_client.get(f"/api/v1/database_credentials/{regular_user_database_credential.id}")
 
     if login_as.is_admin or login_as.is_internal:
         assert response.status_code == 200

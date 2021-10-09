@@ -17,9 +17,7 @@ from tests.utils import assert401, assert403, assert_success
     ids=["get_admin_user", "get_internal_user", "get_regular_user"],
 )
 def test_getting_user(flask_app_client, login_as, user_to_get):
-    response = flask_app_client.post(
-        f"/api/v1/users/by_name", data={"username": user_to_get.username}
-    )
+    response = flask_app_client.post(f"/api/v1/users/by_name", data={"username": user_to_get.username})
 
     if user_to_get.is_internal:
         if login_as.is_internal:
@@ -62,16 +60,12 @@ def test_getting_user_deactivated(flask_app_client, login_as, user_to_get):
     assert401(response, User, login_as=login_as, action="None")
 
 
-def test_getting_list_of_users_by_unauthorized_user_must_fail(
-    flask_app_client, regular_user_instance
-):
+def test_getting_list_of_users_by_unauthorized_user_must_fail(flask_app_client, regular_user_instance):
     response = flask_app_client.get("/api/v1/users/")
     assert403(response, User, login_as=regular_user_instance, internal=True)
 
 
-def test_getting_list_of_users_by_authorized_user(
-    flask_app_client, admin_user_instance
-):
+def test_getting_list_of_users_by_authorized_user(flask_app_client, admin_user_instance):
     response = flask_app_client.get("/api/v1/users/")
 
     assert response.status_code == 200

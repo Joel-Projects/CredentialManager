@@ -1,6 +1,4 @@
-from flask_login import current_user
 from flask_marshmallow import base_fields
-from flask_restplus._http import HTTPStatus
 from marshmallow import validates
 
 from app.extensions.api.parameters import PaginationParameters, ValidateOwner
@@ -22,12 +20,8 @@ class ListRefreshTokensParameters(PaginationParameters, ValidateOwner):
 
 
 class GetRefreshTokenByRedditor(PostFormParameters):
-    reddit_app_id = base_fields.Integer(
-        required=True, description="Reddit app the Refresh Token is for"
-    )
-    redditor = base_fields.String(
-        required=True, description="Redditor the Refresh Token is for"
-    )
+    reddit_app_id = base_fields.Integer(required=True, description="Reddit app the Refresh Token is for")
+    redditor = base_fields.String(required=True, description="Redditor the Refresh Token is for")
 
     @validates("reddit_app_id")
     def validate_reddit_app(self, data):
@@ -39,26 +33,16 @@ class GetRefreshTokenByRedditor(PostFormParameters):
         permissions.OwnerRolePermission(reddit_app).__enter__()
 
 
-class CreateRefreshTokenParameters(
-    PostFormParameters, schemas.BaseRefreshTokenSchema, ValidateOwner
-):
-    reddit_app_id = base_fields.Integer(
-        required=True, description="Reddit app the Refresh Token is for"
-    )
-    redditor = base_fields.String(
-        required=True, description="Redditor the Refresh Token is for"
-    )
-    refresh_token = base_fields.String(
-        required=True, description="The actual Refresh Token"
-    )
+class CreateRefreshTokenParameters(PostFormParameters, schemas.BaseRefreshTokenSchema, ValidateOwner):
+    reddit_app_id = base_fields.Integer(required=True, description="Reddit app the Refresh Token is for")
+    redditor = base_fields.String(required=True, description="Redditor the Refresh Token is for")
+    refresh_token = base_fields.String(required=True, description="The actual Refresh Token")
     scopes = base_fields.List(
         base_fields.String(description="Scope"),
         required=True,
         description="Scopes the Refresh Token grants access to",
     )
-    revoked = base_fields.Boolean(
-        default=False, description="Indicates if the Refresh Token is revoked"
-    )
+    revoked = base_fields.Boolean(default=False, description="Indicates if the Refresh Token is revoked")
 
     class Meta(schemas.BaseRefreshTokenSchema.Meta):
         fields = schemas.BaseRefreshTokenSchema.Meta.fields

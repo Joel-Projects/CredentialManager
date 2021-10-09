@@ -72,9 +72,7 @@ class ApiTokenByID(Resource):
         """
         Delete a API Token by ID.
         """
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to delete API Token."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to delete API Token."):
             db.session.delete(api_token)
         return None
 
@@ -90,9 +88,7 @@ class ApiTokenByID(Resource):
         """
         Patch api_token details by ID.
         """
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to update API Token details."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to update API Token details."):
             parameters.PatchApiTokenDetailsParameters.perform_patch(args, api_token)
             db.session.merge(api_token)
         return api_token

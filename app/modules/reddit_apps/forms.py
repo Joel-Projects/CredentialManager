@@ -4,11 +4,7 @@ from wtforms_alchemy import URL, InputRequired, Unique
 
 from app.extensions import ModelForm
 
-from ...extensions.frontend.forms import (
-    ModelSelectField,
-    TextAreaFieldWithDefault,
-    owners,
-)
+from ...extensions.frontend.forms import ModelSelectField, TextAreaFieldWithDefault, owners
 from .models import RedditApp
 
 

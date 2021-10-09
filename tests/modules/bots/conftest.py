@@ -9,9 +9,7 @@ test_data = {"app_name": "bot"}
 
 
 @pytest.fixture()
-def regular_user_bot(
-    temp_db_instance_helper, regular_user, reddit_app, sentry_token, database_credential
-):
+def regular_user_bot(temp_db_instance_helper, regular_user, reddit_app, sentry_token, database_credential):
     reddit_app.owner = regular_user
     sentry_token.owner = regular_user
     database_credential.owner = regular_user
@@ -28,9 +26,7 @@ def regular_user_bot(
 
 
 @pytest.fixture()
-def admin_user_bot(
-    temp_db_instance_helper, admin_user, reddit_app, sentry_token, database_credential
-):
+def admin_user_bot(temp_db_instance_helper, admin_user, reddit_app, sentry_token, database_credential):
     reddit_app.owner = admin_user
     sentry_token.owner = admin_user
     database_credential.owner = admin_user
@@ -115,31 +111,23 @@ database_credential_test_data = {
 
 @pytest.fixture()
 def reddit_app(temp_db_instance_helper, regular_user):
-    for _ in temp_db_instance_helper(
-        RedditApp(owner=regular_user, **reddit_app_test_data)
-    ):
+    for _ in temp_db_instance_helper(RedditApp(owner=regular_user, **reddit_app_test_data)):
         yield _
 
 
 @pytest.fixture()
 def reddit_app2(temp_db_instance_helper, regular_user):
-    for _ in temp_db_instance_helper(
-        RedditApp(owner=regular_user, **reddit_app_test_data2)
-    ):
+    for _ in temp_db_instance_helper(RedditApp(owner=regular_user, **reddit_app_test_data2)):
         yield _
 
 
 @pytest.fixture()
 def sentry_token(temp_db_instance_helper, regular_user):
-    for _ in temp_db_instance_helper(
-        SentryToken(owner=regular_user, **sentry_token_test_data)
-    ):
+    for _ in temp_db_instance_helper(SentryToken(owner=regular_user, **sentry_token_test_data)):
         yield _
 
 
 @pytest.fixture()
 def database_credential(temp_db_instance_helper, regular_user):
-    for _ in temp_db_instance_helper(
-        DatabaseCredential(owner=regular_user, **database_credential_test_data)
-    ):
+    for _ in temp_db_instance_helper(DatabaseCredential(owner=regular_user, **database_credential_test_data)):
         yield _

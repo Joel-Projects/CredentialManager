@@ -45,16 +45,12 @@ def bots(page, per_page, order_by, sort_columns, sort_directions):
             code = 201
             data = {key: value for key, value in form.data.items() if value is not None}
             bot = Bot(**data)
-            with api.commit_or_abort(
-                db.session, default_error_message="Failed to create a new Bot."
-            ):
+            with api.commit_or_abort(db.session, default_error_message="Failed to create a new Bot."):
                 db.session.add(bot)
         else:
             return jsonify(status="error", errors=form.errors), code
     paginator = get_paginator(Bot, page, per_page, order_by, sort_columns)
-    table = BotTable(
-        paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
-    )
+    table = BotTable(paginator.items, sort_columns=sort_columns, sort_directions=sort_directions)
     form = BotForm()
     return (
         render_template(
@@ -85,18 +81,13 @@ def edit_bots(bot):
                     "database_credential_id",
                 ]:
                     item = item[:-3]
-                if (
-                    getattr(form, item, None) is not None
-                    and getattr(bot, item) != getattr(form, item).data
-                ):
+                if getattr(form, item, None) is not None and getattr(bot, item) != getattr(form, item).data:
                     if item in ["reddit_app", "sentry_token", "database_credential"]:
                         value = getattr(form, item).data.id
                         item = f"{item}_id"
                     else:
                         value = getattr(form, item).data
-                    items_to_update.append(
-                        {"op": "replace", "path": f"/{item}", "value": value}
-                    )
+                    items_to_update.append({"op": "replace", "path": f"/{item}", "value": value})
             if items_to_update:
                 for item in items_to_update:
                     PatchBotDetailsParameters().validate_patch_structure(item)

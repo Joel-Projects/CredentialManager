@@ -8,9 +8,7 @@ import pytest
         ("/api/v1/users/1", 401, None),
     ),
 )
-def test_users_options_unauthorized(
-    path, status_code, expected_allowed_methods, flask_app_client
-):
+def test_users_options_unauthorized(path, status_code, expected_allowed_methods, flask_app_client):
     response = flask_app_client.options(path)
 
     assert response.status_code == status_code
@@ -23,9 +21,7 @@ def test_users_options_unauthorized(
         ("/api/v1/users/{id}", "regular_user", {"OPTIONS", "PATCH", "GET"}),
     ),
 )
-def test_users_options_authorized(
-    path, test_user, expected_allowed_methods, flask_app_client, regular_user
-):
+def test_users_options_authorized(path, test_user, expected_allowed_methods, flask_app_client, regular_user):
     user_id = ""
     if test_user == "regular_user":
         user_id = regular_user.id

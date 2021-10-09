@@ -13,9 +13,7 @@ class BaseBotSchema(ModelSchema):
     Base Bot schema exposes only the most general fields.
     """
 
-    owner_id = base_fields.Integer(
-        description="Owner of the bot. Requires Admin to create for other users."
-    )
+    owner_id = base_fields.Integer(description="Owner of the bot. Requires Admin to create for other users.")
 
     class Meta:
         ordered = True
@@ -35,9 +33,7 @@ class DetailedBotSchema(BaseBotSchema):
 
     reddit_app = base_fields.Nested(DetailedRedditAppSchema, exclude=("enabled",))
     sentry_token = base_fields.Nested(DetailedSentryTokenSchema, exclude=("enabled",))
-    database_credential = base_fields.Nested(
-        DetailedDatabaseCredentialSchema, exclude=("enabled",)
-    )
+    database_credential = base_fields.Nested(DetailedDatabaseCredentialSchema, exclude=("enabled",))
 
     class Meta(BaseBotSchema.Meta):
         fields = BaseBotSchema.Meta.fields + (

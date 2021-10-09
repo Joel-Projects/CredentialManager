@@ -59,15 +59,12 @@ def users(page, per_page, order_by, sort_columns, sort_directions):
             data = {key: value for key, value in form.data.items() if value is not None}
             if "default_settings" in request.form:
                 data["default_settings"] = {
-                    item["key"]: item["value"]
-                    for item in json.loads(request.form["default_settings"])
+                    item["key"]: item["value"] for item in json.loads(request.form["default_settings"])
                 }
             user = User(**data)
             user.created_by = current_user.id
             user.updated_by = current_user.id
-            with api.commit_or_abort(
-                db.session, default_error_message="Failed to create a new User."
-            ):
+            with api.commit_or_abort(db.session, default_error_message="Failed to create a new User."):
                 db.session.add(user)
             code = 201
         else:
@@ -86,9 +83,7 @@ def users(page, per_page, order_by, sort_columns, sort_directions):
         if get_model(column):
             query = query.outerjoin(get_model(column))
     paginator = query.order_by(*order_by).paginate(page, per_page, error_out=False)
-    table = UserTable(
-        paginator.items, sort_columns=sort_columns, sort_directions=sort_directions
-    )
+    table = UserTable(paginator.items, sort_columns=sort_columns, sort_directions=sort_directions)
     return (
         render_template(
             "users.html",
@@ -103,9 +98,7 @@ def users(page, per_page, order_by, sort_columns, sort_directions):
 
 
 @users_blueprint.route("/u/<User:user>/", methods=["GET", "POST"])
-@users_blueprint.route(
-    "/profile", methods=["GET", "POST"], defaults={"user": current_user}
-)
+@users_blueprint.route("/profile", methods=["GET", "POST"], defaults={"user": current_user})
 @login_required
 @verify_editable("user")
 def edit_user(user):
@@ -146,9 +139,7 @@ def edit_user(user):
                 dict(
                     [
                         (
-                            a.replace("[Setting]", ".setting").replace(
-                                "[Default Value]", ".value"
-                            ),
+                            a.replace("[Setting]", ".setting").replace("[Default Value]", ".value"),
                             b,
                         )
                         for a, b in dict(request.form).items()
@@ -158,9 +149,7 @@ def edit_user(user):
             )
             default_settings = {}
             if "root" in unflattened_form:
-                default_settings = {
-                    item["setting"]: item["value"] for item in unflattened_form["root"]
-                }
+                default_settings = {item["setting"]: item["value"] for item in unflattened_form["root"]}
             if user.default_settings != default_settings:
                 items_to_update.append(
                     {
@@ -173,10 +162,7 @@ def edit_user(user):
             else:
                 new_default_settings = user.default_settings
             for item in PatchUserDetailsParameters.fields:
-                if (
-                    getattr(form, item, None) is not None
-                    and getattr(user, item) != getattr(form, item).data
-                ):
+                if getattr(form, item, None) is not None and getattr(user, item) != getattr(form, item).data:
                     if item == "username":
                         new_username = getattr(form, item).data
                     if item == "password" and not form.update_password.data:
@@ -226,10 +212,7 @@ def edit_user(user):
             users_form=form,
             enable_tablesorter=True,
             default_settings=json.dumps(
-                [
-                    {"Setting": key, "Default Value": value}
-                    for key, value in new_default_settings.items()
-                ]
+                [{"Setting": key, "Default Value": value} for key, value in new_default_settings.items()]
             ),
             show_old=show_old,
             **kwargs,
@@ -240,9 +223,7 @@ def edit_user(user):
 
 # noinspection PyUnresolvedReferences
 @users_blueprint.route("/u/<User:user>/<item>/", methods=["GET", "POST"])
-@users_blueprint.route(
-    "/profile/<item>/", methods=["GET", "POST"], defaults={"user": current_user}
-)
+@users_blueprint.route("/profile/<item>/", methods=["GET", "POST"], defaults={"user": current_user})
 @login_required
 def items_per_user(user, item):
     valid_items = {
@@ -275,9 +256,7 @@ def items_per_user(user, item):
         if form.validate_on_submit():
             data = {key: value for key, value in form.data.items() if value is not None}
             if data.get("create_sentry_app", None) is not None:  # pragma: no cover
-                if data.get("sentry_organization", None) and data.get(
-                    "sentry_team", None
-                ):
+                if data.get("sentry_organization", None) and data.get("sentry_team", None):
                     requestor = SentryRequestor(current_user.sentry_auth_token)
                     response = requestor.post(
                         f"/api/0/teams/{data['sentry_organization']}/{data['sentry_team']}/projects/",
@@ -300,9 +279,7 @@ def items_per_user(user, item):
                     else:
                         code = 400
                         return (
-                            jsonify(
-                                status="error", message="Failed to create Sentry token"
-                            ),
+                            jsonify(status="error", message="Failed to create Sentry token"),
                             code,
                         )
                 data.pop("create_sentry_app")

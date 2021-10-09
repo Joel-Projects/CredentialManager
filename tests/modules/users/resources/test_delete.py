@@ -24,15 +24,11 @@ def test_deleting_user(flask_app_client, login_as, user_to_delete):
         if login_as.is_internal:
             assert_success(response, None, User, None, delete_item_id=user_to_delete.id)
         else:
-            assert403(
-                response, User, old_item=user_to_delete, internal=True, action="deleted"
-            )
+            assert403(response, User, old_item=user_to_delete, internal=True, action="deleted")
     elif login_as.is_admin or login_as.is_internal:
         assert_success(response, None, User, None, delete_item_id=user_to_delete.id)
     else:
-        assert403(
-            response, User, old_item=user_to_delete, internal=True, action="deleted"
-        )
+        assert403(response, User, old_item=user_to_delete, internal=True, action="deleted")
 
 
 def test_deleting_self(flask_app_client, admin_user_instance):

@@ -3,11 +3,7 @@ import pytest
 from app.modules.users.models import User
 from tests.params import labels, users
 from tests.response_statuses import assert200, assert202, assert400, assert403
-from tests.utils import (
-    assert_message_flashed,
-    assert_rendered_template,
-    captured_templates,
-)
+from tests.utils import assert_message_flashed, assert_rendered_template, captured_templates
 
 
 def assert202Profile(response):
@@ -43,9 +39,7 @@ def test_user_detail_edit(flask_app_client, login_as, regular_user):
         if login_as.is_admin or login_as.is_internal:
             assert202(response)
             assert_rendered_template(templates, "edit_user.html")
-            assert_message_flashed(
-                templates, "User 'regular_user' saved successfully!", "success"
-            )
+            assert_message_flashed(templates, "User 'regular_user' saved successfully!", "success")
             modified_user = User.query.get(old_user.id)
             assert modified_user.reddit_username == "reddit_username"
             assert modified_user.is_admin
@@ -57,9 +51,7 @@ def test_user_detail_edit(flask_app_client, login_as, regular_user):
             assert modified_user == old_user
 
 
-def test_user_detail_edit_without_update_password(
-    flask_app_client, db, regular_user_instance
-):
+def test_user_detail_edit_without_update_password(flask_app_client, db, regular_user_instance):
     data = {
         "item_type": "users",
         "item_id": regular_user_instance.id,
@@ -75,9 +67,7 @@ def test_user_detail_edit_without_update_password(
     regular_user_instance.reddit_username = ""
     db.session.merge(regular_user_instance)
     with captured_templates(flask_app_client.application) as templates:
-        response = flask_app_client.post(
-            "/profile", content_type="application/x-www-form-urlencoded", data=data
-        )
+        response = flask_app_client.post("/profile", content_type="application/x-www-form-urlencoded", data=data)
         assert202(response)
         assert_rendered_template(templates, "edit_user.html")
         modified_user = User.query.get(regular_user_instance.id)
@@ -106,9 +96,7 @@ def test_user_detail_edit_self(flask_app_client, login_as):
         response = flask_app_client.post("/profile", data=data, follow_redirects=True)
         assert202(response)
         assert_rendered_template(templates, "edit_user.html")
-        assert_message_flashed(
-            templates, "User 'username' saved successfully!", "success"
-        )
+        assert_message_flashed(templates, "User 'username' saved successfully!", "success")
         modified_user = User.query.get(old_user.id)
         assert modified_user.reddit_username == "reddit_username"
         assert modified_user.password == "new_password"
@@ -140,16 +128,12 @@ def test_user_detail_edit_set_is_internal(flask_app_client, login_as, regular_us
         if login_as.is_internal:
             assert202(response)
             assert_rendered_template(templates, "edit_user.html")
-            assert_message_flashed(
-                templates, "User 'regular_user' saved successfully!", "success"
-            )
+            assert_message_flashed(templates, "User 'regular_user' saved successfully!", "success")
             assert modified_user.is_internal
         elif login_as.is_admin:
             assert400(response)
             assert_rendered_template(templates, "edit_user.html")
-            assert_message_flashed(
-                templates, "Failed to update User 'regular_user'", "error"
-            )
+            assert_message_flashed(templates, "Failed to update User 'regular_user'", "error")
             assert modified_user == old_user
         else:
             assert403(response, templates)
@@ -180,9 +164,7 @@ def test_user_detail_username(flask_app_client, login_as, regular_user):
         )
         if login_as.is_admin or login_as.is_internal:
             assert202(response)
-            assert_message_flashed(
-                templates, "User 'regular_user_new' saved successfully!", "success"
-            )
+            assert_message_flashed(templates, "User 'regular_user_new' saved successfully!", "success")
             assert response.location == "http://localhost/u/regular_user_new"
             modified_user = User.query.filter_by(username="regular_user_new").first()
             assert modified_user.username == "regular_user_new"
@@ -209,9 +191,7 @@ def test_user_detail_self_username(flask_app_client, login_as):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.post("/profile", json=data, follow_redirects=True)
         assert202Profile(response)
-        assert_message_flashed(
-            templates, "User 'new_username' saved successfully!", "success"
-        )
+        assert_message_flashed(templates, "User 'new_username' saved successfully!", "success")
         modified_user = User.query.filter_by(username="new_username").first()
         assert modified_user.username == "new_username"
 
@@ -236,9 +216,6 @@ def test_user_detail_conflicting_username(flask_app_client, login_as, regular_us
         assert response.status_code == 422
         assert response.mimetype == "text/html"
         assert_rendered_template(templates, "edit_user.html")
-        assert (
-            templates["templates"][0][1]["users_form"].errors["username"][0]
-            == "Already exists."
-        )
+        assert templates["templates"][0][1]["users_form"].errors["username"][0] == "Already exists."
         modified_user = User.query.get(original.id)
         assert modified_user.username == original.username

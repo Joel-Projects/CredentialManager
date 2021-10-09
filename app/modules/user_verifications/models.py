@@ -39,9 +39,7 @@ class UserVerification(db.Model, InfoAttrs):
     )
     owner_id = db.Column(
         db.Integer,
-        db.ForeignKey(
-            f"{BaseConfig.SCHEMA_NAME}.users.id", ondelete="CASCADE", onupdate="CASCADE"
-        ),
+        db.ForeignKey(f"{BaseConfig.SCHEMA_NAME}.users.id", ondelete="CASCADE", onupdate="CASCADE"),
         info={"label": "Owner", "description": "Owner of the verification."},
     )
     owner = db.relationship("User", backref=db.backref(__tablename__, lazy="dynamic"))

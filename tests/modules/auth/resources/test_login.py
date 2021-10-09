@@ -1,9 +1,7 @@
 from base64 import b64encode
 
 
-def test_regular_user_can_login_with_token(
-    flask_app_client, db, regular_user, regular_user_api_token
-):
+def test_regular_user_can_login_with_token(flask_app_client, db, regular_user, regular_user_api_token):
     headers = {"X-API-TOKEN": regular_user_api_token.token}
     response = flask_app_client.get("/api/v1/users/me", headers=headers)
 

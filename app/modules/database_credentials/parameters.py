@@ -17,12 +17,8 @@ class ListDatabaseCredentialsParameters(PaginationParameters, ValidateOwner):
     invalid_owner_message = "You can only query your own {}."
 
 
-class CreateDatabaseCredentialParameters(
-    PostFormParameters, schemas.BaseDatabaseCredentialSchema, ValidateOwner
-):
-    app_name = base_fields.String(
-        required=True, description="Name of the Database Credential"
-    )
+class CreateDatabaseCredentialParameters(PostFormParameters, schemas.BaseDatabaseCredentialSchema, ValidateOwner):
+    app_name = base_fields.String(required=True, description="Name of the Database Credential")
     database_flavor = base_fields.String(
         default="postgres",
         required=True,
@@ -42,37 +38,21 @@ class CreateDatabaseCredentialParameters(
         required=True,
         description="Port the database server listens on, defaults to `5432`",
     )
-    database_username = base_fields.String(
-        required=True, description="Username to use to connect to the database"
-    )
-    database_password = base_fields.String(
-        required=True, description="Password to use to connect to the database"
-    )
+    database_username = base_fields.String(required=True, description="Username to use to connect to the database")
+    database_password = base_fields.String(required=True, description="Password to use to connect to the database")
     use_ssh = base_fields.Boolean(
         default=False,
         description="Determines if the database will be connected to through a tunnel",
     )
-    ssh_host = base_fields.String(
-        description="The address of the server that the SSH tunnel will connect to"
-    )
+    ssh_host = base_fields.String(description="The address of the server that the SSH tunnel will connect to")
     ssh_port = base_fields.Integer(description="The port the SSH tunnel will use")
     ssh_username = base_fields.String(description="Username for the SSH tunnel")
     ssh_password = base_fields.String(description="Password for the SSH tunnel")
-    use_ssh_key = base_fields.Boolean(
-        default=False, description="Allows the credentials to be used"
-    )
-    private_key = base_fields.String(
-        description="SSH private key. Note: No validation will be performed."
-    )
-    private_key_passphrase = base_fields.String(
-        description="Passphrase for the SSH key"
-    )
-    enabled = base_fields.Boolean(
-        default=True, description="Allows the credentials to be used"
-    )
-    owner_id = base_fields.Integer(
-        description="Owner of the app. Requires Admin to create for other users."
-    )
+    use_ssh_key = base_fields.Boolean(default=False, description="Allows the credentials to be used")
+    private_key = base_fields.String(description="SSH private key. Note: No validation will be performed.")
+    private_key_passphrase = base_fields.String(description="Passphrase for the SSH key")
+    enabled = base_fields.Boolean(default=True, description="Allows the credentials to be used")
+    owner_id = base_fields.Integer(description="Owner of the app. Requires Admin to create for other users.")
 
     class Meta(schemas.DetailedDatabaseCredentialSchema.Meta):
         fields = schemas.DetailedDatabaseCredentialSchema.Meta.fields + ("owner_id",)

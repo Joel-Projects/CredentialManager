@@ -64,9 +64,7 @@ class Users(Resource):
         for perm in perms:
             if perm in args:
                 setattr(user, perm, args[perm])
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to create a new user."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to create a new user."):
             db.session.add(user)
         return user
 
@@ -104,9 +102,7 @@ class UserByID(Resource):
         Patch user details by ID.
         """
 
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to update user details."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to update user details."):
             parameters.PatchUserDetailsParameters.perform_patch(args, user)
             user.updated_by = current_user.id
             db.session.merge(user)
@@ -123,13 +119,9 @@ class UserByID(Resource):
         """
         Delete a user by ID.
         """
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to delete user."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to delete user."):
             if user == current_user:
-                http_exceptions.abort(
-                    code=HTTPStatus.CONFLICT, message="You can't delete yourself."
-                )
+                http_exceptions.abort(code=HTTPStatus.CONFLICT, message="You can't delete yourself.")
             db.session.delete(user)
         return None
 

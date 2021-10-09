@@ -22,21 +22,13 @@ def test_creating_sentry_token(flask_app_client, login_as, regular_user):
 def test_creating_sentry_token_for_self(flask_app_client, regular_user_instance):
     response = flask_app_client.post(path, data=data)
 
-    assert_success(
-        response, regular_user_instance, SentryToken, DetailedSentryTokenSchema
-    )
+    assert_success(response, regular_user_instance, SentryToken, DetailedSentryTokenSchema)
 
 
-def test_creating_sentry_token_for_self_with_owner(
-    flask_app_client, regular_user_instance
-):
-    response = flask_app_client.post(
-        path, data={"owner_id": regular_user_instance.id, **data}
-    )
+def test_creating_sentry_token_for_self_with_owner(flask_app_client, regular_user_instance):
+    response = flask_app_client.post(path, data={"owner_id": regular_user_instance.id, **data})
 
-    assert_success(
-        response, regular_user_instance, SentryToken, DetailedSentryTokenSchema
-    )
+    assert_success(response, regular_user_instance, SentryToken, DetailedSentryTokenSchema)
 
 
 @pytest.mark.parametrize("login_as", users, ids=labels)

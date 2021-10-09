@@ -126,48 +126,31 @@ def assert_success(response, owner, model, schema, delete_item_id=None):
             if response.json[field] and not field == "resource_type":
                 if isinstance(getattr(model, field), property):
                     assert isinstance(response.json[field], bool)
-                elif not isinstance(
-                    getattr(model, field), InstrumentedAttribute
-                ):  # pragma: no cover
+                elif not isinstance(getattr(model, field), InstrumentedAttribute):  # pragma: no cover
                     if getattr(model, field).type.python_type == datetime:
                         assert isinstance(response.json[field], str)
                     else:
-                        assert isinstance(
-                            response.json[field], getattr(model, field).type.python_type
-                        )
+                        assert isinstance(response.json[field], getattr(model, field).type.python_type)
         created_item = model.query.filter_by(id=response.json["id"]).first()
         assert created_item is not None
         if "owner_id" in response.json:
             assert response.json["owner_id"] == owner.id
         for field in set_to_test:
-            if (
-                not field == "resource_type"
-                and response.json[field]
-                and not field == "enabled"
-            ):
+            if not field == "resource_type" and response.json[field] and not field == "enabled":
                 if isinstance(getattr(created_item, field), datetime):
                     assert (
                         response.json[field]
-                        == datetime.astimezone(
-                            getattr(created_item, field), timezone.utc
-                        ).isoformat()
+                        == datetime.astimezone(getattr(created_item, field), timezone.utc).isoformat()
                     )
                 elif isinstance(getattr(created_item, field), Choice):
                     assert response.json[field] == getattr(created_item, field).code
                 elif issubclass(type(getattr(created_item, field)), Model):
                     for key, value in response.json[field].items():
                         if key != "resource_type":
-                            if isinstance(
-                                getattr(getattr(created_item, field), key), Choice
-                            ):
-                                assert (
-                                    getattr(getattr(created_item, field), key).code
-                                    == value
-                                )
+                            if isinstance(getattr(getattr(created_item, field), key), Choice):
+                                assert getattr(getattr(created_item, field), key).code == value
                             else:
-                                assert (
-                                    getattr(getattr(created_item, field), key) == value
-                                )
+                                assert getattr(getattr(created_item, field), key) == value
                 else:
                     if field != "resource_type":
                         assert response.json[field] == getattr(created_item, field)
@@ -192,9 +175,7 @@ def item_not_deleted(model, old_item):
     assert item is not None
 
 
-def __assert_response_error(
-    response, code, message, action="created", keys=None, message_attrs=None, **kwargs
-):
+def __assert_response_error(response, code, message, action="created", keys=None, message_attrs=None, **kwargs):
     if keys is None:
         keys = {"status", "message"}
     assert response.status_code == code
@@ -206,17 +187,11 @@ def __assert_response_error(
         for message_attr, message in message_attrs:
             assert response.json["messages"][message_attr] == message
     if action == "patch":
-        item_not_modified(
-            **{k: v for k, v in kwargs.items() if k in ["model", "old_item"]}
-        )
+        item_not_modified(**{k: v for k, v in kwargs.items() if k in ["model", "old_item"]})
     elif action == "created":
-        item_not_created(
-            **{k: v for k, v in kwargs.items() if k in ["model", "login_as"]}
-        )
+        item_not_created(**{k: v for k, v in kwargs.items() if k in ["model", "login_as"]})
     elif action == "deleted":
-        item_not_deleted(
-            **{k: v for k, v in kwargs.items() if k in ["model", "old_item"]}
-        )
+        item_not_deleted(**{k: v for k, v in kwargs.items() if k in ["model", "old_item"]})
 
 
 def assert401(response, model, *, login_as, action="None"):
@@ -230,9 +205,7 @@ def assert401(response, model, *, login_as, action="None"):
     )
 
 
-def assert403(
-    response, model, *, action=None, login_as=None, internal=False, old_item=None
-):
+def assert403(response, model, *, action=None, login_as=None, internal=False, old_item=None):
     if internal:
         __assert_response_error(
             response,
@@ -256,9 +229,7 @@ def assert403(
 
 
 def assert409(response, model, message, login_as, **kwargs):
-    __assert_response_error(
-        response, 409, message=message, model=model, login_as=login_as, **kwargs
-    )
+    __assert_response_error(response, 409, message=message, model=model, login_as=login_as, **kwargs)
 
 
 def assert422(response, model, message_attrs, *, login_as=None, **kwargs):

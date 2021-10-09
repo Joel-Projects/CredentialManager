@@ -105,9 +105,7 @@ def reddit_callback():
                 with db.session.begin():
                     db.session.add(refresh_token)
             if user_id:
-                user_verification = UserVerification.query.filter_by(
-                    user_id=user_id
-                ).first()
+                user_verification = UserVerification.query.filter_by(user_id=user_id).first()
                 if user_verification and user_verification.reddit_app == reddit_app:
                     user_verification.redditor = redditor
                     user_verification.verified_at = now
@@ -120,15 +118,9 @@ def reddit_callback():
                             requests.post(webhook, data={"content": f".done {user_id}"})
                     elif "webhook" in user_verification.extra_data:  # pragma: no cover
                         if isinstance(user_verification.extra_data["webhook"], dict):
-                            if {"prefix", "command", "url"} == set(
-                                user_verification.extra_data["webhook"]
-                            ):
-                                prefix = user_verification.extra_data["webhook"][
-                                    "prefix"
-                                ]
-                                command = user_verification.extra_data["webhook"][
-                                    "command"
-                                ]
+                            if {"prefix", "command", "url"} == set(user_verification.extra_data["webhook"]):
+                                prefix = user_verification.extra_data["webhook"]["prefix"]
+                                command = user_verification.extra_data["webhook"]["command"]
                                 webhook = user_verification.extra_data["webhook"]["url"]
                                 requests.post(
                                     webhook,

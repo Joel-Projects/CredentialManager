@@ -17,14 +17,10 @@ class ListSentryTokensParameters(PaginationParameters, ValidateOwner):
     invalid_owner_message = "You can only query your own {}."
 
 
-class CreateSentryTokenParameters(
-    PostFormParameters, schemas.BaseSentryTokenSchema, ValidateOwner
-):
+class CreateSentryTokenParameters(PostFormParameters, schemas.BaseSentryTokenSchema, ValidateOwner):
     app_name = base_fields.String(required=True, description="Name of the Sentry Token")
     dsn = base_fields.String(required=True, description="DSN of the Sentry Token")
-    owner_id = base_fields.Integer(
-        description="Owner of the token. Requires Admin to create for other users."
-    )
+    owner_id = base_fields.Integer(description="Owner of the token. Requires Admin to create for other users.")
 
     class Meta(schemas.BaseSentryTokenSchema.Meta):
         fields = schemas.BaseSentryTokenSchema.Meta.fields + ("owner_id",)

@@ -32,14 +32,10 @@ def test_modifying_bot(flask_app_client, regular_user_bot, login_as):
     if login_as.is_admin or login_as.is_internal:
         assert_success(response, regular_user_bot.owner, Bot, DetailedBotSchema)
     else:
-        assert403(
-            response, Bot, action="patch", internal=True, old_item=regular_user_bot
-        )
+        assert403(response, Bot, action="patch", internal=True, old_item=regular_user_bot)
 
 
-def test_modifying_bot_by_self(
-    flask_app_client, regular_user_instance, regular_user_bot
-):
+def test_modifying_bot_by_self(flask_app_client, regular_user_instance, regular_user_bot):
     regular_user_bot.owner = regular_user_instance
     response = flask_app_client.patch(
         f"/api/v1/bots/{regular_user_bot.id}",
@@ -49,9 +45,7 @@ def test_modifying_bot_by_self(
     assert_success(response, regular_user_instance, Bot, DetailedBotSchema)
 
 
-def test_modifying_bot_info_with_invalid_format_must_fail(
-    flask_app_client, regular_user_instance, regular_user_bot
-):
+def test_modifying_bot_info_with_invalid_format_must_fail(flask_app_client, regular_user_instance, regular_user_bot):
     regular_user_bot.owner = regular_user_instance
     response = flask_app_client.patch(
         f"/api/v1/bots/{regular_user_bot.id}",
@@ -89,9 +83,7 @@ def test_modifying_bot_info_with_conflict_data_must_fail(
     response = flask_app_client.patch(
         f"/api/v1/bots/{regular_user_bot.id}",
         content_type="application/json",
-        data=json.dumps(
-            [{"op": "replace", "path": "/app_name", "value": admin_user_bot.app_name}]
-        ),
+        data=json.dumps([{"op": "replace", "path": "/app_name", "value": admin_user_bot.app_name}]),
     )
 
     assert409(

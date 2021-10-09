@@ -93,9 +93,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
     )
     owner_id = db.Column(
         db.Integer,
-        db.ForeignKey(
-            f"{BaseConfig.SCHEMA_NAME}.users.id", ondelete="CASCADE", onupdate="CASCADE"
-        ),
+        db.ForeignKey(f"{BaseConfig.SCHEMA_NAME}.users.id", ondelete="CASCADE", onupdate="CASCADE"),
         info={"label": "Owner", "description": "Owner of the Reddit App"},
     )
     owner = db.relationship("User", backref=db.backref(__tablename__, lazy="dynamic"))
@@ -119,9 +117,7 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
         reddit = self.reddit_instance
         state = self.state
         if user_verification:
-            state = base64.urlsafe_b64encode(
-                f"{state}:{user_verification.user_id}".encode()
-            )
+            state = base64.urlsafe_b64encode(f"{state}:{user_verification.user_id}".encode())
         return reddit.auth.url(scopes, state, duration)
 
     @classmethod
@@ -142,16 +138,10 @@ class RedditApp(db.Model, Timestamp, InfoAttrs, StrName):
 
     def get_refresh_token(self, redditor):
         if current_user.is_admin or current_user.is_internal:
-            tokens = [
-                i
-                for i in self.refresh_tokens
-                if i.redditor == redditor and not i.revoked
-            ]
+            tokens = [i for i in self.refresh_tokens if i.redditor == redditor and not i.revoked]
         else:
             tokens = [
-                i
-                for i in self.refresh_tokens
-                if i.redditor == redditor and not i.revoked and i.owner == current_user
+                i for i in self.refresh_tokens if i.redditor == redditor and not i.revoked and i.owner == current_user
             ]
         if tokens:
             return tokens[0]

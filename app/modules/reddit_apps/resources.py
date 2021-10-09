@@ -2,9 +2,8 @@ import logging
 
 from flask_login import current_user
 from flask_restplus._http import HTTPStatus
-from sqlalchemy import not_
 
-from app.extensions.api import Namespace, abort, http_exceptions
+from app.extensions.api import Namespace, abort
 from flask_restplus_patched import Resource
 
 from .. import get_viewable_items
@@ -54,9 +53,7 @@ class RedditApps(Resource):
         args.owner = current_user
         if args.owner_id:
             args.owner = User.query.get(args.owner_id)
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to create a new Reddit App."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to create a new Reddit App."):
             db.session.add(args)
         return args
 
@@ -96,9 +93,7 @@ class RedditAppByID(Resource):
         code=HTTPStatus.FORBIDDEN,
         description="You don't have the permission to access other users' Refresh Tokens.",
     )
-    @api.response(
-        code=HTTPStatus.NOT_FOUND, description="Reddit App or Redditor not found."
-    )
+    @api.response(code=HTTPStatus.NOT_FOUND, description="Reddit App or Redditor not found.")
     def post(self, args, reddit_app: RedditApp):
         """
         Get Refresh Token by reddit app and redditor.
@@ -125,9 +120,7 @@ class RedditAppByID(Resource):
         Delete a Reddit App by ID.
         """
         try:
-            with api.commit_or_abort(
-                db.session, default_error_message="Failed to delete Reddit App."
-            ):
+            with api.commit_or_abort(db.session, default_error_message="Failed to delete Reddit App."):
                 db.session.delete(reddit_app)
         except Exception as error:  # pragma: no cover
             log.exception(error)
@@ -146,9 +139,7 @@ class RedditAppByID(Resource):
         """
         Patch reddit_app details by ID.
         """
-        with api.commit_or_abort(
-            db.session, default_error_message="Failed to update Reddit App details."
-        ):
+        with api.commit_or_abort(db.session, default_error_message="Failed to update Reddit App details."):
             parameters.PatchRedditAppDetailsParameters.perform_patch(args, reddit_app)
             db.session.merge(reddit_app)
         return reddit_app
@@ -179,11 +170,7 @@ class GenerateAuthUrl(Resource):
         if user_verification_id:
             user_verification = UserVerification.query.get_or_404(user_verification_id)
         if not user_verification and user_verification_user_id:
-            user_verification = UserVerification.query.filter_by(
-                user_id=user_verification_user_id
-            ).first_or_404()
-        auth_url = reddit_app.gen_auth_url(
-            args["scopes"], args["duration"], user_verification
-        )
+            user_verification = UserVerification.query.filter_by(user_id=user_verification_user_id).first_or_404()
+        auth_url = reddit_app.gen_auth_url(args["scopes"], args["duration"], user_verification)
         setattr(reddit_app, "auth_url", auth_url)
         return reddit_app

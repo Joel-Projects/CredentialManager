@@ -16,9 +16,7 @@ class CreateUserParameters(PostFormParameters, schemas.DetailedUserSchema):
     New user creation parameters.
     """
 
-    username = base_fields.String(
-        description="Username for new user (Example: ```spaz```)", required=True
-    )
+    username = base_fields.String(description="Username for new user (Example: ```spaz```)", required=True)
     password = base_fields.String(
         description="Password for new user (Example: ```supersecurepassword```)",
         required=True,
@@ -41,9 +39,7 @@ class CreateUserParameters(PostFormParameters, schemas.DetailedUserSchema):
         description="Is the user an admin? Allows the user to see all objects and create users (Default: ``false``)",
         default=False,
     )
-    is_regular_user = base_fields.Boolean(
-        description="(Internal use only)", default=True
-    )
+    is_regular_user = base_fields.Boolean(description="(Internal use only)", default=True)
     is_internal = base_fields.Boolean(description="(Internal use only)", default=False)
 
     @validates("is_internal")

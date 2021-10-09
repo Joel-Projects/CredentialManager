@@ -63,9 +63,7 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
     )
     owner_id = db.Column(
         db.Integer,
-        db.ForeignKey(
-            f"{BaseConfig.SCHEMA_NAME}.users.id", ondelete="CASCADE", onupdate="CASCADE"
-        ),
+        db.ForeignKey(f"{BaseConfig.SCHEMA_NAME}.users.id", ondelete="CASCADE", onupdate="CASCADE"),
         info={
             "label": "Owner",
             "description": "Owner of the refresh token. Determines what Reddit Apps are displayed.",
@@ -110,8 +108,5 @@ class RefreshToken(db.Model, InfoAttrs, StrName):
 
     @property
     def chunk_scopes(self):
-        scopes = [
-            (scope, scope in self.scopes, value["description"])
-            for scope, value in self.scope_json.items()
-        ]
+        scopes = [(scope, scope in self.scopes, value["description"]) for scope, value in self.scope_json.items()]
         return [scopes[x : x + 4] for x in range(0, len(scopes), 4)]
