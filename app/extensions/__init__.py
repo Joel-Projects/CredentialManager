@@ -1,6 +1,7 @@
 import os
 from logging import getLogger
 
+from flask.signals import request_finished
 from sqlalchemy import text
 
 from config import BaseConfig
@@ -70,6 +71,11 @@ def init_app(app):
     for extension in extensions:
         extension.init_app(app)
 
+    def expire_session(sender, response, **extra):
+        app.logger.info("expire all")
+        app.db.session.expire_all()
+
+    request_finished.connect(expire_session, app)
     app.register_error_handler(403, unauthorized_error)
     app.register_error_handler(404, not_found_error)
     try:
