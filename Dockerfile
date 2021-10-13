@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED 1
 
 COPY ./app/requirements.txt .
 
-RUN apt-get update && apt-get install -y --no-install-recommends gcc && \
+RUN apt-get update && apt-get install -y --no-install-recommends gcc build-essential && \
     pip wheel --no-cache-dir --wheel-dir /usr/src/app/wheels -r requirements.txt pip
 
 FROM python:3.9-slim-buster
