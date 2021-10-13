@@ -31,9 +31,9 @@ RUN pip install --upgrade pip && \
 
 COPY ./app /home/app/credmgr/app
 COPY ./config.py /home/app/credmgr/config.py
-COPY ./gunicorn.conf.py /home/app/credmgr/gunicorn.conf.py
+COPY ./uwsgi.ini /home/app/credmgr/uwsgi.ini
 COPY ./flask_restplus_patched /home/app/credmgr/flask_restplus_patched
 
 EXPOSE 5000
 
-CMD ["gunicorn"]
+CMD ["uwsgi", "uwsgi.ini"]

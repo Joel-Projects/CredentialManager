@@ -41,7 +41,6 @@ def create_app(flask_config_name=None, **kwargs):
     app.jinja_env.cache = {}
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
-    app.jinja_env.auto_reload = True
     app.jinja_env.add_extension("jinja2.ext.loopcontrols")
     from . import extensions
 
@@ -51,6 +50,7 @@ def create_app(flask_config_name=None, **kwargs):
 
     modules.init_app(app)
     db = extensions.db
-    db.create_all(app=app)
+    with app.app_context():
+        db.create_all(app=app)
     app.logger.info("app initialized")
     return app

@@ -52,7 +52,7 @@ class BaseConfig(object):
     STATIC_ROOT = os.path.join(PROJECT_ROOT, "static")
 
     SWAGGER_UI_JSONEDITOR = True
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_CHECK_DEFAULT = False
     WTF_CSRF_ENABLED = False
 
