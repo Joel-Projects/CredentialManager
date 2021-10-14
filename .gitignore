@@ -60,3 +60,4 @@ clients/*/dist
 /sql/
 /sqlold/
 .env
+!/ssl/
