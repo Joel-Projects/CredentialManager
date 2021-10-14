@@ -158,13 +158,18 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
         return None
 
     @classmethod
-    @cache.memoize(timeout=1800, )
     def find_with_api_token(cls, api_token):
-        api_token = ApiToken.query.filter_by(token=api_token).first()
-        if not api_token.enabled:
-            abort(401, "API Token invalid or disabled")
+        api_token = cls.get_user_id(api_token)
         user = cls.query.filter_by(id=api_token.owner_id).first()
         if user:
             with db.session.begin():
                 api_token.last_used = datetime.now()
             return user
+
+    @classmethod
+    @cache.memoize(timeout=1800)
+    def get_user_id(cls, api_token):
+        api_token = ApiToken.query.filter_by(token=api_token).first()
+        if not api_token.enabled:
+            abort(401, "API Token invalid or disabled")
+        return api_token.owner_id
