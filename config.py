@@ -21,7 +21,8 @@ class BaseConfig(object):
         "pool_use_lifo": True,
         "pool_pre_ping": True,
         "pool_recycle": 1800,
-        "pool_timeout": 20.
+        "pool_timeout": 20,
+        "echo_pool": True,
     }
     SQLALCHEMY_ECHO = False
     DEBUG = True
