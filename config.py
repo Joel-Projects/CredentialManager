@@ -25,8 +25,12 @@ class BaseConfig(object):
         "echo_pool": True,
     }
     SQLALCHEMY_ECHO = False
+
     DEBUG = True
     ERROR_404_HELP = False
+
+    CACHE_TYPE = 'FileSystemCache'
+    CACHE_DIR = 'cache'
 
     SWAGGER_SUPPORTED_SUBMIT_METHODS = ["get", "put", "post", "delete", "patch"]
     SWAGGER_UI_OPERATION_ID = True

@@ -56,6 +56,8 @@ class Logging(object):
             )
             gunicorn_error_logger = logging.getLogger("gunicorn.error")
             gunicorn_access_logger = logging.getLogger("gunicorn.access")
+            flask_caching_logger = logging.getLogger("flask_caching")
+            flask_caching_logger.setLevel(logging.DEBUG)
             app.logger.handlers = gunicorn_error_logger.handlers
             for handler in app.logger.handlers + gunicorn_access_logger.handlers:
                 handler.setFormatter(formatter)

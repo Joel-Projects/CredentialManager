@@ -10,6 +10,10 @@ from .logging import Logging
 
 logging = Logging()
 
+from flask_caching import Cache
+
+cache = Cache()
+
 from .flask_sqlalchemy import InfoAttrs, QueryProperty, SQLAlchemy, StrName, Timestamp
 
 db = SQLAlchemy()
@@ -59,6 +63,7 @@ def init_app(app):
     extensions = [
         cross_origin_resource_sharing,
         logging,
+        cache,
         db,
         login_manager,
         marshmallow,
