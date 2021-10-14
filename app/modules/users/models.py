@@ -160,7 +160,7 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
     @classmethod
     def find_with_api_token(cls, api_token):
         api_token = cls.get_user_id(api_token)
-        user = cls.query.filter_by(id=api_token.owner_id).first()
+        user = cls.query.filter_by(id=api_token).first()
         if user:
             with db.session.begin():
                 api_token.last_used = datetime.now()
