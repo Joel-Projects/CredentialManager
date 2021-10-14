@@ -18,12 +18,10 @@ class BaseConfig(object):
     DB_PORT = 5432
     SQLALCHEMY_DATABASE_URI = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     SQLALCHEMY_ENGINE_OPTIONS = {
-        "pool_use_lifo": True,
-        "pool_pre_ping": True,
         "echo_pool": "debug",
     }
-    SQLALCHEMY_ECHO = True
-    DEBUG = False
+    SQLALCHEMY_ECHO = False
+    DEBUG = True
     ERROR_404_HELP = False
 
     SWAGGER_SUPPORTED_SUBMIT_METHODS = ["get", "put", "post", "delete", "patch"]
