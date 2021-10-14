@@ -18,7 +18,10 @@ class BaseConfig(object):
     DB_PORT = 5432
     SQLALCHEMY_DATABASE_URI = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     SQLALCHEMY_ENGINE_OPTIONS = {
-        "echo_pool": "debug",
+        "pool_use_lifo": True,
+        "pool_pre_ping": True,
+        "pool_recycle": 1800,
+        "pool_timeout": 20.
     }
     SQLALCHEMY_ECHO = False
     DEBUG = True
