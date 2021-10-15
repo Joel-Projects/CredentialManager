@@ -5,7 +5,7 @@ from datetime import datetime
 from flask_login import UserMixin
 from sqlalchemy_utils import types as column_types
 
-from app.extensions import InfoAttrs, QueryProperty, StrName, Timestamp, cache, db
+from app.extensions import InfoAttrs, QueryProperty, StrName, Timestamp, cache, db, log
 from app.extensions.api import abort
 from app.modules.api_tokens.models import ApiToken
 from config import BaseConfig
@@ -160,6 +160,7 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
     @classmethod
     def find_with_api_token(cls, api_token):
         user_id, api_token_id = cls.get_user_id(api_token)
+        log.info('find_with_api_token: hitting database')
         user = cls.query.filter_by(id=user_id).first()
         if user:
             with db.session.begin():
@@ -169,6 +170,7 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
     @classmethod
     @cache.memoize(timeout=1800)
     def get_user_id(cls, api_token):
+        log.info('get_user_id: hitting database')
         api_token = ApiToken.query.filter_by(token=api_token).first()
         if not api_token.enabled:
             abort(401, "API Token invalid or disabled")
