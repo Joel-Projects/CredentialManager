@@ -1,15 +1,17 @@
 import enum
 import json
+import logging
 from datetime import datetime
 
 from flask_login import UserMixin
 from sqlalchemy_utils import types as column_types
 
-from app.extensions import InfoAttrs, QueryProperty, StrName, Timestamp, cache, db, log
+from app.extensions import InfoAttrs, QueryProperty, StrName, Timestamp, cache, db
 from app.extensions.api import abort
 from app.modules.api_tokens.models import ApiToken
 from config import BaseConfig
 
+log = logging.getLogger(__name__)
 
 def get_static_role(role_name, static_role):
     """
