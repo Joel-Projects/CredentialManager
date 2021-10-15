@@ -13,6 +13,7 @@ from config import BaseConfig
 
 log = logging.getLogger(__name__)
 
+
 def get_static_role(role_name, static_role):
     """
     A helper function that aims to provide a property getter and setter
@@ -162,7 +163,7 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
     @classmethod
     def find_with_api_token(cls, api_token):
         user_id, api_token_id = cls.get_user_id(api_token)
-        log.info('find_with_api_token: hitting database')
+        log.info("find_with_api_token: hitting database")
         user = cls.query.filter_by(id=user_id).first()
         if user:
             with db.session.begin():
@@ -172,7 +173,7 @@ class User(db.Model, Timestamp, UserMixin, InfoAttrs, StrName, QueryProperty):
     @classmethod
     @cache.memoize(timeout=1800)
     def get_user_id(cls, api_token):
-        log.info('get_user_id: hitting database')
+        log.info("get_user_id: hitting database")
         api_token = ApiToken.query.filter_by(token=api_token).first()
         if not api_token.enabled:
             abort(401, "API Token invalid or disabled")
