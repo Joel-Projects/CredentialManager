@@ -282,10 +282,10 @@ def items_per_user(user, item):
                             jsonify(status="error", message="Failed to create Sentry token"),
                             code,
                         )
-                data.pop("create_sentry_app")
-                data.pop("sentry_organization")
-                data.pop("sentry_team")
-                data.pop("sentry_platform")
+                data.pop("create_sentry_app", None)
+                data.pop("sentry_organization", None)
+                data.pop("sentry_team", None)
+                data.pop("sentry_platform", None)
             if item == "api_tokens":
                 length = int(data["length"])
             model = Model(owner_id=data["owner"].id, **data)

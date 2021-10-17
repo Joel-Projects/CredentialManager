@@ -75,10 +75,10 @@ def sentry_tokens(page, per_page, order_by, sort_columns, sort_directions):
             data = form.get_db_data()
             if sentrydsn:  # pragma: no cover
                 data["dsn"] = sentrydsn
-            data.pop("create_sentry_app")
-            data.pop("sentry_organization")
-            data.pop("sentry_team")
-            data.pop("sentry_platform")
+            data.pop("create_sentry_app", None)
+            data.pop("sentry_organization", None)
+            data.pop("sentry_team", None)
+            data.pop("sentry_platform", None)
             sentry_token = SentryToken(**data)
             with api.commit_or_abort(db.session, default_error_message="Failed to create a new Sentry Token."):
                 db.session.add(sentry_token)
