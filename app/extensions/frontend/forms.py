@@ -19,6 +19,9 @@ class ModelForm(BaseModelForm):
     def get_session(self):
         return db.session
 
+    def get_db_data(self):
+        return {key: value for key, value in self.data.items() if value not in [None, ""]}
+
 
 class TextArea(object):
     def __call__(self, field, **kwargs):

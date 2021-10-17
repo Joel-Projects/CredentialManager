@@ -42,7 +42,7 @@ def user_verifications(page, per_page, order_by, sort_columns, sort_directions):
                     code,
                 )  # pragma: no cover
             code = 201
-            data = {key: value for key, value in form.data.items() if value is not None}
+            data = form.get_db_data()
             if "extra_data" in form.data and form.data["extra_data"]:
                 data["extra_data"] = json.loads(form.data["extra_data"])
 

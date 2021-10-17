@@ -72,7 +72,7 @@ def sentry_tokens(page, per_page, order_by, sort_columns, sort_directions):
                             code,
                         )
             code = 201
-            data = {key: value for key, value in form.data.items() if value is not None}
+            data = form.get_db_data()
             if sentrydsn:  # pragma: no cover
                 data["dsn"] = sentrydsn
             data.pop("create_sentry_app")

@@ -42,7 +42,7 @@ def database_credentials(page, per_page, order_by, sort_columns, sort_directions
                         code,
                     )
             code = 201
-            data = {key: value for key, value in form.data.items() if value is not None}
+            data = form.get_db_data()
             database_credential = DatabaseCredential(**data)
             db.session.add(database_credential)
         else:

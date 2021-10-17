@@ -43,7 +43,7 @@ def api_tokens(page, per_page, order_by, sort_columns, sort_directions):
                         code,
                     )
             code = 201
-            data = {key: value for key, value in form.data.items() if value is not None}
+            data = form.get_db_data()
             data["token"] = ApiToken.generate_token(data["length"])
             api_token = ApiToken(**data)
             with api.commit_or_abort(db.session, default_error_message="Failed to create API Token."):

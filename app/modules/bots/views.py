@@ -43,7 +43,7 @@ def bots(page, per_page, order_by, sort_columns, sort_directions):
                         code,
                     )
             code = 201
-            data = {key: value for key, value in form.data.items() if value is not None}
+            data = form.get_db_data()
             bot = Bot(**data)
             with api.commit_or_abort(db.session, default_error_message="Failed to create a new Bot."):
                 db.session.add(bot)

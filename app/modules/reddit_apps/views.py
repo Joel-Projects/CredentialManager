@@ -41,7 +41,7 @@ def reddit_apps(page, per_page, order_by, sort_columns, sort_directions):
                     code,
                 )
             code = 201
-            data = {key: value for key, value in form.data.items() if value is not None}
+            data = form.get_db_data()
             reddit_app = RedditApp(**data)
             db.session.add(reddit_app)
         else:

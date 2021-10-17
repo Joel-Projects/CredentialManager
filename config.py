@@ -17,16 +17,9 @@ class BaseConfig(object):
     DB_HOST = "localhost"
     DB_PORT = 5432
     SQLALCHEMY_DATABASE_URI = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        "pool_use_lifo": True,
-        "pool_pre_ping": True,
-        "pool_recycle": 1800,
-        "pool_timeout": 20,
-        "echo_pool": True,
-    }
     SQLALCHEMY_ECHO = False
 
-    DEBUG = True
+    DEBUG = False
     ERROR_404_HELP = False
 
     CACHE_TYPE = "FileSystemCache"

@@ -56,7 +56,7 @@ def users(page, per_page, order_by, sort_columns, sort_directions):
     code = 200
     if request.method == "POST":
         if form.validate_on_submit():
-            data = {key: value for key, value in form.data.items() if value is not None}
+            data = form.get_db_data()
             if "default_settings" in request.form:
                 data["default_settings"] = {
                     item["key"]: item["value"] for item in json.loads(request.form["default_settings"])
@@ -254,7 +254,7 @@ def items_per_user(user, item):
     code = 200
     if request.method == "POST":
         if form.validate_on_submit():
-            data = {key: value for key, value in form.data.items() if value is not None}
+            data = form.get_db_data()
             if data.get("create_sentry_app", None) is not None:  # pragma: no cover
                 if data.get("sentry_organization", None) and data.get("sentry_team", None):
                     requestor = SentryRequestor(current_user.sentry_auth_token)
