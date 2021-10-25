@@ -56,6 +56,8 @@ class Swagger(OriginalSwagger):
                             need_to_go_down.add(key)
                 except AttributeError:
                     for name, param in method_doc["params"].__dict__.items():
+                        if name == "session":
+                            continue
                         if hasattr(param, "get"):
                             key = (name, param.get("in", "query"))
                             if key in up_params:  # pragma: no cover
