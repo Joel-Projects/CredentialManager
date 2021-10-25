@@ -25,7 +25,7 @@ def test_reddit_app_detail_self(flask_app_client, db, login_as, regular_user_red
         assert_rendered_template(templates, "reddit_apps.html")
 
 
-def test_non_existant_reddit_app_detail(flask_app_client, regular_user):
+def test_non_existent_reddit_app_detail(flask_app_client, regular_user):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.get(f"/reddit_apps/1")
         assert404(response, templates)

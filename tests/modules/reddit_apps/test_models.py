@@ -38,7 +38,6 @@ def test_reddit_app_get_app_from_state_with_user_id(
     import base64
 
     state = base64.urlsafe_b64encode(f"{reddit_app.state}:123456789012345678".encode()).decode()
-    user_id = 123456789012345678
     app, user_id = RedditApp.get_app_from_state(state)
     assert (reddit_app, user_id) == (app, user_id)
 

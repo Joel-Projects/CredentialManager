@@ -1,15 +1,12 @@
 import logging
 
-from flask_login import current_user
 from flask_restplus._http import HTTPStatus
-from werkzeug import security
 
-from app.extensions.api import Namespace, http_exceptions
+from app.extensions.api import Namespace
 from flask_restplus_patched import Resource
 
 from .. import get_viewable_items
 from ..users import permissions
-from ..users.models import User
 from . import parameters, schemas
 from .models import ApiToken, db
 
@@ -45,7 +42,7 @@ class ApiTokens(Resource):
 @api.resolve_object_to_model(ApiToken, "api_token")
 class ApiTokenByID(Resource):
     """
-    Manipulations with a specific API TOken.
+    Manipulations with a specific API Token.
     """
 
     @api.login_required()

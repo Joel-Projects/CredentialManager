@@ -97,7 +97,7 @@ def test_getting_redditor_from_user_id_with_reddit_app(
     assert response.json["redditor"] == admin_user_user_verification.redditor
 
 
-def test_getting_redditor_from_non_existant_redditor_with_bad_reddit_app(
+def test_getting_redditor_from_non_existent_redditor_with_bad_reddit_app(
     flask_app_client, regular_user_instance, admin_user_user_verification, reddit_app
 ):
     admin_user_user_verification.reddit_app = reddit_app
@@ -109,7 +109,7 @@ def test_getting_redditor_from_non_existant_redditor_with_bad_reddit_app(
     assert response.status_code == 404
 
 
-def test_getting_redditor_from_non_existant_user_id(flask_app_client, regular_user_instance):
+def test_getting_redditor_from_non_existent_user_id(flask_app_client, regular_user_instance):
     response = flask_app_client.post(
         "/api/v1/user_verifications/get_redditor",
         data={"user_id": "123456789012345678"},

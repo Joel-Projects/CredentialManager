@@ -3,8 +3,8 @@
     <div class="container">
         <form>
             <div class="custom-control custom-switch">
-                <input {% if show_old %} checked {% endif %}class="custom-control-input" id="show_invlalid" onclick='window.location.assign(`?show_old={{ not show_old }}${window.location.hash}`)' type="checkbox">
-                <label class="custom-control-label" for="show_invlalid">Show All</label>
+                <input {% if show_old %} checked {% endif %}class="custom-control-input" id="show_invalid" onclick='window.location.assign(`?show_old={{ not show_old }}${window.location.hash}`)' type="checkbox">
+                <label class="custom-control-label" for="show_invalid">Show All</label>
                 <small id="invalid_display_help" class="form-text text-muted">Check this to display old tokens</small>
             </div>
         </form>

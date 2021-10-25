@@ -33,25 +33,25 @@ $(function () {
 function save_item(button) {
     $(`#${button.id}`).disabled = true;
     $(`#${button.id}`).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>Saving...');
-};
+}
 
 function triggerLoading(button, message) {
     $(`#${button.id}`).disabled = true;
     $(`#${button.id}`).html(`<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>${message}...`);
-};
+}
 
 function doneLoading(button, buttonText) {
     $(`#${button.id}`).prop('disabled', false);
     $(`#${button.id}`).prop('class', 'btn btn-primary');
     $(`#${button.id}`).html(buttonText);
-};
+}
 
 
 function done_save(id, form) {
     $(`#${id}`).prop('disabled', false);
     $(`#${id}`).prop('class', 'btn btn-primary');
     $(`#${id}`).html('Save');
-};
+}
 
 function deleteTableItem(table, name, item_type, item_id, row_id) {
     $.ajax({
@@ -150,7 +150,7 @@ function toggle_item(item_type, id, name, nameAttr, enabledAttr) {
         });
 }
 
-function create_item(button, form, resource, additonal = false, editor) {
+function create_item(button, form, resource, additional = false, editor) {
     event.preventDefault();
     triggerLoading(button, 'Creating')
     var data = {};
@@ -180,7 +180,7 @@ function create_item(button, form, resource, additonal = false, editor) {
                     }
                 }
             } else {
-                if (additonal) {
+                if (additional) {
                     $(`#${form}`)[0].reset()
                 } else {
                     // window.location.reload()

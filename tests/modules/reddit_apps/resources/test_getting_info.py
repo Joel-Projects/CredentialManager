@@ -109,7 +109,7 @@ def test_getting_refresh_token_from_redditor(
     assert response.json["refresh_token"] == regular_user_refresh_token.refresh_token
 
 
-def test_getting_refresh_token_from_non_existant_redditor(
+def test_getting_refresh_token_from_non_existent_redditor(
     flask_app_client, regular_user_instance, regular_user_reddit_app
 ):
     regular_user_reddit_app.owner = regular_user_instance

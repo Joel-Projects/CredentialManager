@@ -25,7 +25,7 @@ def test_user_verification_detail_self(flask_app_client, db, login_as, regular_u
         assert_rendered_template(templates, "user_verifications.html")
 
 
-def test_non_existant_user_verification_detail(flask_app_client, regular_user):
+def test_non_existent_user_verification_detail(flask_app_client, regular_user):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.get(f"/user_verifications/1")
         assert404(response, templates)

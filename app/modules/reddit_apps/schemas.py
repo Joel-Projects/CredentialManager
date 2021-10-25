@@ -10,6 +10,8 @@ class BaseRedditAppSchema(ModelSchema):
     Base Reddit App schema exposes only the most general fields.
     """
 
+    owner_id = base_fields.Integer(description="Owner of the Reddit App. Requires Admin to create for other users.")
+
     class Meta:
         ordered = True
         model = RedditApp
@@ -43,6 +45,7 @@ class DetailedRedditAppSchema(BaseRedditAppSchema):
             RedditApp.state.key,
             RedditApp.owner_id.key,
         )
+        dump_only = BaseRedditAppSchema.Meta.dump_only + (RedditApp.state.key,)
 
     app_type = base_fields.String(
         description="Type of the app. One of `web`, `installed`, or `script`",

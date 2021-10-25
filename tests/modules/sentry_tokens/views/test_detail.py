@@ -25,7 +25,7 @@ def test_sentry_token_detail_self(flask_app_client, db, login_as, regular_user_s
         assert_rendered_template(templates, "sentry_tokens.html")
 
 
-def test_non_existant_sentry_token_detail(flask_app_client, regular_user):
+def test_non_existent_sentry_token_detail(flask_app_client, regular_user):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.get(f"/sentry_tokens/1")
         assert404(response, templates)

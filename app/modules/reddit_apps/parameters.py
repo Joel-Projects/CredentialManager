@@ -33,7 +33,6 @@ class CreateRedditAppParameters(PostFormParameters, schemas.DetailedRedditAppSch
         default="https://credmgr.jesassn.org/oauth2/reddit_callback",
     )
     enabled = base_fields.Boolean(default=True, description="Allows the app to be used")
-    owner_id = base_fields.Integer(description="Owner of the app. Requires Admin to create for other users.")
 
     @validates("app_name")
     def validate_name(self, data):
@@ -66,10 +65,10 @@ class PatchRedditAppDetailsParameters(PatchJSONParameters):
 
 class GenerateAuthUrlParameters(PostFormParameters):
     user_verification_id = base_fields.Integer(
-        description="Specify a User Verification ID to assoiate with auth url by User Verification ID"
+        description="Specify a User Verification ID to associate with the auth url by User Verification ID"
     )
     user_verification_user_id = base_fields.String(
-        description="Specify a User Verification ID to assoiate with auth url by User ID"
+        description="Specify a User Verification ID to associate with the auth url by User ID"
     )
     scopes = base_fields.List(
         base_fields.String(required=True),

@@ -25,7 +25,7 @@ def test_database_credential_detail_self(flask_app_client, db, login_as, regular
         assert_rendered_template(templates, "database_credentials.html")
 
 
-def test_non_existant_database_credential_detail(flask_app_client, regular_user):
+def test_non_existent_database_credential_detail(flask_app_client, regular_user):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.get(f"/database_credentials/1")
         assert404(response, templates)

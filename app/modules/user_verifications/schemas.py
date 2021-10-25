@@ -10,6 +10,10 @@ class BaseUserVerificationSchema(ModelSchema):
     Base User Verification schema exposes only the most general fields.
     """
 
+    owner_id = base_fields.Integer(
+        description="Owner of the User Verification. Requires Admin to create for other users."
+    )
+
     class Meta:
         ordered = True
         model = UserVerification

@@ -10,6 +10,8 @@ class BaseApiTokenSchema(ModelSchema):
     Base API Token schema exposes only the most general fields.
     """
 
+    owner_id = base_fields.Integer(description="Owner of the API Token. Requires Admin to create for other users.")
+
     class Meta:
         ordered = True
         model = ApiToken

@@ -25,7 +25,7 @@ def test_bot_detail_self(flask_app_client, db, login_as, regular_user_bot):
         assert_rendered_template(templates, "bots.html")
 
 
-def test_non_existant_bot_detail(flask_app_client, regular_user):
+def test_non_existent_bot_detail(flask_app_client, regular_user):
     with captured_templates(flask_app_client.application) as templates:
         response = flask_app_client.get(f"/bots/1")
         assert404(response, templates)

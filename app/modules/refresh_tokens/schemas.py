@@ -10,6 +10,8 @@ class BaseRefreshTokenSchema(ModelSchema):
     Base Refresh Token schema exposes only the most general fields.
     """
 
+    owner_id = base_fields.Integer(description="Owner of the Refresh Token.")
+
     class Meta:
         ordered = True
         model = RefreshToken

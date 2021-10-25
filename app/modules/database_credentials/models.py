@@ -27,7 +27,7 @@ class DatabaseCredential(db.Model, Timestamp, InfoAttrs, StrName):
         default="postgres",
         info={
             "label": "Database Kind",
-            "description": "Mostly for infomational purposes. Defaults to 'postgres'. Can be set in user defaults.",
+            "description": "Mostly for informational purposes. Defaults to 'postgres'. Can be set in user defaults.",
         },
     )
     database_host = db.Column(

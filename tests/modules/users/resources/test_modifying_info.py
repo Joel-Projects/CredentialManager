@@ -82,24 +82,6 @@ def test_modifying_user_info_by_admin(flask_app_client, admin_user_instance, reg
 
 
 def test_modifying_user_info_admin_fields_by_not_admin(flask_app_client, regular_user_instance, db):
-    data = [
-        {
-            "op": "replace",
-            "path": "/is_regular_user",
-            "value": False,
-        }
-    ]
-    response = flask_app_client.patch(
-        f"/api/v1/users/{regular_user_instance.id}",
-        content_type="application/json",
-        data=json.dumps(data),
-    )
-
-    assert response.status_code == 403
-    assert_correct_structure(response)
-
-
-def test_modifying_user_info_admin_fields_by_not_admin(flask_app_client, regular_user_instance, db):
     response = flask_app_client.patch(
         f"/api/v1/users/{regular_user_instance.id}",
         content_type="application/json",

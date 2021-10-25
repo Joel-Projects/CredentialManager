@@ -13,7 +13,7 @@ class BaseBotSchema(ModelSchema):
     Base Bot schema exposes only the most general fields.
     """
 
-    owner_id = base_fields.Integer(description="Owner of the bot. Requires Admin to create for other users.")
+    owner_id = base_fields.Integer(description="Owner of the Bot. Requires Admin to create for other users.")
 
     class Meta:
         ordered = True

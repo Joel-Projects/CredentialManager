@@ -54,7 +54,7 @@ def test_authorize_temp(db, flask_app_client, reddit_app, mocker, reddit, record
             assert templates["templates"][0][1]["success"]
 
 
-def test_authorize_exisiting(
+def test_authorize_existing(
     db,
     flask_app_client,
     reddit_app,

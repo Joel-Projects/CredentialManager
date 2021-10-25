@@ -49,7 +49,7 @@
                         <div class="col-md-4">
                             <div class="jumbotron">
                                 <h4>User Info</h4>
-                                <hr style="border-top: 1px solid" ;>
+                                <hr style="border-top: 1px solid">
                                 {% for attr, display_name in user._info_attrs.items() %}
                                     {% if attr == '_created_by.username' and (current_user.is_admin or current_user.is_internal) %}
                                         {% if user.created_by %}
