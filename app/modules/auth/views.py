@@ -1,7 +1,7 @@
 import logging
 
-from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, url_for
-from flask_login import current_user, login_user, logout_user
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask_login import login_user, logout_user
 
 log = logging.getLogger(__name__)
 from app.modules.api_tokens.models import db

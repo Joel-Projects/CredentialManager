@@ -2,7 +2,7 @@ import pytest
 
 from app.modules.bots.models import Bot
 from tests.params import labels, users
-from tests.response_statuses import assert201, assert403Create, assert422
+from tests.response_statuses import assert201, assert403Create
 from tests.utils import assert_created, assert_rendered_template, captured_templates
 
 data = {

@@ -1,4 +1,3 @@
-from flask import request
 from flask_login import current_user
 from wtforms import StringField
 from wtforms.validators import InputRequired, Length
@@ -7,7 +6,6 @@ from wtforms_alchemy import Unique
 from app.extensions import ModelForm
 
 from ...extensions.frontend.forms import ModelSelectField, check_model_owner, owners
-from ..users.models import User
 from .models import Bot
 
 

@@ -3,7 +3,7 @@ import logging
 from flask_login import current_user
 from flask_restplus._http import HTTPStatus
 
-from app.extensions.api import Namespace, http_exceptions
+from app.extensions.api import Namespace
 from flask_restplus_patched import Resource
 
 from .. import get_viewable_items

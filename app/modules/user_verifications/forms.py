@@ -7,7 +7,6 @@ from wtforms.fields import TextAreaField
 from app.extensions import ModelForm
 
 from ...extensions.frontend.forms import ModelSelectField, owners, reddit_apps
-from ..reddit_apps.models import RedditApp
 from .models import UserVerification
 
 

@@ -1,6 +1,5 @@
 import logging
 
-from flask_sqlalchemy import BaseQuery
 from permission import Permission
 
 from . import rules

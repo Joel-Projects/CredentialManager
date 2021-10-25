@@ -4,7 +4,7 @@ from flask_restplus._http import HTTPStatus
 from marshmallow import validates
 
 from app.extensions.api import abort
-from flask_restplus_patched import Parameters, PatchJSONParameters, PostFormParameters
+from flask_restplus_patched import PatchJSONParameters, PostFormParameters
 
 from ...extensions.api.parameters import JSON
 from . import permissions, schemas

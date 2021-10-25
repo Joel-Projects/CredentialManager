@@ -1,9 +1,8 @@
 import json
 import logging
 
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, flash, jsonify, redirect, render_template, request
 from flask_login import current_user, login_required
-from sqlalchemy import or_
 from unflatten import unflatten
 
 from ...extensions import ModelForm, db, paginate_args, requires_admin, verify_editable

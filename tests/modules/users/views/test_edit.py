@@ -2,7 +2,7 @@ import pytest
 
 from app.modules.users.models import User
 from tests.params import labels, users
-from tests.response_statuses import assert200, assert202, assert400, assert403
+from tests.response_statuses import assert202, assert400, assert403
 from tests.utils import assert_message_flashed, assert_rendered_template, captured_templates
 
 

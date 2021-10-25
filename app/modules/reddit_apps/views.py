@@ -5,7 +5,6 @@ from flask_login import current_user, login_required
 
 from ...extensions import db, paginate_args, verify_editable
 from .. import get_paginator
-from ..users.models import User
 from .parameters import PatchRedditAppDetailsParameters
 from .resources import api
 

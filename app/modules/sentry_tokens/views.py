@@ -1,13 +1,10 @@
 import logging
-from datetime import datetime, timezone
 
 from flask import Blueprint, flash, jsonify, render_template, request
 from flask_login import current_user, login_required
-from wtforms import BooleanField
 
 from ...extensions import db, paginate_args, verify_editable
 from .. import get_paginator
-from ..users.models import User
 from .parameters import PatchSentryTokenDetailsParameters
 from .resources import api
 from .sentry_requestor import SentryRequestor

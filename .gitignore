@@ -61,4 +61,4 @@ clients/*/dist
 /sqlold/
 .env
 !/ssl/
-/cache/
+*/cache/

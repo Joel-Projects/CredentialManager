@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 import requests
 from flask import Blueprint, render_template, request
 from flask_login import current_user, login_required
-from sqlalchemy import or_
 
 from ...extensions import db, paginate_args, verify_editable
 from ..reddit_apps.models import RedditApp
